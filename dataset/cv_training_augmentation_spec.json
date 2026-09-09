@@ -1,0 +1,68 @@
+{
+  "pipeline_name": "SIH26204_Robust_Tourist_Vision_Augmentation",
+  "target_resolution": [
+    384,
+    384
+  ],
+  "augmentations": [
+    {
+      "type": "RandomPerspective",
+      "distortion_scale": 0.3,
+      "p": 0.7,
+      "desc": "Simulates low-angle ground shots"
+    },
+    {
+      "type": "ColorJitter",
+      "brightness": 0.4,
+      "contrast": 0.4,
+      "saturation": 0.3,
+      "p": 0.8,
+      "desc": "Simulates midday sun vs. dusk"
+    },
+    {
+      "type": "RandomErasing",
+      "scale": [
+        0.05,
+        0.25
+      ],
+      "p": 0.5,
+      "desc": "Simulates crowd and foreground occlusion"
+    },
+    {
+      "type": "GaussianBlur",
+      "kernel_size": [
+        3,
+        7
+      ],
+      "sigma": [
+        0.1,
+        2.0
+      ],
+      "p": 0.3,
+      "desc": "Simulates tourist walking motion blur"
+    },
+    {
+      "type": "ISO_SensorNoise",
+      "variance": [
+        0.01,
+        0.05
+      ],
+      "p": 0.4,
+      "desc": "Simulates budget mobile low-light sensor noise"
+    }
+  ],
+  "backbones_supported": [
+    {
+      "model": "google/siglip-base-patch16-384",
+      "purpose": "Zero-shot visual text embedding"
+    },
+    {
+      "model": "facebook/dinov2-small",
+      "purpose": "Fine-grained architectural feature extraction"
+    },
+    {
+      "model": "mobilenet_v4_conv_small",
+      "purpose": "Ultra-low latency (12ms) Android NPU edge deployment"
+    }
+  ]
+}
