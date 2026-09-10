@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(uuid())
+  name        String?
+  email       String?      @unique
+  language    String       @default("en")
+  isGuest     Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  preferences Preference?
+  favorites   Favorite[]
+  itineraries Itinerary[]
+}
+
+model Preference {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  interests     String[]
+  travelStyle   String   @default("moderate")
+  duration      String   @default("90min")
+  accessibility String[]
+}
+
+model Place {
+  id             String          @id @default(uuid())
+  name           String
+  nameHi         String?
+  nameGu         String?
+  latitude       Float
+  longitude      Float
+  category       String
+  imageUrl       String?
+  openingHours   String?
+  rating         Float?
+  shortDescription String?
+  heritageRecord HeritageRecord?
+  artifacts      Artifact[]
+  favorites      Favorite[]
+  createdAt      DateTime        @default(now())
+}
+
+model HeritageRecord {
+  id            String   @id @default(uuid())
+  placeId       String   @unique
+  place         Place    @relation(fields: [placeId], references: [id])
+  shortStory    String
+  shortStoryHi  String?
+  shortStoryGu  String?
+  history       String
+  historyHi     String?
+  historyGu     String?
+  significance  String
+  architecture  String?
+  keyFacts      String[]
+  period        String?
+  sources       Source[]
+}
+
+model Source {
+  id             String         @id @default(uuid())
+  heritageId     String
+  heritageRecord HeritageRecord @relation(fields: [heritageId], references: [id])
+  sourceName     String
+  sourceUrl      String?
+  referenceText  String
+}
+
+model Artifact {
+  id          String @id @default(uuid())
+  placeId     String
+  place       Place  @relation(fields: [placeId], references: [id])
+  name        String
+  nameHi      String?
+  nameGu      String?
+  imageUrl    String?
+  description String
+  descriptionHi String?
+  descriptionGu String?
+  visionLabel String
+}
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  placeId   String
+  user      User     @relation(fields: [userId], references: [id])
+  place     Place    @relation(fields: [placeId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, placeId])
+}
+
+model Itinerary {
+  id        String          @id @default(uuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id])
+  title     String?
+  duration  String
+  totalTime Int
+  createdAt DateTime        @default(now())
+  items     ItineraryItem[]
+}
+
+model ItineraryItem {
+  id            String    @id @default(uuid())
+  itineraryId   String
+  itinerary     Itinerary @relation(fields: [itineraryId], references: [id])
+  placeId       String
+  placeName     String
+  order         Int
+  visitDuration Int
+  travelTime    Int
+  travelMode    String    @default("walk")
+  reason        String
+}
