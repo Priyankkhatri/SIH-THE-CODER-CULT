@@ -9,15 +9,18 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, BorderRadius, LANGUAGES, INTERESTS_OPTIONS, TRAVEL_STYLES } from '../../constants/theme';
-import { useUserStore, usePlacesStore } from '../../stores';
+import { useUserStore, usePlacesStore, useOfflineStore } from '../../stores';
 import { useTranslation } from '../../hooks/useTranslation';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { name, language, interests, travelStyle, duration, setLanguage, setPreferences, setOnboarded } = useUserStore();
+  const insets = useSafeAreaInsets();
+  const { name, email, isGuest, language, interests, travelStyle, duration, setLanguage, setPreferences, setOnboarded, logout } = useUserStore();
   const { t } = useTranslation();
   const { favorites } = usePlacesStore();
+  const { downloadedPackages } = useOfflineStore();
 
   const currentLang = LANGUAGES.find((l) => l.code === language);
   const currentStyle = TRAVEL_STYLES.find((s) => s.key === travelStyle);
@@ -40,22 +43,87 @@ export default function ProfileScreen() {
     );
   };
 
+  const handleSignOut = () => {
+    Alert.alert(
+      'Sign Out',
+      'Sign out of your session?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+            router.replace('/auth/login' as any);
+          },
+        },
+      ]
+    );
+  };
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.avatarCircle}>
-          <Text style={styles.avatarText}>{name.charAt(0).toUpperCase()}</Text>
+          <Text style={styles.avatarText}>{(name || 'T').charAt(0).toUpperCase()}</Text>
         </View>
         <Text style={styles.userName}>{name}</Text>
-        <View style={styles.guestBadge}>
-          <MaterialIcons name="person-outline" size={14} color={Colors.primary} />
-          <Text style={styles.guestText}>{t('common.guestMode')}</Text>
+        <View style={styles.badgeRow}>
+          <View style={styles.guestBadge}>
+            <MaterialIcons name={isGuest ? 'person-outline' : 'verified-user'} size={14} color={Colors.primary} />
+            <Text style={styles.guestText}>{isGuest ? 'Guest Explorer' : (email || 'Member')}</Text>
+          </View>
         </View>
+
+        {isGuest && (
+          <TouchableOpacity style={styles.loginBannerBtn} onPress={() => router.push('/auth/login' as any)}>
+            <MaterialIcons name="login" size={16} color={Colors.background} />
+            <Text style={styles.loginBannerText}>Sign in to sync saved tours</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {/* Language */}
+        {/* Quick Menu Hub */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Dashboard</Text>
+          <View style={styles.menuGrid}>
+            <TouchableOpacity style={styles.menuCard} onPress={() => router.push('/favorites' as any)}>
+              <View style={[styles.menuIconWrap, { backgroundColor: 'rgba(239, 83, 80, 0.12)' }]}>
+                <MaterialIcons name="favorite" size={24} color={Colors.error} />
+              </View>
+              <Text style={styles.menuCardTitle}>Saved Places</Text>
+              <Text style={styles.menuCardCount}>{favorites.length} saved</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuCard} onPress={() => router.push('/settings/downloads' as any)}>
+              <View style={[styles.menuIconWrap, { backgroundColor: 'rgba(76, 175, 80, 0.12)' }]}>
+                <MaterialIcons name="cloud-done" size={24} color={Colors.success} />
+              </View>
+              <Text style={styles.menuCardTitle}>Offline Data</Text>
+              <Text style={styles.menuCardCount}>{Object.keys(downloadedPackages).length} packs</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuCard} onPress={() => router.push('/itinerary/create' as any)}>
+              <View style={[styles.menuIconWrap, { backgroundColor: 'rgba(91, 143, 185, 0.12)' }]}>
+                <MaterialIcons name="route" size={24} color={Colors.accent} />
+              </View>
+              <Text style={styles.menuCardTitle}>New Itinerary</Text>
+              <Text style={styles.menuCardCount}>AI Curated</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuCard} onPress={() => router.push('/settings' as any)}>
+              <View style={[styles.menuIconWrap, { backgroundColor: 'rgba(212, 169, 71, 0.12)' }]}>
+                <MaterialIcons name="settings" size={24} color={Colors.primary} />
+              </View>
+              <Text style={styles.menuCardTitle}>Settings</Text>
+              <Text style={styles.menuCardCount}>All options</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Language Selection */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('profile.languageSection')}</Text>
           <View style={styles.langRow}>
@@ -104,66 +172,51 @@ export default function ProfileScreen() {
         {/* Travel Style */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('profile.travelStyleSection')}</Text>
-          {TRAVEL_STYLES.map((style) => (
+          {TRAVEL_STYLES.map((st) => (
             <TouchableOpacity
-              key={style.key}
-              style={[styles.styleCard, travelStyle === style.key && styles.styleActive]}
-              onPress={() => setPreferences({ travelStyle: style.key })}
+              key={st.key}
+              style={[styles.styleCard, travelStyle === st.key && styles.styleActive]}
+              onPress={() => setPreferences({ travelStyle: st.key })}
             >
-              <Text style={styles.styleIcon}>{style.icon}</Text>
+              <Text style={styles.styleIcon}>{st.icon}</Text>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.styleLabel, travelStyle === style.key && styles.activeText]}>
-                  {t('options.styles.' + style.key + '.label')}
+                <Text style={[styles.styleLabel, travelStyle === st.key && styles.activeText]}>
+                  {t('options.styles.' + st.key + '.label')}
                 </Text>
-                <Text style={styles.styleDesc}>{t('options.styles.' + style.key + '.desc')}</Text>
+                <Text style={styles.styleDesc}>{t('options.styles.' + st.key + '.desc')}</Text>
               </View>
-              {travelStyle === style.key && (
+              {travelStyle === st.key && (
                 <MaterialIcons name="check-circle" size={20} color={Colors.primary} />
               )}
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Stats */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{language === 'hi' ? 'आपके आंकड़े' : language === 'gu' ? 'તમારા આંકડા' : 'Your Stats'}</Text>
-          <View style={styles.statsRow}>
-            <View style={styles.statCard}>
-              <MaterialIcons name="favorite" size={22} color={Colors.error} />
-              <Text style={styles.statValue}>{favorites.length}</Text>
-              <Text style={styles.statLabel}>{language === 'hi' ? 'सहेजे गए' : language === 'gu' ? 'સાચવેલા' : 'Saved'}</Text>
-            </View>
-            <View style={styles.statCard}>
-              <MaterialIcons name="translate" size={22} color={Colors.accent} />
-              <Text style={styles.statValue}>{currentLang?.name || 'English'}</Text>
-              <Text style={styles.statLabel}>{language === 'hi' ? 'भाषा' : language === 'gu' ? 'ભાષા' : 'Language'}</Text>
-            </View>
-            <View style={styles.statCard}>
-              <MaterialIcons name="schedule" size={22} color={Colors.primary} />
-              <Text style={styles.statValue}>{duration}</Text>
-              <Text style={styles.statLabel}>{language === 'hi' ? 'समय' : language === 'gu' ? 'સમય' : 'Duration'}</Text>
-            </View>
-          </View>
-        </View>
-
         {/* App Info */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{language === 'hi' ? 'ऐप के बारे में' : language === 'gu' ? 'ઍપ વિશે' : 'About'}</Text>
+          <Text style={styles.sectionTitle}>Application</Text>
           <View style={styles.infoCard}>
-            <Text style={styles.appName}>AI Tourist Companion</Text>
+            <Text style={styles.appName}>AI-Powered Intelligent Tourist Companion</Text>
             <Text style={styles.appDesc}>
-              Heritage discovery reimagined for the mobile tourist.{'\n'}
-              SIH26204 — Internal College Hackathon
+              Smart India Hackathon (SIH26204) — Travel & Tourism.{'\n'}
+              RAG Heritage Guidance • Vision Artifacts • Multilingual TTS • Dynamic Itineraries
             </Text>
-            <Text style={styles.appVersion}>Version 1.0.0</Text>
+            <Text style={styles.appVersion}>Prototype v1.0.0 (Internal College Edition)</Text>
           </View>
         </View>
 
-        {/* Reset */}
-        <TouchableOpacity style={styles.resetBtn} onPress={handleResetOnboarding}>
-          <MaterialIcons name="logout" size={18} color={Colors.error} />
-          <Text style={styles.resetText}>{t('profile.resetApp')}</Text>
-        </TouchableOpacity>
+        {/* Actions */}
+        <View style={styles.actionsGroup}>
+          <TouchableOpacity style={styles.resetBtn} onPress={handleResetOnboarding}>
+            <MaterialIcons name="restart-alt" size={18} color={Colors.textSecondary} />
+            <Text style={styles.resetText}>Re-run Setup Tour</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
+            <MaterialIcons name="logout" size={18} color={Colors.error} />
+            <Text style={styles.signOutText}>{isGuest ? 'Exit Guest Session' : 'Sign Out'}</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -176,61 +229,111 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    paddingTop: 60,
-    paddingBottom: Spacing.xl,
+    paddingVertical: Spacing.xl,
     borderBottomWidth: 1,
     borderBottomColor: Colors.divider,
+    gap: Spacing.xs,
   },
   avatarCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.xs,
   },
   avatarText: {
     fontSize: Typography.sizes['2xl'],
     fontWeight: '800',
-    color: Colors.textInverse,
+    color: Colors.background,
   },
   userName: {
-    fontSize: Typography.sizes.xl,
+    fontSize: Typography.sizes.lg,
     fontWeight: '700',
     color: Colors.text,
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   guestBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: 6,
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingVertical: 3,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.primary + '20',
+    backgroundColor: 'rgba(212, 169, 71, 0.15)',
   },
   guestText: {
     fontSize: Typography.sizes.xs,
     color: Colors.primary,
     fontWeight: '600',
   },
+  loginBannerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.md,
+    marginTop: Spacing.sm,
+  },
+  loginBannerText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '700',
+    color: Colors.background,
+  },
   scrollContent: {
-    padding: Spacing.xl,
-    paddingBottom: 120,
+    padding: Spacing.base,
+    paddingBottom: 100,
+    gap: Spacing.xl,
   },
   section: {
-    marginBottom: Spacing['2xl'],
+    gap: Spacing.sm,
   },
   sectionTitle: {
-    fontSize: Typography.sizes.md,
+    fontSize: Typography.sizes.base,
     fontWeight: '700',
     color: Colors.text,
-    marginBottom: Spacing.md,
+  },
+  menuGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.md,
+  },
+  menuCard: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.base,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    gap: 4,
+  },
+  menuIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  menuCardTitle: {
+    fontSize: Typography.sizes.sm,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  menuCardCount: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.textMuted,
   },
   langRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: Spacing.sm,
   },
   langCard: {
     flex: 1,
@@ -238,36 +341,37 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: Colors.border,
     gap: 4,
   },
   langActive: {
     borderColor: Colors.primary,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: 'rgba(212, 169, 71, 0.12)',
   },
   langFlag: {
     fontSize: 24,
   },
   langName: {
-    fontSize: Typography.sizes.sm,
+    fontSize: Typography.sizes.xs,
     fontWeight: '600',
-    color: Colors.text,
+    color: Colors.textSecondary,
   },
   langNameActive: {
     color: Colors.primary,
+    fontWeight: '700',
   },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: Spacing.sm,
   },
   interestChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.surface,
     borderWidth: 1,
@@ -275,109 +379,103 @@ const styles = StyleSheet.create({
   },
   interestActive: {
     borderColor: Colors.primary,
-    backgroundColor: Colors.primary + '20',
+    backgroundColor: 'rgba(212, 169, 71, 0.15)',
   },
   interestIcon: {
     fontSize: 16,
   },
   interestLabel: {
     fontSize: Typography.sizes.sm,
-    fontWeight: '600',
     color: Colors.textSecondary,
   },
   activeText: {
     color: Colors.primary,
+    fontWeight: '700',
   },
   styleCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: Spacing.md,
     padding: Spacing.base,
-    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
-    borderWidth: 2,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
     borderColor: Colors.border,
-    marginBottom: 8,
+    marginBottom: Spacing.xs,
   },
   styleActive: {
     borderColor: Colors.primary,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: 'rgba(212, 169, 71, 0.1)',
   },
   styleIcon: {
-    fontSize: 28,
+    fontSize: 24,
   },
   styleLabel: {
-    fontSize: Typography.sizes.md,
+    fontSize: Typography.sizes.sm,
     fontWeight: '600',
     color: Colors.text,
   },
   styleDesc: {
     fontSize: Typography.sizes.xs,
-    color: Colors.textMuted,
+    color: Colors.textSecondary,
     marginTop: 2,
   },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  statCard: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 6,
-    padding: Spacing.base,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  statValue: {
-    fontSize: Typography.sizes.md,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-  statLabel: {
-    fontSize: Typography.sizes.xs,
-    color: Colors.textMuted,
-  },
   infoCard: {
-    padding: Spacing.xl,
+    padding: Spacing.base,
+    borderRadius: BorderRadius.lg,
     backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.xl,
     borderWidth: 1,
     borderColor: Colors.border,
-    alignItems: 'center',
+    gap: 4,
   },
   appName: {
-    fontSize: Typography.sizes.lg,
-    fontWeight: '800',
+    fontSize: Typography.sizes.sm,
+    fontWeight: '700',
     color: Colors.primary,
-    marginBottom: 8,
   },
   appDesc: {
-    fontSize: Typography.sizes.sm,
+    fontSize: Typography.sizes.xs,
     color: Colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 8,
+    lineHeight: 18,
   },
   appVersion: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 11,
     color: Colors.textMuted,
+    marginTop: 4,
+  },
+  actionsGroup: {
+    gap: Spacing.sm,
   },
   resetBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 14,
+    gap: 6,
+    padding: Spacing.md,
     borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.error + '40',
-    backgroundColor: Colors.error + '10',
+    borderColor: Colors.border,
   },
   resetText: {
-    fontSize: Typography.sizes.base,
-    color: Colors.error,
+    color: Colors.textSecondary,
+    fontSize: Typography.sizes.sm,
     fontWeight: '600',
+  },
+  signOutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: 'rgba(239, 83, 80, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 83, 80, 0.3)',
+  },
+  signOutText: {
+    color: Colors.error,
+    fontSize: Typography.sizes.sm,
+    fontWeight: '700',
   },
 });

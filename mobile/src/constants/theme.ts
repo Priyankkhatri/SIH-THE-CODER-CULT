@@ -136,13 +136,24 @@ export const CATEGORIES = [
 ] as const;
 
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
-// API Configuration - adapts automatically to Web, iOS, and Android emulator
-export const API_BASE_URL = Platform.select({
-  android: 'http://10.0.2.2:3000',
-  default: 'http://localhost:3000',
-});
-// For physical device testing, replace with your LAN IP e.g. 'http://192.168.1.X:3000'
+// Automatically detect host IP from Expo bundler connection (Expo Go on physical devices)
+const expoHostUri =
+  Constants.expoConfig?.hostUri ||
+  (Constants as any).manifest2?.extra?.expoClient?.hostUri ||
+  (Constants as any).manifest?.debuggerHost;
+
+const detectedHostIp = expoHostUri ? expoHostUri.split(':')[0] : null;
+
+// Auto-resolves to dev machine LAN IP (192.168.1.92:3000) for mobile devices, or localhost for web
+export const API_BASE_URL = detectedHostIp
+  ? `http://${detectedHostIp}:3000`
+  : Platform.select({
+      web: 'http://localhost:3000',
+      default: 'http://192.168.1.92:3000',
+    });
+
 
 // Language configuration
 export const LANGUAGES = [

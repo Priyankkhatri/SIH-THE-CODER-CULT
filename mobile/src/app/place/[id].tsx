@@ -128,16 +128,37 @@ export default function PlaceDetailScreen() {
 
   const categoryColor = CATEGORY_COLORS[heritage.place.category] || Colors.primary;
 
+  const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
+    heritage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80',
+    museum: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=1200&q=80',
+    culture: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=80',
+    food: 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=1200&q=80',
+    activity: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1200&q=80',
+  };
+
+  const defaultHeroFallback = CATEGORY_FALLBACK_IMAGES[heritage.place.category] || CATEGORY_FALLBACK_IMAGES.heritage;
+  const rawHeroUri = heritage.place.imageUrl;
+  const initialHeroUri = (rawHeroUri && !rawHeroUri.includes('upload.wikimedia.org')) ? rawHeroUri : defaultHeroFallback;
+  const [heroUri, setHeroUri] = useState<string>(initialHeroUri);
+
+  useEffect(() => {
+    const raw = heritage?.place?.imageUrl;
+    const fallback = CATEGORY_FALLBACK_IMAGES[heritage?.place?.category || 'heritage'] || CATEGORY_FALLBACK_IMAGES.heritage;
+    setHeroUri((raw && !raw.includes('upload.wikimedia.org')) ? raw : fallback);
+  }, [heritage?.place?.imageUrl, heritage?.place?.category]);
+
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Hero Image */}
         <View style={styles.heroSection}>
           <Image
-            source={{ uri: heritage.place.imageUrl }}
+            source={{ uri: heroUri }}
             style={styles.heroImage}
             contentFit="cover"
-            transition={400}
+            placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+            transition={300}
+            onError={() => setHeroUri(defaultHeroFallback)}
           />
           <View style={styles.heroOverlay} />
 
@@ -242,7 +263,7 @@ export default function PlaceDetailScreen() {
           )}
 
           {/* Sources */}
-          {heritage.sources.length > 0 && (
+          {heritage.sources && heritage.sources.length > 0 && (
             <View style={styles.sourcesSection}>
               <Text style={styles.sectionTitle}>{t('place.verifiedSources')}</Text>
               {heritage.sources.map((source, idx) => (
@@ -263,6 +284,22 @@ export default function PlaceDetailScreen() {
               ))}
             </View>
           )}
+
+          {/* Deep Heritage Link */}
+          <TouchableOpacity
+            style={styles.deepHeritageBtn}
+            onPress={() => router.push(`/place/${id}/heritage`)}
+            activeOpacity={0.85}
+          >
+            <View style={styles.deepHeritageIconWrap}>
+              <MaterialIcons name="history-edu" size={24} color={Colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.deepHeritageTitle}>Explore Full Heritage Archive</Text>
+              <Text style={styles.deepHeritageSubtitle}>Read verified ASI chronicles, architectural breakdowns & citations</Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={22} color={Colors.primary} />
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -303,7 +340,7 @@ function getDemoHeritage(placeId: string): HeritageDetail | null {
       period: '1878-1890',
       placeName: 'Laxmi Vilas Palace',
       sources: [{ sourceName: 'Archaeological Survey of India', sourceUrl: 'https://asi.nic.in', referenceText: 'Listed as a Grade I heritage structure.' }],
-      place: { id: 'p1-laxmi-vilas', name: 'Laxmi Vilas Palace', latitude: 22.2932, longitude: 73.1903, category: 'heritage', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Lukshmi_Vilas_Palace.jpg/1280px-Lukshmi_Vilas_Palace.jpg', openingHours: '9:30 AM - 5:00 PM', rating: 4.6 },
+      place: { id: 'p1-laxmi-vilas', name: 'Laxmi Vilas Palace', latitude: 22.2932, longitude: 73.1903, category: 'heritage', imageUrl: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80', openingHours: '9:30 AM - 5:00 PM', rating: 4.6 },
     },
   };
 
@@ -539,5 +576,36 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.xs,
     color: Colors.textMuted,
     lineHeight: 16,
+  },
+  deepHeritageBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.base,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 169, 71, 0.3)',
+    gap: Spacing.md,
+    marginTop: Spacing.base,
+    marginBottom: Spacing.xl,
+  },
+  deepHeritageIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deepHeritageTitle: {
+    fontSize: Typography.sizes.sm,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  deepHeritageSubtitle: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.textSecondary,
+    lineHeight: 16,
+    marginTop: 2,
   },
 });

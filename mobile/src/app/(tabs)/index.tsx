@@ -41,17 +41,25 @@ export default function HomeScreen() {
     setLoading(true);
     try {
       const response: any = await placesApi.getNearby(
-        location.latitude,
-        location.longitude,
+        location.latitude || 22.3072,
+        location.longitude || 73.1812,
         50,
         selectedCategory || undefined
       );
-      if (response?.data) {
-        setPlaces(response.data);
+      const list = Array.isArray(response) ? response : (response?.data || []);
+      if (list && list.length > 0) {
+        setPlaces(list);
+      } else {
+        const allRes: any = await placesApi.getAll(selectedCategory || undefined);
+        const allList = Array.isArray(allRes) ? allRes : (allRes?.data || []);
+        if (allList.length > 0) {
+          setPlaces(allList);
+        } else {
+          setPlaces(DEMO_PLACES);
+        }
       }
     } catch (error) {
-      console.log('Using demo data — backend not connected');
-      // Provide demo data so the app works without backend
+      console.warn('[HomeScreen] Backend fetch failed, using fallback:', error);
       setPlaces(DEMO_PLACES);
     } finally {
       setLoading(false);
@@ -59,10 +67,9 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    if (!location.isLoading) {
-      fetchPlaces();
-    }
-  }, [location.isLoading, selectedCategory]);
+    fetchPlaces();
+  }, [selectedCategory, location.latitude, location.longitude]);
+
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -225,7 +232,7 @@ const DEMO_PLACES: Place[] = [
     latitude: 22.2932,
     longitude: 73.1903,
     category: 'heritage',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Lukshmi_Vilas_Palace.jpg/1280px-Lukshmi_Vilas_Palace.jpg',
+    imageUrl: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80',
     openingHours: '9:30 AM - 5:00 PM',
     rating: 4.6,
     shortDescription: 'Grand royal palace of the Gaekwad dynasty, four times the size of Buckingham Palace.',
@@ -238,7 +245,7 @@ const DEMO_PLACES: Place[] = [
     latitude: 22.3103,
     longitude: 73.1879,
     category: 'museum',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Baroda_Museum.jpg/1280px-Baroda_Museum.jpg',
+    imageUrl: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=1200&q=80',
     openingHours: '10:30 AM - 5:30 PM',
     rating: 4.3,
     shortDescription: 'One of the oldest museums in Gujarat with Mughal miniatures and a blue whale skeleton.',
@@ -251,7 +258,7 @@ const DEMO_PLACES: Place[] = [
     latitude: 22.3149,
     longitude: 73.1729,
     category: 'heritage',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Eme_temple_baroda.jpg/1280px-Eme_temple_baroda.jpg',
+    imageUrl: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1200&q=80',
     openingHours: '6:00 AM - 9:00 PM',
     rating: 4.4,
     shortDescription: 'Unique multi-faith temple built by the Indian Army with an aluminum dome.',
@@ -263,7 +270,7 @@ const DEMO_PLACES: Place[] = [
     latitude: 22.3009,
     longitude: 73.1941,
     category: 'culture',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Sursagar_Talav.jpg/1280px-Sursagar_Talav.jpg',
+    imageUrl: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=80',
     openingHours: 'Open 24 hours',
     rating: 4.1,
     shortDescription: 'Historic lake in the heart of Vadodara with a towering Shiva statue.',
@@ -275,7 +282,7 @@ const DEMO_PLACES: Place[] = [
     latitude: 22.3108,
     longitude: 73.1892,
     category: 'culture',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Sayaji_Baug_Baroda.jpg/1280px-Sayaji_Baug_Baroda.jpg',
+    imageUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1200&q=80',
     openingHours: '5:30 AM - 10:30 PM',
     rating: 4.5,
     shortDescription: 'Sprawling 113-acre garden commissioned by Maharaja Sayajirao III.',
@@ -287,7 +294,7 @@ const DEMO_PLACES: Place[] = [
     latitude: 22.4860,
     longitude: 73.5339,
     category: 'heritage',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Champaner.jpg/1280px-Champaner.jpg',
+    imageUrl: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=1200&q=80',
     openingHours: '8:30 AM - 5:00 PM',
     rating: 4.7,
     shortDescription: 'UNESCO World Heritage Site with remarkable Hindu-Muslim architecture.',

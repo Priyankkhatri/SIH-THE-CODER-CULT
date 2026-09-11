@@ -50,16 +50,21 @@ export default function OnboardingScreen() {
   };
 
   const handleFinish = () => {
-    setLanguage(selectedLanguage);
-    setPreferences({
-      interests: selectedInterests,
-      travelStyle: selectedStyle,
-      duration: selectedDuration,
-    });
-    setUser(`guest-${Date.now()}`, `guest-token-${Date.now()}`, 'Tourist');
-    setOnboarded(true);
+    try {
+      setLanguage(selectedLanguage);
+      setPreferences({
+        interests: selectedInterests,
+        travelStyle: selectedStyle,
+        duration: selectedDuration,
+      });
+      setUser(`guest-${Date.now()}`, `guest-token-${Date.now()}`, 'Tourist');
+      setOnboarded(true);
+    } catch (e) {
+      console.warn('Onboarding state save:', e);
+    }
     router.replace('/(tabs)');
   };
+
 
   const toggleInterest = (key: string) => {
     setSelectedInterests((prev) =>
