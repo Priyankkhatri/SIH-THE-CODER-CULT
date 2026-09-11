@@ -9,6 +9,14 @@
 
 *Demo focus: Vadodara (Gujarat) · National coverage in datasets*
 
+<p align="center">
+  <img src="docs/images/logo.svg" alt="AI Tourist Companion" width="96" height="96" />
+</p>
+
+<p align="center">
+  <img src="docs/images/banner.svg" alt="AI Tourist Companion — hero banner" width="100%" />
+</p>
+
 </div>
 
 ---
