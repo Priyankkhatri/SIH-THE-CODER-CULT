@@ -464,3 +464,5 @@ export async function seedDatabase() {
   console.log(`   Sources: ${SOURCES_DATA.length}`);
   console.log(`   Artifacts: ${ARTIFACTS_DATA.length}`);
 }
+
+export { PLACES_DATA, HERITAGE_RECORDS, SOURCES_DATA, ARTIFACTS_DATA };

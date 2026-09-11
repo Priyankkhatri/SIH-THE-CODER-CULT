@@ -5,11 +5,11 @@ const router = Router();
 
 // GET /heritage/:placeId - Full heritage record for a place
 router.get('/:placeId', async (req: Request, res: Response) => {
-  const { placeId } = req.params;
+  const placeId = req.params.placeId as string;
   const lang = (req.query.lang as string) || 'en';
 
-  const record = await prisma.heritageRecord.findUnique({
-    where: { placeId },
+  const record: any = await prisma.heritageRecord.findUnique({
+    where: { placeId: placeId as string },
     include: {
       sources: true,
       place: {
@@ -53,7 +53,7 @@ router.get('/:placeId', async (req: Request, res: Response) => {
 // GET /heritage/:placeId/sources - Get source references
 router.get('/:placeId/sources', async (req: Request, res: Response) => {
   const record = await prisma.heritageRecord.findUnique({
-    where: { placeId: req.params.placeId },
+    where: { placeId: req.params.placeId as string },
     select: { id: true },
   });
 

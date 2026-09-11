@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { useUserStore, usePlacesStore, useChatStore } from '../../stores';
+import { useTranslation } from '../../hooks/useTranslation';
 import type { Place } from '../../stores';
 import { placesApi } from '../../services/api';
 import { useLocation } from '../../hooks/useLocation';
@@ -29,6 +30,7 @@ const QUICK_ACTIONS = [
 export default function HomeScreen() {
   const router = useRouter();
   const { name, language } = useUserStore();
+  const { t } = useTranslation();
   const { places, setPlaces, favorites, toggleFavorite, isLoading, setLoading } = usePlacesStore();
   const { setContext } = useChatStore();
   const location = useLocation();
@@ -96,10 +98,27 @@ export default function HomeScreen() {
 
   const greeting = () => {
     const hour = new Date().getHours();
+    if (language === 'hi') {
+      if (hour < 12) return 'शुभ प्रभात';
+      if (hour < 17) return 'शुभ दोपहर';
+      return 'शुभ संध्या';
+    }
+    if (language === 'gu') {
+      if (hour < 12) return 'શુભ સવાર';
+      if (hour < 17) return 'શુભ બપોર';
+      return 'શુભ સાંજ';
+    }
     if (hour < 12) return 'Good Morning';
     if (hour < 17) return 'Good Afternoon';
     return 'Good Evening';
   };
+
+  const quickActionsList = [
+    { key: 'explore', label: t('home.exploreMap'), icon: 'map', color: Colors.accent },
+    { key: 'ai', label: t('home.askAiGuide'), icon: 'auto-awesome', color: Colors.primary },
+    { key: 'camera', label: t('home.identifyArtifact'), icon: 'camera-alt', color: Colors.secondary },
+    { key: 'plan', label: t('home.planHeritageTour'), icon: 'route', color: Colors.success },
+  ];
 
   return (
     <View style={styles.container}>
@@ -117,16 +136,16 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.locationBadge}>
             <MaterialIcons name="place" size={16} color={Colors.primary} />
             <Text style={styles.locationText}>
-              {location.isLoading ? 'Locating...' : `${location.city}, ${location.region}`}
+              {location.isLoading ? t('common.locating') : `${location.city}, ${location.region}`}
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Quick Actions */}
         <View style={styles.quickActionsSection}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={styles.sectionTitle}>{t('home.quickActions')}</Text>
           <View style={styles.quickActionsGrid}>
-            {QUICK_ACTIONS.map((action) => (
+            {quickActionsList.map((action) => (
               <TouchableOpacity
                 key={action.key}
                 style={styles.quickActionCard}
@@ -145,8 +164,8 @@ export default function HomeScreen() {
         {/* Nearby Heritage Sites */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Nearby Heritage Sites</Text>
-            <Text style={styles.sectionCount}>{filteredPlaces.length} places</Text>
+            <Text style={styles.sectionTitle}>{t('home.nearbyHeritageSites')}</Text>
+            <Text style={styles.sectionCount}>{filteredPlaces.length} {t('home.placesCount')}</Text>
           </View>
 
           {/* Category Filter */}
@@ -156,7 +175,7 @@ export default function HomeScreen() {
           {isLoading ? (
             <View style={styles.loadingWrap}>
               <ActivityIndicator size="large" color={Colors.primary} />
-              <Text style={styles.loadingText}>Discovering heritage sites...</Text>
+              <Text style={styles.loadingText}>{t('home.discoveringHeritage')}</Text>
             </View>
           ) : filteredPlaces.length > 0 ? (
             <FlatList
@@ -172,14 +191,14 @@ export default function HomeScreen() {
           ) : (
             <View style={styles.emptyWrap}>
               <MaterialIcons name="search-off" size={48} color={Colors.textMuted} />
-              <Text style={styles.emptyText}>No places found in this category</Text>
+              <Text style={styles.emptyText}>{t('home.noPlacesFound')}</Text>
             </View>
           )}
         </View>
 
         {/* All Places List */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>All Nearby Places</Text>
+          <Text style={styles.sectionTitle}>{t('home.allNearbyPlaces')}</Text>
           {filteredPlaces.map((place) => (
             <PlaceCard
               key={place.id}

@@ -15,6 +15,7 @@ import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../constants
 import { visionApi } from '../services/api';
 import { useLocation } from '../hooks/useLocation';
 import { useChatStore } from '../stores';
+import { useTranslation } from '../hooks/useTranslation';
 
 const { width } = Dimensions.get('window');
 
@@ -46,6 +47,7 @@ const DEMO_CATALOG = [
 ];
 
 export default function CameraScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const location = useLocation();
   const { setContext } = useChatStore();
@@ -121,13 +123,13 @@ export default function CameraScreen() {
     return (
       <View style={[styles.container, styles.centerContent]}>
         <MaterialIcons name="camera-alt" size={64} color={Colors.textMuted} />
-        <Text style={styles.permTitle}>Camera Access Required</Text>
-        <Text style={styles.permDesc}>We need camera access to identify heritage artifacts.</Text>
+        <Text style={styles.permTitle}>{t('camera.permTitle')}</Text>
+        <Text style={styles.permDesc}>{t('camera.permDesc')}</Text>
         <TouchableOpacity style={styles.permBtn} onPress={requestPermission}>
-          <Text style={styles.permBtnText}>Grant Permission</Text>
+          <Text style={styles.permBtnText}>{t('camera.grantPermission')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backLink}>← Go back</Text>
+          <Text style={styles.backLink}>{t('common.goBack')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -154,7 +156,7 @@ export default function CameraScreen() {
           <TouchableOpacity style={styles.topBtn} onPress={() => router.back()}>
             <MaterialIcons name="close" size={26} color={Colors.text} />
           </TouchableOpacity>
-          <Text style={styles.topTitle}>🔍 Identify Artifact</Text>
+          <Text style={styles.topTitle}>🔍 {t('camera.title')}</Text>
           <TouchableOpacity style={styles.topBtn} onPress={() => setShowCatalog(!showCatalog)}>
             <MaterialIcons name="collections" size={24} color={Colors.text} />
           </TouchableOpacity>
@@ -164,7 +166,7 @@ export default function CameraScreen() {
         {isIdentifying && (
           <View style={styles.identifyingOverlay}>
             <ActivityIndicator size="large" color={Colors.primary} />
-            <Text style={styles.identifyingText}>Analyzing artifact...</Text>
+            <Text style={styles.identifyingText}>{t('camera.identifying')}</Text>
           </View>
         )}
       </CameraView>
@@ -183,7 +185,7 @@ export default function CameraScreen() {
                   </View>
                   <View style={styles.confidenceBadge}>
                     <Text style={styles.confidenceText}>
-                      Confidence: {result.artifact?.confidence}%
+                      {t('camera.confidence')}: {result.artifact?.confidence}%
                     </Text>
                   </View>
                   <Text style={styles.resultDesc}>{result.artifact?.description}</Text>
@@ -200,12 +202,12 @@ export default function CameraScreen() {
                         onPress={() => router.push(`/place/${result.placeId}`)}
                       >
                         <MaterialIcons name="info" size={18} color={Colors.textInverse} />
-                        <Text style={styles.viewDetailsBtnText}>View Details</Text>
+                        <Text style={styles.viewDetailsBtnText}>{t('common.viewDetails')}</Text>
                       </TouchableOpacity>
                     )}
                     <TouchableOpacity style={styles.askAiBtn} onPress={handleAskAbout}>
                       <MaterialIcons name="auto-awesome" size={18} color={Colors.primary} />
-                      <Text style={styles.askAiBtnText}>Ask AI</Text>
+                      <Text style={styles.askAiBtnText}>{t('common.askAi')}</Text>
                     </TouchableOpacity>
                   </View>
                 </>
@@ -219,15 +221,15 @@ export default function CameraScreen() {
                 style={styles.retryBtn}
                 onPress={() => setResult(null)}
               >
-                <Text style={styles.retryText}>Scan Again</Text>
+                <Text style={styles.retryText}>{t('common.scanAgain')}</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
         ) : showCatalog ? (
           /* Catalog browser */
           <ScrollView style={styles.catalogScroll} showsVerticalScrollIndicator={false}>
-            <Text style={styles.catalogTitle}>🎨 Supported Artifacts ({DEMO_CATALOG.length})</Text>
-            <Text style={styles.catalogDesc}>These artifacts can be identified during the demo</Text>
+            <Text style={styles.catalogTitle}>{t('camera.supportedTitle', { count: DEMO_CATALOG.length })}</Text>
+            <Text style={styles.catalogDesc}>{t('camera.supportedDesc')}</Text>
             {DEMO_CATALOG.map((item) => (
               <TouchableOpacity
                 key={item.id}
@@ -246,7 +248,7 @@ export default function CameraScreen() {
         ) : (
           /* Capture button */
           <View style={styles.captureArea}>
-            <Text style={styles.captureHint}>Point camera at a heritage artifact</Text>
+            <Text style={styles.captureHint}>{t('camera.pointCameraHint')}</Text>
             <TouchableOpacity
               style={styles.captureBtn}
               onPress={handleCapture}
@@ -257,7 +259,7 @@ export default function CameraScreen() {
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setShowCatalog(true)}>
-              <Text style={styles.catalogLink}>View supported artifacts →</Text>
+              <Text style={styles.catalogLink}>{t('camera.viewSupported')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -359,7 +361,7 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
   identifyingOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(10, 10, 15, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',

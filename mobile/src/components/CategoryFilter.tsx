@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, CATEGORIES } from '../constants/theme';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface CategoryFilterProps {
   selected: string | null;
@@ -9,6 +10,8 @@ interface CategoryFilterProps {
 }
 
 export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
+  const { t, getCategoryName } = useTranslation();
+
   return (
     <ScrollView
       horizontal
@@ -25,7 +28,7 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
           size={16}
           color={!selected ? Colors.textInverse : Colors.textSecondary}
         />
-        <Text style={[styles.chipText, !selected && styles.chipTextActive]}>All</Text>
+        <Text style={[styles.chipText, !selected && styles.chipTextActive]}>{t('categories.all')}</Text>
       </TouchableOpacity>
 
       {CATEGORIES.map((cat) => (
@@ -50,7 +53,7 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
               selected === cat.key && styles.chipTextActive,
             ]}
           >
-            {cat.label}
+            {getCategoryName(cat.key)}
           </Text>
         </TouchableOpacity>
       ))}

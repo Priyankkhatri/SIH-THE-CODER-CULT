@@ -121,7 +121,7 @@ class AIService {
         }
 
         // Add verified sources
-        record.sources.forEach((source) => {
+        record.sources.forEach((source: any) => {
           passages.push({
             content: source.referenceText,
             sourceName: source.sourceName,
@@ -141,7 +141,7 @@ class AIService {
 
       // Simple keyword matching for hackathon
       const questionLower = question.toLowerCase();
-      const relevantRecords = records.filter((r) =>
+      const relevantRecords = records.filter((r: any) =>
         r.shortStory.toLowerCase().includes(questionLower) ||
         r.history.toLowerCase().includes(questionLower) ||
         r.place.name.toLowerCase().includes(questionLower)
@@ -149,7 +149,7 @@ class AIService {
 
       const targetRecords = relevantRecords.length > 0 ? relevantRecords : records.slice(0, 3);
 
-      targetRecords.forEach((record) => {
+      targetRecords.forEach((record: any) => {
         passages.push({
           content: `${record.place.name}: ${record.shortStory}`,
           sourceName: `Heritage Record - ${record.place.name}`,

@@ -11,10 +11,12 @@ import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, LANGUAGES, INTERESTS_OPTIONS, TRAVEL_STYLES } from '../../constants/theme';
 import { useUserStore, usePlacesStore } from '../../stores';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { name, language, interests, travelStyle, duration, setLanguage, setPreferences, setOnboarded } = useUserStore();
+  const { t } = useTranslation();
   const { favorites } = usePlacesStore();
 
   const currentLang = LANGUAGES.find((l) => l.code === language);
@@ -22,12 +24,12 @@ export default function ProfileScreen() {
 
   const handleResetOnboarding = () => {
     Alert.alert(
-      'Reset App',
-      'This will reset all preferences and return to onboarding. Continue?',
+      t('profile.resetApp'),
+      t('profile.resetConfirm'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Reset',
+          text: t('profile.resetBtn'),
           style: 'destructive',
           onPress: () => {
             setOnboarded(false);
@@ -48,14 +50,14 @@ export default function ProfileScreen() {
         <Text style={styles.userName}>{name}</Text>
         <View style={styles.guestBadge}>
           <MaterialIcons name="person-outline" size={14} color={Colors.primary} />
-          <Text style={styles.guestText}>Guest Mode</Text>
+          <Text style={styles.guestText}>{t('common.guestMode')}</Text>
         </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Language */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Language</Text>
+          <Text style={styles.sectionTitle}>{t('profile.languageSection')}</Text>
           <View style={styles.langRow}>
             {LANGUAGES.map((lang) => (
               <TouchableOpacity
@@ -77,7 +79,7 @@ export default function ProfileScreen() {
 
         {/* Interests */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Interests</Text>
+          <Text style={styles.sectionTitle}>{t('profile.interestsSection')}</Text>
           <View style={styles.chipRow}>
             {INTERESTS_OPTIONS.map((opt) => (
               <TouchableOpacity
@@ -92,7 +94,7 @@ export default function ProfileScreen() {
               >
                 <Text style={styles.interestIcon}>{opt.icon}</Text>
                 <Text style={[styles.interestLabel, interests.includes(opt.key) && styles.activeText]}>
-                  {opt.label}
+                  {t('options.interests.' + opt.key)}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -101,7 +103,7 @@ export default function ProfileScreen() {
 
         {/* Travel Style */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Travel Style</Text>
+          <Text style={styles.sectionTitle}>{t('profile.travelStyleSection')}</Text>
           {TRAVEL_STYLES.map((style) => (
             <TouchableOpacity
               key={style.key}
@@ -111,9 +113,9 @@ export default function ProfileScreen() {
               <Text style={styles.styleIcon}>{style.icon}</Text>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.styleLabel, travelStyle === style.key && styles.activeText]}>
-                  {style.label}
+                  {t('options.styles.' + style.key + '.label')}
                 </Text>
-                <Text style={styles.styleDesc}>{style.description}</Text>
+                <Text style={styles.styleDesc}>{t('options.styles.' + style.key + '.desc')}</Text>
               </View>
               {travelStyle === style.key && (
                 <MaterialIcons name="check-circle" size={20} color={Colors.primary} />
@@ -124,29 +126,29 @@ export default function ProfileScreen() {
 
         {/* Stats */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Stats</Text>
+          <Text style={styles.sectionTitle}>{language === 'hi' ? 'आपके आंकड़े' : language === 'gu' ? 'તમારા આંકડા' : 'Your Stats'}</Text>
           <View style={styles.statsRow}>
             <View style={styles.statCard}>
               <MaterialIcons name="favorite" size={22} color={Colors.error} />
               <Text style={styles.statValue}>{favorites.length}</Text>
-              <Text style={styles.statLabel}>Saved</Text>
+              <Text style={styles.statLabel}>{language === 'hi' ? 'सहेजे गए' : language === 'gu' ? 'સાચવેલા' : 'Saved'}</Text>
             </View>
             <View style={styles.statCard}>
               <MaterialIcons name="translate" size={22} color={Colors.accent} />
               <Text style={styles.statValue}>{currentLang?.name || 'English'}</Text>
-              <Text style={styles.statLabel}>Language</Text>
+              <Text style={styles.statLabel}>{language === 'hi' ? 'भाषा' : language === 'gu' ? 'ભાષા' : 'Language'}</Text>
             </View>
             <View style={styles.statCard}>
               <MaterialIcons name="schedule" size={22} color={Colors.primary} />
               <Text style={styles.statValue}>{duration}</Text>
-              <Text style={styles.statLabel}>Duration</Text>
+              <Text style={styles.statLabel}>{language === 'hi' ? 'समय' : language === 'gu' ? 'સમય' : 'Duration'}</Text>
             </View>
           </View>
         </View>
 
         {/* App Info */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About</Text>
+          <Text style={styles.sectionTitle}>{language === 'hi' ? 'ऐप के बारे में' : language === 'gu' ? 'ઍપ વિશે' : 'About'}</Text>
           <View style={styles.infoCard}>
             <Text style={styles.appName}>AI Tourist Companion</Text>
             <Text style={styles.appDesc}>
@@ -160,7 +162,7 @@ export default function ProfileScreen() {
         {/* Reset */}
         <TouchableOpacity style={styles.resetBtn} onPress={handleResetOnboarding}>
           <MaterialIcons name="logout" size={18} color={Colors.error} />
-          <Text style={styles.resetText}>Reset & Restart Onboarding</Text>
+          <Text style={styles.resetText}>{t('profile.resetApp')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

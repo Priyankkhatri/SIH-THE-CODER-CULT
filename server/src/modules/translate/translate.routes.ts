@@ -82,11 +82,11 @@ router.post('/tts', async (req: Request, res: Response) => {
     data: {
       text,
       language: language || 'en',
-      voiceConfig: {
+      voiceConfig: (({
         en: { language: 'en-IN', rate: 0.9, pitch: 1.0 },
         hi: { language: 'hi-IN', rate: 0.85, pitch: 1.0 },
         gu: { language: 'gu-IN', rate: 0.85, pitch: 1.0 },
-      }[language || 'en'] || { language: 'en-IN', rate: 0.9, pitch: 1.0 },
+      } as Record<string, { language: string; rate: number; pitch: number }>)[(language as string) || 'en']) || { language: 'en-IN', rate: 0.9, pitch: 1.0 },
     },
   });
 });

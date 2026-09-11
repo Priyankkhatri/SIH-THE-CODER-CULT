@@ -16,6 +16,7 @@ import { useChatStore, useUserStore } from '../../stores';
 import { aiApi } from '../../services/api';
 import { ChatBubble, TypingIndicator } from '../../components/ChatBubble';
 import { useSpeech } from '../../hooks/useSpeech';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const RESPONSE_MODES = [
   { key: 'short', label: '⚡ Short', description: '1-2 min' },
@@ -34,10 +35,12 @@ const DEFAULT_SUGGESTIONS = [
 export default function AIGuideScreen() {
   const { messages, addMessage, contextPlaceId, contextPlaceName, isTyping, setTyping, clearChat } = useChatStore();
   const { language } = useUserStore();
+  const { t } = useTranslation();
   const { speak, stop, isSpeaking } = useSpeech();
   const [inputText, setInputText] = useState('');
   const [selectedMode, setSelectedMode] = useState('short');
-  const [suggestions, setSuggestions] = useState<string[]>(DEFAULT_SUGGESTIONS);
+  const defaultSugg = (t('ai.defaultSuggestions') as string[]) || DEFAULT_SUGGESTIONS;
+  const [suggestions, setSuggestions] = useState<string[]>(defaultSugg);
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
@@ -116,7 +119,7 @@ export default function AIGuideScreen() {
         <View style={styles.headerLeft}>
           <MaterialIcons name="auto-awesome" size={24} color={Colors.primary} />
           <View>
-            <Text style={styles.headerTitle}>AI Heritage Guide</Text>
+            <Text style={styles.headerTitle}>{t('ai.title')}</Text>
             {contextPlaceName && (
               <Text style={styles.contextText}>📍 {contextPlaceName}</Text>
             )}
@@ -137,7 +140,7 @@ export default function AIGuideScreen() {
               onPress={() => setSelectedMode(mode.key)}
             >
               <Text style={[styles.modeLabel, selectedMode === mode.key && styles.modeLabelActive]}>
-                {mode.label}
+                {t('ai.modes.' + mode.key) || mode.label}
               </Text>
             </TouchableOpacity>
           ))}
@@ -148,9 +151,13 @@ export default function AIGuideScreen() {
       {messages.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyEmoji}>🏛️</Text>
-          <Text style={styles.emptyTitle}>Ask me anything about heritage</Text>
+          <Text style={styles.emptyTitle}>{t('ai.subtitle')}</Text>
           <Text style={styles.emptySubtitle}>
-            I answer using verified historical sources — never making up facts.
+            {language === 'hi' 
+              ? 'मैं सत्यापित ऐतिहासिक स्रोतों से उत्तर देता हूं — प्रामाणिक जानकारी।'
+              : language === 'gu'
+              ? 'હું ચકાસાયેલ ઐતિહાસિક સ્ત્રોતોનો ઉપયોગ કરીને જવાબ આપું છું.'
+              : 'I answer using verified historical sources — never making up facts.'}
           </Text>
           <View style={styles.suggestionsGrid}>
             {suggestions.map((q, i) => (
@@ -187,7 +194,7 @@ export default function AIGuideScreen() {
       <View style={styles.inputBar}>
         <TextInput
           style={styles.input}
-          placeholder={contextPlaceName ? `Ask about ${contextPlaceName}...` : 'Ask about heritage sites...'}
+          placeholder={contextPlaceName ? (language === 'hi' ? `${contextPlaceName} के बारे में पूछें...` : language === 'gu' ? `${contextPlaceName} વિશે પૂછો...` : `Ask about ${contextPlaceName}...`) : t('ai.inputPlaceholder')}
           placeholderTextColor={Colors.textMuted}
           value={inputText}
           onChangeText={setInputText}

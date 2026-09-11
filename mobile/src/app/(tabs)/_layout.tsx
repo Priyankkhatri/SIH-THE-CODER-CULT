@@ -2,8 +2,11 @@ import { Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { View, StyleSheet, Platform } from 'react-native';
 import { Colors } from '../../constants/theme';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function TabLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -18,7 +21,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t('tabs.home'),
           tabBarIcon: ({ color, focused }) => (
             <View style={focused ? styles.activeIconWrap : undefined}>
               <MaterialIcons name="home" size={26} color={color} />
@@ -29,7 +32,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
+          title: t('tabs.explore'),
           tabBarIcon: ({ color, focused }) => (
             <View style={focused ? styles.activeIconWrap : undefined}>
               <MaterialIcons name="explore" size={26} color={color} />
@@ -40,7 +43,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="ai"
         options={{
-          title: 'AI Guide',
+          title: t('tabs.aiGuide'),
           tabBarIcon: ({ color, focused }) => (
             <View style={[focused ? styles.activeIconWrap : undefined, focused && styles.aiIconActive]}>
               <MaterialIcons name="auto-awesome" size={26} color={focused ? Colors.primary : color} />
@@ -51,7 +54,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="plan"
         options={{
-          title: 'Plan',
+          title: t('tabs.plan'),
           tabBarIcon: ({ color, focused }) => (
             <View style={focused ? styles.activeIconWrap : undefined}>
               <MaterialIcons name="route" size={26} color={color} />
@@ -62,7 +65,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('tabs.profile'),
           tabBarIcon: ({ color, focused }) => (
             <View style={focused ? styles.activeIconWrap : undefined}>
               <MaterialIcons name="person" size={26} color={color} />

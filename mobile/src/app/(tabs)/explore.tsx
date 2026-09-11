@@ -8,10 +8,12 @@ import {
   Platform,
   Linking,
 } from 'react-native';
+import MapView from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } from '../../constants/theme';
 import { usePlacesStore } from '../../stores';
+import { useTranslation } from '../../hooks/useTranslation';
 import type { Place } from '../../stores';
 import { useLocation } from '../../hooks/useLocation';
 import { CategoryFilter } from '../../components/CategoryFilter';
@@ -23,6 +25,7 @@ export default function ExploreScreen() {
   const router = useRouter();
   const location = useLocation();
   const { places } = usePlacesStore();
+  const { t, getPlaceName } = useTranslation();
   const mapRef = useRef<MapView>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
@@ -68,7 +71,7 @@ export default function ExploreScreen() {
       <View style={styles.headerOverlay}>
         <View style={styles.searchBar}>
           <MaterialIcons name="search" size={22} color={Colors.textMuted} />
-          <Text style={styles.searchText}>Explore heritage sites</Text>
+          <Text style={styles.searchText}>{t('explore.exploreSites')}</Text>
           <View style={styles.placeCount}>
             <Text style={styles.placeCountText}>{filteredPlaces.length}</Text>
           </View>
@@ -92,11 +95,11 @@ export default function ExploreScreen() {
             <View style={styles.bottomCardInfo}>
               <View style={[styles.catDot, { backgroundColor: CATEGORY_COLORS[selectedPlace.category] || Colors.primary }]} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.bottomCardName}>{selectedPlace.name}</Text>
+                <Text style={styles.bottomCardName}>{getPlaceName(selectedPlace)}</Text>
                 <Text style={styles.bottomCardDesc} numberOfLines={2}>{selectedPlace.shortDescription}</Text>
                 <View style={styles.bottomCardMeta}>
                   {selectedPlace.distance !== undefined && (
-                    <Text style={styles.metaText}>📍 {selectedPlace.distance.toFixed(1)} km</Text>
+                    <Text style={styles.metaText}>📍 {selectedPlace.distance.toFixed(1)} {t('common.km')}</Text>
                   )}
                   {selectedPlace.rating && (
                     <Text style={styles.metaText}>⭐ {selectedPlace.rating}</Text>
@@ -114,14 +117,14 @@ export default function ExploreScreen() {
                 onPress={() => router.push(`/place/${selectedPlace.id}`)}
               >
                 <MaterialIcons name="info" size={18} color={Colors.textInverse} />
-                <Text style={styles.detailsBtnText}>Details</Text>
+                <Text style={styles.detailsBtnText}>{t('common.details')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.navBtn}
                 onPress={() => handleNavigate(selectedPlace)}
               >
                 <MaterialIcons name="directions" size={18} color={Colors.primary} />
-                <Text style={styles.navBtnText}>Navigate</Text>
+                <Text style={styles.navBtnText}>{t('common.directions')}</Text>
               </TouchableOpacity>
             </View>
           </View>

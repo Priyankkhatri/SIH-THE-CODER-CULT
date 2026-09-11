@@ -60,7 +60,7 @@ router.post('/generate', async (req: Request, res: Response) => {
     });
 
     // Score and sort places based on interests + distance
-    const scoredPlaces = places.map((place) => {
+    const scoredPlaces = places.map((place: any) => {
       const distance = haversineDistance(lat, lng, place.latitude, place.longitude);
       const interestMatch = interests.includes(place.category) ? 2 : 1;
       const ratingBonus = (place.rating || 3) / 5;
@@ -71,7 +71,7 @@ router.post('/generate', async (req: Request, res: Response) => {
         distance,
         score: interestMatch * ratingBonus * (1 + proximityScore),
       };
-    }).sort((a, b) => b.score - a.score);
+    }).sort((a: any, b: any) => b.score - a.score);
 
     // Build itinerary using greedy nearest-neighbor
     const itineraryItems: Array<{
@@ -204,7 +204,7 @@ router.post('/save', async (req: Request, res: Response) => {
 // GET /itinerary/user/:userId - Get user's saved itineraries
 router.get('/user/:userId', async (req: Request, res: Response) => {
   const itineraries = await prisma.itinerary.findMany({
-    where: { userId: req.params.userId },
+    where: { userId: req.params.userId as string },
     include: { items: { orderBy: { order: 'asc' } } },
     orderBy: { createdAt: 'desc' },
   });

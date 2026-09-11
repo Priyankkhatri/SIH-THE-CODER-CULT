@@ -11,6 +11,7 @@ import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, INTERESTS_OPTIONS, DURATION_OPTIONS } from '../../constants/theme';
 import { useUserStore } from '../../stores';
+import { useTranslation } from '../../hooks/useTranslation';
 import { itineraryApi } from '../../services/api';
 import { useLocation } from '../../hooks/useLocation';
 import { TimelineItem } from '../../components/TimelineItem';
@@ -36,7 +37,8 @@ interface ItineraryData {
 
 export default function PlanScreen() {
   const router = useRouter();
-  const { interests, travelStyle, duration } = useUserStore();
+  const { interests, travelStyle, duration, language } = useUserStore();
+  const { t } = useTranslation();
   const location = useLocation();
   const [selectedDuration, setSelectedDuration] = useState(duration);
   const [selectedInterests, setSelectedInterests] = useState<string[]>(interests);
@@ -83,13 +85,13 @@ export default function PlanScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>🗺️ Plan Your Route</Text>
-          <Text style={styles.headerSubtitle}>AI-personalized heritage itinerary</Text>
+          <Text style={styles.headerTitle}>🗺️ {t('plan.title')}</Text>
+          <Text style={styles.headerSubtitle}>{t('plan.subtitle')}</Text>
         </View>
         {itinerary && (
           <TouchableOpacity style={styles.resetBtn} onPress={resetPlan}>
             <MaterialIcons name="refresh" size={20} color={Colors.primary} />
-            <Text style={styles.resetText}>New Plan</Text>
+            <Text style={styles.resetText}>{t('plan.startNewPlan')}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -102,7 +104,7 @@ export default function PlanScreen() {
           /* Generation Form */
           <View style={styles.formSection}>
             {/* Duration */}
-            <Text style={styles.formLabel}>How much time do you have?</Text>
+            <Text style={styles.formLabel}>{t('plan.duration')}</Text>
             <View style={styles.durationGrid}>
               {DURATION_OPTIONS.map((opt) => (
                 <TouchableOpacity
@@ -111,15 +113,15 @@ export default function PlanScreen() {
                   onPress={() => setSelectedDuration(opt.key)}
                 >
                   <Text style={[styles.durationValue, selectedDuration === opt.key && styles.activeText]}>
-                    {opt.label}
+                    {t('options.durations.' + opt.key + '.label')}
                   </Text>
-                  <Text style={styles.durationDesc}>{opt.description}</Text>
+                  <Text style={styles.durationDesc}>{t('options.durations.' + opt.key + '.desc')}</Text>
                 </TouchableOpacity>
               ))}
             </View>
 
             {/* Interests */}
-            <Text style={[styles.formLabel, { marginTop: Spacing.xl }]}>What interests you?</Text>
+            <Text style={[styles.formLabel, { marginTop: Spacing.xl }]}>{t('plan.yourInterests')}</Text>
             <View style={styles.interestGrid}>
               {INTERESTS_OPTIONS.map((opt) => (
                 <TouchableOpacity
@@ -129,7 +131,7 @@ export default function PlanScreen() {
                 >
                   <Text style={styles.interestIcon}>{opt.icon}</Text>
                   <Text style={[styles.interestLabel, selectedInterests.includes(opt.key) && styles.activeText]}>
-                    {opt.label}
+                    {t('options.interests.' + opt.key)}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -139,7 +141,7 @@ export default function PlanScreen() {
             <View style={styles.locationInfo}>
               <MaterialIcons name="my-location" size={16} color={Colors.accent} />
               <Text style={styles.locationInfoText}>
-                Starting from: {location.city}, {location.region}
+                {language === 'hi' ? 'आरंभ:' : language === 'gu' ? 'શરૂઆત:' : 'Starting from:'} {location.city}, {location.region}
               </Text>
             </View>
 
@@ -153,12 +155,12 @@ export default function PlanScreen() {
               {isGenerating ? (
                 <>
                   <ActivityIndicator color={Colors.textInverse} />
-                  <Text style={styles.generateText}>Planning your route...</Text>
+                  <Text style={styles.generateText}>{t('plan.generatingRoute')}</Text>
                 </>
               ) : (
                 <>
                   <MaterialIcons name="auto-awesome" size={22} color={Colors.textInverse} />
-                  <Text style={styles.generateText}>Generate Itinerary</Text>
+                  <Text style={styles.generateText}>{t('plan.generateSmartRoute')}</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -173,25 +175,25 @@ export default function PlanScreen() {
                 <View style={styles.summaryItem}>
                   <MaterialIcons name="schedule" size={18} color={Colors.primary} />
                   <Text style={styles.summaryValue}>~{itinerary.totalTimeMinutes} min</Text>
-                  <Text style={styles.summaryLabel}>Total Time</Text>
+                  <Text style={styles.summaryLabel}>{t('plan.estTotalTime')}</Text>
                 </View>
                 <View style={styles.summaryDivider} />
                 <View style={styles.summaryItem}>
                   <MaterialIcons name="place" size={18} color={Colors.accent} />
                   <Text style={styles.summaryValue}>{itinerary.stops}</Text>
-                  <Text style={styles.summaryLabel}>Stops</Text>
+                  <Text style={styles.summaryLabel}>{t('plan.stops')}</Text>
                 </View>
                 <View style={styles.summaryDivider} />
                 <View style={styles.summaryItem}>
                   <MaterialIcons name="route" size={18} color={Colors.success} />
                   <Text style={styles.summaryValue}>{selectedDuration}</Text>
-                  <Text style={styles.summaryLabel}>Duration</Text>
+                  <Text style={styles.summaryLabel}>{t('plan.duration')}</Text>
                 </View>
               </View>
             </View>
 
             {/* Timeline */}
-            <Text style={styles.timelineTitle}>Your Personalized Route</Text>
+            <Text style={styles.timelineTitle}>{t('plan.yourItinerary')}</Text>
             {itinerary.items.map((item, idx) => (
               <TouchableOpacity
                 key={item.placeId}
@@ -209,7 +211,7 @@ export default function PlanScreen() {
             <View style={styles.itineraryActions}>
               <TouchableOpacity style={styles.startNavBtn}>
                 <MaterialIcons name="navigation" size={20} color={Colors.textInverse} />
-                <Text style={styles.startNavText}>Start Navigation</Text>
+                <Text style={styles.startNavText}>{t('common.directions')}</Text>
               </TouchableOpacity>
             </View>
           </View>

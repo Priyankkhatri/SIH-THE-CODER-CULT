@@ -24,6 +24,7 @@ router.get('/nearby', async (req: Request, res: Response) => {
   const lng = parseFloat(req.query.lng as string) || 73.1812;
   const radius = parseFloat(req.query.radius as string) || 50; // km
   const category = req.query.category as string | undefined;
+  const lang = (req.query.lang as string) || 'en';
 
   let places = await prisma.place.findMany({
     where: category ? { category } : undefined,
@@ -39,12 +40,13 @@ router.get('/nearby', async (req: Request, res: Response) => {
 
   // Calculate distances and filter by radius
   const placesWithDistance = places
-    .map((place) => ({
+    .map((place: any) => ({
       ...place,
+      name: lang === 'hi' && place.nameHi ? place.nameHi : lang === 'gu' && place.nameGu ? place.nameGu : place.name,
       distance: haversineDistance(lat, lng, place.latitude, place.longitude),
     }))
-    .filter((place) => place.distance <= radius)
-    .sort((a, b) => a.distance - b.distance);
+    .filter((place: any) => place.distance <= radius)
+    .sort((a: any, b: any) => a.distance - b.distance);
 
   res.json({
     success: true,
@@ -85,7 +87,7 @@ router.get('/search', async (req: Request, res: Response) => {
 // GET /places/:id
 router.get('/:id', async (req: Request, res: Response) => {
   const place = await prisma.place.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: {
       heritageRecord: {
         include: { sources: true },
@@ -110,7 +112,7 @@ router.get('/categories/list', async (_req: Request, res: Response) => {
 
   res.json({
     success: true,
-    data: categories.map((c) => c.category),
+    data: categories.map((c: any) => c.category),
   });
 });
 

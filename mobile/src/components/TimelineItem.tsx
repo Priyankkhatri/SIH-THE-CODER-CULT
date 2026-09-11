@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Typography, Spacing, BorderRadius, CATEGORY_COLORS } from '../constants/theme';
+import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface TimelineItemProps {
   item: {
@@ -18,6 +19,10 @@ interface TimelineItemProps {
 }
 
 export function TimelineItem({ item, isLast }: TimelineItemProps) {
+  const { t } = useTranslation();
+  const kmUnit = t('common.km');
+  const travelModeText = item.travelMode === 'drive' ? (t('language') === 'hi' ? 'गाड़ी' : t('language') === 'gu' ? 'ગાડી' : 'drive') : t('plan.walk');
+
   return (
     <View style={styles.container}>
       {/* Timeline connector */}
@@ -39,7 +44,7 @@ export function TimelineItem({ item, isLast }: TimelineItemProps) {
               color={Colors.accent}
             />
             <Text style={styles.travelText}>
-              {item.travelTime} min {item.travelMode} · {item.distance} km
+              {item.travelTime} {t('plan.travelTime')} ({travelModeText}) · {item.distance} {kmUnit}
             </Text>
           </View>
         )}
@@ -49,7 +54,7 @@ export function TimelineItem({ item, isLast }: TimelineItemProps) {
         <View style={styles.detailsRow}>
           <View style={styles.detailChip}>
             <MaterialIcons name="schedule" size={13} color={Colors.primary} />
-            <Text style={styles.detailText}>{item.visitDuration} min visit</Text>
+            <Text style={styles.detailText}>{item.visitDuration} {t('plan.minsVisit')}</Text>
           </View>
         </View>
 

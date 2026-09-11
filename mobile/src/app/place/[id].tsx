@@ -17,6 +17,7 @@ import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } f
 import { usePlacesStore, useChatStore, useUserStore } from '../../stores';
 import { heritageApi, placesApi } from '../../services/api';
 import { useSpeech } from '../../hooks/useSpeech';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const { width } = Dimensions.get('window');
 
@@ -45,6 +46,7 @@ export default function PlaceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { language } = useUserStore();
+  const { t, getPlaceName, getCategoryName } = useTranslation();
   const { favorites, toggleFavorite } = usePlacesStore();
   const { setContext } = useChatStore();
   const { speak, stop, isSpeaking } = useSpeech();
@@ -107,7 +109,7 @@ export default function PlaceDetailScreen() {
     return (
       <View style={[styles.container, styles.centerContent]}>
         <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loadingText}>Loading heritage information...</Text>
+        <Text style={styles.loadingText}>{t('place.loadingInfo')}</Text>
       </View>
     );
   }
@@ -116,9 +118,9 @@ export default function PlaceDetailScreen() {
     return (
       <View style={[styles.container, styles.centerContent]}>
         <MaterialIcons name="error-outline" size={48} color={Colors.textMuted} />
-        <Text style={styles.errorText}>Heritage record not found</Text>
+        <Text style={styles.errorText}>{t('place.recordNotFound')}</Text>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backLink}>← Go back</Text>
+          <Text style={styles.backLink}>{t('common.goBack')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -157,7 +159,7 @@ export default function PlaceDetailScreen() {
           <View style={styles.heroContent}>
             <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30' }]}>
               <Text style={[styles.categoryText, { color: categoryColor }]}>
-                {heritage.place.category.toUpperCase()}
+                {getCategoryName(heritage.place.category).toUpperCase()}
               </Text>
             </View>
             <Text style={styles.heroTitle}>{heritage.placeName || heritage.place.name}</Text>
@@ -190,26 +192,26 @@ export default function PlaceDetailScreen() {
           <View style={styles.actionsRow}>
             <TouchableOpacity style={styles.actionBtn} onPress={handleAskAI}>
               <MaterialIcons name="auto-awesome" size={20} color={Colors.primary} />
-              <Text style={styles.actionLabel}>Ask AI</Text>
+              <Text style={styles.actionLabel}>{t('common.askAi')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionBtn} onPress={handleListen}>
               <MaterialIcons name={isSpeaking ? 'stop' : 'headphones'} size={20} color={Colors.accent} />
-              <Text style={styles.actionLabel}>{isSpeaking ? 'Stop' : 'Listen'}</Text>
+              <Text style={styles.actionLabel}>{isSpeaking ? t('common.stop') : t('common.listen')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/camera')}>
               <MaterialIcons name="camera-alt" size={20} color={Colors.secondary} />
-              <Text style={styles.actionLabel}>Identify</Text>
+              <Text style={styles.actionLabel}>{t('common.identify')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionBtn} onPress={handleDirections}>
               <MaterialIcons name="directions" size={20} color={Colors.success} />
-              <Text style={styles.actionLabel}>Directions</Text>
+              <Text style={styles.actionLabel}>{t('common.directions')}</Text>
             </TouchableOpacity>
           </View>
 
           {/* 2-Minute Heritage Story */}
           <TouchableOpacity style={styles.storyCard} onPress={() => toggleSection('story')} activeOpacity={0.9}>
             <View style={styles.storyHeader}>
-              <Text style={styles.storyBadge}>⭐ 2-Minute Heritage Story</Text>
+              <Text style={styles.storyBadge}>{t('place.minuteStoryBadge')}</Text>
               <MaterialIcons
                 name={expandedSection === 'story' ? 'expand-less' : 'expand-more'}
                 size={24}
@@ -222,14 +224,14 @@ export default function PlaceDetailScreen() {
           </TouchableOpacity>
 
           {/* Expandable sections */}
-          {renderSection('History', 'history', heritage.history, 'menu-book')}
-          {renderSection('Significance', 'significance', heritage.significance, 'stars')}
-          {heritage.architecture && renderSection('Architecture', 'architecture', heritage.architecture, 'apartment')}
+          {renderSection(t('place.completeHistory'), 'history', heritage.history, 'menu-book')}
+          {renderSection(t('place.historicalSignificance'), 'significance', heritage.significance, 'stars')}
+          {heritage.architecture && renderSection(t('place.architecturalDetails'), 'architecture', heritage.architecture, 'apartment')}
 
           {/* Key Facts */}
           {heritage.keyFacts.length > 0 && (
             <View style={styles.factsSection}>
-              <Text style={styles.sectionTitle}>📋 Key Facts</Text>
+              <Text style={styles.sectionTitle}>{t('place.keyFacts')}</Text>
               {heritage.keyFacts.map((fact, idx) => (
                 <View key={idx} style={styles.factItem}>
                   <View style={styles.factDot} />
@@ -242,7 +244,7 @@ export default function PlaceDetailScreen() {
           {/* Sources */}
           {heritage.sources.length > 0 && (
             <View style={styles.sourcesSection}>
-              <Text style={styles.sectionTitle}>📚 Verified Sources</Text>
+              <Text style={styles.sectionTitle}>{t('place.verifiedSources')}</Text>
               {heritage.sources.map((source, idx) => (
                 <TouchableOpacity
                   key={idx}
@@ -350,7 +352,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(10, 10, 15, 0.4)',
   },
   topBar: {

@@ -8,7 +8,7 @@ async function main() {
   try {
     // Verify database connection
     await prisma.$connect();
-    console.log('✅ Database connected');
+    console.log('✅ Database engine initialized');
 
     app.listen(PORT, () => {
       console.log(`

@@ -77,7 +77,7 @@ export function HeritageMapView({
 
 const styles = StyleSheet.create({
   map: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   calloutContainer: {
     backgroundColor: Colors.surface,

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, CATEGORY_COLORS } from '../constants/theme';
 import type { Place } from '../stores';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface HeritageMapViewProps {
   places: Place[];
@@ -14,12 +15,14 @@ interface HeritageMapViewProps {
 }
 
 export function HeritageMapView({
+
   places,
   selectedPlace,
   onSelectPlace,
   onPlaceDetails,
   userLocation,
 }: HeritageMapViewProps) {
+  const { t, getPlaceName } = useTranslation();
   return (
     <View style={styles.container}>
       {/* Web Interactive Map Canvas / Radar */}
@@ -61,7 +64,7 @@ export function HeritageMapView({
                   <MaterialIcons name="account-balance" size={12} color="#fff" />
                 </View>
                 <Text style={styles.pinTitle} numberOfLines={1}>
-                  {place.name}
+                  {getPlaceName(place)}
                 </Text>
               </TouchableOpacity>
             );
@@ -101,7 +104,7 @@ export function HeritageMapView({
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: '#0c1322',
   },
   radarContainer: {

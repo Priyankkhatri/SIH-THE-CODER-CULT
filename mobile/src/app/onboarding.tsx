@@ -11,6 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, BorderRadius, LANGUAGES, INTERESTS_OPTIONS, TRAVEL_STYLES, DURATION_OPTIONS } from '../constants/theme';
 import { useUserStore } from '../stores';
+import { useTranslation } from '../hooks/useTranslation';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
@@ -22,6 +23,7 @@ export default function OnboardingScreen() {
   const { setLanguage, setPreferences, setOnboarded, setUser } = useUserStore();
   const [step, setStep] = useState(0);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const { t } = useTranslation(selectedLanguage);
   const [selectedInterests, setSelectedInterests] = useState<string[]>(['heritage']);
   const [selectedStyle, setSelectedStyle] = useState('moderate');
   const [selectedDuration, setSelectedDuration] = useState('90min');
@@ -68,8 +70,8 @@ export default function OnboardingScreen() {
   const renderLanguageStep = () => (
     <View style={styles.stepContent}>
       <Text style={styles.stepEmoji}>🌍</Text>
-      <Text style={styles.stepTitle}>Choose Your Language</Text>
-      <Text style={styles.stepSubtitle}>We'll show heritage information in your preferred language</Text>
+      <Text style={styles.stepTitle}>{t('onboarding.chooseLanguage')}</Text>
+      <Text style={styles.stepSubtitle}>{t('onboarding.languageSubtitle')}</Text>
       <View style={styles.optionsGrid}>
         {LANGUAGES.map((lang) => (
           <TouchableOpacity
@@ -94,8 +96,8 @@ export default function OnboardingScreen() {
   const renderInterestsStep = () => (
     <View style={styles.stepContent}>
       <Text style={styles.stepEmoji}>🎯</Text>
-      <Text style={styles.stepTitle}>What Interests You?</Text>
-      <Text style={styles.stepSubtitle}>Select all that appeal to you</Text>
+      <Text style={styles.stepTitle}>{t('onboarding.whatInterests')}</Text>
+      <Text style={styles.stepSubtitle}>{t('onboarding.interestsSubtitle')}</Text>
       <View style={styles.interestsGrid}>
         {INTERESTS_OPTIONS.map((opt) => (
           <TouchableOpacity
@@ -105,7 +107,7 @@ export default function OnboardingScreen() {
           >
             <Text style={styles.interestIcon}>{opt.icon}</Text>
             <Text style={[styles.interestLabel, selectedInterests.includes(opt.key) && styles.selectedText]}>
-              {opt.label}
+              {t('options.interests.' + opt.key)}
             </Text>
             {selectedInterests.includes(opt.key) && (
               <MaterialIcons name="check-circle" size={18} color={Colors.primary} />
@@ -119,8 +121,8 @@ export default function OnboardingScreen() {
   const renderStyleStep = () => (
     <View style={styles.stepContent}>
       <Text style={styles.stepEmoji}>🚶</Text>
-      <Text style={styles.stepTitle}>Your Travel Style</Text>
-      <Text style={styles.stepSubtitle}>How do you like to explore?</Text>
+      <Text style={styles.stepTitle}>{t('onboarding.yourTravelStyle')}</Text>
+      <Text style={styles.stepSubtitle}>{t('onboarding.styleSubtitle')}</Text>
       <View style={styles.styleList}>
         {TRAVEL_STYLES.map((style) => (
           <TouchableOpacity
@@ -131,9 +133,9 @@ export default function OnboardingScreen() {
             <Text style={styles.styleEmoji}>{style.icon}</Text>
             <View style={styles.styleInfo}>
               <Text style={[styles.styleLabel, selectedStyle === style.key && styles.selectedText]}>
-                {style.label}
+                {t('options.styles.' + style.key + '.label')}
               </Text>
-              <Text style={styles.styleDesc}>{style.description}</Text>
+              <Text style={styles.styleDesc}>{t('options.styles.' + style.key + '.desc')}</Text>
             </View>
             {selectedStyle === style.key && (
               <MaterialIcons name="check-circle" size={22} color={Colors.primary} />
@@ -147,8 +149,8 @@ export default function OnboardingScreen() {
   const renderDurationStep = () => (
     <View style={styles.stepContent}>
       <Text style={styles.stepEmoji}>⏱️</Text>
-      <Text style={styles.stepTitle}>Available Time</Text>
-      <Text style={styles.stepSubtitle}>How much time do you have today?</Text>
+      <Text style={styles.stepTitle}>{t('onboarding.availableTime')}</Text>
+      <Text style={styles.stepSubtitle}>{t('onboarding.durationSubtitle')}</Text>
       <View style={styles.durationGrid}>
         {DURATION_OPTIONS.map((dur) => (
           <TouchableOpacity
@@ -157,9 +159,9 @@ export default function OnboardingScreen() {
             onPress={() => setSelectedDuration(dur.key)}
           >
             <Text style={[styles.durationLabel, selectedDuration === dur.key && styles.selectedText]}>
-              {dur.label}
+              {t('options.durations.' + dur.key + '.label')}
             </Text>
-            <Text style={styles.durationDesc}>{dur.description}</Text>
+            <Text style={styles.durationDesc}>{t('options.durations.' + dur.key + '.desc')}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -178,7 +180,7 @@ export default function OnboardingScreen() {
           ))}
         </View>
         <TouchableOpacity onPress={handleSkip}>
-          <Text style={styles.skipText}>Skip</Text>
+          <Text style={styles.skipText}>{t('common.skip')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -198,7 +200,7 @@ export default function OnboardingScreen() {
         )}
         <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
           <Text style={styles.nextButtonText}>
-            {step === STEPS.length - 1 ? "Let's Explore! 🚀" : 'Continue'}
+            {step === STEPS.length - 1 ? (t('common.getStarted') + ' 🚀') : t('common.next')}
           </Text>
           <MaterialIcons name="arrow-forward" size={20} color={Colors.textInverse} />
         </TouchableOpacity>

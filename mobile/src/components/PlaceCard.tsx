@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } from '../constants/theme';
 import type { Place } from '../stores';
+import { useTranslation } from '../hooks/useTranslation';
 
 const { width } = Dimensions.get('window');
 
@@ -16,7 +17,11 @@ interface PlaceCardProps {
 }
 
 export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, onFavoriteToggle }: PlaceCardProps) {
+  const { t, getPlaceName, getCategoryName } = useTranslation();
   const categoryColor = CATEGORY_COLORS[place.category] || Colors.primary;
+  const placeName = getPlaceName(place);
+  const categoryLabel = getCategoryName(place.category).toUpperCase();
+  const kmUnit = t('common.km');
 
   if (variant === 'horizontal') {
     return (
@@ -35,15 +40,15 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
         <View style={styles.horizontalOverlay}>
           <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30' }]}>
             <Text style={[styles.categoryText, { color: categoryColor }]}>
-              {place.category.toUpperCase()}
+              {categoryLabel}
             </Text>
           </View>
-          <Text style={styles.horizontalName} numberOfLines={1}>{place.name}</Text>
+          <Text style={styles.horizontalName} numberOfLines={1}>{placeName}</Text>
           <View style={styles.horizontalMeta}>
             {place.distance !== undefined && (
               <View style={styles.metaRow}>
                 <MaterialIcons name="place" size={13} color={Colors.textSecondary} />
-                <Text style={styles.metaText}>{place.distance.toFixed(1)} km</Text>
+                <Text style={styles.metaText}>{place.distance.toFixed(1)} {kmUnit}</Text>
               </View>
             )}
             {place.rating && (
@@ -86,16 +91,16 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
       <View style={styles.verticalContent}>
         <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30' }]}>
           <Text style={[styles.categoryText, { color: categoryColor }]}>
-            {place.category.toUpperCase()}
+            {categoryLabel}
           </Text>
         </View>
-        <Text style={styles.verticalName} numberOfLines={2}>{place.name}</Text>
+        <Text style={styles.verticalName} numberOfLines={2}>{placeName}</Text>
         <Text style={styles.verticalDesc} numberOfLines={2}>{place.shortDescription}</Text>
         <View style={styles.verticalFooter}>
           {place.distance !== undefined && (
             <View style={styles.metaRow}>
               <MaterialIcons name="place" size={14} color={Colors.textSecondary} />
-              <Text style={styles.metaText}>{place.distance.toFixed(1)} km</Text>
+              <Text style={styles.metaText}>{place.distance.toFixed(1)} {kmUnit}</Text>
             </View>
           )}
           {place.rating && (
@@ -119,10 +124,10 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
 }
 
 const styles = StyleSheet.create({
-  // Horizontal card (for Home screen carousel)
+  // Horizontal card (for carousel)
   horizontalCard: {
-    width: width * 0.6,
-    height: 200,
+    width: width * 0.65,
+    height: 190,
     borderRadius: BorderRadius.xl,
     overflow: 'hidden',
     marginRight: Spacing.md,
@@ -140,7 +145,6 @@ const styles = StyleSheet.create({
     right: 0,
     padding: Spacing.md,
     backgroundColor: 'rgba(10, 10, 15, 0.75)',
-    backdropFilter: 'blur(10px)',
   },
   horizontalName: {
     fontSize: Typography.sizes.md,
@@ -158,36 +162,15 @@ const styles = StyleSheet.create({
   verticalCard: {
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.xl,
+    marginBottom: Spacing.md,
     overflow: 'hidden',
-    marginBottom: Spacing.base,
     borderWidth: 1,
     borderColor: Colors.border,
     ...Shadows.sm,
   },
   verticalImage: {
     width: '100%',
-    height: 180,
-  },
-  verticalContent: {
-    padding: Spacing.base,
-  },
-  verticalName: {
-    fontSize: Typography.sizes.lg,
-    fontWeight: '700',
-    color: Colors.text,
-    marginTop: 6,
-    marginBottom: 4,
-  },
-  verticalDesc: {
-    fontSize: Typography.sizes.sm,
-    color: Colors.textSecondary,
-    lineHeight: 18,
-    marginBottom: Spacing.sm,
-  },
-  verticalFooter: {
-    flexDirection: 'row',
-    gap: 14,
-    flexWrap: 'wrap',
+    height: 160,
   },
   favoriteButton: {
     position: 'absolute',
@@ -199,27 +182,51 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(10, 10, 15, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 1,
   },
-
-  // Shared
+  verticalContent: {
+    padding: Spacing.base,
+  },
   categoryBadge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: BorderRadius.full,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
+    marginBottom: 6,
   },
   categoryText: {
     fontSize: Typography.sizes.xs,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
+  verticalName: {
+    fontSize: Typography.sizes.lg,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: 4,
+  },
+  verticalDesc: {
+    fontSize: Typography.sizes.sm,
+    color: Colors.textSecondary,
+    lineHeight: 18,
+    marginBottom: 10,
+  },
+  verticalFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: Colors.divider,
+  },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 4,
   },
   metaText: {
-    fontSize: Typography.sizes.sm,
+    fontSize: Typography.sizes.xs,
     color: Colors.textSecondary,
+    fontWeight: '500',
   },
 });

@@ -30,8 +30,8 @@ export const authApi = {
 
 // ============ PLACES ============
 export const placesApi = {
-  getNearby: (lat: number, lng: number, radius = 50, category?: string) =>
-    api.get('/places/nearby', { params: { lat, lng, radius, category } }),
+  getNearby: (lat: number, lng: number, radius = 50, category?: string, lang = 'en') =>
+    api.get('/places/nearby', { params: { lat, lng, radius, category, lang } }),
   getById: (id: string) => api.get(`/places/${id}`),
   search: (query: string) => api.get('/places/search', { params: { q: query } }),
 };
