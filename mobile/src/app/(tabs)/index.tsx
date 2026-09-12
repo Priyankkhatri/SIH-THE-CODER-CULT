@@ -40,8 +40,13 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [sosVisible, setSosVisible] = useState(false);
 
-  const fetchPlaces = async () => {
-    setLoading(true);
+  const latKey = (location.latitude || 22.30).toFixed(2);
+  const lonKey = (location.longitude || 73.18).toFixed(2);
+
+  const fetchPlaces = async (isManual = false) => {
+    if (isManual || places.length === 0) {
+      setLoading(true);
+    }
     try {
       const response: any = await placesApi.getNearby(
         location.latitude || 22.3072,
@@ -57,13 +62,10 @@ export default function HomeScreen() {
         const allList = Array.isArray(allRes) ? allRes : (allRes?.data || []);
         if (allList.length > 0) {
           setPlaces(allList);
-        } else {
-          setPlaces(DEMO_PLACES);
         }
       }
     } catch (error) {
-      console.warn('[HomeScreen] Backend fetch failed, using fallback:', error);
-      setPlaces(DEMO_PLACES);
+      console.warn('[HomeScreen] Live fetch notice, keeping cached places:', error);
     } finally {
       setLoading(false);
     }
@@ -71,7 +73,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     fetchPlaces();
-  }, [selectedCategory, location.latitude, location.longitude]);
+  }, [selectedCategory, latKey, lonKey]);
 
 
   const onRefresh = async () => {
@@ -219,10 +221,15 @@ export default function HomeScreen() {
           )}
         </View>
 
-        {/* All Places List */}
+        {/* Curated Heritage Showcase */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('home.allNearbyPlaces')}</Text>
-          {filteredPlaces.map((place) => (
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{t('home.allNearbyPlaces')}</Text>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/explore')}>
+              <Text style={styles.seeAllText}>View Map →</Text>
+            </TouchableOpacity>
+          </View>
+          {filteredPlaces.slice(0, 15).map((place) => (
             <PlaceCard
               key={place.id}
               place={place}
@@ -232,6 +239,19 @@ export default function HomeScreen() {
               onFavoriteToggle={toggleFavorite}
             />
           ))}
+
+          {filteredPlaces.length > 15 && (
+            <TouchableOpacity
+              style={styles.exploreMoreBtn}
+              onPress={() => router.push('/(tabs)/explore')}
+              activeOpacity={0.8}
+            >
+              <MaterialIcons name="explore" size={20} color={Colors.primary} />
+              <Text style={styles.exploreMoreText}>
+                Explore All {filteredPlaces.length} Heritage Sites on Live Radar Map →
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
 
@@ -457,5 +477,30 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: Typography.sizes.base,
     color: Colors.textMuted,
+  },
+  seeAllText: {
+    fontSize: Typography.sizes.sm,
+    color: Colors.primary,
+    fontWeight: '700',
+  },
+  exploreMoreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: Colors.surface,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.base,
+    borderRadius: BorderRadius.xl,
+    marginTop: Spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 169, 71, 0.35)',
+    ...Shadows.sm,
+  },
+  exploreMoreText: {
+    fontSize: Typography.sizes.sm,
+    fontWeight: '700',
+    color: Colors.primary,
+    textAlign: 'center',
   },
 });

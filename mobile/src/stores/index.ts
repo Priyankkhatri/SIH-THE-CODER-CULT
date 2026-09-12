@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { safeStorage } from '../utils/safeStorage';
 import { favoritesApi } from '../services/api/favorites.api';
 import { offlineApi } from '../services/api/offline.api';
+import { ALL_SEED_PLACES } from '../utils/seedPlaces';
 
 // ============ USER STORE ============
 interface UserState {
@@ -149,7 +150,7 @@ interface PlacesState {
 }
 
 export const usePlacesStore = create<PlacesState>((set, get) => ({
-  places: [],
+  places: ALL_SEED_PLACES,
   selectedPlace: null,
   favorites: [],
   isLoading: false,

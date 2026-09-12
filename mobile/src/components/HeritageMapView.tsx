@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet, Platform, TouchableOpacity } from 'react-native';
 import MapView, { Marker, Callout, PROVIDER_GOOGLE } from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, CATEGORY_COLORS } from '../constants/theme';
@@ -73,10 +73,41 @@ export function HeritageMapView({
     longitudeDelta: 3.6,
   };
 
+  if (Platform.OS === 'web') {
+    return (
+      <View style={[styles.map, styles.webMapContainer]}>
+        <View style={styles.webMapContent}>
+          <MaterialIcons name="public" size={48} color={Colors.primary} />
+          <Text style={styles.webMapTitle}>Gujarat & India Heritage Explorer</Text>
+          <Text style={styles.webMapSubtitle}>
+            {validPlaces.length} monuments cataloged across Gujarat, Rajasthan, and UNESCO India sites.
+          </Text>
+          <View style={styles.webGrid}>
+            {validPlaces.slice(0, 8).map((place) => (
+              <TouchableOpacity
+                key={place.id}
+                style={[
+                  styles.webChip,
+                  selectedPlace?.id === place.id && styles.webChipActive,
+                ]}
+                onPress={() => onSelectPlace(place)}
+              >
+                <Text style={styles.webChipText} numberOfLines={1}>
+                  {place.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <MapView
       ref={mapRef as any}
       style={styles.map}
+      provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
       initialRegion={initialRegion}
       customMapStyle={DARK_MAP_STYLE}
       loadingEnabled={true}
@@ -92,6 +123,8 @@ export function HeritageMapView({
           key={place.id}
           coordinate={{ latitude: place.latitude, longitude: place.longitude }}
           pinColor={CATEGORY_COLORS[place.category] || Colors.primary}
+          title={place.name}
+          description={place.shortDescription?.substring(0, 90)}
           onPress={() => onSelectPlace(place)}
           tracksViewChanges={false}
         >
@@ -154,5 +187,52 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '600',
     marginTop: 8,
+  },
+  webMapContainer: {
+    backgroundColor: '#0E1726',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  webMapContent: {
+    alignItems: 'center',
+    maxWidth: 480,
+    gap: 12,
+  },
+  webMapTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.text,
+    textAlign: 'center',
+  },
+  webMapSubtitle: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  webGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    justifyContent: 'center',
+    marginTop: 12,
+  },
+  webChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  webChipActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  webChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.text,
   },
 });
