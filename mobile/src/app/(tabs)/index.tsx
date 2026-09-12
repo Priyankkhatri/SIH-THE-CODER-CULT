@@ -21,6 +21,7 @@ import { PlaceCard } from '../../components/PlaceCard';
 import { CategoryFilter } from '../../components/CategoryFilter';
 import { WeatherCrowdBar } from '../../components/WeatherCrowdBar';
 import { SafetySOSModal } from '../../components/SafetySOSModal';
+import { PlaceCardHorizontalSkeleton, PlaceCardVerticalSkeleton } from '../../components/Skeleton';
 
 const QUICK_ACTIONS = [
   { key: 'explore', label: 'Explore Map', icon: 'map', color: Colors.accent },
@@ -198,10 +199,15 @@ export default function HomeScreen() {
 
           {/* Horizontal Place Cards */}
           {isLoading ? (
-            <View style={styles.loadingWrap}>
-              <ActivityIndicator size="large" color={Colors.primary} />
-              <Text style={styles.loadingText}>{t('home.discoveringHeritage')}</Text>
-            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: Spacing.base }}
+            >
+              <PlaceCardHorizontalSkeleton />
+              <PlaceCardHorizontalSkeleton />
+              <PlaceCardHorizontalSkeleton />
+            </ScrollView>
           ) : filteredPlaces.length > 0 ? (
             <FlatList
               data={filteredPlaces.slice(0, 8)}
@@ -229,16 +235,24 @@ export default function HomeScreen() {
               <Text style={styles.seeAllText}>View Map →</Text>
             </TouchableOpacity>
           </View>
-          {filteredPlaces.slice(0, 15).map((place) => (
-            <PlaceCard
-              key={place.id}
-              place={place}
-              onPress={handlePlacePress}
-              variant="vertical"
-              isFavorite={favorites.includes(place.id)}
-              onFavoriteToggle={toggleFavorite}
-            />
-          ))}
+          {isLoading ? (
+            <View style={{ paddingHorizontal: Spacing.base }}>
+              <PlaceCardVerticalSkeleton />
+              <PlaceCardVerticalSkeleton />
+              <PlaceCardVerticalSkeleton />
+            </View>
+          ) : (
+            filteredPlaces.slice(0, 15).map((place) => (
+              <PlaceCard
+                key={place.id}
+                place={place}
+                onPress={handlePlacePress}
+                variant="vertical"
+                isFavorite={favorites.includes(place.id)}
+                onFavoriteToggle={toggleFavorite}
+              />
+            ))
+          )}
 
           {filteredPlaces.length > 15 && (
             <TouchableOpacity

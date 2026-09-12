@@ -20,6 +20,7 @@ import {
   saveLocalReview,
   computeReviewStats,
 } from '../utils/reviewsData';
+import { ReviewsSectionSkeleton } from './Skeleton';
 
 interface ReviewsSectionProps {
   placeId: string;
@@ -85,6 +86,7 @@ const QUICK_TAGS = [
 export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: ReviewsSectionProps) {
   const { name: currentUserName } = useUserStore();
 
+  const [isLoading, setIsLoading] = useState(true);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [stats, setStats] = useState<ReviewStats>({
     totalReviews: 0,
@@ -105,15 +107,17 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
   const [newComment, setNewComment] = useState<string>('');
 
   useEffect(() => {
-    loadReviews();
+    loadReviews(true);
   }, [placeId]);
 
-  const loadReviews = async () => {
+  const loadReviews = async (showSkeleton = true) => {
+    if (showSkeleton) setIsLoading(true);
     try {
       const res: any = await placesApi.getReviews(placeId);
       if (res?.data?.reviews && Array.isArray(res.data.reviews) && res.data.reviews.length > 0) {
         setReviews(res.data.reviews);
         setStats(res.data.stats || computeReviewStats(res.data.reviews, initialRating));
+        setIsLoading(false);
         return;
       }
     } catch (e) {
@@ -123,6 +127,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
     const localData = await getLocalReviews(placeId, placeName, initialRating);
     setReviews(localData.reviews);
     setStats(localData.stats);
+    setIsLoading(false);
   };
 
   const filteredReviews = useMemo(() => {
@@ -186,6 +191,10 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
     setNewComment('');
   };
 
+  if (isLoading) {
+    return <ReviewsSectionSkeleton />;
+  }
+
   return (
     <View style={styles.container}>
       {/* Section Title & Header */}
@@ -194,14 +203,24 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
           <MaterialIcons name="rate-review" size={22} color={Colors.primary} />
           <Text style={styles.sectionTitle}>Visitor Reviews & Ratings</Text>
         </View>
-        <TouchableOpacity
-          style={styles.writeBtn}
-          onPress={() => setIsModalOpen(true)}
-          activeOpacity={0.85}
-        >
-          <MaterialIcons name="edit" size={15} color={Colors.textInverse} />
-          <Text style={styles.writeBtnText}>Write Review</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <TouchableOpacity
+            style={styles.reloadBtn}
+            onPress={() => loadReviews(true)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <MaterialIcons name="refresh" size={17} color={Colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.writeBtn}
+            onPress={() => setIsModalOpen(true)}
+            activeOpacity={0.85}
+          >
+            <MaterialIcons name="edit" size={15} color={Colors.textInverse} />
+            <Text style={styles.writeBtnText}>Write Review</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <Text style={styles.sectionSubtitle}>
         Authentic reviews and visit insights from verified heritage explorers.
@@ -537,6 +556,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: BorderRadius.full,
+  },
+  reloadBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   writeBtnText: {
     fontSize: Typography.sizes.xs,

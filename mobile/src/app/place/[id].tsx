@@ -9,6 +9,7 @@ import {
   Linking,
   Platform,
   Dimensions,
+  RefreshControl,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -22,6 +23,7 @@ import { WeatherCrowdBar } from '../../components/WeatherCrowdBar';
 import { SafetySOSModal } from '../../components/SafetySOSModal';
 import { LocalArtisansSection } from '../../components/LocalArtisansSection';
 import { ReviewsSection } from '../../components/ReviewsSection';
+import { PlaceDetailSkeleton } from '../../components/Skeleton';
 
 const { width } = Dimensions.get('window');
 
@@ -65,6 +67,7 @@ export default function PlaceDetailScreen() {
 
   const [heritage, setHeritage] = useState<HeritageDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>('story');
   const [sosVisible, setSosVisible] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -74,17 +77,18 @@ export default function PlaceDetailScreen() {
   useEffect(() => {
     if (id) {
       setImageError(false);
-      loadHeritage();
+      loadHeritage(true);
     }
   }, [id]);
 
-  const loadHeritage = async () => {
-    setIsLoading(true);
+  const loadHeritage = async (showSkeleton = true) => {
+    if (showSkeleton) setIsLoading(true);
     try {
       const response: any = await heritageApi.getByPlaceId(id!, language);
       if (response?.data) {
         setHeritage(response.data);
         setIsLoading(false);
+        setIsRefreshing(false);
         return;
       }
     } catch (error) {
@@ -120,12 +124,20 @@ export default function PlaceDetailScreen() {
       };
       setHeritage(fallbackHeritage);
       setIsLoading(false);
+      setIsRefreshing(false);
       return;
     }
 
     const demo = getDemoHeritage(id!);
     setHeritage(demo);
     setIsLoading(false);
+    setIsRefreshing(false);
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await loadHeritage(false);
+    setIsRefreshing(false);
   };
 
   const handleAskAI = () => {
@@ -162,12 +174,7 @@ export default function PlaceDetailScreen() {
   };
 
   if (isLoading) {
-    return (
-      <View style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loadingText}>{t('place.loadingInfo')}</Text>
-      </View>
-    );
+    return <PlaceDetailSkeleton onBack={() => router.back()} />;
   }
 
   if (!heritage) {
@@ -206,7 +213,17 @@ export default function PlaceDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={Colors.primary}
+            colors={[Colors.primary]}
+          />
+        }
+      >
         {/* Hero Image */}
         <View style={styles.heroSection}>
           <Image
@@ -225,6 +242,13 @@ export default function PlaceDetailScreen() {
               <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
             </TouchableOpacity>
             <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity
+                style={styles.topBtn}
+                onPress={() => loadHeritage(true)}
+                activeOpacity={0.8}
+              >
+                <MaterialIcons name="refresh" size={20} color={Colors.text} />
+              </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.topBtn, { backgroundColor: 'rgba(239, 83, 80, 0.25)' }]}
                 onPress={() => setSosVisible(true)}

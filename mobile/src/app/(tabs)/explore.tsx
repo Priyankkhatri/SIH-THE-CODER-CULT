@@ -21,6 +21,7 @@ import { useLocation } from '../../hooks/useLocation';
 import { CategoryFilter } from '../../components/CategoryFilter';
 import { HeritageMapView } from '../../components/HeritageMapView';
 import { PlaceCard } from '../../components/PlaceCard';
+import { PlaceCardVerticalSkeleton } from '../../components/Skeleton';
 import { placesApi } from '../../services/api';
 import { getLiveCrowd } from '../../utils/touristMeta';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
@@ -146,9 +147,11 @@ export default function ExploreScreen() {
       ) : (
         <View style={styles.listContainer}>
           {isLoading ? (
-            <View style={styles.loaderCenter}>
-              <ActivityIndicator size="large" color={Colors.primary} />
-              <Text style={styles.loaderText}>Loading Heritage Directory...</Text>
+            <View style={styles.listContent}>
+              <PlaceCardVerticalSkeleton />
+              <PlaceCardVerticalSkeleton />
+              <PlaceCardVerticalSkeleton />
+              <PlaceCardVerticalSkeleton />
             </View>
           ) : (
             <FlatList
