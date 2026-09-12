@@ -121,8 +121,11 @@ export default function CameraScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Live Camera Viewfinder */}
-      <CameraView style={StyleSheet.absoluteFill} ref={cameraRef}>
+      {/* Live Camera Viewfinder (Self-closing for Expo Camera SDK) */}
+      <CameraView style={StyleSheet.absoluteFill} ref={cameraRef} />
+
+      {/* Floating Controls Overlay */}
+      <View style={styles.overlayContainer} pointerEvents="box-none">
         {/* Top Floating Controls */}
         <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
           <TouchableOpacity style={styles.iconCircle} onPress={() => router.back()}>
@@ -138,7 +141,7 @@ export default function CameraScreen() {
         </View>
 
         {/* Viewfinder Target Framing Box */}
-        <View style={styles.framingContainer}>
+        <View style={styles.framingContainer} pointerEvents="none">
           <View style={styles.reticleBox}>
             <View style={[styles.reticleCorner, styles.cornerTL]} />
             <View style={[styles.reticleCorner, styles.cornerTR]} />
@@ -206,7 +209,7 @@ export default function CameraScreen() {
             </View>
           )}
         </View>
-      </CameraView>
+      </View>
     </View>
   );
 }
@@ -215,6 +218,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  overlayContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'space-between',
+    zIndex: 10,
   },
   permissionContainer: {
     flex: 1,
