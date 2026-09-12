@@ -31,7 +31,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg/960px-Taj_Mahal%2C_Agra%2C_India_edit3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/960px-Taj_Mahal_%28Edited%29.jpeg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1f/Taj_Mahal_N-UP-A28-a.jpg/960px-Taj_Mahal_N-UP-A28-a.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "taj_mahal"
   },
   {
     "id": "IND-HER-02",
@@ -65,7 +70,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/ff/Qutb_complex_-Delhi_-Delhi_-SSI_0005.jpg/960px-Qutb_complex_-Delhi_-Delhi_-SSI_0005.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/38/Qutb_complex_-Delhi_-Delhi_-SSI_002.jpg/960px-Qutb_complex_-Delhi_-Delhi_-SSI_002.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Qutb_complex_-Delhi_-Delhi_-SSI_003.jpg/960px-Qutb_complex_-Delhi_-Delhi_-SSI_003.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "qutub_minar"
   },
   {
     "id": "IND-HER-03",
@@ -99,7 +109,13 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Lal_Qila_%28Red_Fort%29_270.jpg/960px-Lal_Qila_%28Red_Fort%29_270.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/Lal_Qila_%28Red_Fort%29_271.jpg/960px-Lal_Qila_%28Red_Fort%29_271.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Red_Fort%2C_Delhi_%28Lal_Qila%29.jpg/960px-Red_Fort%2C_Delhi_%28Lal_Qila%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "danushkumarv/indian-monuments-image-dataset",
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": "red_fort"
   },
   {
     "id": "IND-HER-04",
@@ -133,7 +149,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Barber%27s_Tomb%2C_inside_the_Humayun%27s_Tomb_complex_02.jpg/960px-Barber%27s_Tomb%2C_inside_the_Humayun%27s_Tomb_complex_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Barber%27s_Tomb%2C_inside_the_Humayun%27s_Tomb_complex_04.jpg/960px-Barber%27s_Tomb%2C_inside_the_Humayun%27s_Tomb_complex_04.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Barber%27s_Tomb%2C_inside_the_Humayun%27s_Tomb_complex_06.jpg/960px-Barber%27s_Tomb%2C_inside_the_Humayun%27s_Tomb_complex_06.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "humayuns_tomb"
   },
   {
     "id": "IND-HER-05",
@@ -167,7 +188,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/Gardens_of_the_great_Mughals_%28IA_gardensofgreatmu00villiala%29.pdf/page1-500px-Gardens_of_the_great_Mughals_%28IA_gardensofgreatmu00villiala%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/India_of_to-day_%28IA_indiaoftoday00delmiala%29.pdf/page1-500px-India_of_to-day_%28IA_indiaoftoday00delmiala%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Memoirs_of_the_Emperor_Jahangueir.djvu/page1-960px-Memoirs_of_the_Emperor_Jahangueir.djvu.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "fatehpur_sikri"
   },
   {
     "id": "IND-HER-06",
@@ -201,7 +227,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Ajanta_cave_no._9_2010.jpg/960px-Ajanta_cave_no._9_2010.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Ajanta_caves_panorama_2010.jpg/960px-Ajanta_caves_panorama_2010.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Ajanta_caves_view.jpg/960px-Ajanta_caves_view.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "ajanta_caves"
   },
   {
     "id": "IND-HER-07",
@@ -235,7 +266,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Ellora_Caves%2C_India%2C_Kailash_Temple%2C_Majestic_Interior.jpg/960px-Ellora_Caves%2C_India%2C_Kailash_Temple%2C_Majestic_Interior.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Ellora_Caves_-_Cave_16_%28Kailash_Temple%29.JPG/960px-Ellora_Caves_-_Cave_16_%28Kailash_Temple%29.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/External_view_of_the_cave_16%2C_kailash_temple%2C_Ellora_caves.jpg/960px-External_view_of_the_cave_16%2C_kailash_temple%2C_Ellora_caves.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "ellora_caves"
   },
   {
     "id": "IND-HER-08",
@@ -269,7 +305,12 @@
       "https://upload.wikimedia.org/wikipedia/commons/f/fd/Door_in_the_eastern_face_of_the_black_pagoda_%28konark_temple%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/Konark_Sun_Temple%2C_Odisha%2C_India.jpg/960px-Konark_Sun_Temple%2C_Odisha%2C_India.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Konark_Sun_Temple%2C_Odisha%2C_India_3.jpg/960px-Konark_Sun_Temple%2C_Odisha%2C_India_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "konark_sun_temple"
   },
   {
     "id": "IND-HER-09",
@@ -303,7 +344,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Khajuraho_group_of_monuments_2.jpg/960px-Khajuraho_group_of_monuments_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Khajuraho_group_of_monuments_3.jpg/960px-Khajuraho_group_of_monuments_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/Khajuraho_group_of_monuments_4.jpg/960px-Khajuraho_group_of_monuments_4.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "khajuraho"
   },
   {
     "id": "IND-HER-10",
@@ -337,7 +383,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/76/Ancient_ruins_of_elephant_Stable%2C_HAMPI.jpg/960px-Ancient_ruins_of_elephant_Stable%2C_HAMPI.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/Hampi%2C_India%2C_Sri_Krishna_Temple%2C_Ancient_ruins_of_Hampi.jpg/960px-Hampi%2C_India%2C_Sri_Krishna_Temple%2C_Ancient_ruins_of_Hampi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Hampi%2C_India%2C_Stone_sculptures_of_Sri_Krishna_Temple%2C_Ancient_ruins_of_Hampi.jpg/960px-Hampi%2C_India%2C_Stone_sculptures_of_Sri_Krishna_Temple%2C_Ancient_ruins_of_Hampi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "hampi"
   },
   {
     "id": "IND-HER-11",
@@ -371,7 +422,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/Rani_ki_vav_15.jpg/960px-Rani_ki_vav_15.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Sculptures_in_Rani_ki_vav_01.jpg/960px-Sculptures_in_Rani_ki_vav_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Sculptures_in_Rani_ki_vav_02.jpg/960px-Sculptures_in_Rani_ki_vav_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "rani_ki_vav"
   },
   {
     "id": "IND-HER-12",
@@ -405,7 +461,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/Elephant_Reliefs_at_the_Group_of_Monuments_at_Mahabalipuram_1994.jpg/960px-Elephant_Reliefs_at_the_Group_of_Monuments_at_Mahabalipuram_1994.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/Mahabalipuram_-_55438890607.jpg/960px-Mahabalipuram_-_55438890607.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Mahabalipuram_-_55439972113.jpg/960px-Mahabalipuram_-_55439972113.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-13",
@@ -439,7 +499,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Great_Sanchi_Stupa_%283%29.jpg/960px-Great_Sanchi_Stupa_%283%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Great_Sanchi_Stupa_Gallery_%281%29.jpg/960px-Great_Sanchi_Stupa_Gallery_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/North_Torana%2C_Sanchi_02.jpg/960px-North_Torana%2C_Sanchi_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "sanchi_stupa"
   },
   {
     "id": "IND-HER-14",
@@ -473,7 +538,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/Brihadisvara_Temple_-_Thanjavur_peruvudaiyar_kovil_ttkcvrvb122k23iph_%2827%29.jpg/960px-Brihadisvara_Temple_-_Thanjavur_peruvudaiyar_kovil_ttkcvrvb122k23iph_%2827%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Brihadisvara_Temple_-_Thanjavur_peruvudaiyar_kovil_ttkcvrvb122k23iph_%28389%29.jpg/960px-Brihadisvara_Temple_-_Thanjavur_peruvudaiyar_kovil_ttkcvrvb122k23iph_%28389%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Brihadisvara_Temple_-_Thanjavur_peruvudaiyar_kovil_ttkcvrvb122k23iph_%28500%29.jpg/960px-Brihadisvara_Temple_-_Thanjavur_peruvudaiyar_kovil_ttkcvrvb122k23iph_%28500%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-15",
@@ -507,7 +576,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/20191218_Hawa_Mahal_%28The_Palace_of_Winds%29_in_Jaipur%2C_1150_9148.jpg/960px-20191218_Hawa_Mahal_%28The_Palace_of_Winds%29_in_Jaipur%2C_1150_9148.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/20191218_Hawa_Mahal_%28The_Palace_of_Winds%29_in_Jaipur%2C_1156_9165.jpg/960px-20191218_Hawa_Mahal_%28The_Palace_of_Winds%29_in_Jaipur%2C_1156_9165.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/20191218_Pa%C5%82ac_Wiatr%C3%B3w_w_Jaipurze_1129_9124.jpg/960px-20191218_Pa%C5%82ac_Wiatr%C3%B3w_w_Jaipurze_1129_9124.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-16",
@@ -541,7 +614,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/20191219_Amber_Fort%2C_Amer%2C_Jaipur_1019_9533.jpg/960px-20191219_Amber_Fort%2C_Amer%2C_Jaipur_1019_9533.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Amber_Fort%2C_Jaipur%2C_20191219_1037_9569_DxO.jpg/960px-Amber_Fort%2C_Jaipur%2C_20191219_1037_9569_DxO.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Amer_Palace_View_From_Jaigarh_Fort.jpg/960px-Amer_Palace_View_From_Jaigarh_Fort.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-17",
@@ -575,7 +653,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Charminar_12032013.jpg/960px-Charminar_12032013.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Charminar_Aerial_View.jpg/960px-Charminar_Aerial_View.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/Charminar_Hyderabad_1.jpg/960px-Charminar_Hyderabad_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "charminar"
   },
   {
     "id": "IND-HER-18",
@@ -609,7 +692,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/Golconda_Fort%2C_Hyderabad_%28Oct_2025%29_-_3.jpg/960px-Golconda_Fort%2C_Hyderabad_%28Oct_2025%29_-_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Golconda_Fort_005.jpg/960px-Golconda_Fort_005.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Golconda_Fort_008.jpg/960px-Golconda_Fort_008.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-19",
@@ -643,7 +731,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Singapore-Victoria_Theatre_and_Concert_Hall-1973-74-WUS08256.jpg/960px-Singapore-Victoria_Theatre_and_Concert_Hall-1973-74-WUS08256.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fd/Teatro_Victoria%2C_Marina_Bay%2C_Singapur%2C_2023-08-16%2C_DD_74-76_HDR.jpg/960px-Teatro_Victoria%2C_Marina_Bay%2C_Singapur%2C_2023-08-16%2C_DD_74-76_HDR.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4b/Victoria_Memorial_Kolkata_at_night.jpg/960px-Victoria_Memorial_Kolkata_at_night.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "victoria_memorial"
   },
   {
     "id": "IND-HER-20",
@@ -677,7 +770,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Golden_Temple%2C_Amritsar_01.jpg/960px-Golden_Temple%2C_Amritsar_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Golden_Temple%2C_Amritsar_02.jpg/960px-Golden_Temple%2C_Amritsar_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Golden_Temple%2C_Amritsar_03.jpg/960px-Golden_Temple%2C_Amritsar_03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "golden_temple"
   },
   {
     "id": "IND-HER-21",
@@ -711,7 +809,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Meenakshi_Amman_Temple%2C_Madurai.JPG/960px-Meenakshi_Amman_Temple%2C_Madurai.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Meenakshi_Amman_Temple_-_Gateway_Tower%2C_Madurai.jpg/960px-Meenakshi_Amman_Temple_-_Gateway_Tower%2C_Madurai.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Meenakshi_Amman_Temple_View.JPG/960px-Meenakshi_Amman_Temple_View.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "meenakshi_temple"
   },
   {
     "id": "IND-HER-22",
@@ -745,7 +848,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Nalanda_Mahavihara_Archaeological_Site_17.jpg/960px-Nalanda_Mahavihara_Archaeological_Site_17.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Nalanda_Mahavihara_Archaeological_Site_30.jpg/960px-Nalanda_Mahavihara_Archaeological_Site_30.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Nalanda_Mahavihara_Archaeological_Site_40.jpg/960px-Nalanda_Mahavihara_Archaeological_Site_40.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-23",
@@ -779,7 +886,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/Decorative_Panels_on_Votive_Stupas_-_Mahabodhi_Temple_Complex_%281%29.jpg/960px-Decorative_Panels_on_Votive_Stupas_-_Mahabodhi_Temple_Complex_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/a/a7/Mahabodhi_Temple_Complex%2C_Bodhgaya_%288716403651%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Mahabodhi_Temple_Complex%2C_Bodhgaya_%288717524046%29.jpg/960px-Mahabodhi_Temple_Complex%2C_Bodhgaya_%288717524046%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-24",
@@ -813,7 +924,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/Elephanta_Caves%2C_India%2C_Shiva.jpg/960px-Elephanta_Caves%2C_India%2C_Shiva.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Elephanta_Caves%2C_India.jpg/960px-Elephanta_Caves%2C_India.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/92/Elephanta_Caves_in_Mumbai.jpg/960px-Elephanta_Caves_in_Mumbai.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-25",
@@ -847,7 +962,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Carvings_at_Pattadakal_temple.jpg/960px-Carvings_at_Pattadakal_temple.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Carvings_at_Pattadakal_temple_wall.jpg/960px-Carvings_at_Pattadakal_temple_wall.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Carvings_on_Piller_at_Pattadakal_temple.jpg/960px-Carvings_on_Piller_at_Pattadakal_temple.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-26",
@@ -881,7 +1000,12 @@
       "https://upload.wikimedia.org/wikipedia/commons/d/d2/Great_wall_of_India_FORT_KUMBHALGRH.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/KUMBHALGARH_WALL_02.jpg/960px-KUMBHALGARH_WALL_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Kumbhalgarh%27s_great_wall.jpg/960px-Kumbhalgarh%27s_great_wall.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-27",
@@ -915,7 +1039,13 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Kirti_Stambha%2C_Chittorgarh_Fort_2015-12-29.jpg/960px-Kirti_Stambha%2C_Chittorgarh_Fort_2015-12-29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/The_Vijay_Stambha_%28Tower_of_Victory%29_was_erected_by_Rana_Kumbha_inside_Chittorgarh_Fort_Rajasthan.jpg/960px-The_Vijay_Stambha_%28Tower_of_Victory%29_was_erected_by_Rana_Kumbha_inside_Chittorgarh_Fort_Rajasthan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Vijay_Stambha_-_tower_of_victory_-_Chittorgarh_Fort_Rajasthan.jpg/960px-Vijay_Stambha_-_tower_of_victory_-_Chittorgarh_Fort_Rajasthan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "danushkumarv/indian-monuments-image-dataset",
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": "chittorgarh_fort"
   },
   {
     "id": "IND-HER-28",
@@ -945,7 +1075,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/System_of_reservoirs_and_canals_found_at_Dholavira.jpg/960px-System_of_reservoirs_and_canals_found_at_Dholavira.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Water_reservoir_at_Dholavira_site.jpg/960px-Water_reservoir_at_Dholavira_site.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Cross-section_of_a_well_%2816496222759%29.jpg/960px-Cross-section_of_a_well_%2816496222759%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-29",
@@ -979,7 +1113,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Kakatiya_Rudreshwara_%28Ramappa%29_Temple%2C_Telangana.jpg/960px-Kakatiya_Rudreshwara_%28Ramappa%29_Temple%2C_Telangana.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Master_piece_of_ramappa_temple.jpg/960px-Master_piece_of_ramappa_temple.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Ramappa_Temple.png/960px-Ramappa_Temple.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-30",
@@ -1009,7 +1147,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Chennakeshava_temple_Belur_202.jpg/960px-Chennakeshava_temple_Belur_202.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/Chennakeshava_temple_Belur_526.jpg/960px-Chennakeshava_temple_Belur_526.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Chennakeshava_temple_Belur_527.jpg/960px-Chennakeshava_temple_Belur_527.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-31",
@@ -1043,7 +1185,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Sun_Temple%2C_Modhera_-_Nandi.jpg/960px-Sun_Temple%2C_Modhera_-_Nandi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Sun_Temple%2C_Modhera_-_Sabha_Mandap_01.jpg/960px-Sun_Temple%2C_Modhera_-_Sabha_Mandap_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Sun_Temple%2C_Modhera_01.jpg/960px-Sun_Temple%2C_Modhera_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "sun_temple_modhera"
   },
   {
     "id": "IND-HER-32",
@@ -1077,7 +1224,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Rock_Shelter_3%2C_Bhimbetka_01.jpg/960px-Rock_Shelter_3%2C_Bhimbetka_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Rock_Shelter_3%2C_Bhimbetka_02.jpg/960px-Rock_Shelter_3%2C_Bhimbetka_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Rock_Shelter_3%2C_Bhimbetka_03.jpg/960px-Rock_Shelter_3%2C_Bhimbetka_03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-33",
@@ -1111,7 +1262,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Basilica_of_bom_jesus2.jpg/960px-Basilica_of_bom_jesus2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/CathedralBomJesus.jpg/960px-CathedralBomJesus.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/Old_church_and_Museum_at_Old_Goa_near_Basilica_Bom_Jesus_-_panoramio.jpg/960px-Old_church_and_Museum_at_Old_Goa_near_Basilica_Bom_Jesus_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-34",
@@ -1145,7 +1300,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Chhatrapati_Shivaji_Maharaj_Terminus_2.jpg/960px-Chhatrapati_Shivaji_Maharaj_Terminus_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/Chhatrapati_Shivaji_Maharaj_Terminus_CSMT_Mumbai_IMG_20230818_191824_%2812%29_01.jpg/960px-Chhatrapati_Shivaji_Maharaj_Terminus_CSMT_Mumbai_IMG_20230818_191824_%2812%29_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/Chhatrapati_Shivaji_Maharaj_Terminus_CSMT_Mumbai_IMG_20230818_191824_%2812%29_03.jpg/960px-Chhatrapati_Shivaji_Maharaj_Terminus_CSMT_Mumbai_IMG_20230818_191824_%2812%29_03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-35",
@@ -1179,7 +1338,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Main_entrance_%26_Man_Mandir%2C_Gwalior_Fort..jpg/960px-Main_entrance_%26_Man_Mandir%2C_Gwalior_Fort..jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/Man_Mandir_Palace%2C_Gwalior_Fort%2C_Gwalior%2C_Madhya_Pradesh%2C_India_%282018%29.jpg/960px-Man_Mandir_Palace%2C_Gwalior_Fort%2C_Gwalior%2C_Madhya_Pradesh%2C_India_%282018%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/6/69/Man_Mandir_Palace_Gwalior_Fort_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-36",
@@ -1213,7 +1377,13 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Chand_Minar_Daulatabad_Fort_Daulatabad_India_-_panoramio_%281%29.jpg/960px-Chand_Minar_Daulatabad_Fort_Daulatabad_India_-_panoramio_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c2/Daulatabad_Fort%2C_Aurangabad_-_panoramio_%2885%29.jpg/960px-Daulatabad_Fort%2C_Aurangabad_-_panoramio_%2885%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Daulatabad_Fort_%26_Chand_Minar_Aurangabad_Maharashtra.jpg/960px-Daulatabad_Fort_%26_Chand_Minar_Aurangabad_Maharashtra.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "danushkumarv/indian-monuments-image-dataset",
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": "daulatabad_fort"
   },
   {
     "id": "IND-HER-37",
@@ -1247,7 +1417,12 @@
       "https://upload.wikimedia.org/wikipedia/commons/e/e4/India_Folk_Historical_Place_In_Maharashtra_17.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://upload.wikimedia.org/wikipedia/commons/8/85/India_Folk_Historical_Place_In_Maharashtra_22.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://upload.wikimedia.org/wikipedia/commons/f/f6/Raigad_Fort.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-38",
@@ -1281,7 +1456,12 @@
       "https://upload.wikimedia.org/wikipedia/commons/f/ff/Sea_beach2_near_Murud_Janjira_Fort%2C_Raigad%2C_Maharashtra.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://upload.wikimedia.org/wikipedia/commons/0/03/Sea_beach3_near_Murud_Janjira_Fort%2C_Raigad%2C_Maharashtra.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://upload.wikimedia.org/wikipedia/commons/b/bc/Sea_beach4_near_Murud_Janjira_Fort%2C_Raigad%2C_Maharashtra.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-39",
@@ -1315,7 +1495,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Bijapur_-_Gol_Gumbuz_View_from_the_Whispering_Gallery.jpg/960px-Bijapur_-_Gol_Gumbuz_View_from_the_Whispering_Gallery.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/Gol-Gumbaz..._the_WHISPERING_GALLERY_from_top.jpg/960px-Gol-Gumbaz..._the_WHISPERING_GALLERY_from_top.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Gol_Gumbaz_-5%2C_Bijapur%2C_Karnataka.jpg/960px-Gol_Gumbaz_-5%2C_Bijapur%2C_Karnataka.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-40",
@@ -1349,7 +1533,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Mysore_Amba_Vilas_palace.jpg/960px-Mysore_Amba_Vilas_palace.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Mysore_Palace%2C_Amba_Vilas_Maharaja_Palace%2C_Mysore%2C_Karnataka.jpg/960px-Mysore_Palace%2C_Amba_Vilas_Maharaja_Palace%2C_Mysore%2C_Karnataka.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Mysore_Palace_%281%29.jpg/960px-Mysore_Palace_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-41",
@@ -1383,7 +1571,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Jagannath_Temple%2C_Puri_08.jpg/960px-Jagannath_Temple%2C_Puri_08.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/Jagannath_Temple%2C_Puri_09.jpg/960px-Jagannath_Temple%2C_Puri_09.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Lord_Jagannath_temple_at_night.jpg/960px-Lord_Jagannath_temple_at_night.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-42",
@@ -1417,7 +1609,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/Cellular_Jail_Andaman_KALA_PANI.jpg/960px-Cellular_Jail_Andaman_KALA_PANI.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Cellular_jail_Andaman_11.jpg/960px-Cellular_jail_Andaman_11.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Cellular_jail_Andaman_15.jpg/960px-Cellular_jail_Andaman_15.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-43",
@@ -1451,7 +1647,11 @@
       "https://commons.wikimedia.org/w/resources/assets/file-type-icons/fileicon-ogg.png",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Local_musicians_singing_bhajan_at_kamakhya_temple%2C_Guwahati%2C_Assam%2C_India.webm/960px--Local_musicians_singing_bhajan_at_kamakhya_temple%2C_Guwahati%2C_Assam%2C_India.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/76/Maa_Kamakhya_Temple%2C_Guwahati%2C_Assam.jpg/960px-Maa_Kamakhya_Temple%2C_Guwahati%2C_Assam.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-44",
@@ -1481,7 +1681,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Rang_Ghar_The_first_Indian_pavilion.jpg/960px-Rang_Ghar_The_first_Indian_pavilion.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/Rang_Ghar_view_from_gate_with_Dragon_statues.jpg/960px-Rang_Ghar_view_from_gate_with_Dragon_statues.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Rang_Ghar_view_in_rain.jpg/960px-Rang_Ghar_view_in_rain.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-45",
@@ -1515,7 +1719,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Martand_Sun_Temple_enclosure_%286134371538%29.jpg/960px-Martand_Sun_Temple_enclosure_%286134371538%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Martand_Sun_Temple_in_1873.jpg/960px-Martand_Sun_Temple_in_1873.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/Martanda_sun_temple.jpg/960px-Martanda_sun_temple.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-46",
@@ -1549,7 +1757,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/Jor-Bangla_Temple%2C_traditionally_known_as_Kestaraya_Temple%2C_in_Bishnupur%2C_West_Bengal%2C_India.jpg/960px-Jor-Bangla_Temple%2C_traditionally_known_as_Kestaraya_Temple%2C_in_Bishnupur%2C_West_Bengal%2C_India.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Jor_Mandir_01.jpg/960px-Jor_Mandir_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Jor_Mandir_03.jpg/960px-Jor_Mandir_03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-47",
@@ -1583,7 +1795,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Hanging_Pillar_Of_Lepakshi.jpg/960px-Hanging_Pillar_Of_Lepakshi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/4/4b/Hanging_pillar%2C_Veerabhadra_Temple%2C_Lepakshi%2C_AndhraPradesh.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/LEPAKSHI_TEMPLE.jpg/960px-LEPAKSHI_TEMPLE.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-48",
@@ -1617,7 +1833,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/A-cave-temple-at-badami.JPG/960px-A-cave-temple-at-badami.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Badami_Cave_Temples_-_Sculpture.jpg/960px-Badami_Cave_Temples_-_Sculpture.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Badami_caves_Cave_One_%2814%29.jpg/960px-Badami_caves_Cave_One_%2814%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-49",
@@ -1648,7 +1868,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Durga_Temple_Ceiling%2C_Aihole%2C_Karnataka.jpg/960px-Durga_Temple_Ceiling%2C_Aihole%2C_Karnataka.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Durga_temple%2C_Aihole_Karnataka.jpg/960px-Durga_temple%2C_Aihole_Karnataka.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/a/a1/Shiva_Temple_Ruin.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-HER-50",
@@ -1678,7 +1902,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/74/Bekal_fort_kasaragod_15.jpg/960px-Bekal_fort_kasaragod_15.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Bekal_fort_kasaragod_20.jpg/960px-Bekal_fort_kasaragod_20.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Bekal_fort_kasaragod_21.jpg/960px-Bekal_fort_kasaragod_21.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-01",
@@ -1709,7 +1938,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Dancing_Girl_-_National_Museum%2C_New_Delhi.jpg/960px-Dancing_Girl_-_National_Museum%2C_New_Delhi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Dancing_Girl_National_Museum_Delhi.jpg/960px-Dancing_Girl_National_Museum_Delhi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/0/00/Dancing_Girl_engraving_on_a_potsherd.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-02",
@@ -1742,7 +1975,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Ashokan_Lion_Capital_India%27s_National_Emblem_Sarnath_Archeological_Museum.jpg/960px-Ashokan_Lion_Capital_India%27s_National_Emblem_Sarnath_Archeological_Museum.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/National_Emblem_of_India.jpg/960px-National_Emblem_of_India.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/d/df/Photograph_of_the_Lion_Capital_at_Sarnath%2C_Uttar_Pradesh_by_Madho_Prasad%2C_c.1905.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-03",
@@ -1776,7 +2013,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Didarganj_Yakshi_statue_in_the_Bihar_Museum.jpg/960px-Didarganj_Yakshi_statue_in_the_Bihar_Museum.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Didarganj_Yakshi_with_male_admirers.jpg/960px-Didarganj_Yakshi_with_male_admirers.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Didarganj_Yakshi_with_selfie_takers.jpg/960px-Didarganj_Yakshi_with_selfie_takers.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-04",
@@ -1810,7 +2051,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/Meenakshi_Temple%2C_Shiva%2C_Nataraja%2C_Ananda_Tandava%2C_Madurai%2C_India.jpg/960px-Meenakshi_Temple%2C_Shiva%2C_Nataraja%2C_Ananda_Tandava%2C_Madurai%2C_India.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Meenakshi_Temple%2C_Shiva%2C_Nataraja%2C_Ananda_Tandava%2C_Shaivite_sanctum_sanctorum%2C_Madurai%2C_India.jpg/960px-Meenakshi_Temple%2C_Shiva%2C_Nataraja%2C_Ananda_Tandava%2C_Shaivite_sanctum_sanctorum%2C_Madurai%2C_India.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/88/Napier_Museum_Natarajamurthy_18th_Century_South_India.jpg/960px-Napier_Museum_Natarajamurthy_18th_Century_South_India.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-05",
@@ -1840,7 +2085,11 @@
       "https://upload.wikimedia.org/wikipedia/commons/1/1d/Antique_Indian_char-aina_%28chahar-aina%29%2C_kulah_khud_and_madu.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Cuirass_%28Char-aina%29_MET_DP151793.jpg/960px-Cuirass_%28Char-aina%29_MET_DP151793.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Cuirass_%28Char-aina%29_MET_DP151794.jpg/960px-Cuirass_%28Char-aina%29_MET_DP151794.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-06",
@@ -1870,7 +2119,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Haidar_Ali_and_Tipu_Sultan_and_the_struggle_with_the_Musalman_powers_of_the_South_%28IA_haidaralitipusul00bowriala%29.pdf/page1-500px-Haidar_Ali_and_Tipu_Sultan_and_the_struggle_with_the_Musalman_powers_of_the_South_%28IA_haidaralitipusul00bowriala%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/d/d9/Inscribed_Sword_of_Tipu_Sultan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/PXL_20231218_152223456_Victoria_and_Albert_Museum_Artefacts_06_historical_weapons_and_artifacts%2C_prominently_featuring_a_sword_believed_to_have_belonged_to_Tipu_Sultan%2C_the_18th-century_ruler_of_Mysore.jpg/960px-thumbnail.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-07",
@@ -1902,7 +2155,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Handbook_to_the_ethnographical_collections_%281910%29_%2814780936434%29.jpg/960px-Handbook_to_the_ethnographical_collections_%281910%29_%2814780936434%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Indian_bagh_nakh.jpg/960px-Indian_bagh_nakh.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Tiger_claws_.jpg/960px-Tiger_claws_.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-08",
@@ -1932,7 +2189,11 @@
       "https://upload.wikimedia.org/wikipedia/commons/c/c6/Dagger_2_of_Aurangzeb_from_17th_Century.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://upload.wikimedia.org/wikipedia/commons/1/19/Dagger_of_Mughal_Emperor_Aurangzeb_with_jade_hilt_-_17th_Century.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/HORSE_HANDLE_DAGGER_-_MUGHAL_17TH_CENTURY.JPG/960px-HORSE_HANDLE_DAGGER_-_MUGHAL_17TH_CENTURY.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-09",
@@ -1962,7 +2223,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/A_brief_history_of_medi%C3%A6val_and_modern_peoples_%28IA_briefhistoryofme00stee%29.pdf/page1-500px-A_brief_history_of_medi%C3%A6val_and_modern_peoples_%28IA_briefhistoryofme00stee%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/A_woman%27s_journey_round_the_world-_from_Vienna_to_Brazil%2C_Chili%2C_Tahiti%2C_China%2C_Hindostan%2C_Persia%2C_and_Asia_Minor_%28IA_womansjourneyrou00pfeirich%29.pdf/page1-500px-A_woman%27s_journey_round_the_world-_from_Vienna_to_Brazil%2C_Chili%2C_Tahiti%2C_China%2C_Hindostan%2C_Persia%2C_and_Asia_Minor_%28IA_womansjourneyrou00pfeirich%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/Armor_and_weapons_in_the_National_Museum%2C_New_Delhi_-_IMG_2251.JPG/960px-Armor_and_weapons_in_the_National_Museum%2C_New_Delhi_-_IMG_2251.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-10",
@@ -1996,7 +2261,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/How_to_see_the_New_York_Crystal_Palace-_being_a_Concise_Guide_to_the_Principal_Objects_in_the_Exhibition_as_remodelled%2C_1854.-_Part_First.-General_View.-_Sculpture.-_Paintings_%28IA_bub_gb_XRNBAAAAYAAJ%29.pdf/page1-500px-thumbnail.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/92/Karl_Bitter%3B_a_biography_%28IA_karlbitterbiogr00sche%29.pdf/page1-500px-Karl_Bitter%3B_a_biography_%28IA_karlbitterbiogr00sche%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/Karl_Bitter%3B_a_biography_%28IA_karlbitterbiogra00sche%29.pdf/page1-960px-Karl_Bitter%3B_a_biography_%28IA_karlbitterbiogra00sche%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-11",
@@ -2026,7 +2295,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Coin_of_Samudragupta%2C_Battle_axe_type%2C_Kannauj.jpg/960px-Coin_of_Samudragupta%2C_Battle_axe_type%2C_Kannauj.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/Gupta_Empire%2C_Samudragupta%2C_335-380_AD%2C_Gold_Dinar%2C_7.9g%2C_Javelin_Type.jpg/960px-Gupta_Empire%2C_Samudragupta%2C_335-380_AD%2C_Gold_Dinar%2C_7.9g%2C_Javelin_Type.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/4/41/Gupta_era_gold_Coin_showing_the_Marriage_of_Chandragupta%2C_National_Museum%2C_New_Delhi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-12",
@@ -2056,7 +2329,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/Detail_of_a_photograph_of_the_weapons_of_Guru_Gobind_Singh_kept_at_Takht_Kesgarh_Sahib_being_displayed%2C_ca.1925.jpg/960px-Detail_of_a_photograph_of_the_weapons_of_Guru_Gobind_Singh_kept_at_Takht_Kesgarh_Sahib_being_displayed%2C_ca.1925.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Katar_%28child%27s%29_push_dagger%2C_northern_India%2C_1700s_-_Higgins_Armory_Museum_-_DSC05599.jpg/960px-Katar_%28child%27s%29_push_dagger%2C_northern_India%2C_1700s_-_Higgins_Armory_Museum_-_DSC05599.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/de/Katar_push_dagger%2C_central_or_southern_India%2C_1700s_-_Higgins_Armory_Museum_-_DSC05593.jpg/960px-Katar_push_dagger%2C_central_or_southern_India%2C_1700s_-_Higgins_Armory_Museum_-_DSC05593.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-04",
@@ -2090,7 +2367,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/3_Carvings_at_Champaner-Pavagadh_Archaeological_Park.jpg/960px-3_Carvings_at_Champaner-Pavagadh_Archaeological_Park.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/4_Carvings_at_Champaner-Pavagadh_Archaeological_Park.jpg/960px-4_Carvings_at_Champaner-Pavagadh_Archaeological_Park.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/6_Carvings_at_Champaner-Pavagadh_Archaeological_Park.jpg/960px-6_Carvings_at_Champaner-Pavagadh_Archaeological_Park.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-05",
@@ -2122,7 +2403,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e4/Sidi_Saiyyed_Mosque_Ahmedabad.jpg/960px-Sidi_Saiyyed_Mosque_Ahmedabad.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Close-up_of_the_%22Tree_of_Life%22.jpg/960px-Close-up_of_the_%22Tree_of_Life%22.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Sidi_Saiyyed_Mosque_Ahmedabad_Gujarat_-_Jali_Work.jpg/960px-Sidi_Saiyyed_Mosque_Ahmedabad_Gujarat_-_Jali_Work.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-06",
@@ -2156,7 +2441,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Adalaj_Stepwell_-_Rudabai_stepwell_-_Ahmedabad_-_Gujarat_-_001.jpg/960px-Adalaj_Stepwell_-_Rudabai_stepwell_-_Ahmedabad_-_Gujarat_-_001.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/Adalaj_Stepwell_-_Rudabai_stepwell_-_Ahmedabad_-_Gujarat_-_002.jpg/960px-Adalaj_Stepwell_-_Rudabai_stepwell_-_Ahmedabad_-_Gujarat_-_002.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/Adalaj_Stepwell_-_Rudabai_stepwell_-_Ahmedabad_-_Gujarat_-_003.jpg/960px-Adalaj_Stepwell_-_Rudabai_stepwell_-_Ahmedabad_-_Gujarat_-_003.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-07",
@@ -2186,7 +2475,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Dhar_%26_Mandu_-_a_sketch_for_the_sight-seer_%28IA_dharmandusketchf00luarrich%29.pdf/page1-500px-Dhar_%26_Mandu_-_a_sketch_for_the_sight-seer_%28IA_dharmandusketchf00luarrich%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Historic_heritage_sites_of_Gujarat_with_GPS_coordinates.jpg/960px-Historic_heritage_sites_of_Gujarat_with_GPS_coordinates.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Journal_of_the_Asiatic_Society_of_Bengal_%28IA_JournalAsiaticSv58pAsia%29.pdf/page1-500px-Journal_of_the_Asiatic_Society_of_Bengal_%28IA_JournalAsiaticSv58pAsia%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-08",
@@ -2220,7 +2513,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/%22Aerial_view_of_Somnath_temple_02%2C_Prabhas_Patan_Gujarat.jpg/960px-%22Aerial_view_of_Somnath_temple_02%2C_Prabhas_Patan_Gujarat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/2015_Somnath_Jyotirlinga_temple_Prabhas_Patan.jpg/960px-2015_Somnath_Jyotirlinga_temple_Prabhas_Patan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/6/6a/Ruins_of_Somnath_Temple%2C_Prabhas_Patan%2C_India_-_DPLA_-_08860b59cdcc0a411dc0f7adf03bd06b.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-09",
@@ -2254,7 +2551,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Dwarkadhish_Temple_-_Jagat_Mandir_-_Dwarakadheesh_and_surroundings_during_Dwaraka_DWARASPDB_2015_%2832%29.jpg/960px-Dwarkadhish_Temple_-_Jagat_Mandir_-_Dwarakadheesh_and_surroundings_during_Dwaraka_DWARASPDB_2015_%2832%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Dwarkadhish_Temple_-_Jagat_Mandir_-_Dwarakadheesh_and_surroundings_during_Dwaraka_DWARASPDB_2015_%2833%29.jpg/960px-Dwarkadhish_Temple_-_Jagat_Mandir_-_Dwarakadheesh_and_surroundings_during_Dwaraka_DWARASPDB_2015_%2833%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Dwarkadhish_Temple_-_Jagat_Mandir_-_Dwarakadheesh_and_surroundings_during_Dwaraka_DWARASPDB_2015_%2834%29.jpg/960px-Dwarkadhish_Temple_-_Jagat_Mandir_-_Dwarakadheesh_and_surroundings_during_Dwaraka_DWARASPDB_2015_%2834%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-10",
@@ -2284,7 +2585,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/AshokanRockEdict.jpg/960px-AshokanRockEdict.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/Edicts_of_Ashoka_at_Junagadh_Gujarat.jpg/960px-Edicts_of_Ashoka_at_Junagadh_Gujarat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Edicts_of_Ashoka_at_Junagadh_Gujarat_%28cropped%29.jpg/960px-Edicts_of_Ashoka_at_Junagadh_Gujarat_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-11",
@@ -2314,7 +2619,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Buddhist_caves_Uparkot_Junagadh_Gujarat_001.jpg/960px-Buddhist_caves_Uparkot_Junagadh_Gujarat_001.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/Buddhist_caves_Uparkot_Junagadh_Gujarat_002.jpg/960px-Buddhist_caves_Uparkot_Junagadh_Gujarat_002.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Buddhist_caves_Uparkot_Junagadh_Gujarat_003.jpg/960px-Buddhist_caves_Uparkot_Junagadh_Gujarat_003.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-12",
@@ -2348,7 +2658,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Palitana%2C_Shatrunjaya%2C_dholis%2C_pilgrims%2C_and_steps_%289825131513%29.jpg/960px-Palitana%2C_Shatrunjaya%2C_dholis%2C_pilgrims%2C_and_steps_%289825131513%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Palitana_temples_01.jpg/960px-Palitana_temples_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1c/Shatrunjaya_01.jpg/960px-Shatrunjaya_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-13",
@@ -2379,7 +2693,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Kirti_Torana_1.jpg/960px-Kirti_Torana_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Kirti_Torana_2.jpg/960px-Kirti_Torana_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Historic_heritage_sites_of_Gujarat_with_GPS_coordinates.jpg/960px-Historic_heritage_sites_of_Gujarat_with_GPS_coordinates.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-14",
@@ -2413,7 +2731,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/Lakshmi_Vilas_Palace%2C_Vadodara.jpg/960px-Lakshmi_Vilas_Palace%2C_Vadodara.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/Lakshmi_Vilas_Palace_Vadodara_%28Baroda%29.jpg/960px-Lakshmi_Vilas_Palace_Vadodara_%28Baroda%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/Laxmi_Vilas_Palace_-_Vadodara.jpg/960px-Laxmi_Vilas_Palace_-_Vadodara.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-15",
@@ -2444,7 +2766,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Sarkhej_Roza-Ahmed_Sar_Lake-Jama_Masjid-01.jpg/960px-Sarkhej_Roza-Ahmed_Sar_Lake-Jama_Masjid-01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Sarkhej_Roza-Ahmed_Sar_Lake-Jama_Masjid-02.jpg/960px-Sarkhej_Roza-Ahmed_Sar_Lake-Jama_Masjid-02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Sarkhej.JPG/960px-Sarkhej.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-16",
@@ -2478,7 +2804,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/Junagadh_district_-_Mahabat_Maqbara_complex_-_20171022072814.jpg/960px-Junagadh_district_-_Mahabat_Maqbara_complex_-_20171022072814.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/Junagadh_district_-_Mahabat_Maqbara_complex_-_20171022072854.jpg/960px-Junagadh_district_-_Mahabat_Maqbara_complex_-_20171022072854.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Junagadh_district_-_Mahabat_Maqbara_complex_-_20171022080324.jpg/960px-Junagadh_district_-_Mahabat_Maqbara_complex_-_20171022080324.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-17",
@@ -2512,7 +2842,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Bai_harir_Vav_Details_08.jpg/960px-Bai_harir_Vav_Details_08.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Bai_harir_Vav_Details_1.jpg/960px-Bai_harir_Vav_Details_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Bai_harir_Vav_Details_10.jpg/960px-Bai_harir_Vav_Details_10.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-18",
@@ -2546,7 +2880,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/Aksam_1936_nisan_21.pdf/page1-960px-Aksam_1936_nisan_21.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Milliyet_1933_subat_10.pdf/page1-960px-Milliyet_1933_subat_10.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Prag_Mahal_Bhuj_Kutch.jpg/960px-Prag_Mahal_Bhuj_Kutch.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-19",
@@ -2580,7 +2918,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/76/Sahasraling_Talav_Canal.jpg/960px-Sahasraling_Talav_Canal.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Sahasralinga_Talav_canal.jpg/960px-Sahasralinga_Talav_canal.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Sahastralinga_Talav.JPG/960px-Sahastralinga_Talav.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-20",
@@ -2614,7 +2956,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Hutheesing_Jain_Temple%2C_Large%2C_19th-century_marble_Jain_temple_with_elaborate_architecture_featuring_intricate_carvings.jpg/960px-Hutheesing_Jain_Temple%2C_Large%2C_19th-century_marble_Jain_temple_with_elaborate_architecture_featuring_intricate_carvings.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Hutheesing_Jain_Temple_%281%29.jpg/960px-Hutheesing_Jain_Temple_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Hutheesing_Jain_Temple_External_designs.jpg/960px-Hutheesing_Jain_Temple_External_designs.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-21",
@@ -2648,7 +2994,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Interior_Vijay_Vilas_Palace_Baroda_India.jpg/960px-Interior_Vijay_Vilas_Palace_Baroda_India.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/The_Vijay_Vilas_palace_%28Mandvi_-_Gujarat_-_India%29.jpg/960px-The_Vijay_Vilas_palace_%28Mandvi_-_Gujarat_-_India%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Vijay_Vilas_Palace-Kutch.jpg/960px-Vijay_Vilas_Palace-Kutch.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-22",
@@ -2682,7 +3032,12 @@
       "https://upload.wikimedia.org/wikipedia/commons/f/f6/Jama_masjid_gujarat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Jami_Mosque_-_Ahmedabad.jpg/960px-Jami_Mosque_-_Ahmedabad.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Teen_Darwaza.JPG/960px-Teen_Darwaza.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-23",
@@ -2716,7 +3071,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Jama_Masjid%2C_Ahmedabad_01.jpg/960px-Jama_Masjid%2C_Ahmedabad_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Jama_Masjid%2C_Ahmedabad_03.jpg/960px-Jama_Masjid%2C_Ahmedabad_03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Jama_Masjid%2C_Ahmedabad_04.jpg/960px-Jama_Masjid%2C_Ahmedabad_04.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-24",
@@ -2746,7 +3105,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Jhulta_Minar%2C_Bibiji_Masjid.jpg/960px-Jhulta_Minar%2C_Bibiji_Masjid.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Jhulta_Minar-Ahmedabad_Gujarat.jpg/960px-Jhulta_Minar-Ahmedabad_Gujarat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Jhulta_minar_Bibiji_Mosque_-_Gomtipur%2C_Ahmedabad.jpg/960px-Jhulta_minar_Bibiji_Mosque_-_Gomtipur%2C_Ahmedabad.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-25",
@@ -2780,7 +3143,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4b/Hriday_Kunj_at_Sabarmati_Ashram_%2816018%29.jpg/960px-Hriday_Kunj_at_Sabarmati_Ashram_%2816018%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/Hriday_Kunj_at_Sabarmati_Ashram_%2838430%29.jpg/960px-Hriday_Kunj_at_Sabarmati_Ashram_%2838430%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Hriday_Kunj_at_Sabarmati_Ashram_%2847580%29.jpg/960px-Hriday_Kunj_at_Sabarmati_Ashram_%2847580%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-26",
@@ -2810,7 +3177,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Kot_Lakhpat_in_Kutch_01.JPG/960px-Kot_Lakhpat_in_Kutch_01.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/Kot_Lakhpat_in_Kutch_02.JPG/960px-Kot_Lakhpat_in_Kutch_02.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Kot_Lakhpat_in_Kutch_03.JPG/960px-Kot_Lakhpat_in_Kutch_03.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-27",
@@ -2841,7 +3213,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Epigraphia_Indica_vol_6.djvu/page1-960px-Epigraphia_Indica_vol_6.djvu.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/3/36/Front_view_of_the_Adinatha_Temple%2C_Timba_Gujarat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Historic_heritage_sites_of_Gujarat_with_GPS_coordinates.jpg/960px-Historic_heritage_sites_of_Gujarat_with_GPS_coordinates.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-28",
@@ -2871,7 +3247,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/92/Architecture_at_the_Rudra_Mahalaya_at_Sidhpur%2C_Gujarat.jpg/960px-Architecture_at_the_Rudra_Mahalaya_at_Sidhpur%2C_Gujarat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/3/33/Elevation_of_Kirtistambh_Rudramahalaya_Sidhpur_Gujarat_India.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://upload.wikimedia.org/wikipedia/commons/e/e1/Four_great_pillars_and_architrave_of_the_ruined_Rudra_Mahalaya_Temple%2C_Siddhapur.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-29",
@@ -2901,7 +3281,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Historic_heritage_sites_of_Gujarat_with_GPS_coordinates.jpg/960px-Historic_heritage_sites_of_Gujarat_with_GPS_coordinates.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Khambhalida_Buddhist_Caves.jpg/960px-Khambhalida_Buddhist_Caves.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Khambhalida_Buddhist_caves_Gujarat.jpg/960px-Khambhalida_Buddhist_caves_Gujarat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-30",
@@ -2931,7 +3315,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/600_CE_Gop_Surya_temple%2C_Zinavari_Gujarat_plan%2C_1876_sketch.jpg/960px-600_CE_Gop_Surya_temple%2C_Zinavari_Gujarat_plan%2C_1876_sketch.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/600_CE_Gop_Surya_temple%2C_Zinavari_Gujarat_plan%2C_north_side_roof_sketch%2C_lower_base_moulding%2C_1876_sketch.jpg/960px-600_CE_Gop_Surya_temple%2C_Zinavari_Gujarat_plan%2C_north_side_roof_sketch%2C_lower_base_moulding%2C_1876_sketch.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/c/cb/Gop_Sun_temple_Zinavari_Gujarat_roof_north.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-31",
@@ -2965,7 +3353,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Letters_from_Fort_St._George_..._%28serial%29_%28IA_lettersfromftg16977madr%29.pdf/page1-500px-Letters_from_Fort_St._George_..._%28serial%29_%28IA_lettersfromftg16977madr%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Letters_from_Fort_St._George_..._%28serial%29_%28IA_lettersfromftg170102madr%29.pdf/page1-500px-Letters_from_Fort_St._George_..._%28serial%29_%28IA_lettersfromftg170102madr%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Selections_from_public_consultations%2C_letters_from_Fort_St._George_and_Fort_St._David_consultations%2C_1740_%28IA_selectionsfrompu00madrrich%29.pdf/page1-960px-Selections_from_public_consultations%2C_letters_from_Fort_St._George_and_Fort_St._David_consultations%2C_1740_%28IA_selectionsfrompu00madrrich%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-GJ-32",
@@ -2995,7 +3388,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Ghumli_Navlakha_temple_black_%26_white.jpg/960px-Ghumli_Navlakha_temple_black_%26_white.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Navlakha_arial_view_02.jpg/960px-Navlakha_arial_view_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Navlakha_arial_view_02_%28cropped%29.jpg/960px-Navlakha_arial_view_02_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-13",
@@ -3030,7 +3427,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/Antique_Patan_Patola_Double_Ikat_Trade_Textile_courtesy_Wovensouls_Collection%2C_Singapore.jpg/960px-Antique_Patan_Patola_Double_Ikat_Trade_Textile_courtesy_Wovensouls_Collection%2C_Singapore.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/d/d1/Gujarat_patola.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://upload.wikimedia.org/wikipedia/commons/2/2e/Gujarat_patola_1725-1800.jpeg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-14",
@@ -3067,7 +3468,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Jali_at_Sidi_Saiyyed_Mosque_02.jpg/960px-Jali_at_Sidi_Saiyyed_Mosque_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Sidi_Saiyyed_Mosque%2C_Ahmedabad.jpg/960px-Sidi_Saiyyed_Mosque%2C_Ahmedabad.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Sidi_Saiyyed_Ni_Jali%2C_Ahmedabad.jpg/960px-Sidi_Saiyyed_Ni_Jali%2C_Ahmedabad.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-15",
@@ -3104,7 +3509,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/GJA25-41-Modhera_Sun_temple_pillars_near_stepwell.jpg/960px-GJA25-41-Modhera_Sun_temple_pillars_near_stepwell.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/GJA25-42-Modhera_Sun_temple_pillars_near_stepwell.jpg/960px-GJA25-42-Modhera_Sun_temple_pillars_near_stepwell.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Sun_Temple%2C_Modhera_-_pillars_01.jpg/960px-Sun_Temple%2C_Modhera_-_pillars_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "sun_temple_modhera"
   },
   {
     "id": "IND-ART-16",
@@ -3141,7 +3551,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/GJA25-61-Rani_ki_vav_Damsels_sculptures_right_wall_last_courtyard_4th_level_down.jpg/960px-GJA25-61-Rani_ki_vav_Damsels_sculptures_right_wall_last_courtyard_4th_level_down.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fd/Rani_ki_vav_-_Patan_-_Gujarat_-_DSC001.jpg/960px-Rani_ki_vav_-_Patan_-_Gujarat_-_DSC001.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/Rani_ki_vav_-_Patan_-_Gujarat_-_DSC006.jpg/960px-Rani_ki_vav_-_Patan_-_Gujarat_-_DSC006.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "rani_ki_vav"
   },
   {
     "id": "IND-ART-17",
@@ -3178,7 +3593,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Iron_pillar_of_Delhi_10.jpg/960px-Iron_pillar_of_Delhi_10.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/The_Iron_pillar_of_Delhi.jpg/960px-The_Iron_pillar_of_Delhi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/The_Iron_pillar_of_Delhi_01.jpg/960px-The_Iron_pillar_of_Delhi_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-18",
@@ -3215,7 +3634,11 @@
       "https://upload.wikimedia.org/wikipedia/commons/9/9d/Konark_Sun_Temple_Wheel_July2024.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Konark_Sun_Temple_wheel.jpg/960px-Konark_Sun_Temple_wheel.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Stone_wheel_engraved_in_the_13th_century_built_Konark_Sun_Temple_in_Orissa%2C_India.jpg/960px-Stone_wheel_engraved_in_the_13th_century_built_Konark_Sun_Temple_in_Orissa%2C_India.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-19",
@@ -3252,7 +3675,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Stone_Chariot%2C_Hampi_2.jpg/960px-Stone_Chariot%2C_Hampi_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/b/b4/Stone_Chariot%2C_Hampi_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Stone_Chariot%2C_Hampi_4.jpg/960px-Stone_Chariot%2C_Hampi_4.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "hampi"
   },
   {
     "id": "IND-ART-20",
@@ -3289,7 +3717,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/A_Few_Observations_on_the_Temple_of_Somnath_%28IA_jstor-25207608%29.pdf/page1-500px-A_Few_Observations_on_the_Temple_of_Somnath_%28IA_jstor-25207608%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/From_the_land_of_princes_%28IA_fromlandofprince00fest%29.pdf/page1-500px-From_the_land_of_princes_%28IA_fromlandofprince00fest%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/History_of_India_Vol_3.djvu/page1-960px-History_of_India_Vol_3.djvu.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-21",
@@ -3326,7 +3758,11 @@
       "https://upload.wikimedia.org/wikipedia/commons/0/0f/Pashupati_seal_impression.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/Pasupati_Seal%2C_National_Museum%2C_New_Delhi.jpg/960px-Pasupati_Seal%2C_National_Museum%2C_New_Delhi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/2/2f/Shiva_Pashupati.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-22",
@@ -3363,7 +3799,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Holy_Relics_of_Lord_Buddha%2C_National_Museum%2C_New_Delhi.jpg/960px-Holy_Relics_of_Lord_Buddha%2C_National_Museum%2C_New_Delhi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Pavilion_with_Buddha%27s_relics.jpg/960px-Pavilion_with_Buddha%27s_relics.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/2/24/Relics_of_Buddha_obtained_from_a_stupa_built_by_Emperor_Asoka_in_3rd_century_BCE%2C_National_Museum_Delhi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-23",
@@ -3400,7 +3840,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/Memorials_of_the_Jeypore_Exhibition_1883_%28IA_memorialsofjeypo00hend%29.pdf/page1-960px-Memorials_of_the_Jeypore_Exhibition_1883_%28IA_memorialsofjeypo00hend%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Rulers_Of_India_%28Aurangzib%29_%28IA_2208_RULERS_OF_INDIA_AURANGZIB_%29.pdf/page1-500px-Rulers_Of_India_%28Aurangzib%29_%28IA_2208_RULERS_OF_INDIA_AURANGZIB_%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Story_of_Jinnah_%28IA_storyofjinnah01inay_0%29.pdf/page1-500px-Story_of_Jinnah_%28IA_storyofjinnah01inay_0%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-24",
@@ -3437,7 +3881,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/History_of_the_modern_styles_of_architecture_vol_3.pdf/page1-500px-History_of_the_modern_styles_of_architecture_vol_3.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/The_buried_city_of_the_East%2C_Nineveh-_a_narrative_of_the_discoveries_of_Mr._Layard_and_M._Botta_at_Nimroud_and_Khorsabad%3B_%28IA_buriedcityofeast00buckrich%29.pdf/page1-500px-The_buried_city_of_the_East%2C_Nineveh-_a_narrative_of_the_discoveries_of_Mr._Layard_and_M._Botta_at_Nimroud_and_Khorsabad%3B_%28IA_buriedcityofeast00buckrich%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/The_marriage_of_Heaven_and_Hell_and_A_song_of_liberty_%28IA_marriageofheaven01blak%29.pdf/page1-500px-The_marriage_of_Heaven_and_Hell_and_A_song_of_liberty_%28IA_marriageofheaven01blak%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-25",
@@ -3474,7 +3922,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Indian_Museum_Sculpture_-_Buddha_Preaching%2C_5c%2C_Sarnath_%289220766268%29.jpg/960px-Indian_Museum_Sculpture_-_Buddha_Preaching%2C_5c%2C_Sarnath_%289220766268%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Indian_Museum_Sculpture_-_Buddha_Preaching%2C_5c%2C_Sarnath_%289220794680%29.jpg/960px-Indian_Museum_Sculpture_-_Buddha_Preaching%2C_5c%2C_Sarnath_%289220794680%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/MET_4_DP314867r4_61A.jpg/960px-MET_4_DP314867r4_61A.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-26",
@@ -3511,7 +3963,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Polished_sandstone_Vedika%2C_Bharhut_stupa%2C_Shunga_dynasty%2C_Indian_Museum%2C_Kolkata_1517.jpg/960px-Polished_sandstone_Vedika%2C_Bharhut_stupa%2C_Shunga_dynasty%2C_Indian_Museum%2C_Kolkata_1517.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Polished_sandstone_Vedika%2C_Bharhut_stupa%2C_Shunga_dynasty%2C_Indian_Museum%2C_Kolkata_1518.jpg/960px-Polished_sandstone_Vedika%2C_Bharhut_stupa%2C_Shunga_dynasty%2C_Indian_Museum%2C_Kolkata_1518.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Railing_-_2nd_Century_BCE_-_Red_Sand_Stone_-_Bharhut_Stupa_-_Madhya_Pradesh_-_Indian_Museum_-_Kolkata_2012-11-16_1852.JPG/960px-Railing_-_2nd_Century_BCE_-_Red_Sand_Stone_-_Bharhut_Stupa_-_Madhya_Pradesh_-_Indian_Museum_-_Kolkata_2012-11-16_1852.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-27",
@@ -3548,7 +4004,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/7._Standing_Buddha%2C_2nd_century_CE%2C_Jamalgarhi%2C_Gandhara_Gallery%2C_Indian_Museum%2C_Kolkata.-G125a-A23214.jpg/960px-7._Standing_Buddha%2C_2nd_century_CE%2C_Jamalgarhi%2C_Gandhara_Gallery%2C_Indian_Museum%2C_Kolkata.-G125a-A23214.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/Standing_Bodhisattva%2C_2nd_century_CE%2C_Jamalgarhi%2C_Gandhara_Gallery%2C_Indian_Museum%2C_Kolkata.-G132-A23188.jpg/960px-Standing_Bodhisattva%2C_2nd_century_CE%2C_Jamalgarhi%2C_Gandhara_Gallery%2C_Indian_Museum%2C_Kolkata.-G132-A23188.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Standing_Bodhisattva%2C_2nd_century_CE%2C_Jamalgarhi%2C_Gandhara_Gallery%2C_Indian_Museum%2C_Kolkata.-G138-A23190.jpg/960px-Standing_Bodhisattva%2C_2nd_century_CE%2C_Jamalgarhi%2C_Gandhara_Gallery%2C_Indian_Museum%2C_Kolkata.-G138-A23190.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-28",
@@ -3585,7 +4045,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/Mummy-mask_-_Egyptian_Human_Mummy_-_Egyptian_Gallery_-_Indian_Museum_-_Kolkata_2014-04-04_4423.JPG/960px-Mummy-mask_-_Egyptian_Human_Mummy_-_Egyptian_Gallery_-_Indian_Museum_-_Kolkata_2014-04-04_4423.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Mummy-mask_-_Egyptian_Human_Mummy_-_Egyptian_Gallery_-_Indian_Museum_-_Kolkata_2014-04-04_4424.JPG/960px-Mummy-mask_-_Egyptian_Human_Mummy_-_Egyptian_Gallery_-_Indian_Museum_-_Kolkata_2014-04-04_4424.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Showcase_-_Egyptian_Human_Mummy_-_Egyptian_Gallery_-_Indian_Museum_-_Kolkata_2014-04-04_4421.JPG/960px-Showcase_-_Egyptian_Human_Mummy_-_Egyptian_Gallery_-_Indian_Museum_-_Kolkata_2014-04-04_4421.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-29",
@@ -3622,7 +4086,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Various_Sculptures_in_Salar_Jung_Museum%2C_Hyderabad_14.jpg/960px-Various_Sculptures_in_Salar_Jung_Museum%2C_Hyderabad_14.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/28/Various_Sculptures_in_Salar_Jung_Museum%2C_Hyderabad_15.jpg/960px-Various_Sculptures_in_Salar_Jung_Museum%2C_Hyderabad_15.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Various_Sculptures_in_Salar_Jung_Museum%2C_Hyderabad_16.jpg/960px-Various_Sculptures_in_Salar_Jung_Museum%2C_Hyderabad_16.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-30",
@@ -3656,7 +4124,11 @@
     "photos": [
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Catalogue_of_the_Hyderabad_Exhibition_%28IA_dli.granth.71228%29.pdf/page1-500px-Catalogue_of_the_Hyderabad_Exhibition_%28IA_dli.granth.71228%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Salar_Jung_Museum_-_Musical_Clock.jpg/960px-Salar_Jung_Museum_-_Musical_Clock.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-31",
@@ -3691,7 +4163,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c2/Weapons_as_used_by_Shivaji%2C_CSMVS.jpg/960px-Weapons_as_used_by_Shivaji%2C_CSMVS.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/Chhatrapati_shivaji_vastu_sangrahalaya_museum_%2870%29.JPG/960px-Chhatrapati_shivaji_vastu_sangrahalaya_museum_%2870%29.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c2/Poona_in_bygone_days_%28IA_poonainbygoneday00pararich%29.pdf/page1-500px-Poona_in_bygone_days_%28IA_poonainbygoneday00pararich%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-32",
@@ -3728,7 +4204,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/Ardhanarishvara%2C_Chola_period%2C_11th_century%2C_Government_Museum%2C_Chennai_%282%29.jpg/960px-Ardhanarishvara%2C_Chola_period%2C_11th_century%2C_Government_Museum%2C_Chennai_%282%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Ardhanarishvara%2C_Chola_period%2C_11th_century%2C_Government_Museum%2C_Chennai_%283%29.jpg/960px-Ardhanarishvara%2C_Chola_period%2C_11th_century%2C_Government_Museum%2C_Chennai_%283%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Arthanarishvara%2C_xi_secolo%2C_da_tiruvengadu%2C_mayialaduturai_taluk%2C_nagappattiman_district%2C_01.jpg/960px-Arthanarishvara%2C_xi_secolo%2C_da_tiruvengadu%2C_mayialaduturai_taluk%2C_nagappattiman_district%2C_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-33",
@@ -3763,7 +4243,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Awesome_shower.jpg/960px-Awesome_shower.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Baroda_Museum_and_Picture_Gallery.jpg/960px-Baroda_Museum_and_Picture_Gallery.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/Historic_Site_S_No_431%2C435.jpg/960px-Historic_Site_S_No_431%2C435.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-34",
@@ -3800,7 +4284,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Invention_and_discovery_%28IA_inventiondiscove00temp%29.pdf/page1-500px-Invention_and_discovery_%28IA_inventiondiscove00temp%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/On_copyright_in_design_in_art_and_manufactures_%28IA_oncopyrightindes00turniala%29.pdf/page1-500px-On_copyright_in_design_in_art_and_manufactures_%28IA_oncopyrightindes00turniala%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/The_Art_journal_%28IA_gri_33125006187401%29.pdf/page1-960px-The_Art_journal_%28IA_gri_33125006187401%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-35",
@@ -3834,7 +4322,11 @@
     "photos": [
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Ancient_History_of_the_Deccan.djvu/page1-960px-Ancient_History_of_the_Deccan.djvu.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Ancient_history_of_the_Deccan_%28IA_ancienthistoryof00jouvrich%29.pdf/page1-960px-Ancient_history_of_the_Deccan_%28IA_ancienthistoryof00jouvrich%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-36",
@@ -3869,7 +4361,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Memoirs_of_the_Geological_Survey_of_India_%28IA_memoirsofgeologi272geol%29.pdf/page1-960px-Memoirs_of_the_Geological_Survey_of_India_%28IA_memoirsofgeologi272geol%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/Memorials_of_the_Jeypore_Exhibition_1883_%28IA_memorialsofjeypo00hend%29.pdf/page1-960px-Memorials_of_the_Jeypore_Exhibition_1883_%28IA_memorialsofjeypo00hend%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/0/09/Stamp_of_India_-_1978_-_Colnect_155181_-_Elephant_Aivavat.jpeg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-37",
@@ -3900,7 +4396,11 @@
       "Watson Museum Rajkot Harappan",
       "Rangpur terracotta Indus valley"
     ],
-    "photos": []
+    "photos": [],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-38",
@@ -3937,7 +4437,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/Ravana_Shaking_Mount_Kailash%2C_Cave_no_21%2C_Ellora_Caves%2C_Maharashtra%2C_India_03.jpg/960px-Ravana_Shaking_Mount_Kailash%2C_Cave_no_21%2C_Ellora_Caves%2C_Maharashtra%2C_India_03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Ravana_Shaking_Mount_Kailash%2C_Cave_no_21%2C_Ellora_Caves%2C_Maharashtra%2C_India_09.jpg/960px-Ravana_Shaking_Mount_Kailash%2C_Cave_no_21%2C_Ellora_Caves%2C_Maharashtra%2C_India_09.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Ravana_Shaking_Mount_Kailash%2C_Cave_no_21%2C_Ellora_Caves%2C_Maharashtra%2C_India_12.jpg/960px-Ravana_Shaking_Mount_Kailash%2C_Cave_no_21%2C_Ellora_Caves%2C_Maharashtra%2C_India_12.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-39",
@@ -3974,7 +4478,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Ajanta_Cave_1_Padmapani.jpg/960px-Ajanta_Cave_1_Padmapani.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Bodhisattva_Padmapani%2C_Ajanta%2C_cave_1%2C_India.jpg/960px-Bodhisattva_Padmapani%2C_Ajanta%2C_cave_1%2C_India.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Bodhisattva_Padmapani%2C_Ajanta%2C_cave_1.jpg/960px-Bodhisattva_Padmapani%2C_Ajanta%2C_cave_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-40",
@@ -4011,7 +4519,11 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Krishna%27s_Butterball_at_Mahabalipuram_heritage_complex_08.jpg/960px-Krishna%27s_Butterball_at_Mahabalipuram_heritage_complex_08.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Krishna%27s_Butterball_at_Mahabalipuram_heritage_complex_15.jpg/960px-Krishna%27s_Butterball_at_Mahabalipuram_heritage_complex_15.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Krishna_Butterball_Below_Mahabalipuram_Sep22_A7C_02490.jpg/960px-Krishna_Butterball_Below_Mahabalipuram_Sep22_A7C_02490.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-41",
@@ -4048,7 +4560,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Culture_of_Telangana_at_Golconda_Fort.pdf/page1-960px-Culture_of_Telangana_at_Golconda_Fort.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Lays_%28IA_laysacks00lond%29.pdf/page1-500px-Lays_%28IA_laysacks00lond%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/Reminiscences_of_an_old_soldier_%28IA_reminiscencesofo00menzrich%29.pdf/page1-500px-Reminiscences_of_an_old_soldier_%28IA_reminiscencesofo00menzrich%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-42",
@@ -4085,7 +4602,12 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Jumma_Masjid_Cannon_-_Junagadh_-_Gujarat_-_002.jpg/960px-Jumma_Masjid_Cannon_-_Junagadh_-_Gujarat_-_002.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/Jumma_Masjid_Cannon_-_Junagadh_-_Gujarat_-_003.jpg/960px-Jumma_Masjid_Cannon_-_Junagadh_-_Gujarat_-_003.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Jumma_Masjid_Cannon_-_Junagadh_-_Gujarat_-_004.jpg/960px-Jumma_Masjid_Cannon_-_Junagadh_-_Gujarat_-_004.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   },
   {
     "id": "IND-ART-43",
@@ -4122,6 +4644,791 @@
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Carvings_and_classy_designs_Adalaj_Stepwell.jpg/960px-Carvings_and_classy_designs_Adalaj_Stepwell.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Carvings_are_Adalaj_stepwell.jpg/960px-Carvings_are_Adalaj_stepwell.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "https://upload.wikimedia.org/wikipedia/commons/2/22/Details_of_carving_in_niche%2C_Adalaj_Stepwell_%2816497819347%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-    ]
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-123",
+    "name": "Gateway of India",
+    "vernacular_name": "गेटवे ऑफ़ इंडिया (Gateway of India)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Triumphal Arch Monument",
+    "state_ut": "Maharashtra",
+    "district_city": "Mumbai District, South Mumbai",
+    "coordinates": {
+      "lat": 18.922,
+      "lon": 72.8347
+    },
+    "asi_id": "ASI-MH-MUM-01",
+    "unesco_ref": "Tentative List (Victorian & Art Deco Environs)",
+    "dynasty_ruler": "British Raj (Architect: George Wittet)",
+    "period_century": "1911 – 1924 CE (20th Century)",
+    "architectural_style": "Indo-Saracenic Revival with Gujarati 16th-century Architectural Elements",
+    "materials_construction": "Yellow Basalt stone, Reinforced Concrete, Jali Perforated Screenwork",
+    "dimensions_area": "Height: 26 m (85 ft); Central Arch Diameter: 15 m; Waterfront Plaza: 4,000 sq m",
+    "sub_features_scannable": "Central Grand Arch, 4 Corner Turrets, Intricate Basalt Latticework, Waterfront Sea Steps, Commemorative Inscriptions",
+    "combat_historical_narrative": "Erected to commemorate the landing of King George V and Queen Mary at Apollo Bunder in December 1911. Historically significant as the ceremonial departure point for the last British troops (First Battalion of Somerset Light Infantry) exiting independent India on February 28, 1948.",
+    "tactical_visiting_info": "Open 24 Hours. Best visited sunrise or sunset. Ferry terminal for Elephanta Caves departs from the rear steps. High security baggage screening.",
+    "nearby_cluster": "Taj Mahal Palace Hotel (50 m), Colaba Causeway (400 m), Chhatrapati Shivaji Maharaj Vastu Sangrahalaya (800 m)",
+    "government_source": "Archaeological Survey of India (Mumbai Circle) & Maharashtra Tourism Development Corporation (MTDC)",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Mumbai_03-2016_30_Gateway_of_India.jpg/800px-Mumbai_03-2016_30_Gateway_of_India.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "gateway_of_india"
+  },
+  {
+    "id": "IND-HER-124",
+    "name": "Brihadeeswarar Temple (Peruvudaiyar Kovil)",
+    "vernacular_name": "பெருவுடையார் கோயில் (Brihadisvara Temple)",
+    "category": "UNESCO World Heritage Site",
+    "type": "Chola Royal Granite Temple Complex",
+    "state_ut": "Tamil Nadu",
+    "district_city": "Thanjavur District, Thanjavur",
+    "coordinates": {
+      "lat": 10.7828,
+      "lon": 79.1318
+    },
+    "asi_id": "ASI-TN-THANJ-01",
+    "unesco_ref": "250bis (Inscribed 1987, Great Living Chola Temples)",
+    "dynasty_ruler": "Chola Empire (Emperor Raja Raja Chola I)",
+    "period_century": "1003 – 1010 CE (11th Century)",
+    "architectural_style": "Pure Dravidian Temple Architecture (Dravida Vimana Pinnacle)",
+    "materials_construction": "Pure Cut Granite Stone (Over 130,000 tonnes with zero mortar)",
+    "dimensions_area": "Vimana Height: 66 m (216 ft); Monolithic Shikhara Cupola: 80 tonnes; Complex: 240m x 120m",
+    "sub_features_scannable": "66m Soaring Vimana Tower, 80-tonne Monolithic Kumbam, Massive Monolithic Nandi (12-tonne single granite), Nataraja Bronzes, Tamil Chola Inscriptions",
+    "combat_historical_narrative": "Commissioned by the greatest Chola conqueror, Rajaraja I, in 1010 CE to celebrate his naval victories across the Bay of Bengal, Sri Lanka, and Southeast Asia. The octagonal shikhara was positioned via a 6-km inclined earthen ramp.",
+    "tactical_visiting_info": "Open 6:00 AM – 12:30 PM & 4:00 PM – 8:30 PM. Free entry. Non-leather footwear strictly enforced.",
+    "nearby_cluster": "Thanjavur Maratha Palace & Saraswathi Mahal Library (1.5 km), Sivaganga Park (300 m)",
+    "government_source": "Archaeological Survey of India (Chennai Circle) & UNESCO WHC Dossier No. 250",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Brihadisvara_Temple%2C_Thanjavur.jpg/800px-Brihadisvara_Temple%2C_Thanjavur.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "meenakshi_temple"
+  },
+  {
+    "id": "IND-HER-125",
+    "name": "Mysore Palace (Amba Vilas Palace)",
+    "vernacular_name": "ಮೈಸೂರು ಅರಮನೆ (Amba Vilas Palace)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Royal Palace & Citadel Complex",
+    "state_ut": "Karnataka",
+    "district_city": "Mysuru District, Mysuru",
+    "coordinates": {
+      "lat": 12.3051,
+      "lon": 76.6551
+    },
+    "asi_id": "ASI-KA-MYS-01",
+    "unesco_ref": "Tentative List (Monuments of Karnataka)",
+    "dynasty_ruler": "Wadiyar Dynasty (Maharaja Krishnaraja Wadiyar IV, Architect: Henry Irwin)",
+    "period_century": "1897 – 1912 CE (20th Century)",
+    "architectural_style": "Indo-Saracenic with blends of Hindu, Mughal, Rajput, and Gothic styles",
+    "materials_construction": "Fine Grey Granite, Pink Marble Domes, Teakwood, Belgian Stained Glass",
+    "dimensions_area": "Three-storied stone palace; 75m x 48m; Central Tower Height: 44 m (145 ft); 72-acre estate",
+    "sub_features_scannable": "Durbar Hall (Diwan-i-Aam), Kalyana Mantapa (Octagonal Marriage Pavilion), Golden Howdah (750 kg gold elephant throne), 100,000 Incandescent Light Bulbs illumination",
+    "combat_historical_narrative": "Seat of the Kingdom of Mysore under the Wadiyar rulers. Built after the old wooden palace burned down during the wedding of Princess Jayalakshammanni in 1897. Celebrates the world-famous 10-day Mysuru Dasara festival where the Goddess Chamundeshwari idol is paraded.",
+    "tactical_visiting_info": "10:00 AM – 5:30 PM daily. Full Palace Illumination on Sundays & Public Holidays from 7:00 PM – 7:45 PM. Footwear stands available.",
+    "nearby_cluster": "Chamundi Hills (11 km), Jaganmohan Palace Art Gallery (1 km), St. Philomena's Cathedral (2 km)",
+    "government_source": "Mysore Palace Board, Government of Karnataka & Ministry of Tourism (Incredible India)",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Mysore_Palace_Morning.jpg/800px-Mysore_Palace_Morning.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "mysore_palace"
+  },
+  {
+    "id": "IND-HER-126",
+    "name": "Gol Gumbaz (Mausoleum of Mohammed Adil Shah)",
+    "vernacular_name": "ಗೋಲ ಗುಮ್ಮಟ (Gol Gumbaz)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Deccan Sultanate Royal Mausoleum",
+    "state_ut": "Karnataka",
+    "district_city": "Vijayapura (Bijapur) District, Vijayapura",
+    "coordinates": {
+      "lat": 16.8306,
+      "lon": 75.736
+    },
+    "asi_id": "ASI-KA-BIJ-01",
+    "unesco_ref": "Tentative List (Monuments and Forts of Deccan Sultanate)",
+    "dynasty_ruler": "Adil Shahi Dynasty (Sultan Mohammed Adil Shah, Architect: Yaqut of Dabul)",
+    "period_century": "1626 – 1656 CE (17th Century)",
+    "architectural_style": "Deccan Indo-Islamic Architectural Style",
+    "materials_construction": "Dark Grey Basalt stone, Lime plaster, Interlocking groined squinches",
+    "dimensions_area": "Outer Dome Diameter: 44 m (144 ft); Floor Area: 1,700 sq m (18,225 sq ft) without central pillars; Height: 51 m",
+    "sub_features_scannable": "Second Largest Freestanding Dome in the World, Whispering Gallery (Echo repeats 11 times), 4 Seven-story Octagonal Corner Towers, Lotus Leaf Cornices",
+    "combat_historical_narrative": "Constructed over 30 years by Yaqut of Dabul for Mohammed Adil Shah. The acoustic Whispering Gallery is an engineering marvel: even the faintest whisper or rustle of paper carries distinctly across the 44-meter diameter due to interlocking acoustic squinches.",
+    "tactical_visiting_info": "6:00 AM – 6:00 PM. Best visited early morning before school tour acoustics crowd the whispering gallery.",
+    "nearby_cluster": "Ibrahim Rauza (3 km), Malik-e-Maidan Great Cannon (2 km), Bara Kaman (2.5 km)",
+    "government_source": "Archaeological Survey of India (Dharwad Circle)",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Gol_Gumbaz_Bijapur_Karnataka.jpg/800px-Gol_Gumbaz_Bijapur_Karnataka.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "golgumbaz"
+  },
+  {
+    "id": "IND-HER-127",
+    "name": "India Gate (All India War Memorial)",
+    "vernacular_name": "इंडिया गेट (India Gate)",
+    "category": "National Memorial & Monument",
+    "type": "Triumphal Arch War Memorial",
+    "state_ut": "Delhi",
+    "district_city": "New Delhi District, Central Vista",
+    "coordinates": {
+      "lat": 28.6129,
+      "lon": 77.2295
+    },
+    "asi_id": "N-DL-DEL-01",
+    "unesco_ref": "National Protected Heritage",
+    "dynasty_ruler": "British India (Architect: Sir Edwin Lutyens)",
+    "period_century": "1921 – 1931 CE (20th Century)",
+    "architectural_style": "Beaux-Arts Classical Triumphal Arch",
+    "materials_construction": "Pale Red Sandstone from Bharatpur, Yellow Sandstone, Granite",
+    "dimensions_area": "Height: 42 m (138 ft); Width: 9.1 m; Central Arch Opening: 20m high",
+    "sub_features_scannable": "Amar Jawan Jyoti, Inscribed Names of 13,300+ Fallen Soldiers, Shallow Domed Roof Cenotaph, Grand Canopy, Kartavya Path Vista",
+    "combat_historical_narrative": "Dedicated to 84,000 soldiers of the British Indian Army who made the supreme sacrifice in the First World War (1914–1918) and the Third Anglo-Afghan War (1919). The foundation stone was laid by the Duke of Connaught in 1921.",
+    "tactical_visiting_info": "Open 24 hours. Illuminated daily from 7:00 PM – 10:00 PM. Adjacent to National War Memorial.",
+    "nearby_cluster": "National War Memorial (100 m), Kartavya Path (Rajpath, 200 m), Rashtrapati Bhavan (2.5 km)",
+    "government_source": "Ministry of Defence / Archaeological Survey of India (Delhi Circle) & data.gov.in",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/India_Gate_in_New_Delhi_03-2016.jpg/800px-India_Gate_in_New_Delhi_03-2016.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "india_gate"
+  },
+  {
+    "id": "IND-HER-128",
+    "name": "Lotus Temple (Baháʼí House of Worship)",
+    "vernacular_name": "लोटस टेम्पल (Lotus Temple)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Contemporary Expressionist Sacred Architecture",
+    "state_ut": "Delhi",
+    "district_city": "South Delhi District, Kalkaji",
+    "coordinates": {
+      "lat": 28.5535,
+      "lon": 77.2588
+    },
+    "asi_id": "DEL-LOT-01",
+    "unesco_ref": "Tentative List (Modern Architecture of India)",
+    "dynasty_ruler": "Baháʼí International Community (Architect: Fariborz Sahba)",
+    "period_century": "1980 – 1986 CE (20th Century)",
+    "architectural_style": "Biomorphic Expressionist Lotus Architecture",
+    "materials_construction": "Pure White Penteli Greek Marble, White Cement Concrete, Dolomite aggregate",
+    "dimensions_area": "Height: 34 m; 27 Free-standing petals; 9 Surrounding Reflection Ponds; Capacity: 2,500 people",
+    "sub_features_scannable": "27 Free-standing Petals in 3 Clusters, 9 Symmetrical Ponds, Central Hall of Silence, Skylight Optical Glazing",
+    "combat_historical_narrative": "A monument to the oneness of humanity and universal worship, conceived in the form of an opening Sacred Lotus (Nelumbo nucifera). Designed by Iranian-Canadian architect Fariborz Sahba, its 27 delicate petals are clad in pure white marble quarried from Mount Pentelikon in Greece.",
+    "tactical_visiting_info": "9:00 AM – 5:30 PM (Winter) / 7:00 PM (Summer). Closed Mondays. Silence strictly observed inside sanctum.",
+    "nearby_cluster": "Kalkaji Mandir (600 m), ISKCON Temple Delhi (2 km), Nehru Place (1.5 km)",
+    "government_source": "National Baháʼí Council of India & Delhi Tourism (DTTDC)",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lotus_Temple_in_the_evening.jpg/800px-Lotus_Temple_in_the_evening.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "lotus_temple"
+  },
+  {
+    "id": "IND-HER-129",
+    "name": "Hawa Mahal (Palace of Winds)",
+    "vernacular_name": "हवा महल (Hawa Mahal)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Rajput Royal Screen Palace",
+    "state_ut": "Rajasthan",
+    "district_city": "Jaipur District, Jaipur (Pink City)",
+    "coordinates": {
+      "lat": 26.9239,
+      "lon": 75.8267
+    },
+    "asi_id": "ASI-RJ-JAI-01",
+    "unesco_ref": "UNESCO World Heritage Site (Jaipur City inscribed 2019)",
+    "dynasty_ruler": "Kachhwaha Dynasty (Maharaja Sawai Pratap Singh, Architect: Lal Chand Ustad)",
+    "period_century": "1799 CE (Late 18th Century)",
+    "architectural_style": "Rajput Architecture infused with Mughal Lattice Motifs",
+    "materials_construction": "Red and Pink Sandstone, Lime Mortar (Chunam)",
+    "dimensions_area": "Height: 15 m (50 ft); 5 Storeys; Breadth: Barely 1.5 feet at the top tier; 953 Jharokhas",
+    "sub_features_scannable": "953 Carved Stone Jharokha Casements, Crown-shaped Facade mimicking Lord Krishna's Mukut, Venturi Effect Natural Air-conditioning, Sharad Mandir & Hawa Mandir",
+    "combat_historical_narrative": "Constructed by Sawai Pratap Singh so that the purdah-observing royal women could observe festive street processions in Badi Choupad without being seen. The 953 perforated latticed windows operate via the Venturi airflow effect, creating constant natural cooling drafts in scorching desert summers.",
+    "tactical_visiting_info": "9:00 AM – 5:00 PM daily. Best exterior photography in early morning golden hour light from across the street.",
+    "nearby_cluster": "City Palace Jaipur (400 m), Jantar Mantar (300 m), Bapu Bazaar (700 m)",
+    "government_source": "Department of Archaeology and Museums, Government of Rajasthan & Incredible India",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_01.jpg/800px-East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_01.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "hawa_mahal"
+  },
+  {
+    "id": "IND-HER-130",
+    "name": "Elephanta Caves (Gharapuri Sanctuary)",
+    "vernacular_name": "घारापुरी लेणी (Elephanta Caves)",
+    "category": "UNESCO World Heritage Site",
+    "type": "Rock-Cut Basalt Cave Sanctuary",
+    "state_ut": "Maharashtra",
+    "district_city": "Raigad District, Elephanta Island (Mumbai Harbour)",
+    "coordinates": {
+      "lat": 18.9633,
+      "lon": 72.9315
+    },
+    "asi_id": "ASI-MH-ELE-01",
+    "unesco_ref": "244 (Inscribed 1987)",
+    "dynasty_ruler": "Kalachuri Dynasty / Rashtrakuta Dynasty",
+    "period_century": "5th – 8th Century CE",
+    "architectural_style": "Rock-cut Basalt Cave Architecture (Shaivite Iconography)",
+    "materials_construction": "Monolithic Solid Basalt Volcanic Rock",
+    "dimensions_area": "Great Cave 1 Area: 39 m deep; Island Area: 10 sq km; 7 Major Rock-cut Caves",
+    "sub_features_scannable": "Sadashiva Trimurti Monolith (7m high triple-headed Shiva), Ardhanarishvara, Nataraja Shiva, Ravana Shaking Mount Kailash, Dvarapala Guardians",
+    "combat_historical_narrative": "Named 'Ilhas das Elefantas' by Portuguese colonizers in the 16th century after finding a gigantic stone elephant sculpture near the shore. The central Trimurti relief depicts Shiva as Aghori (destroyer/fierce), Tatpurusha (preserver/calm), and Vamadeva (creator/female profile).",
+    "tactical_visiting_info": "9:00 AM – 5:30 PM (Closed Mondays). Accessible by 1-hour scenic ferry from Gateway of India. Toy train runs along the island jetty.",
+    "nearby_cluster": "Gateway of India (ferry point, 10 km west), Elephanta Island Cannon Hill",
+    "government_source": "Archaeological Survey of India (Mumbai Circle) & UNESCO WHC Dossier No. 244",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Elephanta_Caves_Trimurti.jpg/800px-Elephanta_Caves_Trimurti.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "danushkumarv/indian-monuments-image-dataset"
+    ],
+    "vision_class_label": "elephanta_caves"
+  },
+  {
+    "id": "IND-HER-131",
+    "name": "Sinhagad Fort (Kondhana Lion Fortress)",
+    "vernacular_name": "सिंहगड किल्ला (Sinhagad Fort)",
+    "category": "State & Centrally Protected Monument (ASI)",
+    "type": "Maratha Hill Fortress Citadel",
+    "state_ut": "Maharashtra",
+    "district_city": "Pune District, Haveli Taluka",
+    "coordinates": {
+      "lat": 18.3663,
+      "lon": 73.7558
+    },
+    "asi_id": "ASI-MH-PUN-02",
+    "unesco_ref": "Tentative List (Maratha Military Landscapes of India)",
+    "dynasty_ruler": "Maratha Empire (Chhatrapati Shivaji Maharaj & Tanaji Malusare)",
+    "period_century": "14th – 17th Century CE",
+    "architectural_style": "Sahyadri Mountain Rock-Cut Fortification & Bastion Wall",
+    "materials_construction": "Basalt Rock Mortar, Natural Escarpment Cliffs",
+    "dimensions_area": "Elevation: 1,312 m (4,304 ft) above sea level; Cliff drop: 750 m",
+    "sub_features_scannable": "Pune Darwaza, Kalyan Darwaza, Tanaji Malusare Memorial Samadhi, Devtaka Sweet Water Cistern, Wind Point (Hawa Point)",
+    "combat_historical_narrative": "Site of the legendary Battle of Sinhagad (February 1670), where Maratha subedar Tanaji Malusare scaled the sheer, near-vertical southern cliff using a trained monitor lizard (ghorpad) named Yashwanti in the dead of night. Tanaji died winning the fort from Mughal commander Udaybhan Rathod, prompting Shivaji Maharaj's historic words: 'Gad ala, pan sinh gela' ('The fort is won, but the lion is lost').",
+    "tactical_visiting_info": "6:00 AM – 6:00 PM daily. Excellent monsoon trekking. Traditional Kanda Bhaji and Pitla Bhakri served by local villagers atop fort.",
+    "nearby_cluster": "Khadakwasla Dam (15 km), Panshet Dam (25 km), Pune City (30 km)",
+    "government_source": "Archaeological Survey of India (Pune Circle) & Maharashtra Tourism (MTDC)",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Sinhagad_Fort_Kalyan_Darwaja.jpg/800px-Sinhagad_Fort_Kalyan_Darwaja.jpg"
+    ],
+    "kaggle_sources": [
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-132",
+    "name": "Pratapgad Fort (Fortress of Valour)",
+    "vernacular_name": "प्रतापगड किल्ला (Pratapgad Fort)",
+    "category": "State Protected Monument",
+    "type": "Maratha Hill Defense Citadel",
+    "state_ut": "Maharashtra",
+    "district_city": "Satara District, Mahabaleshwar",
+    "coordinates": {
+      "lat": 17.9272,
+      "lon": 73.5794
+    },
+    "asi_id": "ASI-MH-SAT-01",
+    "unesco_ref": "Tentative List (Maratha Military Landscapes of India)",
+    "dynasty_ruler": "Maratha Empire (Chhatrapati Shivaji Maharaj / Moropant Trimbak Pingle)",
+    "period_century": "1656 CE (17th Century)",
+    "architectural_style": "Two-tiered Hill Fortification (Upper and Lower Ballekila)",
+    "materials_construction": "Dressed Basalt, Laterite stone, Lime mortar",
+    "dimensions_area": "Elevation: 1,080 m (3,540 ft) above sea level; 360-degree Valley Lookout",
+    "sub_features_scannable": "Bhavani Mata Temple, Afzal Khan Tomb (Burial Cenotaph), Equestrian Bronze Statue of Shivaji, Reda Buruj, Hidden Bastion Gates",
+    "combat_historical_narrative": "Famed for the fateful encounter on November 10, 1659, between Chhatrapati Shivaji Maharaj and Bijapur general Afzal Khan. When Afzal Khan attempted to stab Shivaji during a ceremonial embrace, Shivaji retaliated using concealed tiger claws (Bagh Nakh) and bichwa dagger, turning the tide of Maratha military sovereignty.",
+    "tactical_visiting_info": "6:00 AM – 6:00 PM. High rain during monsoons. Guides available at the base village.",
+    "nearby_cluster": "Mahabaleshwar Hill Station (21 km), Panchgani (40 km)",
+    "government_source": "Directorate of Archaeology and Museums, Government of Maharashtra",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Pratapgad_Fort_overview.jpg/800px-Pratapgad_Fort_overview.jpg"
+    ],
+    "kaggle_sources": [
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-133",
+    "name": "Murud-Janjira Fort (Impregnable Marine Fortress)",
+    "vernacular_name": "मुरुड-जंजिरा किल्ला (Murud-Janjira)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Offshore Marine Island Sea Fort",
+    "state_ut": "Maharashtra",
+    "district_city": "Raigad District, Murud",
+    "coordinates": {
+      "lat": 18.3005,
+      "lon": 72.9644
+    },
+    "asi_id": "ASI-MH-RAI-03",
+    "unesco_ref": "Centrally Protected Monument of National Importance",
+    "dynasty_ruler": "Siddi Dynasty of Janjira (Habshi Seafarers of Abyssinian origin)",
+    "period_century": "15th – 17th Century CE",
+    "architectural_style": "Marine Coastal Fortification with Camouflaged Sea Gates",
+    "materials_construction": "Massive Black Basalt Ashlar blocks, Lead-poured Interlocking joints",
+    "dimensions_area": "22-acre island fort; 19 rounded bastions; 40-foot defensive curtain walls",
+    "sub_features_scannable": "Kalal Bangadi Giant Bronze Cannon (3rd heaviest cannon in India), Camouflaged Darya Darwaza (Water Gate), Sweet Water Freshwater Ponds in the middle of Arabian Sea",
+    "combat_historical_narrative": "Considered the only unconquered sea fort along India's western coastline. Resisted repeated amphibious and land sieges by the Marathas under Shivaji Maharaj and Sambhaji Maharaj, the Portuguese armada, and the British East India Company across three centuries.",
+    "tactical_visiting_info": "7:00 AM – 5:30 PM (Subject to ocean tide schedules). Reached exclusively by local sailboat ferries from Rajapuri jetty. Closed during heavy monsoon squalls (June to August).",
+    "nearby_cluster": "Murud Beach (5 km), Kasa Fort / Padmadurg (offshore, 4 km)",
+    "government_source": "Archaeological Survey of India (Mumbai Circle) & data.gov.in",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Murud_Janjira_Sea_Fort.jpg/800px-Murud_Janjira_Sea_Fort.jpg"
+    ],
+    "kaggle_sources": [
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-134",
+    "name": "Mehrangarh Fort (Citadel of the Sun)",
+    "vernacular_name": "मेहरानगढ़ दुर्ग (Mehrangarh Fort)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Rajput Hill Citadel & Royal Palace Complex",
+    "state_ut": "Rajasthan",
+    "district_city": "Jodhpur District, Jodhpur (Blue City)",
+    "coordinates": {
+      "lat": 26.2978,
+      "lon": 73.0185
+    },
+    "asi_id": "ASI-RJ-JOD-01",
+    "unesco_ref": "Centrally Protected National Heritage & Museum",
+    "dynasty_ruler": "Rathore Dynasty (Rao Jodha)",
+    "period_century": "Founded 1459 CE (15th – 17th Century additions)",
+    "architectural_style": "Mighty Rajput Fort Architecture with Ornate Sandstone Palaces",
+    "materials_construction": "Local Chisel-dressed Brown-Yellow Sandstone, Volcanic Rhyolite Ridge",
+    "dimensions_area": "Perched on 122m (400 ft) perpendicular cliff; Walls: 36m high, 21m thick; Estate: 1,200 acres",
+    "sub_features_scannable": "7 Massive Victory Gates (Jai Pol, Fateh Pol with cannonball scars), Sheesh Mahal (Mirror Palace), Phool Mahal (Flower Palace), Kilkila Cannon, Royal Howdah Gallery",
+    "combat_historical_narrative": "Founded in 1459 by Rao Jodha atop Bhakurcheeria ('Mountain of Birds'). Cannonball marks from attacking Jaipur forces are still visible near the Loha Pol (Iron Gate), which also preserves the tragic handprints (sati marks) of 15 royal ranis who immolated themselves following Maharaja Man Singh's demise in 1843.",
+    "tactical_visiting_info": "9:00 AM – 5:00 PM daily. Elevator service available to the top museum deck. Audio guides in 12 languages. Zip-lining (Flying Fox) tours operate across fort battlements.",
+    "nearby_cluster": "Jaswant Thada (1 km), Rao Jodha Desert Rock Park (500 m), Umaid Bhawan Palace (5 km)",
+    "government_source": "Mehrangarh Museum Trust & Archaeological Survey of India (Jaipur Circle)",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Mehrangarh_Fort_in_Jodhpur%2C_Rajasthan.jpg/800px-Mehrangarh_Fort_in_Jodhpur%2C_Rajasthan.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-135",
+    "name": "Jaisalmer Fort (Sonar Qila / The Golden Fort)",
+    "vernacular_name": "जैसलमेर दुर्ग (Sonar Qila)",
+    "category": "UNESCO World Heritage Site",
+    "type": "Living Desert Hill Citadel",
+    "state_ut": "Rajasthan",
+    "district_city": "Jaisalmer District, Thar Desert",
+    "coordinates": {
+      "lat": 26.9124,
+      "lon": 70.9127
+    },
+    "asi_id": "ASI-RJ-JAI-02",
+    "unesco_ref": "247-002 (Inscribed 2013, Hill Forts of Rajasthan)",
+    "dynasty_ruler": "Bhati Rajput Dynasty (Rawal Jaisal)",
+    "period_century": "1156 CE (12th Century)",
+    "architectural_style": "Desert Rajput Military Architecture with 99 Bastions",
+    "materials_construction": "Golden-Yellow Jurassic Sandstone without lime mortar",
+    "dimensions_area": "Perched on Trikuta Hill (76m above desert); Perimeter: 4.5 km; 99 Bastions",
+    "sub_features_scannable": "Living Fort Quarters (1/4th city population resides inside), 7 Exquisite 12th-16th Century Jain Temples, Raj Mahal Palace, Akshaya Pol, Canon Point",
+    "combat_historical_narrative": "One of the world's very few fully inhabited 'living forts'. It glows with a brilliant honey-gold hue in desert sunlight, earning the sobriquet 'Sonar Qila' (immortalized by Satyajit Ray). Controlled the lucrative spice and silk trade routes between India, Persia, and Central Asia.",
+    "tactical_visiting_info": "Open 24 hours (living fort). Museum timings: 9:00 AM – 6:00 PM. Walking tours recommended through narrow cobblestone alleys.",
+    "nearby_cluster": "Patwon Ki Haveli (1 km), Gadisar Lake (1.5 km), Sam Sand Dunes (40 km)",
+    "government_source": "Archaeological Survey of India (Jaipur Circle) & UNESCO WHC Dossier No. 247",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Jaisalmer_Fort_at_Dusk.jpg/800px-Jaisalmer_Fort_at_Dusk.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-136",
+    "name": "Bhujia Fort & Hill Citadel",
+    "vernacular_name": "ભુજિયો કિલ્લો (Bhujia Killo)",
+    "category": "State Heritage Monument & Coastal Fortress",
+    "type": "Kutch Hill Defense Fortress",
+    "state_ut": "Gujarat",
+    "district_city": "Kutch District, Bhuj",
+    "coordinates": {
+      "lat": 23.2458,
+      "lon": 69.6914
+    },
+    "asi_id": "GUJ-KUT-BHUJ-01",
+    "unesco_ref": "Gujarat State Heritage Protected Citadel",
+    "dynasty_ruler": "Jadeja Rajput Dynasty (Rao Godji I & Maharao Deshalji I)",
+    "period_century": "1715 – 1741 CE (18th Century)",
+    "architectural_style": "Kutchi Rajput Stone Hill Fortification",
+    "materials_construction": "Local Brown Sandstone, Masonry Curtain Walls, Crenellated Parapets",
+    "dimensions_area": "Elevation: 160 m atop Bhujia Hill; Perimeter: 2.2 km; Overlooks Bhuj township",
+    "sub_features_scannable": "Bhujang Naag Temple, Battlements overlooking Rann, Powder Magazine (Barud Khana), Hill Observation Tower, Water Cisterns",
+    "combat_historical_narrative": "Constructed to safeguard Bhuj from marauding Mughal viceroys and bandit raids. Played a dramatic role in 1723 when Sher Buland Khan, Mughal viceroy of Gujarat, laid siege to Bhuj; local Naga Sadhus opened the gates during Nag Panchami and mounted a fierce combat charge, routing the Mughal army.",
+    "tactical_visiting_info": "6:00 AM – 7:00 PM. Steep climb of ~600 steps. Annual festive fair held on Nag Panchami (Shravan month).",
+    "nearby_cluster": "Aina Mahal & Prag Mahal (3 km), Hamirsar Lake (3.5 km), Smritivan Earthquake Memorial (1 km)",
+    "government_source": "Gujarat Tourism (TCGL) & Gujarat State Archaeology Department",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Bhujia_Fort_Bhuj.jpg/800px-Bhujia_Fort_Bhuj.jpg"
+    ],
+    "kaggle_sources": [
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-137",
+    "name": "Diu Fort (Praça de Diu Sea Fortress)",
+    "vernacular_name": "દીવ કિલ્લો (Diu Fort)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Portuguese Coastal Sea Citadel",
+    "state_ut": "Gujarat",
+    "district_city": "Diu / Saurashtra Coast, Diu Island",
+    "coordinates": {
+      "lat": 20.7139,
+      "lon": 70.9942
+    },
+    "asi_id": "ASI-DIU-01",
+    "unesco_ref": "Tentative List (Evolution of Portuguese Maritime Forts in India)",
+    "dynasty_ruler": "Portuguese Maritime Empire (Governor Nuno da Cunha)",
+    "period_century": "1535 – 1546 CE (16th Century)",
+    "architectural_style": "Renaissance Bastioned Sea Fortress",
+    "materials_construction": "Hard Sea Coral Sandstone, Dressed Granite, Cast-iron and Bronze Marine Cannons",
+    "dimensions_area": "Encompasses entire eastern tip of Diu Island; Moat carved from live bedrock; 3 sides surrounded by sea",
+    "sub_features_scannable": "Rock-cut Double Moat, High Venetian Lighthouse, St. Paul's Church, Sea-facing Gun Emplacements, Underground Prison Vaults",
+    "combat_historical_narrative": "Built following an alliance between Bahadur Shah, Sultan of Gujarat, and the Portuguese against Mughal Emperor Humayun in 1535. Survived epic combined naval sieges by the Ottoman Turkish navy (under Hadim Suleiman Pasha) and the Gujarat Sultanate in 1538 and 1546.",
+    "tactical_visiting_info": "8:00 AM – 6:00 PM. Sweeping 360-degree views of the Arabian Sea. Cool sea breezes even in midday.",
+    "nearby_cluster": "Naida Caves (2 km), St. Paul's Church (600 m), Nagoa Beach (8 km)",
+    "government_source": "Archaeological Survey of India (Vadodara Circle) & Daman & Diu Tourism",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Diu_Fort_Light_House.jpg/800px-Diu_Fort_Light_House.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-138",
+    "name": "Idar Fort (Idargadh / Ilva Durga)",
+    "vernacular_name": "ઈડરિયો ગઢ (Idargadh)",
+    "category": "State Heritage Monument & Coastal Fortress",
+    "type": "Aravalli Rock-Cut Hill Fortress",
+    "state_ut": "Gujarat",
+    "district_city": "Sabarkantha District, Idar",
+    "coordinates": {
+      "lat": 23.8344,
+      "lon": 73.0033
+    },
+    "asi_id": "GUJ-SAB-IDAR-01",
+    "unesco_ref": "Gujarat State Protected Ancient Monument",
+    "dynasty_ruler": "Rathore Dynasty of Idar & Ancient Ilva Kingdom",
+    "period_century": "Mentioned in Mahabharata; Fortified 12th – 18th Century CE",
+    "architectural_style": "Rugged Natural Granitic Tor Fortification",
+    "materials_construction": "Weathered Granite Boulders, Natural Rock Shelters, Dressed Masonry",
+    "dimensions_area": "Elevation: 250 m hill fortress; Granite monoliths covering 5 sq km",
+    "sub_features_scannable": "Ruthibani Palace (Palace of the Angry Queen), Gadh Mandir, Ancient Jain Cave Temples, Sheela Udyan (Granite boulder field), Natural Hill Springs",
+    "combat_historical_narrative": "Celebrated in Gujarati folklore and proverbs ('Idario Gadh Jitya' - 'Conquering the unconquerable fort of Idar'). Perched amid colossal natural granite tors of the Aravallis, it proved an impenetrable bastion against raiding Sultanate forces due to natural labyrinthine rock chutes.",
+    "tactical_visiting_info": "6:00 AM – 6:00 PM daily. Excellent boulder hiking and photography of weathered granite formations.",
+    "nearby_cluster": "Polo Forest (35 km), Himatnagar (28 km), Shamlaji Temple (45 km)",
+    "government_source": "Gujarat Tourism (TCGL) & Gujarat State Archaeology Department",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Idar_gadh_step_entrance.jpg/800px-Idar_gadh_step_entrance.jpg"
+    ],
+    "kaggle_sources": [
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-139",
+    "name": "Kanthkot Fort (Ancient Solanki Bastion)",
+    "vernacular_name": "કંથકોટનો કિલ્લો (Kanthkot Fort)",
+    "category": "State Protected Monument",
+    "type": "Solanki Desert Hill Fortification",
+    "state_ut": "Gujarat",
+    "district_city": "Kutch District, Bhachau Taluka",
+    "coordinates": {
+      "lat": 23.4833,
+      "lon": 70.5167
+    },
+    "asi_id": "GUJ-KUT-KANTH-01",
+    "unesco_ref": "Gujarat State Heritage Protected Site",
+    "dynasty_ruler": "Chaulukya / Solanki Dynasty (Mularaja I & Bhima I)",
+    "period_century": "8th – 11th Century CE",
+    "architectural_style": "Early Solanki Stone Citadel Architecture",
+    "materials_construction": "Coarse Sandstone blocks, Ancient Sun Temple ruins, Earthworks",
+    "dimensions_area": "Isolated 5 km tableland hill rising 150m above Kutch desert plains",
+    "sub_features_scannable": "Ruined Sun Temple (Surya Mandir), Mahavira Jain Shrines, Stepwells of Kanthkot, Ancient Granary Cisterns",
+    "combat_historical_narrative": "Historic refuge of Solanki King Bhima I when Mahmud of Ghazni invaded Gujarat in 1025 CE. Built atop a flat, isolated tableland surrounded by sheer rock cliffs, serving as an impregnable tactical sanctuary throughout early medieval warfare.",
+    "tactical_visiting_info": "Sunrise to Sunset. Remote site; 4x4 or sturdy vehicle recommended. Fascinating for archaeology enthusiasts.",
+    "nearby_cluster": "Dholavira Harappan City (85 km north), Bhachau (30 km), Bhuj (100 km)",
+    "government_source": "Gujarat Tourism (TCGL) & Archaeological Survey of India (Vadodara Circle)",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Kanthkot_Fort_ruins.jpg/800px-Kanthkot_Fort_ruins.jpg"
+    ],
+    "kaggle_sources": [
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-140",
+    "name": "Roha Fort (Sumra Rajput Citadel)",
+    "vernacular_name": "રોહા કિલ્લો (Roha Fort)",
+    "category": "State Protected Monument",
+    "type": "Kutchi Rajput Border Fort",
+    "state_ut": "Gujarat",
+    "district_city": "Kutch District, Nakhtrana Taluka",
+    "coordinates": {
+      "lat": 23.2,
+      "lon": 69.0333
+    },
+    "asi_id": "GUJ-KUT-ROHA-01",
+    "unesco_ref": "Gujarat State Protected Heritage Site",
+    "dynasty_ruler": "Chavda / Sumra & Jadeja Rulers (Rao Khengarji I)",
+    "period_century": "15th – 16th Century CE",
+    "architectural_style": "Kutchi Masonry Fortress with Haveli Quarters",
+    "materials_construction": "Local Sandstone Ashlar, Carved Wooden Jharokha Beams",
+    "dimensions_area": "Spread over 16 acres atop Roha Hill (150m elevation)",
+    "sub_features_scannable": "Sumra Princesses Samadhi Shrines, Royal Zanana Haveli, Temple of Roha Mata, Defensive Ramparts",
+    "combat_historical_narrative": "Famed for tragic valor where 120 Sumra Rajput princesses committed Jauhar to protect their honor during invasions. In modern times, celebrated poet Kalapi spent significant periods composing poetic verses in the serene hilltop atmosphere of Roha.",
+    "tactical_visiting_info": "Sunrise to Sunset. Quiet, atmospheric ruins with panoramic views of the Western Kutch expanse.",
+    "nearby_cluster": "Mata no Madh (40 km), Lakhpat Fort (75 km), Bhuj (50 km)",
+    "government_source": "Gujarat Tourism (TCGL) & Gujarat State Archaeology Department",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Roha_Fort_Kutch.jpg/800px-Roha_Fort_Kutch.jpg"
+    ],
+    "kaggle_sources": [
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-141",
+    "name": "Kangra Fort (Nagarkot / Oldest Fort in India)",
+    "vernacular_name": "कांगड़ा किला (Kangra Fort)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Himalayan Rock Citadel",
+    "state_ut": "Himachal Pradesh",
+    "district_city": "Kangra District, Kangra Valley",
+    "coordinates": {
+      "lat": 32.0998,
+      "lon": 76.257
+    },
+    "asi_id": "ASI-HP-KAN-01",
+    "unesco_ref": "Centrally Protected National Monument",
+    "dynasty_ruler": "Katoch Dynasty (Trigarta Kingdom - King Susharma Chand)",
+    "period_century": "Founded 4th Century BCE (Over 2,400 years old)",
+    "architectural_style": "Ancient Hilltop Rock Fortification on River Confluence",
+    "materials_construction": "Massive River Boulder Masonry, Carved Granite Shrines",
+    "dimensions_area": "463 acres fortress; Perched between Banganga and Majhi rivers; 4 km ramparts",
+    "sub_features_scannable": "Darshani Darwaza, Ambika Devi Temple, Ancient Adinath Jain Shrine, Jahangiri Gate, Sheesh Mahal Ruins",
+    "combat_historical_narrative": "Recognized as the oldest dated fort in India, tracing lineage to the Trigarta Kingdom mentioned in the Mahabharata. Guarded immense treasures of the Kangra Temple; attacked 52 times including by Mahmud of Ghazni (1009 CE), Feroz Shah Tughlaq, Emperor Jahangir (1620 CE), and Gurkha forces under Amar Singh Thapa.",
+    "tactical_visiting_info": "9:00 AM – 6:00 PM. High-tech audio guide available in the Maharaja Sansar Chandra Museum at base.",
+    "nearby_cluster": "Brajeshwari Devi Temple (3 km), Dharamshala / McLeod Ganj (20 km)",
+    "government_source": "Archaeological Survey of India (Shimla Circle) & Himachal Tourism (HPTDC)",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Kangra_Fort_Overview.jpg/800px-Kangra_Fort_Overview.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-142",
+    "name": "Bekal Fort (Keyhole Coastal Fortress)",
+    "vernacular_name": "ബേക്കൽ കോട്ട (Bekal Fort)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Laterite Coastal Headland Sea Fort",
+    "state_ut": "Kerala",
+    "district_city": "Kasaragod District, Bekal",
+    "coordinates": {
+      "lat": 12.3927,
+      "lon": 75.0328
+    },
+    "asi_id": "ASI-KL-KAS-01",
+    "unesco_ref": "Centrally Protected Monument of National Importance",
+    "dynasty_ruler": "Keladi Nayaka Dynasty (Shivappa Nayaka) & Tipu Sultan",
+    "period_century": "1650 CE (17th Century)",
+    "architectural_style": "Coastal Bastioned Laterite Fortification",
+    "materials_construction": "Dressed Red Laterite Masonry blocks",
+    "dimensions_area": "Largest fort in Kerala; Sprawls across 40 acres jutting into the Arabian Sea",
+    "sub_features_scannable": "Giant Observation Tower (Watchtower), Camouflaged Naval Water Gate, Underground Passages (Surangam), Mukhyaprana Hanuman Temple, Sea Ramparts",
+    "combat_historical_narrative": "Constructed exclusively for defense rather than palace residential quarters, featuring zig-zag entrances, outer holes for distant naval canon fire, and lower slits for defending against boarding parties. Served as a frontline naval base for Hyder Ali and Tipu Sultan before capture by the British in 1799.",
+    "tactical_visiting_info": "8:00 AM – 5:30 PM. Surrounded by golden sand beach. Beautiful illumination after dusk.",
+    "nearby_cluster": "Bekal Fort Beach (100 m), Ananthapura Lake Temple (30 km), Kasaragod (16 km)",
+    "government_source": "Archaeological Survey of India (Thrissur Circle) & Kerala Tourism (DTPC)",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Bekal_Fort_from_Observation_Tower.jpg/800px-Bekal_Fort_from_Observation_Tower.jpg"
+    ],
+    "kaggle_sources": [
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-143",
+    "name": "Fort Aguada & Lighthouse",
+    "vernacular_name": "Fort Aguada (Forte da Aguada)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Portuguese Coastal Fortress & Freshwater Citadel",
+    "state_ut": "Goa",
+    "district_city": "North Goa District, Sinquerim / Candolim",
+    "coordinates": {
+      "lat": 15.492,
+      "lon": 73.7736
+    },
+    "asi_id": "ASI-GA-NG-01",
+    "unesco_ref": "Centrally Protected Monument of National Importance",
+    "dynasty_ruler": "Portuguese Colonial Empire",
+    "period_century": "1612 CE (17th Century)",
+    "architectural_style": "Portuguese Maritime Vauban Military Architecture",
+    "materials_construction": "Local Porous Red Laterite stone, Lime plaster",
+    "dimensions_area": "Upper Fort & Lower Coastal Battery; Capacity to hold 2,376,000 gallons of freshwater",
+    "sub_features_scannable": "Four-story 1864 Portuguese Lighthouse, Giant Underground Freshwater Cistern (Aguada = Water), 79 Defense Cannons, Moat",
+    "combat_historical_narrative": "Named after the Portuguese word 'Água' (water) because ocean-going galleons docked here to replenish their freshwater supplies from natural freshwater springs inside the fort. Defended the mouth of the Mandovi River against Dutch naval blockades and Maratha seaborne offensives.",
+    "tactical_visiting_info": "9:30 AM – 6:00 PM. High vantage point for viewing dolphins in the Mandovi estuary.",
+    "nearby_cluster": "Sinquerim Beach (1 km), Candolim Beach (3 km), Panaji (15 km)",
+    "government_source": "Archaeological Survey of India (Goa Circle) & Goa Tourism Development Corporation (GTDC)",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Aguada_Fort_Lighthouse_Goa.jpg/800px-Aguada_Fort_Lighthouse_Goa.jpg"
+    ],
+    "kaggle_sources": [
+      "pranavgautam29/indian-historical-monuments",
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-144",
+    "name": "Bidar Fort & Mahmud Gawan Citadel",
+    "vernacular_name": "ಬೀದರ್ ಕೋಟೆ (Bidar Fort)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Bahmani & Barid Shahi Sultanate Fortification",
+    "state_ut": "Karnataka",
+    "district_city": "Bidar District, Bidar",
+    "coordinates": {
+      "lat": 17.9255,
+      "lon": 77.5303
+    },
+    "asi_id": "ASI-KA-BID-01",
+    "unesco_ref": "Tentative List (Monuments and Forts of the Deccan Sultanate)",
+    "dynasty_ruler": "Bahmani Sultanate (Sultan Ahmad Shah I Wali) & Barid Shahi Dynasty",
+    "period_century": "1428 CE (15th Century)",
+    "architectural_style": "Persianate Deccan Military Architecture with Triple Moat System",
+    "materials_construction": "Red Laterite Stone, Basalt, Persian Mosaic Faience Tilework",
+    "dimensions_area": "Perimeter: 5.5 km; 37 Bastions; Triple-tier bedrock moat system",
+    "sub_features_scannable": "Rangeen Mahal (Coloured Palace with Mother-of-Pearl inlay), Solah Khamba Mosque, Tarkash Mahal, Gagan Mahal, Karez Persian Underground Aqueducts",
+    "combat_historical_narrative": "Ahmad Shah Wali relocated the Bahmani capital from Gulbarga to Bidar in 1428. Renowned for its unique 'Karez' subterranean canal network engineered using Persian hydrology, channeling freshwater through 3 km of underground laterite ducts to supply the citadel even during year-long sieges.",
+    "tactical_visiting_info": "8:00 AM – 6:30 PM. Free entry. Bidriware silver inlay artisan workshops located in nearby Bidar old city.",
+    "nearby_cluster": "Mahmud Gawan Madrasa (1.5 km), Bahmani Tombs Ashtur (4 km), Gurudwara Nanak Jhira Sahib (3 km)",
+    "government_source": "Archaeological Survey of India (Bengaluru Circle) & data.gov.in",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bidar_Fort_Entrance_Gate.jpg/800px-Bidar_Fort_Entrance_Gate.jpg"
+    ],
+    "kaggle_sources": [
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-145",
+    "name": "Chitradurga Fort (Kallina Kote / Seven-Ring Stone Citadel)",
+    "vernacular_name": "ಚಿತ್ರದುರ್ಗದ ಕೋಟೆ (Chitradurga Fort)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Seven-Tiered Concentric Stone Hill Fort",
+    "state_ut": "Karnataka",
+    "district_city": "Chitradurga District, Chitradurga",
+    "coordinates": {
+      "lat": 14.2185,
+      "lon": 76.3986
+    },
+    "asi_id": "ASI-KA-CHI-01",
+    "unesco_ref": "Centrally Protected Monument of National Importance",
+    "dynasty_ruler": "Chitradurga Nayaka Dynasty (Madakari Nayaka V)",
+    "period_century": "10th – 18th Century CE",
+    "architectural_style": "Dravidian Concentric Military Defense Architecture",
+    "materials_construction": "Enormous Unmortared Granite Boulders, Iron Clamp joints",
+    "dimensions_area": "Spans 1,500 acres; 7 Concentric Walled Defense Rings (Yelu Suttina Kote); 38 rear gateways",
+    "sub_features_scannable": "Onake Obavvana Kindi (Heroine Obavva's Secret Cleft), Hidimbeshwara Rock Cave Temple, Ekanatheshwari Temple, Rainwater Harvesting Talavs, Gunpowder Mills",
+    "combat_historical_narrative": "Never taken by frontal military assault due to its 7 concentric labyrinthine rings. Site of the famous 1779 siege by Hyder Ali: when soldiers tried sneaking through a narrow secret crevice, heroic woman Onake Obavva stood guard with a heavy wooden rice pestle (Onake), eliminating dozens of invading soldiers single-handedly.",
+    "tactical_visiting_info": "6:00 AM – 5:30 PM daily. Requires 3-4 hours of walking across granite steps. Excellent rainwater conservation models.",
+    "nearby_cluster": "Chandravalli Prehistoric Archaeological Caves (4 km), Vani Vilasa Sagara Dam (45 km)",
+    "government_source": "Archaeological Survey of India (Bengaluru Circle) & Karnataka Tourism (KSTDC)",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Chitradurga_Fort_Gates.jpg/800px-Chitradurga_Fort_Gates.jpg"
+    ],
+    "kaggle_sources": [
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
+  },
+  {
+    "id": "IND-HER-146",
+    "name": "Rohtasgarh Fort (Shergarh Hill Citadel)",
+    "vernacular_name": "रोहतासगढ़ किला (Rohtasgarh Fort)",
+    "category": "Centrally Protected Monument (ASI)",
+    "type": "Massive Plateau Hill Citadel",
+    "state_ut": "Bihar",
+    "district_city": "Rohtas District, Kaimur Range",
+    "coordinates": {
+      "lat": 24.6289,
+      "lon": 83.9169
+    },
+    "asi_id": "ASI-BR-ROH-01",
+    "unesco_ref": "Centrally Protected Monument of National Importance",
+    "dynasty_ruler": "Solar Dynasty (Prince Rohitashva) & Suri Empire (Sher Shah Suri)",
+    "period_century": "Ancient roots; Re-fortified 1538 CE by Sher Shah Suri & Raja Man Singh (1588 CE)",
+    "architectural_style": "Mughal-Rajput Hill Plateau Citadel Architecture",
+    "materials_construction": "Dressed Sandstone, Ashlar Masonry, Lime Mortar",
+    "dimensions_area": "Plateau Area: 42 sq km (10,000+ acres); Elevation: 450 m above Sone river valley; Perimeter: 45 km",
+    "sub_features_scannable": "Man Singh Palace (Hathiya Pol with Carved Elephants), Aina Mahal, Jami Masjid of Rohtas, Shahi Jama Gate, Hanging Balcony",
+    "combat_historical_narrative": "One of the largest hill fortresses in the world by plateau area. Captured with strategic subterfuge by Sher Shah Suri in 1538 by sending armed soldiers disguised in covered palanquins (dolis) pretending to be royal women seeking shelter. Later served as the invincible headquarters of Mughal Viceroy Raja Man Singh.",
+    "tactical_visiting_info": "6:00 AM – 5:00 PM. High trekking destination across scenic Kaimur plateau.",
+    "nearby_cluster": "Tomb of Sher Shah Suri at Sasaram (45 km), Chaurasan Temple",
+    "government_source": "Archaeological Survey of India (Patna Circle) & Bihar State Tourism Development Corporation (BSTDC)",
+    "photos": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Rohtasgarh_Fort_Man_Singh_Palace.jpg/800px-Rohtasgarh_Fort_Man_Singh_Palace.jpg"
+    ],
+    "kaggle_sources": [
+      "ayushkhaire/indian-forts"
+    ],
+    "vision_class_label": null
   }
 ]

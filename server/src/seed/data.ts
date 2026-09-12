@@ -1768,6 +1768,253 @@ export const PLACES_DATA = [
     "openingHours": "🏛️ Location: Adalaj Stepwell, Adalaj Village, Gandhinagar, Gujarat | Position: 5th Subterr",
     "rating": 4.5,
     "shortDescription": "Built in 1499 by Queen Rudabai in memory of her husband Rana Veer Singh. Adalaj Stepwell is famous for its unique blend of Hindu and Jain iconographic symbols w..."
+  },
+  {
+    "id": "p-gateway-of-india",
+    "name": "Gateway of India",
+    "nameHi": "गेटवे ऑफ़ इंडिया (Gateway of India)",
+    "nameGu": "गेटवे ऑफ़ इंडिया (Gateway of India)",
+    "latitude": 18.922,
+    "longitude": 72.8347,
+    "category": "heritage",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Mumbai_03-2016_30_Gateway_of_India.jpg/800px-Mumbai_03-2016_30_Gateway_of_India.jpg",
+    "openingHours": "Open 24 Hours. Best visited sunrise or sunset. Ferry terminal for Elephanta Caves departs from the rear steps. High security baggage screening.",
+    "rating": 4.8,
+    "shortDescription": "Erected to commemorate the landing of King George V and Queen Mary at Apollo Bunder in December 1911. Historically significant as the ceremo..."
+  },
+  {
+    "id": "p-brihadeeswarar-temple",
+    "name": "Brihadeeswarar Temple",
+    "nameHi": "பெருவுடையார் கோயில் (Brihadisvara Temple)",
+    "nameGu": "பெருவுடையார் கோயில் (Brihadisvara Temple)",
+    "latitude": 10.7828,
+    "longitude": 79.1318,
+    "category": "heritage",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Brihadisvara_Temple%2C_Thanjavur.jpg/800px-Brihadisvara_Temple%2C_Thanjavur.jpg",
+    "openingHours": "Open 6:00 AM – 12:30 PM & 4:00 PM – 8:30 PM. Free entry. Non-leather footwear strictly enforced.",
+    "rating": 4.8,
+    "shortDescription": "Commissioned by the greatest Chola conqueror, Rajaraja I, in 1010 CE to celebrate his naval victories across the Bay of Bengal, Sri Lanka, a..."
+  },
+  {
+    "id": "p-india-gate",
+    "name": "India Gate",
+    "nameHi": "इंडिया गेट (India Gate)",
+    "nameGu": "इंडिया गेट (India Gate)",
+    "latitude": 28.6129,
+    "longitude": 77.2295,
+    "category": "heritage",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/India_Gate_in_New_Delhi_03-2016.jpg/800px-India_Gate_in_New_Delhi_03-2016.jpg",
+    "openingHours": "Open 24 hours. Illuminated daily from 7:00 PM – 10:00 PM. Adjacent to National War Memorial.",
+    "rating": 4.8,
+    "shortDescription": "Dedicated to 84,000 soldiers of the British Indian Army who made the supreme sacrifice in the First World War (1914–1918) and the Third Angl..."
+  },
+  {
+    "id": "p-lotus-temple",
+    "name": "Lotus Temple",
+    "nameHi": "लोटस टेम्पल (Lotus Temple)",
+    "nameGu": "लोटस टेम्पल (Lotus Temple)",
+    "latitude": 28.5535,
+    "longitude": 77.2588,
+    "category": "heritage",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lotus_Temple_in_the_evening.jpg/800px-Lotus_Temple_in_the_evening.jpg",
+    "openingHours": "9:00 AM – 5:30 PM (Winter) / 7:00 PM (Summer). Closed Mondays. Silence strictly observed inside sanctum.",
+    "rating": 4.8,
+    "shortDescription": "A monument to the oneness of humanity and universal worship, conceived in the form of an opening Sacred Lotus (Nelumbo nucifera). Designed b..."
+  },
+  {
+    "id": "p-sinhagad-fort",
+    "name": "Sinhagad Fort",
+    "nameHi": "सिंहगड किल्ला (Sinhagad Fort)",
+    "nameGu": "सिंहगड किल्ला (Sinhagad Fort)",
+    "latitude": 18.3663,
+    "longitude": 73.7558,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Sinhagad_Fort_Kalyan_Darwaja.jpg/800px-Sinhagad_Fort_Kalyan_Darwaja.jpg",
+    "openingHours": "6:00 AM – 6:00 PM daily. Excellent monsoon trekking. Traditional Kanda Bhaji and Pitla Bhakri served by local villagers atop fort.",
+    "rating": 4.8,
+    "shortDescription": "Site of the legendary Battle of Sinhagad (February 1670), where Maratha subedar Tanaji Malusare scaled the sheer, near-vertical southern cli..."
+  },
+  {
+    "id": "p-pratapgad-fort",
+    "name": "Pratapgad Fort",
+    "nameHi": "प्रतापगड किल्ला (Pratapgad Fort)",
+    "nameGu": "प्रतापगड किल्ला (Pratapgad Fort)",
+    "latitude": 17.9272,
+    "longitude": 73.5794,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Pratapgad_Fort_overview.jpg/800px-Pratapgad_Fort_overview.jpg",
+    "openingHours": "6:00 AM – 6:00 PM. High rain during monsoons. Guides available at the base village.",
+    "rating": 4.8,
+    "shortDescription": "Famed for the fateful encounter on November 10, 1659, between Chhatrapati Shivaji Maharaj and Bijapur general Afzal Khan. When Afzal Khan at..."
+  },
+  {
+    "id": "p-murud-janjira-fort",
+    "name": "Murud-Janjira Fort",
+    "nameHi": "मुरुड-जंजिरा किल्ला (Murud-Janjira)",
+    "nameGu": "मुरुड-जंजिरा किल्ला (Murud-Janjira)",
+    "latitude": 18.3005,
+    "longitude": 72.9644,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Murud_Janjira_Sea_Fort.jpg/800px-Murud_Janjira_Sea_Fort.jpg",
+    "openingHours": "7:00 AM – 5:30 PM (Subject to ocean tide schedules). Reached exclusively by local sailboat ferries from Rajapuri jetty. Closed during heavy monsoon squalls (June to August).",
+    "rating": 4.8,
+    "shortDescription": "Considered the only unconquered sea fort along India's western coastline. Resisted repeated amphibious and land sieges by the Marathas under..."
+  },
+  {
+    "id": "p-mehrangarh-fort",
+    "name": "Mehrangarh Fort",
+    "nameHi": "मेहरानगढ़ दुर्ग (Mehrangarh Fort)",
+    "nameGu": "मेहरानगढ़ दुर्ग (Mehrangarh Fort)",
+    "latitude": 26.2978,
+    "longitude": 73.0185,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Mehrangarh_Fort_in_Jodhpur%2C_Rajasthan.jpg/800px-Mehrangarh_Fort_in_Jodhpur%2C_Rajasthan.jpg",
+    "openingHours": "9:00 AM – 5:00 PM daily. Elevator service available to the top museum deck. Audio guides in 12 languages. Zip-lining (Flying Fox) tours operate across fort battlements.",
+    "rating": 4.8,
+    "shortDescription": "Founded in 1459 by Rao Jodha atop Bhakurcheeria ('Mountain of Birds'). Cannonball marks from attacking Jaipur forces are still visible near ..."
+  },
+  {
+    "id": "p-jaisalmer-fort",
+    "name": "Jaisalmer Fort",
+    "nameHi": "जैसलमेर दुर्ग (Sonar Qila)",
+    "nameGu": "जैसलमेर दुर्ग (Sonar Qila)",
+    "latitude": 26.9124,
+    "longitude": 70.9127,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Jaisalmer_Fort_at_Dusk.jpg/800px-Jaisalmer_Fort_at_Dusk.jpg",
+    "openingHours": "Open 24 hours (living fort). Museum timings: 9:00 AM – 6:00 PM. Walking tours recommended through narrow cobblestone alleys.",
+    "rating": 4.8,
+    "shortDescription": "One of the world's very few fully inhabited 'living forts'. It glows with a brilliant honey-gold hue in desert sunlight, earning the sobriqu..."
+  },
+  {
+    "id": "p-bhujia-fort-hill-citadel",
+    "name": "Bhujia Fort & Hill Citadel",
+    "nameHi": "ભુજિયો કિલ્લો (Bhujia Killo)",
+    "nameGu": "ભુજિયો કિલ્લો (Bhujia Killo)",
+    "latitude": 23.2458,
+    "longitude": 69.6914,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Bhujia_Fort_Bhuj.jpg/800px-Bhujia_Fort_Bhuj.jpg",
+    "openingHours": "6:00 AM – 7:00 PM. Steep climb of ~600 steps. Annual festive fair held on Nag Panchami (Shravan month).",
+    "rating": 4.8,
+    "shortDescription": "Constructed to safeguard Bhuj from marauding Mughal viceroys and bandit raids. Played a dramatic role in 1723 when Sher Buland Khan, Mughal ..."
+  },
+  {
+    "id": "p-diu-fort",
+    "name": "Diu Fort",
+    "nameHi": "દીવ કિલ્લો (Diu Fort)",
+    "nameGu": "દીવ કિલ્લો (Diu Fort)",
+    "latitude": 20.7139,
+    "longitude": 70.9942,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Diu_Fort_Light_House.jpg/800px-Diu_Fort_Light_House.jpg",
+    "openingHours": "8:00 AM – 6:00 PM. Sweeping 360-degree views of the Arabian Sea. Cool sea breezes even in midday.",
+    "rating": 4.8,
+    "shortDescription": "Built following an alliance between Bahadur Shah, Sultan of Gujarat, and the Portuguese against Mughal Emperor Humayun in 1535. Survived epi..."
+  },
+  {
+    "id": "p-idar-fort",
+    "name": "Idar Fort",
+    "nameHi": "ઈડરિયો ગઢ (Idargadh)",
+    "nameGu": "ઈડરિયો ગઢ (Idargadh)",
+    "latitude": 23.8344,
+    "longitude": 73.0033,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Idar_gadh_step_entrance.jpg/800px-Idar_gadh_step_entrance.jpg",
+    "openingHours": "6:00 AM – 6:00 PM daily. Excellent boulder hiking and photography of weathered granite formations.",
+    "rating": 4.8,
+    "shortDescription": "Celebrated in Gujarati folklore and proverbs ('Idario Gadh Jitya' - 'Conquering the unconquerable fort of Idar'). Perched amid colossal natu..."
+  },
+  {
+    "id": "p-kanthkot-fort",
+    "name": "Kanthkot Fort",
+    "nameHi": "કંથકોટનો કિલ્લો (Kanthkot Fort)",
+    "nameGu": "કંથકોટનો કિલ્લો (Kanthkot Fort)",
+    "latitude": 23.4833,
+    "longitude": 70.5167,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Kanthkot_Fort_ruins.jpg/800px-Kanthkot_Fort_ruins.jpg",
+    "openingHours": "Sunrise to Sunset. Remote site; 4x4 or sturdy vehicle recommended. Fascinating for archaeology enthusiasts.",
+    "rating": 4.8,
+    "shortDescription": "Historic refuge of Solanki King Bhima I when Mahmud of Ghazni invaded Gujarat in 1025 CE. Built atop a flat, isolated tableland surrounded b..."
+  },
+  {
+    "id": "p-roha-fort",
+    "name": "Roha Fort",
+    "nameHi": "રોહા કિલ્લો (Roha Fort)",
+    "nameGu": "રોહા કિલ્લો (Roha Fort)",
+    "latitude": 23.2,
+    "longitude": 69.0333,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Roha_Fort_Kutch.jpg/800px-Roha_Fort_Kutch.jpg",
+    "openingHours": "Sunrise to Sunset. Quiet, atmospheric ruins with panoramic views of the Western Kutch expanse.",
+    "rating": 4.8,
+    "shortDescription": "Famed for tragic valor where 120 Sumra Rajput princesses committed Jauhar to protect their honor during invasions. In modern times, celebrat..."
+  },
+  {
+    "id": "p-kangra-fort",
+    "name": "Kangra Fort",
+    "nameHi": "कांगड़ा किला (Kangra Fort)",
+    "nameGu": "कांगड़ा किला (Kangra Fort)",
+    "latitude": 32.0998,
+    "longitude": 76.257,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Kangra_Fort_Overview.jpg/800px-Kangra_Fort_Overview.jpg",
+    "openingHours": "9:00 AM – 6:00 PM. High-tech audio guide available in the Maharaja Sansar Chandra Museum at base.",
+    "rating": 4.8,
+    "shortDescription": "Recognized as the oldest dated fort in India, tracing lineage to the Trigarta Kingdom mentioned in the Mahabharata. Guarded immense treasure..."
+  },
+  {
+    "id": "p-fort-aguada-lighthouse",
+    "name": "Fort Aguada & Lighthouse",
+    "nameHi": "Fort Aguada (Forte da Aguada)",
+    "nameGu": "Fort Aguada (Forte da Aguada)",
+    "latitude": 15.492,
+    "longitude": 73.7736,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Aguada_Fort_Lighthouse_Goa.jpg/800px-Aguada_Fort_Lighthouse_Goa.jpg",
+    "openingHours": "9:30 AM – 6:00 PM. High vantage point for viewing dolphins in the Mandovi estuary.",
+    "rating": 4.8,
+    "shortDescription": "Named after the Portuguese word 'Água' (water) because ocean-going galleons docked here to replenish their freshwater supplies from natural ..."
+  },
+  {
+    "id": "p-bidar-fort-mahmud-gawan-citadel",
+    "name": "Bidar Fort & Mahmud Gawan Citadel",
+    "nameHi": "ಬೀದರ್ ಕೋಟೆ (Bidar Fort)",
+    "nameGu": "ಬೀದರ್ ಕೋಟೆ (Bidar Fort)",
+    "latitude": 17.9255,
+    "longitude": 77.5303,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bidar_Fort_Entrance_Gate.jpg/800px-Bidar_Fort_Entrance_Gate.jpg",
+    "openingHours": "8:00 AM – 6:30 PM. Free entry. Bidriware silver inlay artisan workshops located in nearby Bidar old city.",
+    "rating": 4.8,
+    "shortDescription": "Ahmad Shah Wali relocated the Bahmani capital from Gulbarga to Bidar in 1428. Renowned for its unique 'Karez' subterranean canal network eng..."
+  },
+  {
+    "id": "p-chitradurga-fort",
+    "name": "Chitradurga Fort",
+    "nameHi": "ಚಿತ್ರದುರ್ಗದ ಕೋಟೆ (Chitradurga Fort)",
+    "nameGu": "ಚಿತ್ರದುರ್ಗದ ಕೋಟೆ (Chitradurga Fort)",
+    "latitude": 14.2185,
+    "longitude": 76.3986,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Chitradurga_Fort_Gates.jpg/800px-Chitradurga_Fort_Gates.jpg",
+    "openingHours": "6:00 AM – 5:30 PM daily. Requires 3-4 hours of walking across granite steps. Excellent rainwater conservation models.",
+    "rating": 4.8,
+    "shortDescription": "Never taken by frontal military assault due to its 7 concentric labyrinthine rings. Site of the famous 1779 siege by Hyder Ali: when soldier..."
+  },
+  {
+    "id": "p-rohtasgarh-fort",
+    "name": "Rohtasgarh Fort",
+    "nameHi": "रोहतासगढ़ किला (Rohtasgarh Fort)",
+    "nameGu": "रोहतासगढ़ किला (Rohtasgarh Fort)",
+    "latitude": 24.6289,
+    "longitude": 83.9169,
+    "category": "fort",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Rohtasgarh_Fort_Man_Singh_Palace.jpg/800px-Rohtasgarh_Fort_Man_Singh_Palace.jpg",
+    "openingHours": "6:00 AM – 5:00 PM. High trekking destination across scenic Kaimur plateau.",
+    "rating": 4.8,
+    "shortDescription": "One of the largest hill fortresses in the world by plateau area. Captured with strategic subterfuge by Sher Shah Suri in 1538 by sending arm..."
   }
 ];
 
@@ -3876,6 +4123,234 @@ export const HERITAGE_RECORDS = [
       "UNESCO: Centrally Protected Monument of National Importance"
     ],
     "period": "1499 CE (Late 15th Century)"
+  },
+  {
+    "placeId": "p-gateway-of-india",
+    "shortStory": "Erected to commemorate the landing of King George V and Queen Mary at Apollo Bunder in December 1911. Historically significant as the ceremonial departure point for the last British troops (First Battalion of Somerset Light Infantry) exiting independent India on February 28, 1948.",
+    "detailedHistory": "Gateway of India is situated in Mumbai District, South Mumbai, Maharashtra. Architectural Style: Indo-Saracenic Revival with Gujarati 16th-century Architectural Elements. Built during 1911 – 1924 CE (20th Century) by British Raj (Architect: George Wittet). Key scannable features include Central Grand Arch, 4 Corner Turrets, Intricate Basalt Latticework, Waterfront Sea Steps, Commemorative Inscriptions. Ingested from Archaeological Survey of India (Mumbai Circle) & Maharashtra Tourism Development Corporation (MTDC) with Kaggle benchmark validation.",
+    "childStory": "Did you know? Gateway of India was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Gateway of India. As you gaze upon this majestic site, notice the intricate Indo-Saracenic Revival with Gujarati 16th-century Architectural Elements. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "Centrally Protected Monument (ASI)",
+      "Maharashtra",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-brihadeeswarar-temple",
+    "shortStory": "Commissioned by the greatest Chola conqueror, Rajaraja I, in 1010 CE to celebrate his naval victories across the Bay of Bengal, Sri Lanka, and Southeast Asia. The octagonal shikhara was positioned via a 6-km inclined earthen ramp.",
+    "detailedHistory": "Brihadeeswarar Temple (Peruvudaiyar Kovil) is situated in Thanjavur District, Thanjavur, Tamil Nadu. Architectural Style: Pure Dravidian Temple Architecture (Dravida Vimana Pinnacle). Built during 1003 – 1010 CE (11th Century) by Chola Empire (Emperor Raja Raja Chola I). Key scannable features include 66m Soaring Vimana Tower, 80-tonne Monolithic Kumbam, Massive Monolithic Nandi (12-tonne single granite), Nataraja Bronzes, Tamil Chola Inscriptions. Ingested from Archaeological Survey of India (Chennai Circle) & UNESCO WHC Dossier No. 250 with Kaggle benchmark validation.",
+    "childStory": "Did you know? Brihadeeswarar Temple was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Brihadeeswarar Temple. As you gaze upon this majestic site, notice the intricate Pure Dravidian Temple Architecture (Dravida Vimana Pinnacle). Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "UNESCO World Heritage Site",
+      "Tamil Nadu",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-india-gate",
+    "shortStory": "Dedicated to 84,000 soldiers of the British Indian Army who made the supreme sacrifice in the First World War (1914–1918) and the Third Anglo-Afghan War (1919). The foundation stone was laid by the Duke of Connaught in 1921.",
+    "detailedHistory": "India Gate (All India War Memorial) is situated in New Delhi District, Central Vista, Delhi. Architectural Style: Beaux-Arts Classical Triumphal Arch. Built during 1921 – 1931 CE (20th Century) by British India (Architect: Sir Edwin Lutyens). Key scannable features include Amar Jawan Jyoti, Inscribed Names of 13,300+ Fallen Soldiers, Shallow Domed Roof Cenotaph, Grand Canopy, Kartavya Path Vista. Ingested from Ministry of Defence / Archaeological Survey of India (Delhi Circle) & data.gov.in with Kaggle benchmark validation.",
+    "childStory": "Did you know? India Gate was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to India Gate. As you gaze upon this majestic site, notice the intricate Beaux-Arts Classical Triumphal Arch. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "National Memorial & Monument",
+      "Delhi",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-lotus-temple",
+    "shortStory": "A monument to the oneness of humanity and universal worship, conceived in the form of an opening Sacred Lotus (Nelumbo nucifera). Designed by Iranian-Canadian architect Fariborz Sahba, its 27 delicate petals are clad in pure white marble quarried from Mount Pentelikon in Greece.",
+    "detailedHistory": "Lotus Temple (Baháʼí House of Worship) is situated in South Delhi District, Kalkaji, Delhi. Architectural Style: Biomorphic Expressionist Lotus Architecture. Built during 1980 – 1986 CE (20th Century) by Baháʼí International Community (Architect: Fariborz Sahba). Key scannable features include 27 Free-standing Petals in 3 Clusters, 9 Symmetrical Ponds, Central Hall of Silence, Skylight Optical Glazing. Ingested from National Baháʼí Council of India & Delhi Tourism (DTTDC) with Kaggle benchmark validation.",
+    "childStory": "Did you know? Lotus Temple was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Lotus Temple. As you gaze upon this majestic site, notice the intricate Biomorphic Expressionist Lotus Architecture. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "Centrally Protected Monument (ASI)",
+      "Delhi",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-sinhagad-fort",
+    "shortStory": "Site of the legendary Battle of Sinhagad (February 1670), where Maratha subedar Tanaji Malusare scaled the sheer, near-vertical southern cliff using a trained monitor lizard (ghorpad) named Yashwanti in the dead of night. Tanaji died winning the fort from Mughal commander Udaybhan Rathod, prompting Shivaji Maharaj's historic words: 'Gad ala, pan sinh gela' ('The fort is won, but the lion is lost').",
+    "detailedHistory": "Sinhagad Fort (Kondhana Lion Fortress) is situated in Pune District, Haveli Taluka, Maharashtra. Architectural Style: Sahyadri Mountain Rock-Cut Fortification & Bastion Wall. Built during 14th – 17th Century CE by Maratha Empire (Chhatrapati Shivaji Maharaj & Tanaji Malusare). Key scannable features include Pune Darwaza, Kalyan Darwaza, Tanaji Malusare Memorial Samadhi, Devtaka Sweet Water Cistern, Wind Point (Hawa Point). Ingested from Archaeological Survey of India (Pune Circle) & Maharashtra Tourism (MTDC) with Kaggle benchmark validation.",
+    "childStory": "Did you know? Sinhagad Fort was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Sinhagad Fort. As you gaze upon this majestic site, notice the intricate Sahyadri Mountain Rock-Cut Fortification & Bastion Wall. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "State & Centrally Protected Monument (ASI)",
+      "Maharashtra",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-pratapgad-fort",
+    "shortStory": "Famed for the fateful encounter on November 10, 1659, between Chhatrapati Shivaji Maharaj and Bijapur general Afzal Khan. When Afzal Khan attempted to stab Shivaji during a ceremonial embrace, Shivaji retaliated using concealed tiger claws (Bagh Nakh) and bichwa dagger, turning the tide of Maratha military sovereignty.",
+    "detailedHistory": "Pratapgad Fort (Fortress of Valour) is situated in Satara District, Mahabaleshwar, Maharashtra. Architectural Style: Two-tiered Hill Fortification (Upper and Lower Ballekila). Built during 1656 CE (17th Century) by Maratha Empire (Chhatrapati Shivaji Maharaj / Moropant Trimbak Pingle). Key scannable features include Bhavani Mata Temple, Afzal Khan Tomb (Burial Cenotaph), Equestrian Bronze Statue of Shivaji, Reda Buruj, Hidden Bastion Gates. Ingested from Directorate of Archaeology and Museums, Government of Maharashtra with Kaggle benchmark validation.",
+    "childStory": "Did you know? Pratapgad Fort was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Pratapgad Fort. As you gaze upon this majestic site, notice the intricate Two-tiered Hill Fortification (Upper and Lower Ballekila). Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "State Protected Monument",
+      "Maharashtra",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-murud-janjira-fort",
+    "shortStory": "Considered the only unconquered sea fort along India's western coastline. Resisted repeated amphibious and land sieges by the Marathas under Shivaji Maharaj and Sambhaji Maharaj, the Portuguese armada, and the British East India Company across three centuries.",
+    "detailedHistory": "Murud-Janjira Fort (Impregnable Marine Fortress) is situated in Raigad District, Murud, Maharashtra. Architectural Style: Marine Coastal Fortification with Camouflaged Sea Gates. Built during 15th – 17th Century CE by Siddi Dynasty of Janjira (Habshi Seafarers of Abyssinian origin). Key scannable features include Kalal Bangadi Giant Bronze Cannon (3rd heaviest cannon in India), Camouflaged Darya Darwaza (Water Gate), Sweet Water Freshwater Ponds in the middle of Arabian Sea. Ingested from Archaeological Survey of India (Mumbai Circle) & data.gov.in with Kaggle benchmark validation.",
+    "childStory": "Did you know? Murud-Janjira Fort was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Murud-Janjira Fort. As you gaze upon this majestic site, notice the intricate Marine Coastal Fortification with Camouflaged Sea Gates. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "Centrally Protected Monument (ASI)",
+      "Maharashtra",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-mehrangarh-fort",
+    "shortStory": "Founded in 1459 by Rao Jodha atop Bhakurcheeria ('Mountain of Birds'). Cannonball marks from attacking Jaipur forces are still visible near the Loha Pol (Iron Gate), which also preserves the tragic handprints (sati marks) of 15 royal ranis who immolated themselves following Maharaja Man Singh's demise in 1843.",
+    "detailedHistory": "Mehrangarh Fort (Citadel of the Sun) is situated in Jodhpur District, Jodhpur (Blue City), Rajasthan. Architectural Style: Mighty Rajput Fort Architecture with Ornate Sandstone Palaces. Built during Founded 1459 CE (15th – 17th Century additions) by Rathore Dynasty (Rao Jodha). Key scannable features include 7 Massive Victory Gates (Jai Pol, Fateh Pol with cannonball scars), Sheesh Mahal (Mirror Palace), Phool Mahal (Flower Palace), Kilkila Cannon, Royal Howdah Gallery. Ingested from Mehrangarh Museum Trust & Archaeological Survey of India (Jaipur Circle) with Kaggle benchmark validation.",
+    "childStory": "Did you know? Mehrangarh Fort was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Mehrangarh Fort. As you gaze upon this majestic site, notice the intricate Mighty Rajput Fort Architecture with Ornate Sandstone Palaces. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "Centrally Protected Monument (ASI)",
+      "Rajasthan",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-jaisalmer-fort",
+    "shortStory": "One of the world's very few fully inhabited 'living forts'. It glows with a brilliant honey-gold hue in desert sunlight, earning the sobriquet 'Sonar Qila' (immortalized by Satyajit Ray). Controlled the lucrative spice and silk trade routes between India, Persia, and Central Asia.",
+    "detailedHistory": "Jaisalmer Fort (Sonar Qila / The Golden Fort) is situated in Jaisalmer District, Thar Desert, Rajasthan. Architectural Style: Desert Rajput Military Architecture with 99 Bastions. Built during 1156 CE (12th Century) by Bhati Rajput Dynasty (Rawal Jaisal). Key scannable features include Living Fort Quarters (1/4th city population resides inside), 7 Exquisite 12th-16th Century Jain Temples, Raj Mahal Palace, Akshaya Pol, Canon Point. Ingested from Archaeological Survey of India (Jaipur Circle) & UNESCO WHC Dossier No. 247 with Kaggle benchmark validation.",
+    "childStory": "Did you know? Jaisalmer Fort was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Jaisalmer Fort. As you gaze upon this majestic site, notice the intricate Desert Rajput Military Architecture with 99 Bastions. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "UNESCO World Heritage Site",
+      "Rajasthan",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-bhujia-fort-hill-citadel",
+    "shortStory": "Constructed to safeguard Bhuj from marauding Mughal viceroys and bandit raids. Played a dramatic role in 1723 when Sher Buland Khan, Mughal viceroy of Gujarat, laid siege to Bhuj; local Naga Sadhus opened the gates during Nag Panchami and mounted a fierce combat charge, routing the Mughal army.",
+    "detailedHistory": "Bhujia Fort & Hill Citadel is situated in Kutch District, Bhuj, Gujarat. Architectural Style: Kutchi Rajput Stone Hill Fortification. Built during 1715 – 1741 CE (18th Century) by Jadeja Rajput Dynasty (Rao Godji I & Maharao Deshalji I). Key scannable features include Bhujang Naag Temple, Battlements overlooking Rann, Powder Magazine (Barud Khana), Hill Observation Tower, Water Cisterns. Ingested from Gujarat Tourism (TCGL) & Gujarat State Archaeology Department with Kaggle benchmark validation.",
+    "childStory": "Did you know? Bhujia Fort & Hill Citadel was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Bhujia Fort & Hill Citadel. As you gaze upon this majestic site, notice the intricate Kutchi Rajput Stone Hill Fortification. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "State Heritage Monument & Coastal Fortress",
+      "Gujarat",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-diu-fort",
+    "shortStory": "Built following an alliance between Bahadur Shah, Sultan of Gujarat, and the Portuguese against Mughal Emperor Humayun in 1535. Survived epic combined naval sieges by the Ottoman Turkish navy (under Hadim Suleiman Pasha) and the Gujarat Sultanate in 1538 and 1546.",
+    "detailedHistory": "Diu Fort (Praça de Diu Sea Fortress) is situated in Diu / Saurashtra Coast, Diu Island, Gujarat. Architectural Style: Renaissance Bastioned Sea Fortress. Built during 1535 – 1546 CE (16th Century) by Portuguese Maritime Empire (Governor Nuno da Cunha). Key scannable features include Rock-cut Double Moat, High Venetian Lighthouse, St. Paul's Church, Sea-facing Gun Emplacements, Underground Prison Vaults. Ingested from Archaeological Survey of India (Vadodara Circle) & Daman & Diu Tourism with Kaggle benchmark validation.",
+    "childStory": "Did you know? Diu Fort was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Diu Fort. As you gaze upon this majestic site, notice the intricate Renaissance Bastioned Sea Fortress. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "Centrally Protected Monument (ASI)",
+      "Gujarat",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-idar-fort",
+    "shortStory": "Celebrated in Gujarati folklore and proverbs ('Idario Gadh Jitya' - 'Conquering the unconquerable fort of Idar'). Perched amid colossal natural granite tors of the Aravallis, it proved an impenetrable bastion against raiding Sultanate forces due to natural labyrinthine rock chutes.",
+    "detailedHistory": "Idar Fort (Idargadh / Ilva Durga) is situated in Sabarkantha District, Idar, Gujarat. Architectural Style: Rugged Natural Granitic Tor Fortification. Built during Mentioned in Mahabharata; Fortified 12th – 18th Century CE by Rathore Dynasty of Idar & Ancient Ilva Kingdom. Key scannable features include Ruthibani Palace (Palace of the Angry Queen), Gadh Mandir, Ancient Jain Cave Temples, Sheela Udyan (Granite boulder field), Natural Hill Springs. Ingested from Gujarat Tourism (TCGL) & Gujarat State Archaeology Department with Kaggle benchmark validation.",
+    "childStory": "Did you know? Idar Fort was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Idar Fort. As you gaze upon this majestic site, notice the intricate Rugged Natural Granitic Tor Fortification. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "State Heritage Monument & Coastal Fortress",
+      "Gujarat",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-kanthkot-fort",
+    "shortStory": "Historic refuge of Solanki King Bhima I when Mahmud of Ghazni invaded Gujarat in 1025 CE. Built atop a flat, isolated tableland surrounded by sheer rock cliffs, serving as an impregnable tactical sanctuary throughout early medieval warfare.",
+    "detailedHistory": "Kanthkot Fort (Ancient Solanki Bastion) is situated in Kutch District, Bhachau Taluka, Gujarat. Architectural Style: Early Solanki Stone Citadel Architecture. Built during 8th – 11th Century CE by Chaulukya / Solanki Dynasty (Mularaja I & Bhima I). Key scannable features include Ruined Sun Temple (Surya Mandir), Mahavira Jain Shrines, Stepwells of Kanthkot, Ancient Granary Cisterns. Ingested from Gujarat Tourism (TCGL) & Archaeological Survey of India (Vadodara Circle) with Kaggle benchmark validation.",
+    "childStory": "Did you know? Kanthkot Fort was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Kanthkot Fort. As you gaze upon this majestic site, notice the intricate Early Solanki Stone Citadel Architecture. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "State Protected Monument",
+      "Gujarat",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-roha-fort",
+    "shortStory": "Famed for tragic valor where 120 Sumra Rajput princesses committed Jauhar to protect their honor during invasions. In modern times, celebrated poet Kalapi spent significant periods composing poetic verses in the serene hilltop atmosphere of Roha.",
+    "detailedHistory": "Roha Fort (Sumra Rajput Citadel) is situated in Kutch District, Nakhtrana Taluka, Gujarat. Architectural Style: Kutchi Masonry Fortress with Haveli Quarters. Built during 15th – 16th Century CE by Chavda / Sumra & Jadeja Rulers (Rao Khengarji I). Key scannable features include Sumra Princesses Samadhi Shrines, Royal Zanana Haveli, Temple of Roha Mata, Defensive Ramparts. Ingested from Gujarat Tourism (TCGL) & Gujarat State Archaeology Department with Kaggle benchmark validation.",
+    "childStory": "Did you know? Roha Fort was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Roha Fort. As you gaze upon this majestic site, notice the intricate Kutchi Masonry Fortress with Haveli Quarters. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "State Protected Monument",
+      "Gujarat",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-kangra-fort",
+    "shortStory": "Recognized as the oldest dated fort in India, tracing lineage to the Trigarta Kingdom mentioned in the Mahabharata. Guarded immense treasures of the Kangra Temple; attacked 52 times including by Mahmud of Ghazni (1009 CE), Feroz Shah Tughlaq, Emperor Jahangir (1620 CE), and Gurkha forces under Amar Singh Thapa.",
+    "detailedHistory": "Kangra Fort (Nagarkot / Oldest Fort in India) is situated in Kangra District, Kangra Valley, Himachal Pradesh. Architectural Style: Ancient Hilltop Rock Fortification on River Confluence. Built during Founded 4th Century BCE (Over 2,400 years old) by Katoch Dynasty (Trigarta Kingdom - King Susharma Chand). Key scannable features include Darshani Darwaza, Ambika Devi Temple, Ancient Adinath Jain Shrine, Jahangiri Gate, Sheesh Mahal Ruins. Ingested from Archaeological Survey of India (Shimla Circle) & Himachal Tourism (HPTDC) with Kaggle benchmark validation.",
+    "childStory": "Did you know? Kangra Fort was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Kangra Fort. As you gaze upon this majestic site, notice the intricate Ancient Hilltop Rock Fortification on River Confluence. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "Centrally Protected Monument (ASI)",
+      "Himachal Pradesh",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-fort-aguada-lighthouse",
+    "shortStory": "Named after the Portuguese word 'Água' (water) because ocean-going galleons docked here to replenish their freshwater supplies from natural freshwater springs inside the fort. Defended the mouth of the Mandovi River against Dutch naval blockades and Maratha seaborne offensives.",
+    "detailedHistory": "Fort Aguada & Lighthouse is situated in North Goa District, Sinquerim / Candolim, Goa. Architectural Style: Portuguese Maritime Vauban Military Architecture. Built during 1612 CE (17th Century) by Portuguese Colonial Empire. Key scannable features include Four-story 1864 Portuguese Lighthouse, Giant Underground Freshwater Cistern (Aguada = Water), 79 Defense Cannons, Moat. Ingested from Archaeological Survey of India (Goa Circle) & Goa Tourism Development Corporation (GTDC) with Kaggle benchmark validation.",
+    "childStory": "Did you know? Fort Aguada & Lighthouse was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Fort Aguada & Lighthouse. As you gaze upon this majestic site, notice the intricate Portuguese Maritime Vauban Military Architecture. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "Centrally Protected Monument (ASI)",
+      "Goa",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-bidar-fort-mahmud-gawan-citadel",
+    "shortStory": "Ahmad Shah Wali relocated the Bahmani capital from Gulbarga to Bidar in 1428. Renowned for its unique 'Karez' subterranean canal network engineered using Persian hydrology, channeling freshwater through 3 km of underground laterite ducts to supply the citadel even during year-long sieges.",
+    "detailedHistory": "Bidar Fort & Mahmud Gawan Citadel is situated in Bidar District, Bidar, Karnataka. Architectural Style: Persianate Deccan Military Architecture with Triple Moat System. Built during 1428 CE (15th Century) by Bahmani Sultanate (Sultan Ahmad Shah I Wali) & Barid Shahi Dynasty. Key scannable features include Rangeen Mahal (Coloured Palace with Mother-of-Pearl inlay), Solah Khamba Mosque, Tarkash Mahal, Gagan Mahal, Karez Persian Underground Aqueducts. Ingested from Archaeological Survey of India (Bengaluru Circle) & data.gov.in with Kaggle benchmark validation.",
+    "childStory": "Did you know? Bidar Fort & Mahmud Gawan Citadel was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Bidar Fort & Mahmud Gawan Citadel. As you gaze upon this majestic site, notice the intricate Persianate Deccan Military Architecture with Triple Moat System. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "Centrally Protected Monument (ASI)",
+      "Karnataka",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-chitradurga-fort",
+    "shortStory": "Never taken by frontal military assault due to its 7 concentric labyrinthine rings. Site of the famous 1779 siege by Hyder Ali: when soldiers tried sneaking through a narrow secret crevice, heroic woman Onake Obavva stood guard with a heavy wooden rice pestle (Onake), eliminating dozens of invading soldiers single-handedly.",
+    "detailedHistory": "Chitradurga Fort (Kallina Kote / Seven-Ring Stone Citadel) is situated in Chitradurga District, Chitradurga, Karnataka. Architectural Style: Dravidian Concentric Military Defense Architecture. Built during 10th – 18th Century CE by Chitradurga Nayaka Dynasty (Madakari Nayaka V). Key scannable features include Onake Obavvana Kindi (Heroine Obavva's Secret Cleft), Hidimbeshwara Rock Cave Temple, Ekanatheshwari Temple, Rainwater Harvesting Talavs, Gunpowder Mills. Ingested from Archaeological Survey of India (Bengaluru Circle) & Karnataka Tourism (KSTDC) with Kaggle benchmark validation.",
+    "childStory": "Did you know? Chitradurga Fort was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Chitradurga Fort. As you gaze upon this majestic site, notice the intricate Dravidian Concentric Military Defense Architecture. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "Centrally Protected Monument (ASI)",
+      "Karnataka",
+      "Kaggle Benchmark"
+    ]
+  },
+  {
+    "placeId": "p-rohtasgarh-fort",
+    "shortStory": "One of the largest hill fortresses in the world by plateau area. Captured with strategic subterfuge by Sher Shah Suri in 1538 by sending armed soldiers disguised in covered palanquins (dolis) pretending to be royal women seeking shelter. Later served as the invincible headquarters of Mughal Viceroy Raja Man Singh.",
+    "detailedHistory": "Rohtasgarh Fort (Shergarh Hill Citadel) is situated in Rohtas District, Kaimur Range, Bihar. Architectural Style: Mughal-Rajput Hill Plateau Citadel Architecture. Built during Ancient roots; Re-fortified 1538 CE by Sher Shah Suri & Raja Man Singh (1588 CE) by Solar Dynasty (Prince Rohitashva) & Suri Empire (Sher Shah Suri). Key scannable features include Man Singh Palace (Hathiya Pol with Carved Elephants), Aina Mahal, Jami Masjid of Rohtas, Shahi Jama Gate, Hanging Balcony. Ingested from Archaeological Survey of India (Patna Circle) & Bihar State Tourism Development Corporation (BSTDC) with Kaggle benchmark validation.",
+    "childStory": "Did you know? Rohtasgarh Fort was an incredible wonder built hundreds of years ago! It protected kingdoms with mighty walls and astonishing secrets waiting to be discovered! 🏰✨",
+    "audioTourScript": "Welcome to Rohtasgarh Fort. As you gaze upon this majestic site, notice the intricate Mughal-Rajput Hill Plateau Citadel Architecture. Let your eyes travel up to the towering ramparts...",
+    "tags": [
+      "Centrally Protected Monument (ASI)",
+      "Bihar",
+      "Kaggle Benchmark"
+    ]
   }
 ];
 
