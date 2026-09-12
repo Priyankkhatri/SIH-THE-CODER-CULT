@@ -43,11 +43,12 @@ export default function HomeScreen() {
   const { setContext } = useChatStore();
   const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(places.length === 0);
   const [refreshing, setRefreshing] = useState(false);
   const [sosVisible, setSosVisible] = useState(false);
 
-  const isScreenLoading = initialLoading || location.isLoading || isLoading || refreshing;
+  // Instant render if places already present in store
+  const isScreenLoading = (places.length === 0 && (initialLoading || isLoading)) || refreshing;
 
   const latKey = (location.latitude || 22.30).toFixed(2);
   const lonKey = (location.longitude || 73.18).toFixed(2);
@@ -78,17 +79,17 @@ export default function HomeScreen() {
   useEffect(() => {
     let mounted = true;
     const run = async () => {
-      setInitialLoading(true);
-      setLoading(true);
+      if (places.length === 0) {
+        setInitialLoading(true);
+      }
       const start = Date.now();
       await fetchPlaces();
       const elapsed = Date.now() - start;
-      if (elapsed < 650) {
-        await new Promise((resolve) => setTimeout(resolve, 650 - elapsed));
+      if (places.length === 0 && elapsed < 400) {
+        await new Promise((resolve) => setTimeout(resolve, 400 - elapsed));
       }
       if (mounted) {
         setInitialLoading(false);
-        setLoading(false);
       }
     };
     run();

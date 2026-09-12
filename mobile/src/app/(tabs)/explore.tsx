@@ -19,7 +19,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import type { Place } from '../../stores';
 import { useLocation } from '../../hooks/useLocation';
 import { CategoryFilter } from '../../components/CategoryFilter';
-import { HeritageMapView } from '../../components/HeritageMapView';
+import { HeritageMapView, MapLayerType } from '../../components/HeritageMapView';
 import { PlaceCard } from '../../components/PlaceCard';
 import { PlaceCardVerticalSkeleton } from '../../components/Skeleton';
 import { placesApi } from '../../services/api';
@@ -40,6 +40,8 @@ export default function ExploreScreen() {
   const [selectedCrowd, setSelectedCrowd] = useState<'all' | 'Low' | 'Moderate' | 'Peak'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [mapLayer, setMapLayer] = useState<MapLayerType>('streets');
+  const [showLayerPicker, setShowLayerPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Auto-fetch all cataloged heritage places with instant 155+ offline seed fallback
@@ -93,7 +95,14 @@ export default function ExploreScreen() {
 
   const handleAskAI = (place: Place) => {
     setContext(place.id, place.name);
-    router.push('/(tabs)/ai');
+    router.push({
+      pathname: '/(tabs)/ai',
+      params: {
+        autoAsk: `Tell me the history, architecture, and legends of ${place.name}.`,
+        placeId: place.id,
+        placeName: place.name,
+      },
+    });
   };
 
   const handleNavigate = (place: Place) => {
@@ -103,6 +112,34 @@ export default function ExploreScreen() {
       web: `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`,
     });
     if (url) Linking.openURL(url);
+  };
+
+  const zoomIn = () => {
+    if (mapRef.current && typeof mapRef.current.getCamera === 'function') {
+      mapRef.current.getCamera().then((cam: any) => {
+        if (cam) {
+          mapRef.current.animateCamera({
+            ...cam,
+            altitude: Math.max(500, (cam.altitude || 10000) * 0.5),
+            zoom: Math.min(20, (cam.zoom || 12) + 1),
+          });
+        }
+      }).catch(() => {});
+    }
+  };
+
+  const zoomOut = () => {
+    if (mapRef.current && typeof mapRef.current.getCamera === 'function') {
+      mapRef.current.getCamera().then((cam: any) => {
+        if (cam) {
+          mapRef.current.animateCamera({
+            ...cam,
+            altitude: (cam.altitude || 10000) * 2,
+            zoom: Math.max(4, (cam.zoom || 12) - 1),
+          });
+        }
+      }).catch(() => {});
+    }
   };
 
   const centerOnUser = () => {
@@ -143,6 +180,7 @@ export default function ExploreScreen() {
           onPlaceDetails={(placeId) => router.push(`/place/${placeId}`)}
           userLocation={{ latitude: location.latitude, longitude: location.longitude }}
           mapRef={mapRef}
+          mapLayer={mapLayer}
         />
       ) : (
         <View style={styles.listContainer}>
@@ -183,7 +221,7 @@ export default function ExploreScreen() {
             <MaterialIcons name="search" size={20} color={Colors.textMuted} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search 136+ heritage sites, forts, temples..."
+              placeholder="Search 155+ heritage sites, forts, temples..."
               placeholderTextColor={Colors.textMuted}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -259,6 +297,31 @@ export default function ExploreScreen() {
       {viewMode === 'map' && (
         <View style={[styles.mapActionCol, selectedPlace ? { bottom: 250 } : {}]}>
           <TouchableOpacity
+            style={[styles.mapActionBtn, showLayerPicker && styles.mapActionBtnActive]}
+            onPress={() => setShowLayerPicker(!showLayerPicker)}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons
+              name="layers"
+              size={22}
+              color={showLayerPicker ? Colors.background : Colors.primary}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.mapActionBtn}
+            onPress={zoomIn}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons name="add" size={22} color={Colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.mapActionBtn}
+            onPress={zoomOut}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons name="remove" size={22} color={Colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity
             style={styles.mapActionBtn}
             onPress={centerGujarat}
             activeOpacity={0.8}
@@ -272,6 +335,42 @@ export default function ExploreScreen() {
           >
             <MaterialIcons name="my-location" size={22} color={Colors.primary} />
           </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Interactive Map Layer Picker Tray */}
+      {viewMode === 'map' && showLayerPicker && (
+        <View style={[styles.layerPickerTray, selectedPlace ? { bottom: 250 } : {}]}>
+          <View style={styles.layerPickerHeader}>
+            <MaterialIcons name="map" size={16} color={Colors.primary} />
+            <Text style={styles.layerPickerTitle}>Map Style & Readings</Text>
+          </View>
+          <View style={styles.layerPickerRow}>
+            {[
+              { key: 'streets', label: '🗺️ Detailed Streets' },
+              { key: 'satellite', label: '🛰️ Satellite' },
+              { key: 'terrain', label: '🧭 Topographic' },
+              { key: 'dark', label: '🌙 Dark Radar' },
+              { key: 'osm', label: '🌐 OpenStreetMap' },
+            ].map((layer) => {
+              const isActive = mapLayer === layer.key;
+              return (
+                <TouchableOpacity
+                  key={layer.key}
+                  style={[styles.layerChip, isActive && styles.layerChipActive]}
+                  onPress={() => {
+                    setMapLayer(layer.key as MapLayerType);
+                    setShowLayerPicker(false);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.layerChipText, isActive && styles.layerChipTextActive]}>
+                    {layer.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
       )}
 
@@ -469,6 +568,61 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     ...Shadows.md,
+  },
+  mapActionBtnActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  layerPickerTray: {
+    position: 'absolute',
+    left: Spacing.base,
+    right: 70,
+    bottom: 180,
+    backgroundColor: 'rgba(18, 24, 38, 0.96)',
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    zIndex: 14,
+    ...Shadows.lg,
+  },
+  layerPickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: Spacing.sm,
+  },
+  layerPickerTitle: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '700',
+    color: Colors.text,
+    letterSpacing: 0.5,
+  },
+  layerPickerRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  layerChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  layerChipActive: {
+    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    borderColor: Colors.primary,
+  },
+  layerChipText: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  layerChipTextActive: {
+    color: Colors.primary,
+    fontWeight: '700',
   },
   calloutContainer: {
     backgroundColor: Colors.surface,

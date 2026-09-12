@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, Platform, TouchableOpacity } from 'react-native';
-import MapView, { Marker, Callout, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, Callout, PROVIDER_GOOGLE, UrlTile } from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, CATEGORY_COLORS } from '../constants/theme';
+import { Colors, CATEGORY_COLORS, Shadows, BorderRadius, Spacing, Typography } from '../constants/theme';
 import type { Place } from '../stores';
+
+export type MapLayerType = 'streets' | 'satellite' | 'terrain' | 'dark' | 'osm';
 
 interface HeritageMapViewProps {
   places: Place[];
@@ -12,17 +14,39 @@ interface HeritageMapViewProps {
   onPlaceDetails: (placeId: string) => void;
   userLocation: { latitude: number; longitude: number };
   mapRef?: React.RefObject<MapView | null>;
+  mapLayer?: MapLayerType;
 }
 
-const DARK_MAP_STYLE = [
-  { elementType: 'geometry', stylers: [{ color: '#1d2c4d' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#8ec3b9' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#1a3646' }] },
-  { featureType: 'water', elementType: 'geometry.fill', stylers: [{ color: '#171f2e' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#304a7d' }] },
-  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#255b4a' }] },
-  { featureType: 'poi.park', elementType: 'geometry.fill', stylers: [{ color: '#023e58' }] },
-];
+// 100% Reliable, Free CDN High-Definition Tile Layers (No Google Cloud API Key Required)
+export const TILE_URLS: Record<MapLayerType, string> = {
+  // CartoDB Voyager: Crisp street names, highway labels, rivers, parks, city names
+  streets: 'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+  // ESRI High-Res World Imagery: Real satellite aerial photography
+  satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  // OpenTopoMap: Elevation contour lines, hill shading, natural terrain
+  terrain: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
+  // CartoDB Dark Matter: Sleek dark heritage radar with illuminated roads
+  dark: 'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+  // OpenStreetMap Classic: Standard global street & geographic atlas
+  osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+};
+
+function getCategoryIcon(category: string): keyof typeof MaterialIcons.glyphMap {
+  switch (category) {
+    case 'heritage':
+      return 'account-balance';
+    case 'museum':
+      return 'museum';
+    case 'culture':
+      return 'palette';
+    case 'food':
+      return 'restaurant';
+    case 'activity':
+      return 'hiking';
+    default:
+      return 'place';
+  }
+}
 
 export function HeritageMapView({
   places,
@@ -31,8 +55,9 @@ export function HeritageMapView({
   onPlaceDetails,
   userLocation,
   mapRef,
+  mapLayer = 'streets',
 }: HeritageMapViewProps) {
-  // 1. Sanitize & filter valid numeric coordinates to prevent any map crash
+  // 1. Sanitize & filter valid numeric coordinates to prevent map render glitches
   const validPlaces = React.useMemo(() => {
     return (places || []).filter(
       (p) =>
@@ -56,8 +81,8 @@ export function HeritageMapView({
           {
             latitude: lat,
             longitude: lng,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
+            latitudeDelta: 0.04,
+            longitudeDelta: 0.04,
           },
           500
         );
@@ -65,7 +90,7 @@ export function HeritageMapView({
     }
   }, [selectedPlace]);
 
-  // 3. Default wide-angle viewport displaying all of Gujarat & West India heritage
+  // 3. Wide-angle Gujarat & West India heritage region
   const initialRegion = {
     latitude: 22.85,
     longitude: 72.35,
@@ -73,30 +98,21 @@ export function HeritageMapView({
     longitudeDelta: 3.6,
   };
 
+  const tileUrl = TILE_URLS[mapLayer] || TILE_URLS.streets;
+  const mapType = mapLayer === 'satellite' ? 'satellite' : mapLayer === 'terrain' ? 'terrain' : 'standard';
+
   if (Platform.OS === 'web') {
     return (
       <View style={[styles.map, styles.webMapContainer]}>
-        <View style={styles.webMapContent}>
-          <MaterialIcons name="public" size={48} color={Colors.primary} />
-          <Text style={styles.webMapTitle}>Gujarat & India Heritage Explorer</Text>
-          <Text style={styles.webMapSubtitle}>
-            {validPlaces.length} monuments cataloged across Gujarat, Rajasthan, and UNESCO India sites.
-          </Text>
-          <View style={styles.webGrid}>
-            {validPlaces.slice(0, 8).map((place) => (
-              <TouchableOpacity
-                key={place.id}
-                style={[
-                  styles.webChip,
-                  selectedPlace?.id === place.id && styles.webChipActive,
-                ]}
-                onPress={() => onSelectPlace(place)}
-              >
-                <Text style={styles.webChipText} numberOfLines={1}>
-                  {place.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
+        <iframe
+          title="Heritage Map Web"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=68.1,20.1,74.5,24.7&layer=mapnik"
+          style={{ width: '100%', height: '100%', border: 'none' } as any}
+        />
+        <View style={styles.webOverlayInfo}>
+          <View style={styles.webBadge}>
+            <MaterialIcons name="explore" size={16} color={Colors.primary} />
+            <Text style={styles.webBadgeText}>{validPlaces.length} Monuments Cataloged</Text>
           </View>
         </View>
       </View>
@@ -107,44 +123,88 @@ export function HeritageMapView({
     <MapView
       ref={mapRef as any}
       style={styles.map}
-      provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
       initialRegion={initialRegion}
-      customMapStyle={DARK_MAP_STYLE}
+      mapType={mapType}
       loadingEnabled={true}
       loadingIndicatorColor={Colors.primary}
-      loadingBackgroundColor={Colors.background}
+      loadingBackgroundColor="#121824"
       showsUserLocation={Boolean(userLocation?.latitude)}
       showsMyLocationButton={false}
       showsCompass={true}
       toolbarEnabled={false}
+      moveOnMarkerPress={false}
     >
-      {validPlaces.map((place) => (
-        <Marker
-          key={place.id}
-          coordinate={{ latitude: place.latitude, longitude: place.longitude }}
-          pinColor={CATEGORY_COLORS[place.category] || Colors.primary}
-          title={place.name}
-          description={place.shortDescription?.substring(0, 90)}
-          onPress={() => onSelectPlace(place)}
-          tracksViewChanges={false}
-        >
-          <Callout tooltip onPress={() => onPlaceDetails(place.id)}>
-            <View style={styles.calloutContainer}>
-              <Text style={styles.calloutTitle}>{place.name}</Text>
-              <Text style={styles.calloutDesc} numberOfLines={2}>
-                {place.shortDescription}
-              </Text>
-              {place.rating && (
-                <View style={styles.calloutRating}>
-                  <MaterialIcons name="star" size={12} color={Colors.primary} />
-                  <Text style={styles.calloutRatingText}>{place.rating}</Text>
-                </View>
-              )}
-              <Text style={styles.calloutTap}>Tap for details →</Text>
+      {/* High-detail tile overlay ensuring full roads, labels, and landmarks */}
+      <UrlTile
+        key={mapLayer}
+        urlTemplate={tileUrl}
+        maximumZ={19}
+        minimumZ={1}
+        flipY={false}
+        zIndex={-1}
+        shouldReplaceMapContent={Platform.OS === 'ios'}
+      />
+
+      {/* Interactive Custom Monument Markers */}
+      {validPlaces.map((place) => {
+        const isSelected = selectedPlace?.id === place.id;
+        const pinColor = CATEGORY_COLORS[place.category] || Colors.primary;
+        const iconName = getCategoryIcon(place.category);
+
+        return (
+          <Marker
+            key={place.id}
+            coordinate={{ latitude: place.latitude, longitude: place.longitude }}
+            title={place.name}
+            description={place.shortDescription?.substring(0, 80)}
+            onPress={() => onSelectPlace(place)}
+            tracksViewChanges={false}
+          >
+            {/* Custom Themed Pin View */}
+            <View style={styles.markerAnchor}>
+              {isSelected && <View style={styles.markerPulseRing} />}
+              <View
+                style={[
+                  styles.markerBadge,
+                  isSelected && styles.markerBadgeSelected,
+                  { backgroundColor: pinColor },
+                ]}
+              >
+                <MaterialIcons
+                  name={iconName}
+                  size={isSelected ? 16 : 13}
+                  color="#FFFFFF"
+                />
+              </View>
+              <View style={[styles.markerArrow, { borderTopColor: pinColor }]} />
             </View>
-          </Callout>
-        </Marker>
-      ))}
+
+            {/* Custom Information Callout */}
+            <Callout tooltip onPress={() => onPlaceDetails(place.id)}>
+              <View style={styles.calloutContainer}>
+                <View style={styles.calloutHeader}>
+                  <Text style={styles.calloutTitle} numberOfLines={1}>
+                    {place.name}
+                  </Text>
+                  {place.rating && (
+                    <View style={styles.calloutRating}>
+                      <MaterialIcons name="star" size={12} color="#D4AF37" />
+                      <Text style={styles.calloutRatingText}>{place.rating}</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={styles.calloutDesc} numberOfLines={2}>
+                  {place.shortDescription || 'Historical monument cataloged in heritage registry.'}
+                </Text>
+                <View style={styles.calloutFooter}>
+                  <Text style={styles.calloutCategory}>{place.category.toUpperCase()}</Text>
+                  <Text style={styles.calloutTap}>View Details →</Text>
+                </View>
+              </View>
+            </Callout>
+          </Marker>
+        );
+      })}
     </MapView>
   );
 }
@@ -153,85 +213,139 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFill,
   },
+
+  // Custom Markers
+  markerAnchor: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 44,
+    height: 48,
+  },
+  markerBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    ...Shadows.md,
+  },
+  markerBadgeSelected: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2.5,
+    borderColor: '#D4AF37',
+    ...Shadows.glow,
+  },
+  markerArrow: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderTopWidth: 6,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    marginTop: -1,
+  },
+  markerPulseRing: {
+    position: 'absolute',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(212, 175, 55, 0.35)',
+    borderWidth: 1.5,
+    borderColor: '#D4AF37',
+  },
+
+  // Callout styling
   calloutContainer: {
     backgroundColor: Colors.surface,
-    padding: 12,
-    borderRadius: 14,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    width: 220,
+    width: 240,
+    ...Shadows.lg,
+  },
+  calloutHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
   },
   calloutTitle: {
-    fontSize: 14,
+    fontSize: Typography.sizes.sm,
     fontWeight: '700',
     color: Colors.text,
-  },
-  calloutDesc: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-    marginTop: 4,
+    flex: 1,
+    marginRight: 6,
   },
   calloutRating: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginTop: 6,
+    gap: 3,
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.full,
   },
   calloutRatingText: {
     fontSize: 11,
     color: Colors.primary,
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  calloutDesc: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.textSecondary,
+    lineHeight: 16,
+    marginBottom: Spacing.xs,
+  },
+  calloutFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    paddingTop: 6,
+    marginTop: 2,
+  },
+  calloutCategory: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: Colors.textMuted,
+    letterSpacing: 0.5,
   },
   calloutTap: {
-    fontSize: 11,
+    fontSize: Typography.sizes.xs,
     color: Colors.primary,
-    fontWeight: '600',
-    marginTop: 8,
-  },
-  webMapContainer: {
-    backgroundColor: '#0E1726',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  webMapContent: {
-    alignItems: 'center',
-    maxWidth: 480,
-    gap: 12,
-  },
-  webMapTitle: {
-    fontSize: 20,
     fontWeight: '700',
-    color: Colors.text,
-    textAlign: 'center',
   },
-  webMapSubtitle: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 18,
+
+  // Web map container
+  webMapContainer: {
+    position: 'relative',
+    backgroundColor: '#0E1726',
   },
-  webGrid: {
+  webOverlayInfo: {
+    position: 'absolute',
+    top: 80,
+    right: 20,
+  },
+  webBadge: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    justifyContent: 'center',
-    marginTop: 12,
-  },
-  webChip: {
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(18, 24, 38, 0.92)',
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: Colors.surface,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  webChipActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  webChipText: {
-    fontSize: 12,
+  webBadgeText: {
+    fontSize: Typography.sizes.xs,
     fontWeight: '600',
     color: Colors.text,
   },

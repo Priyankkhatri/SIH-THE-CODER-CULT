@@ -6,11 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Linking,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, INTERESTS_OPTIONS, DURATION_OPTIONS } from '../../constants/theme';
-import { useUserStore } from '../../stores';
+import { useUserStore, usePlacesStore } from '../../stores';
 import { useTranslation } from '../../hooks/useTranslation';
 import { itineraryApi } from '../../services/api';
 import { useLocation } from '../../hooks/useLocation';
@@ -78,6 +80,22 @@ export default function PlanScreen() {
   const resetPlan = () => {
     setItinerary(null);
     setShowForm(true);
+  };
+
+  const handleStartNavigation = () => {
+    if (itinerary && itinerary.items.length > 0) {
+      const firstStop = itinerary.items[0];
+      const allPlaces = usePlacesStore.getState().places;
+      const matched = allPlaces.find((p) => p.id === firstStop.placeId);
+      const lat = matched?.latitude || location.latitude || 22.3072;
+      const lng = matched?.longitude || location.longitude || 73.1812;
+      const url = Platform.select({
+        ios: `maps:0,0?q=${lat},${lng}`,
+        android: `geo:${lat},${lng}?q=${lat},${lng}(${firstStop.placeName})`,
+        web: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+      });
+      if (url) Linking.openURL(url);
+    }
   };
 
   return (
@@ -209,7 +227,11 @@ export default function PlanScreen() {
 
             {/* Actions */}
             <View style={styles.itineraryActions}>
-              <TouchableOpacity style={styles.startNavBtn}>
+              <TouchableOpacity
+                style={styles.startNavBtn}
+                onPress={handleStartNavigation}
+                activeOpacity={0.8}
+              >
                 <MaterialIcons name="navigation" size={20} color={Colors.textInverse} />
                 <Text style={styles.startNavText}>{t('common.directions')}</Text>
               </TouchableOpacity>

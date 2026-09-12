@@ -15,34 +15,7 @@ import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } f
 import { usePlacesStore, useUserStore } from '../../stores';
 import { placesApi, favoritesApi } from '../../services/api';
 import { useTranslation } from '../../hooks/useTranslation';
-
-export default function FavoritesScreen() {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const { t } = useTranslation();
-  const { favorites, toggleFavorite, loadFavorites } = usePlacesStore();
-
-  const [places, setPlaces] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetchFavoritePlaces();
-  }, [favorites]);
-
-  const fetchFavoritePlaces = async () => {
-    setIsLoading(true);
-    try {
-      const res: any = await placesApi.getAll();
-      if (res.success && Array.isArray(res.data)) {
-        const favList = res.data.filter((p: any) => favorites.includes(p.id));
-        setPlaces(favList);
-      }
-    } catch (e) {
-      console.error('Failed to load favorites:', e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
 
 const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
   heritage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80',
@@ -106,6 +79,45 @@ function FavoriteCard({ item, onPress, onToggle }: { item: any; onPress: () => v
     </TouchableOpacity>
   );
 }
+
+export default function FavoritesScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
+  const { favorites, toggleFavorite, loadFavorites } = usePlacesStore();
+
+  const [places, setPlaces] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchFavoritePlaces();
+  }, [favorites]);
+
+  const fetchFavoritePlaces = async () => {
+    setIsLoading(true);
+    try {
+      const res: any = await placesApi.getAll();
+      const list = (res?.success && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
+      if (list.length > 0) {
+        const favList = list.filter((p: any) => favorites.includes(p.id));
+        setPlaces(favList);
+      } else {
+        const storePlaces = usePlacesStore.getState().places.length > 0
+          ? usePlacesStore.getState().places
+          : ALL_SEED_PLACES;
+        const favList = storePlaces.filter((p: any) => favorites.includes(p.id));
+        setPlaces(favList);
+      }
+    } catch (e) {
+      const storePlaces = usePlacesStore.getState().places.length > 0
+        ? usePlacesStore.getState().places
+        : ALL_SEED_PLACES;
+      const favList = storePlaces.filter((p: any) => favorites.includes(p.id));
+      setPlaces(favList);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const renderItem = ({ item }: { item: any }) => (
     <FavoriteCard

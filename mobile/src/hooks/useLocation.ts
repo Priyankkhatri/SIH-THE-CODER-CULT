@@ -19,32 +19,49 @@ const DEFAULT_LOCATION = {
   region: 'Gujarat',
 };
 
+let cachedLocationState: LocationState = {
+  ...DEFAULT_LOCATION,
+  isLoading: false,
+  error: null,
+  permissionGranted: false,
+};
+let isLocationInitialized = false;
+const listeners = new Set<(loc: LocationState) => void>();
+
+function notifyListeners(nextState: LocationState) {
+  cachedLocationState = nextState;
+  listeners.forEach((listener) => listener(nextState));
+}
+
 export function useLocation() {
-  const [location, setLocation] = useState<LocationState>({
-    ...DEFAULT_LOCATION,
-    isLoading: true,
-    error: null,
-    permissionGranted: false,
-  });
+  const [location, setLocation] = useState<LocationState>(cachedLocationState);
 
   useEffect(() => {
-    let isMounted = true;
+    listeners.add(setLocation);
 
-    async function getLocation() {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
+    if (!isLocationInitialized) {
+      isLocationInitialized = true;
+      getLocation();
+    }
 
-        if (status !== 'granted') {
-          if (isMounted) {
-            setLocation((prev) => ({
-              ...prev,
-              isLoading: false,
-              error: 'Location permission denied. Using default location.',
-              permissionGranted: false,
-            }));
-          }
-          return;
-        }
+    return () => {
+      listeners.delete(setLocation);
+    };
+  }, []);
+
+  async function getLocation() {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== 'granted') {
+        notifyListeners({
+          ...cachedLocationState,
+          isLoading: false,
+          error: 'Location permission denied. Using default location.',
+          permissionGranted: false,
+        });
+        return;
+      }
 
         const currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Balanced,
@@ -67,38 +84,27 @@ export function useLocation() {
           // Geocoding failed, use defaults
         }
 
-        if (isMounted) {
-          setLocation({
-            latitude: currentLocation.coords.latitude,
-            longitude: currentLocation.coords.longitude,
-            city,
-            region,
-            isLoading: false,
-            error: null,
-            permissionGranted: true,
-          });
-        }
-      } catch (error) {
-        if (isMounted) {
-          setLocation((prev) => ({
-            ...prev,
-            isLoading: false,
-            error: 'Failed to get location. Using default.',
-            permissionGranted: false,
-          }));
-        }
-      }
+      notifyListeners({
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
+        city,
+        region,
+        isLoading: false,
+        error: null,
+        permissionGranted: true,
+      });
+    } catch (error) {
+      notifyListeners({
+        ...cachedLocationState,
+        isLoading: false,
+        error: 'Failed to get location. Using default.',
+        permissionGranted: false,
+      });
     }
-
-    getLocation();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  }
 
   const refresh = async () => {
-    setLocation((prev) => ({ ...prev, isLoading: true }));
+    notifyListeners({ ...cachedLocationState, isLoading: true });
     try {
       const currentLocation = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
@@ -118,7 +124,7 @@ export function useLocation() {
         }
       } catch {}
 
-      setLocation({
+      notifyListeners({
         latitude: currentLocation.coords.latitude,
         longitude: currentLocation.coords.longitude,
         city,
@@ -128,7 +134,7 @@ export function useLocation() {
         permissionGranted: true,
       });
     } catch {
-      setLocation((prev) => ({ ...prev, isLoading: false }));
+      notifyListeners({ ...cachedLocationState, isLoading: false });
     }
   };
 

@@ -150,7 +150,14 @@ export default function PlaceDetailScreen() {
     if (heritage) {
       const pName = heritage.placeName || heritage.place?.name || 'Heritage Monument';
       setContext(id!, pName);
-      router.push('/(tabs)/ai');
+      router.push({
+        pathname: '/(tabs)/ai',
+        params: {
+          autoAsk: `Tell me the history, architectural marvels, and visitor guide for ${pName}.`,
+          placeId: id!,
+          placeName: pName,
+        },
+      });
     }
   };
 
