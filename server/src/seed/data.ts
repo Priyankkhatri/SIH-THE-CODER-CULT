@@ -334,7 +334,7 @@ export const PLACES_DATA = [
     "latitude": 23.8589,
     "longitude": 72.1018,
     "category": "heritage",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Rani_ki_vav_-_Patan_-_Gujarat_-_Wall_Decorations.jpg/960px-Rani_ki_vav_-_Patan_-_Gujarat_-_Wall_Decorations.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Rani_ki_vav%2C_Patan%2C_Gujarat_01.jpg/1280px-Rani_ki_vav%2C_Patan%2C_Gujarat_01.jpg",
     "openingHours": "Open 08:00 AM to 06:00 PM daily. Excellent wheelchair accessibility down to terrace level ",
     "rating": 4.8,
     "shortDescription": "Designed as an inverted temple highlighting the sacredness of water in the arid desert of Gujarat. Built by Queen Udayamati as a memorial stepwell for her decea..."
@@ -594,7 +594,7 @@ export const PLACES_DATA = [
     "latitude": 23.5836,
     "longitude": 72.1331,
     "category": "heritage",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/Boys_in_the_Stepped_Tank_Modhera.JPG/960px-Boys_in_the_Stepped_Tank_Modhera.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Sun_Temple%2C_Modhera%2C_Gujarat.jpg/1280px-Sun_Temple%2C_Modhera%2C_Gujarat.jpg",
     "openingHours": "Open 07:00 AM to 06:00 PM. India's first 100% solar-powered heritage village. Night 3D pro",
     "rating": 4.4,
     "shortDescription": "Engineered with astronomical precision along the Tropic of Cancer: on the spring and autumn equinoxes (March 21 and September 23), the first rays of the rising ..."
@@ -646,7 +646,7 @@ export const PLACES_DATA = [
     "latitude": 26.2307,
     "longitude": 78.1695,
     "category": "heritage",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/India_impressions%2C_with_some_notes_of_Ceylon_during_a_winter_tour%2C_1906-7_%28IA_indiaimpressions00cran%29.pdf/page1-500px-India_impressions%2C_with_some_notes_of_Ceylon_during_a_winter_tour%2C_1906-7_%28IA_indiaimpressions00cran%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Gwalior_Fort_view.jpg/1280px-Gwalior_Fort_view.jpg",
     "openingHours": "Open 06:00 AM to 05:30 PM. Vehicle entry allowed via Urvai Gate. Daily evening Sound & Lig",
     "rating": 4.8,
     "shortDescription": "Described by Mughal Emperor Babur as 'the pearl amongst the fortresses of Hind'. Built atop a steep standalone sandstone ridge that controls the route from the ..."
@@ -919,7 +919,7 @@ export const PLACES_DATA = [
     "latitude": 28.6118,
     "longitude": 77.2193,
     "category": "museum",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Haidar_Ali_and_Tipu_Sultan_and_the_struggle_with_the_Musalman_powers_of_the_South_%28IA_haidaralitipusul00bowriala%29.pdf/page1-500px-Haidar_Ali_and_Tipu_Sultan_and_the_struggle_with_the_Musalman_powers_of_the_South_%28IA_haidaralitipusul00bowriala%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Tipu_Sultan_sword.jpg/1280px-Tipu_Sultan_sword.jpg",
     "openingHours": "Arms and Armour Gallery, National Museum New Delhi and ASI Mumtaz Mahal Museum, Red Fort.",
     "rating": 4.5,
     "shortDescription": "Recovered from Tipu Sultan's personal bedchamber in the fortress of Srirangapatna following the Fourth Anglo-Mysore War on May 4, 1799. Made from pure South Ind..."
@@ -958,7 +958,7 @@ export const PLACES_DATA = [
     "latitude": 28.6118,
     "longitude": 77.2193,
     "category": "museum",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/A_brief_history_of_medi%C3%A6val_and_modern_peoples_%28IA_briefhistoryofme00stee%29.pdf/page1-500px-A_brief_history_of_medi%C3%A6val_and_modern_peoples_%28IA_briefhistoryofme00stee%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Elephant_Armour%2C_Royal_Armouries.jpg/1280px-Elephant_Armour%2C_Royal_Armouries.jpg",
     "openingHours": "Displayed on life-size fiber elephant models in the Central Rotunda of the Arms & Armour G",
     "rating": 4.8,
     "shortDescription": "War elephants functioned as the heavy armored battle tanks of the medieval Indian battlefield. The full suit protected the beast from enemy musket balls, crossb..."
@@ -1049,7 +1049,7 @@ export const PLACES_DATA = [
     "latitude": 22.5228,
     "longitude": 72.2497,
     "category": "heritage",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Dhar_%26_Mandu_-_a_sketch_for_the_sight-seer_%28IA_dharmandusketchf00luarrich%29.pdf/page1-500px-Dhar_%26_Mandu_-_a_sketch_for_the_sight-seer_%28IA_dharmandusketchf00luarrich%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Lothal_dock.jpg/1280px-Lothal_dock.jpg",
     "openingHours": "Open 10:00 AM to 05:00 PM (Closed Fridays). On-site ASI Museum displays genuine Harappan c",
     "rating": 4.9,
     "shortDescription": "The world's earliest known engineered tidal dockyard, connecting ancient India to Mesopotamia (Sumer), Bahrain (Dilmun), and Oman (Magan) via the Gulf of Khambh..."
@@ -1062,7 +1062,7 @@ export const PLACES_DATA = [
     "latitude": 20.888,
     "longitude": 70.4012,
     "category": "heritage",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/1869_archive_photo_of_the_Somanatha_temple%2C_Veraval_Gujarat%2C_Exterior_03.jpg/960px-1869_archive_photo_of_the_Somanatha_temple%2C_Veraval_Gujarat%2C_Exterior_03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Somnath_Temple%2C_Gujarat%2C_India.jpg/1280px-Somnath_Temple%2C_Gujarat%2C_India.jpg",
     "openingHours": "Open 06:00 AM to 10:00 PM daily. Aarti at 07:00 AM, 12:00 PM, and 07:00 PM. Evening Sound ",
     "rating": 4.4,
     "shortDescription": "Revered as the eternal shrine of Lord Shiva. Destroyed and rebuilt repeatedly across historical centuries—sacked by Mahmud of Ghazni (1026 CE), Alauddin Khilji'..."
@@ -1322,7 +1322,7 @@ export const PLACES_DATA = [
     "latitude": 21.7833,
     "longitude": 70.7333,
     "category": "heritage",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Historic_heritage_sites_of_Gujarat_with_GPS_coordinates.jpg/960px-Historic_heritage_sites_of_Gujarat_with_GPS_coordinates.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Khambhalida_caves.jpg/1280px-Khambhalida_caves.jpg",
     "openingHours": "Open 09:00 AM to 05:30 PM daily. Located 60 km south of Rajkot. Peaceful picnic and histor",
     "rating": 4.7,
     "shortDescription": "Discovered in 1958 by renowned archaeologist P.P. Pandya. The central Chaitya cave features one of the most magnificent early sculptural facades in Gujarat: fla..."
@@ -1348,7 +1348,7 @@ export const PLACES_DATA = [
     "latitude": 21.1959,
     "longitude": 72.8153,
     "category": "heritage",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2a/The_Cities_of_Gujarashtra%2C_their_Topography_and_History_Illustrated_in_the_Journal_of_a_Recent_Tour_%28IA_dli.granth.53246%29.pdf/page1-500px-The_Cities_of_Gujarashtra%2C_their_Topography_and_History_Illustrated_in_the_Journal_of_a_Recent_Tour_%28IA_dli.granth.53246%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Surat_Castle.jpg/1280px-Surat_Castle.jpg",
     "openingHours": "Open 10:00 AM to 06:00 PM (Closed Mondays). Fully restored by Surat Municipal Corporation ",
     "rating": 4.9,
     "shortDescription": "Built in 1540 by Safi Agha (Khudawand Khan), a Turkish Ottoman general in the service of the Sultanate of Gujarat, specifically to defend the wealthy merchant p..."
@@ -1400,7 +1400,7 @@ export const PLACES_DATA = [
     "latitude": 23.5835,
     "longitude": 72.1331,
     "category": "heritage",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1c/GJ25K-10-N-Modhera_Sun_temple_pillars_in_shrine_3D.jpg/960px-GJ25K-10-N-Modhera_Sun_temple_pillars_in_shrine_3D.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Pillars_of_Sabha_Mandapa%2C_Sun_Temple%2C_Modhera.jpg/1280px-Pillars_of_Sabha_Mandapa%2C_Sun_Temple%2C_Modhera.jpg",
     "openingHours": "Modhera Sun Temple Complex, Mehsana District, Gujarat. Timings: 7:00 AM – 6:00 PM. Evening",
     "rating": 4.7,
     "shortDescription": "The 52 pillars of the Sabha Mandapa (Assembly Hall) stand as an astronomical calendar dividing the solar year into 52 weeks. On the equinox days (March 21 and S..."
@@ -1413,7 +1413,7 @@ export const PLACES_DATA = [
     "latitude": 23.8589,
     "longitude": 72.1018,
     "category": "heritage",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/UNESCO_WORLD_HERITAGE_SITE_IN_INDIAN.pdf/page1-960px-UNESCO_WORLD_HERITAGE_SITE_IN_INDIAN.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Rani_ki_Vav_Vishnu.jpg/1280px-Rani_ki_Vav_Vishnu.jpg",
     "openingHours": "Rani ki Vav, Mohan Nagar Society, Patan, Gujarat. Level 4 corridor on north gallery wall. ",
     "rating": 4.8,
     "shortDescription": "Positioned at the fourth subterranean gallery level of Rani ki Vav, this masterpiece represents the primordial waters of creation (Kshira Sagara). Built by Quee..."
@@ -1465,7 +1465,7 @@ export const PLACES_DATA = [
     "latitude": 20.888,
     "longitude": 70.4013,
     "category": "heritage",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/Historic_heritage_sites_of_Rajasthan_with_GPS_coordinates.jpg/960px-Historic_heritage_sites_of_Rajasthan_with_GPS_coordinates.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Arrow_Pillar_Somnath_Baan_Stambh.jpg/1280px-Arrow_Pillar_Somnath_Baan_Stambh.jpg",
     "openingHours": "Somnath Temple Complex, Prabhas Patan, Gujarat. Located on the sea-facing protection wall ",
     "rating": 4.6,
     "shortDescription": "A staggering geographical and astronomical achievement of ancient India. The pillar marks a straight ocean meridian line from Somnath Temple directly to Antarct..."
@@ -1504,7 +1504,7 @@ export const PLACES_DATA = [
     "latitude": 28.6118,
     "longitude": 77.2193,
     "category": "museum",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Aurangz%C3%ADb_and_the_Decay_of_the_Mughal_Empire.djvu/page1-960px-Aurangz%C3%ADb_and_the_Decay_of_the_Mughal_Empire.djvu.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Mughal_Sword_Tulwar.jpg/1280px-Mughal_Sword_Tulwar.jpg",
     "openingHours": "🏛️ Location: National Museum, Janpath, New Delhi | Gallery: 2nd Floor, Arms and Armor Gall",
     "rating": 4.9,
     "shortDescription": "Carried by Mughal Emperor Aurangzeb during his 25-year Deccan campaigns. The blade was forged using high-carbon Southern Indian wootz steel renowned globally fo..."
@@ -1517,7 +1517,7 @@ export const PLACES_DATA = [
     "latitude": 28.6118,
     "longitude": 77.2193,
     "category": "museum",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/..._Catalogue_of_the_objects_of_Indian_art_exhibited_in_the_South_Kensington_Museum_..._Illustrated_by_woodcuts%2C_and_by_a_map_of_India_showing_the_localities_of_various_art_%28IA_catalogueofobjec00cole%29.pdf/page1-500px-thumbnail.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Akbar_shield_Prince_of_Wales_Museum.jpg/1280px-Akbar_shield_Prince_of_Wales_Museum.jpg",
     "openingHours": "🏛️ Location: National Museum, Janpath, New Delhi | Gallery: 2nd Floor, Arms & Armor Galler",
     "rating": 4.4,
     "shortDescription": "Specially crafted for Jalal-ud-din Muhammad Akbar in 1594 CE. The shield combines Islamic astrological symbology with Rajput defensive warfare. The 12 zodiac me..."
@@ -1595,7 +1595,7 @@ export const PLACES_DATA = [
     "latitude": 17.3713,
     "longitude": 78.4803,
     "category": "heritage",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Catalogue_of_the_Hyderabad_Exhibition_%28IA_dli.granth.71228%29.pdf/page1-500px-Catalogue_of_the_Hyderabad_Exhibition_%28IA_dli.granth.71228%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Salar_Jung_Museum_Clock.jpg/1280px-Salar_Jung_Museum_Clock.jpg",
     "openingHours": "🏛️ Location: Salar Jung Museum, Hyderabad | Gallery: Central Courtyard Atrium, Ground Floo",
     "rating": 4.4,
     "shortDescription": "Every day, hundreds of tourists gather in the central hall of the museum before the top of each hour to witness the mechanical toy watchman step out of the door..."
@@ -1634,7 +1634,7 @@ export const PLACES_DATA = [
     "latitude": 22.3128,
     "longitude": 73.1812,
     "category": "museum",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Awesome_shower.jpg/960px-Awesome_shower.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Akota_Bronzes_Rishabhanatha_Baroda_Museum.jpg/1280px-Akota_Bronzes_Rishabhanatha_Baroda_Museum.jpg",
     "openingHours": "🏛️ Location: Baroda Museum and Picture Gallery, Sayaji Baug, Vadodara, Gujarat | Gallery: ",
     "rating": 4.7,
     "shortDescription": "Discovered in 1951 accidentally during brick-quarrying at Akota near Vadodara. The 68 metallic idols establish that Gujarat possessed a bronze-casting school eq..."
@@ -1647,7 +1647,7 @@ export const PLACES_DATA = [
     "latitude": 23.0569,
     "longitude": 72.5934,
     "category": "culture",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Catalogue_of_articles_contained_in_the_museum_and_curiosity_shop_of_the_Metropolitan_fair%2C_April_4th%2C_1864_%28IA_catalogueofartic00newy%29.pdf/page1-500px-Catalogue_of_articles_contained_in_the_museum_and_curiosity_shop_of_the_Metropolitan_fair%2C_April_4th%2C_1864_%28IA_catalogueofartic00newy%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Nathdwara_pichhwai_painting.jpg/1280px-Nathdwara_pichhwai_painting.jpg",
     "openingHours": "🏛️ Location: Calico Museum of Textiles, The Retreat, Shahibaug, Ahmedabad, Gujarat | Galle",
     "rating": 4.8,
     "shortDescription": "Pichhwais ('hanging at the back') are large devotional textile paintings hung behind the sanctum deity in Pushtimarg Vaishnava temples. The Calico Museum in Ahm..."
@@ -1660,7 +1660,7 @@ export const PLACES_DATA = [
     "latitude": 23.2508,
     "longitude": 69.6672,
     "category": "museum",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Ancient_History_of_the_Deccan.djvu/page1-960px-Ancient_History_of_the_Deccan.djvu.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Kshatrapa_inscription_stone.jpg/1280px-Kshatrapa_inscription_stone.jpg",
     "openingHours": "🏛️ Location: Kutch Museum (Oldest Museum in Gujarat, founded 1877), Near Hamirsar Lake, Bh",
     "rating": 4.9,
     "shortDescription": "Found at Andhau village in the Rann of Kutch. These four inscribed pillars are the oldest known epigraphs found in Gujarat using the Saka era. They provide cruc..."
@@ -1673,7 +1673,7 @@ export const PLACES_DATA = [
     "latitude": 23.2508,
     "longitude": 69.6672,
     "category": "culture",
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Memoirs_of_the_Geological_Survey_of_India_%28IA_memoirsofgeologi272geol%29.pdf/page1-960px-Memoirs_of_the_Geological_Survey_of_India_%28IA_memoirsofgeologi272geol%29.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Airavata_elephant_sculpture.jpg/1280px-Airavata_elephant_sculpture.jpg",
     "openingHours": "🏛️ Location: Kutch Museum, Opposite Hamirsar Lake, Bhuj, Gujarat | Gallery: 1st Floor, Ant",
     "rating": 4.4,
     "shortDescription": "Used during the annual royal Navratri and Dussehra state processions in Bhuj. The Maharaos of Kutch were carried on this seven-trunked elephant carriage from Ai..."
@@ -1686,7 +1686,7 @@ export const PLACES_DATA = [
     "latitude": 22.3039,
     "longitude": 70.8022,
     "category": "museum",
-    "imageUrl": "https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Harappan_terracotta_toy_cart.jpg/1280px-Harappan_terracotta_toy_cart.jpg",
     "openingHours": "🏛️ Location: Watson Museum, Jubilee Garden, Rajkot, Gujarat | Gallery: Ground Floor, Indus",
     "rating": 4.5,
     "shortDescription": "Excavated at Rangpur in Surendranagar/Ahmedabad district by M.S. Vats in 1935 and S.R. Rao in 1953-56. Rangpur is the type-site that proved the Indus Valley Civ..."

@@ -41,6 +41,7 @@ export default function CameraResultScreen() {
         autoAsk: `Tell me the architectural marvels, historical significance, and legends of ${artifactName} at ${placeName}.`,
         placeId,
         placeName,
+        t: String(Date.now()),
       },
     });
   };

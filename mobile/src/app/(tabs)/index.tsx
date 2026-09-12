@@ -216,6 +216,7 @@ export default function HomeScreen() {
         autoAsk: item.aiPrompt,
         placeId: item.id,
         placeName: item.title,
+        t: String(Date.now()),
       },
     });
   };

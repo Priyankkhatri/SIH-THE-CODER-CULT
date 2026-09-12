@@ -156,6 +156,7 @@ export default function PlaceDetailScreen() {
           autoAsk: `Tell me the history, architectural marvels, and visitor guide for ${pName}.`,
           placeId: id!,
           placeName: pName,
+          t: String(Date.now()),
         },
       });
     }

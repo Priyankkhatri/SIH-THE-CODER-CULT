@@ -117,7 +117,15 @@ export default function HeritageScreen() {
   const handleAskAI = () => {
     if (heritage) {
       setContext(heritage.placeId || id, heritage.placeName || 'Heritage Monument');
-      router.push('/(tabs)/ai');
+      router.push({
+        pathname: '/(tabs)/ai',
+        params: {
+          placeId: heritage.placeId || id,
+          placeName: heritage.placeName || 'Heritage Monument',
+          autoAsk: `Tell me about the history and architecture of ${heritage.placeName || 'this site'}`,
+          t: String(Date.now()),
+        },
+      });
     }
   };
 

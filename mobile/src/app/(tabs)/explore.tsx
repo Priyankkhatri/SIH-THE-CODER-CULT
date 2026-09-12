@@ -102,6 +102,7 @@ export default function ExploreScreen() {
         autoAsk: `Tell me the history, architecture, and legends of ${place.name}.`,
         placeId: place.id,
         placeName: place.name,
+        t: String(Date.now()),
       },
     });
   };
