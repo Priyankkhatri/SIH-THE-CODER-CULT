@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "AI Tourist Companion",
+    "name": "Yatra - AI Tourist Companion",
     "slug": "tourist-companion",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,6 +16,7 @@
     },
     "android": {
       "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#0A0A0F"
       },
       "permissions": [
@@ -40,7 +41,7 @@
         {
           "backgroundColor": "#0A0A0F",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 180
         }
       ],
       [

@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   FlatList,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -166,9 +167,16 @@ export default function HomeScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>{greeting()} 👋</Text>
-            <Text style={styles.userName}>{name}</Text>
+          <View style={styles.headerLeft}>
+            <Image
+              source={require('../../../assets/images/app-logo.jpeg')}
+              style={styles.headerLogo}
+              resizeMode="cover"
+            />
+            <View>
+              <Text style={styles.greeting}>{greeting()} 👋</Text>
+              <Text style={styles.userName}>{name}</Text>
+            </View>
           </View>
           <View style={styles.headerRight}>
             {isScreenLoading ? (
@@ -407,10 +415,22 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     paddingHorizontal: Spacing.xl,
     paddingTop: 60,
     paddingBottom: Spacing.lg,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  headerLogo: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 2,
+    borderColor: '#D4AF37',
   },
   greeting: {
     fontSize: Typography.sizes.base,

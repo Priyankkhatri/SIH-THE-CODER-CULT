@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -78,6 +79,11 @@ export default function RegisterScreen() {
 
         {/* Header */}
         <View style={styles.header}>
+          <Image
+            source={require('../../../assets/images/app-logo.jpeg')}
+            style={styles.logoImage}
+            resizeMode="cover"
+          />
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>Join the AI Tourist Companion to unlock personalized heritage itineraries and offline access.</Text>
         </View>
@@ -218,12 +224,23 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: Spacing.xl,
+    alignItems: 'center',
+  },
+  logoImage: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    borderWidth: 2,
+    borderColor: '#D4AF37',
+    marginBottom: Spacing.md,
+    ...Shadows.glow,
   },
   title: {
     fontSize: Typography.sizes['2xl'],
     fontWeight: '700',
     color: Colors.text,
     marginBottom: Spacing.xs,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: Typography.sizes.sm,

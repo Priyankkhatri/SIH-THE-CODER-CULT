@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -89,9 +90,11 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.iconCircle}>
-            <MaterialIcons name="account-balance" size={36} color={Colors.primary} />
-          </View>
+          <Image
+            source={require('../../../assets/images/app-logo.jpeg')}
+            style={styles.logoImage}
+            resizeMode="cover"
+          />
           <Text style={styles.title}>Welcome Back</Text>
           <Text style={styles.subtitle}>Sign in to access your saved heritage tours, favorites, and synced AI conversations.</Text>
         </View>
@@ -214,15 +217,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing['2xl'],
   },
-  iconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(212, 169, 71, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
+  logoImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 2.5,
+    borderColor: '#D4AF37',
     marginBottom: Spacing.base,
     ...Shadows.glow,
   },
