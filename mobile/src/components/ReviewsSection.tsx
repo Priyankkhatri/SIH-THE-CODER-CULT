@@ -112,21 +112,35 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
 
   const loadReviews = async (showSkeleton = true) => {
     if (showSkeleton) setIsLoading(true);
+    const start = Date.now();
+    let loadedReviews: ReviewItem[] | null = null;
+    let loadedStats: ReviewStats | null = null;
+
     try {
       const res: any = await placesApi.getReviews(placeId);
       if (res?.data?.reviews && Array.isArray(res.data.reviews) && res.data.reviews.length > 0) {
-        setReviews(res.data.reviews);
-        setStats(res.data.stats || computeReviewStats(res.data.reviews, initialRating));
-        setIsLoading(false);
-        return;
+        loadedReviews = res.data.reviews;
+        loadedStats = res.data.stats || computeReviewStats(res.data.reviews, initialRating);
       }
     } catch (e) {
       // Fallback to offline / seed reviews
     }
 
-    const localData = await getLocalReviews(placeId, placeName, initialRating);
-    setReviews(localData.reviews);
-    setStats(localData.stats);
+    if (!loadedReviews) {
+      const localData = await getLocalReviews(placeId, placeName, initialRating);
+      loadedReviews = localData.reviews;
+      loadedStats = localData.stats;
+    }
+
+    if (showSkeleton) {
+      const elapsed = Date.now() - start;
+      if (elapsed < 450) {
+        await new Promise((resolve) => setTimeout(resolve, 450 - elapsed));
+      }
+    }
+
+    if (loadedReviews) setReviews(loadedReviews);
+    if (loadedStats) setStats(loadedStats);
     setIsLoading(false);
   };
 

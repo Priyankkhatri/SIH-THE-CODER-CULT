@@ -21,7 +21,11 @@ import { PlaceCard } from '../../components/PlaceCard';
 import { CategoryFilter } from '../../components/CategoryFilter';
 import { WeatherCrowdBar } from '../../components/WeatherCrowdBar';
 import { SafetySOSModal } from '../../components/SafetySOSModal';
-import { PlaceCardHorizontalSkeleton, PlaceCardVerticalSkeleton } from '../../components/Skeleton';
+import {
+  PlaceCardHorizontalSkeleton,
+  PlaceCardVerticalSkeleton,
+  LocationBadgeSkeleton,
+} from '../../components/Skeleton';
 
 const QUICK_ACTIONS = [
   { key: 'explore', label: 'Explore Map', icon: 'map', color: Colors.accent },
@@ -38,16 +42,16 @@ export default function HomeScreen() {
   const { setContext } = useChatStore();
   const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [sosVisible, setSosVisible] = useState(false);
+
+  const isScreenLoading = initialLoading || location.isLoading || isLoading || refreshing;
 
   const latKey = (location.latitude || 22.30).toFixed(2);
   const lonKey = (location.longitude || 73.18).toFixed(2);
 
-  const fetchPlaces = async (isManual = false) => {
-    if (isManual || places.length === 0) {
-      setLoading(true);
-    }
+  const fetchPlaces = async () => {
     try {
       const response: any = await placesApi.getNearby(
         location.latitude || 22.3072,
@@ -67,19 +71,39 @@ export default function HomeScreen() {
       }
     } catch (error) {
       console.warn('[HomeScreen] Live fetch notice, keeping cached places:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPlaces();
+    let mounted = true;
+    const run = async () => {
+      setInitialLoading(true);
+      setLoading(true);
+      const start = Date.now();
+      await fetchPlaces();
+      const elapsed = Date.now() - start;
+      if (elapsed < 650) {
+        await new Promise((resolve) => setTimeout(resolve, 650 - elapsed));
+      }
+      if (mounted) {
+        setInitialLoading(false);
+        setLoading(false);
+      }
+    };
+    run();
+    return () => {
+      mounted = false;
+    };
   }, [selectedCategory, latKey, lonKey]);
-
 
   const onRefresh = async () => {
     setRefreshing(true);
+    const start = Date.now();
     await fetchPlaces();
+    const elapsed = Date.now() - start;
+    if (elapsed < 650) {
+      await new Promise((resolve) => setTimeout(resolve, 650 - elapsed));
+    }
     setRefreshing(false);
   };
 
@@ -147,12 +171,16 @@ export default function HomeScreen() {
             <Text style={styles.userName}>{name}</Text>
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.locationBadge}>
-              <MaterialIcons name="place" size={16} color={Colors.primary} />
-              <Text style={styles.locationText}>
-                {location.isLoading ? t('common.locating') : `${location.city}, ${location.region}`}
-              </Text>
-            </TouchableOpacity>
+            {isScreenLoading ? (
+              <LocationBadgeSkeleton />
+            ) : (
+              <TouchableOpacity style={styles.locationBadge}>
+                <MaterialIcons name="place" size={16} color={Colors.primary} />
+                <Text style={styles.locationText}>
+                  {`${location.city}, ${location.region}`}
+                </Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               style={styles.sosBadge}
               onPress={() => setSosVisible(true)}
@@ -165,7 +193,11 @@ export default function HomeScreen() {
         </View>
 
         {/* Live Weather & Crowd Density Radar */}
-        <WeatherCrowdBar latitude={location.latitude || 22.3072} longitude={location.longitude || 73.1812} />
+        <WeatherCrowdBar
+          latitude={location.latitude || 22.3072}
+          longitude={location.longitude || 73.1812}
+          isLoading={isScreenLoading}
+        />
 
         {/* Quick Actions */}
         <View style={styles.quickActionsSection}>
@@ -198,12 +230,13 @@ export default function HomeScreen() {
           <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
 
           {/* Horizontal Place Cards */}
-          {isLoading ? (
+          {isScreenLoading ? (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: Spacing.base }}
             >
+              <PlaceCardHorizontalSkeleton />
               <PlaceCardHorizontalSkeleton />
               <PlaceCardHorizontalSkeleton />
               <PlaceCardHorizontalSkeleton />
@@ -235,8 +268,9 @@ export default function HomeScreen() {
               <Text style={styles.seeAllText}>View Map →</Text>
             </TouchableOpacity>
           </View>
-          {isLoading ? (
+          {isScreenLoading ? (
             <View style={{ paddingHorizontal: Spacing.base }}>
+              <PlaceCardVerticalSkeleton />
               <PlaceCardVerticalSkeleton />
               <PlaceCardVerticalSkeleton />
               <PlaceCardVerticalSkeleton />

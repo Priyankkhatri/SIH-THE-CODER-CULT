@@ -83,60 +83,66 @@ export default function PlaceDetailScreen() {
 
   const loadHeritage = async (showSkeleton = true) => {
     if (showSkeleton) setIsLoading(true);
+    const start = Date.now();
+    let resultHeritage: HeritageDetail | null = null;
+
     try {
       const response: any = await heritageApi.getByPlaceId(id!, language);
       if (response?.data) {
-        setHeritage(response.data);
-        setIsLoading(false);
-        setIsRefreshing(false);
-        return;
+        resultHeritage = response.data;
       }
     } catch (error) {
       console.warn('[PlaceDetail] Server fetch notice, loading client fallback:', error);
     }
 
-    // High-resilience fallback: find place in client store or demo data
-    const storePlaces = usePlacesStore.getState().places;
-    const matched = storePlaces.find((p) => p.id === id || p.id?.toLowerCase() === id?.toLowerCase());
-    if (matched) {
-      const pName = getPlaceName(matched);
-      const fallbackHeritage: HeritageDetail = {
-        shortStory: matched.heritageRecord?.shortStory || matched.shortDescription || `${pName} is an iconic historic landmark of India.`,
-        history: (matched.heritageRecord as any)?.detailedHistory || matched.shortDescription || `${pName} is deeply preserved with remarkable architectural chronicles.`,
-        significance: `Preserved cultural landmark representing the artistic and architectural legacy of ${pName}.`,
-        architecture: 'Traditional regional Indian architecture with intricate masonry.',
-        keyFacts: [
-          `Landmark: ${pName}`,
-          `Category: ${getCategoryName(matched.category)}`,
-          `Rating: ${matched.rating || 4.8} / 5.0`,
-          `Visiting: ${matched.openingHours || '9:00 AM - 5:30 PM'}`,
-        ],
-        period: matched.heritageRecord?.period || 'Historical Era',
-        placeName: pName,
-        sources: [
-          {
-            sourceName: 'Archaeological Survey of India & Open Govt Data',
-            sourceUrl: 'https://asi.nic.in',
-            referenceText: 'Listed historical landmark in Indian Heritage Registry.',
-          },
-        ],
-        place: matched,
-      };
-      setHeritage(fallbackHeritage);
-      setIsLoading(false);
-      setIsRefreshing(false);
-      return;
+    if (!resultHeritage) {
+      // High-resilience fallback: find place in client store or demo data
+      const storePlaces = usePlacesStore.getState().places;
+      const matched = storePlaces.find((p) => p.id === id || p.id?.toLowerCase() === id?.toLowerCase());
+      if (matched) {
+        const pName = getPlaceName(matched);
+        resultHeritage = {
+          shortStory: matched.heritageRecord?.shortStory || matched.shortDescription || `${pName} is an iconic historic landmark of India.`,
+          history: (matched.heritageRecord as any)?.detailedHistory || matched.shortDescription || `${pName} is deeply preserved with remarkable architectural chronicles.`,
+          significance: `Preserved cultural landmark representing the artistic and architectural legacy of ${pName}.`,
+          architecture: 'Traditional regional Indian architecture with intricate masonry.',
+          keyFacts: [
+            `Landmark: ${pName}`,
+            `Category: ${getCategoryName(matched.category)}`,
+            `Rating: ${matched.rating || 4.8} / 5.0`,
+            `Visiting: ${matched.openingHours || '9:00 AM - 5:30 PM'}`,
+          ],
+          period: matched.heritageRecord?.period || 'Historical Era',
+          placeName: pName,
+          sources: [
+            {
+              sourceName: 'Archaeological Survey of India & Open Govt Data',
+              sourceUrl: 'https://asi.nic.in',
+              referenceText: 'Listed historical landmark in Indian Heritage Registry.',
+            },
+          ],
+          place: matched,
+        };
+      } else {
+        resultHeritage = getDemoHeritage(id!);
+      }
     }
 
-    const demo = getDemoHeritage(id!);
-    setHeritage(demo);
+    if (showSkeleton) {
+      const elapsed = Date.now() - start;
+      if (elapsed < 500) {
+        await new Promise((resolve) => setTimeout(resolve, 500 - elapsed));
+      }
+    }
+
+    setHeritage(resultHeritage);
     setIsLoading(false);
     setIsRefreshing(false);
   };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await loadHeritage(false);
+    await loadHeritage(true);
     setIsRefreshing(false);
   };
 

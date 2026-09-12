@@ -153,7 +153,7 @@ export const usePlacesStore = create<PlacesState>((set, get) => ({
   places: ALL_SEED_PLACES,
   selectedPlace: null,
   favorites: [],
-  isLoading: false,
+  isLoading: true,
 
   setPlaces: (places) => set({ places }),
   setSelectedPlace: (selectedPlace) => set({ selectedPlace }),

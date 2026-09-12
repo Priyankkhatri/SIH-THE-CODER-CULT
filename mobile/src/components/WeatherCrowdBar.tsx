@@ -3,16 +3,29 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../constants/theme';
 import { getLiveWeather, getLiveCrowd, WeatherInfo, CrowdInfo } from '../utils/touristMeta';
+import { WeatherCrowdBarSkeleton } from './Skeleton';
 
 interface WeatherCrowdBarProps {
   latitude?: number;
   longitude?: number;
   placeName?: string;
   variant?: 'compact' | 'full';
+  isLoading?: boolean;
 }
 
-export function WeatherCrowdBar({ latitude = 22.3072, longitude = 73.1812, placeName, variant = 'compact' }: WeatherCrowdBarProps) {
+export function WeatherCrowdBar({
+  latitude = 22.3072,
+  longitude = 73.1812,
+  placeName,
+  variant = 'compact',
+  isLoading = false,
+}: WeatherCrowdBarProps) {
   const [expanded, setExpanded] = useState(false);
+
+  if (isLoading) {
+    return <WeatherCrowdBarSkeleton variant={variant} />;
+  }
+
   const weather: WeatherInfo = getLiveWeather(latitude, longitude);
   const crowd: CrowdInfo = getLiveCrowd(placeName);
 

@@ -278,7 +278,70 @@ export function PlaceCardVerticalSkeleton() {
   );
 }
 
+// 5. Header Location Badge Skeleton
+export function LocationBadgeSkeleton() {
+  return (
+    <View style={styles.locationBadgeSkeleton}>
+      <SkeletonItem width={14} height={14} borderRadius={7} />
+      <SkeletonItem width={100} height={12} borderRadius={4} />
+    </View>
+  );
+}
+
+// 6. Weather & Crowd Bar Skeleton
+export function WeatherCrowdBarSkeleton({ variant = 'compact' }: { variant?: 'compact' | 'full' }) {
+  return (
+    <View style={[styles.weatherCardSkeleton, variant === 'full' && styles.weatherCardFull]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+        <SkeletonItem width={30} height={30} borderRadius={15} />
+        <View style={{ gap: 4 }}>
+          <SkeletonItem width={45} height={14} />
+          <SkeletonItem width={70} height={10} />
+        </View>
+      </View>
+      <View style={styles.weatherDivider} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+        <SkeletonItem width={10} height={10} borderRadius={5} />
+        <View style={{ gap: 4 }}>
+          <SkeletonItem width={80} height={14} />
+          <SkeletonItem width={95} height={10} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  locationBadgeSkeleton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  weatherCardSkeleton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginVertical: Spacing.sm,
+  },
+  weatherCardFull: {
+    marginVertical: Spacing.md,
+  },
+  weatherDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: Colors.border,
+    marginHorizontal: Spacing.md,
+  },
   screenContainer: {
     flex: 1,
     backgroundColor: Colors.background,
