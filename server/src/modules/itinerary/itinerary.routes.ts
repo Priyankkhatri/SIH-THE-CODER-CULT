@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../../config/database';
+import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
@@ -10,20 +11,18 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((lat1 * Math.PI) / 180) *
-    Math.cos((lat2 * Math.PI) / 180) *
-    Math.sin(dLon / 2) *
-    Math.sin(dLon / 2);
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
 
-// Estimate travel time in minutes
 function estimateTravelTime(distanceKm: number, mode: 'walk' | 'drive'): number {
   const speed = mode === 'walk' ? 5 : 30;
   return Math.round((distanceKm / speed) * 60);
 }
 
-// Duration presets in minutes
 const DURATION_MAP: Record<string, number> = {
   '30min': 30,
   '90min': 90,
@@ -31,7 +30,7 @@ const DURATION_MAP: Record<string, number> = {
   'full-day': 480,
 };
 
-// POST /itinerary/generate - Generate personalized route
+// 1. POST /itinerary/generate or /itineraries/generate
 router.post('/generate', async (req: Request, res: Response) => {
   try {
     const {
@@ -46,7 +45,6 @@ router.post('/generate', async (req: Request, res: Response) => {
     const lng = longitude || 73.1812;
     const maxMinutes = DURATION_MAP[duration] || 90;
 
-    // Get all places and calculate distances
     const places = await prisma.place.findMany({
       include: {
         heritageRecord: {
@@ -59,7 +57,6 @@ router.post('/generate', async (req: Request, res: Response) => {
       },
     });
 
-    // Score and sort places based on interests + distance
     const scoredPlaces = places.map((place: any) => {
       const distance = haversineDistance(lat, lng, place.latitude, place.longitude);
       const interestMatch = interests.includes(place.category) ? 2 : 1;
@@ -73,22 +70,7 @@ router.post('/generate', async (req: Request, res: Response) => {
       };
     }).sort((a: any, b: any) => b.score - a.score);
 
-    // Build itinerary using greedy nearest-neighbor
-    const itineraryItems: Array<{
-      placeId: string;
-      placeName: string;
-      order: number;
-      visitDuration: number;
-      travelTime: number;
-      travelMode: string;
-      reason: string;
-      latitude: number;
-      longitude: number;
-      distance: number;
-      imageUrl: string | null;
-      shortStory: string | null;
-    }> = [];
-
+    const itineraryItems: Array<any> = [];
     let currentLat = lat;
     let currentLng = lng;
     let totalTime = 0;
@@ -159,6 +141,7 @@ router.post('/generate', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: {
+        id: uuidv4(),
         title: `${duration} Heritage Tour`,
         duration,
         totalTimeMinutes: totalTime,
@@ -173,43 +156,105 @@ router.post('/generate', async (req: Request, res: Response) => {
   }
 });
 
-// POST /itinerary/save - Save a generated itinerary
-router.post('/save', async (req: Request, res: Response) => {
-  const { userId, title, duration, totalTime, items } = req.body;
+// 2. POST / (Save an itinerary) & POST /save
+const saveHandler = async (req: Request, res: Response) => {
+  try {
+    const { userId = 'default-user', title, duration, totalTime, items = [] } = req.body;
 
-  const itinerary = await prisma.itinerary.create({
-    data: {
-      userId,
-      title: title || `${duration} Heritage Tour`,
-      duration,
-      totalTime: totalTime || 90,
-      items: {
-        create: items.map((item: any) => ({
-          placeId: item.placeId,
-          placeName: item.placeName,
-          order: item.order,
-          visitDuration: item.visitDuration,
-          travelTime: item.travelTime,
-          travelMode: item.travelMode || 'walk',
-          reason: item.reason,
-        })),
+    const itinerary = await prisma.itinerary.create({
+      data: {
+        userId,
+        title: title || `${duration || '90min'} Heritage Tour`,
+        duration: duration || '90min',
+        totalTime: totalTime || 90,
+        items: {
+          create: items.map((item: any, idx: number) => ({
+            placeId: item.placeId,
+            placeName: item.placeName,
+            order: item.order || idx + 1,
+            visitDuration: item.visitDuration || 25,
+            travelTime: item.travelTime || 10,
+            travelMode: item.travelMode || 'walk',
+            reason: item.reason || '',
+          })),
+        },
       },
-    },
-    include: { items: true },
-  });
+      include: { items: true },
+    });
 
-  res.status(201).json({ success: true, data: itinerary });
+    res.status(201).json({ success: true, data: itinerary });
+  } catch (error) {
+    console.error('Error saving itinerary:', error);
+    res.status(500).json({ success: false, error: 'Failed to save itinerary' });
+  }
+};
+router.post('/', saveHandler);
+router.post('/save', saveHandler);
+
+// 3. GET / (Get itineraries by query userId)
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const userId = (req.query.userId as string) || 'default-user';
+    const itineraries = await prisma.itinerary.findMany({
+      where: userId ? { userId } : undefined,
+      include: { items: { orderBy: { order: 'asc' } } },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.json({ success: true, data: itineraries });
+  } catch (error) {
+    console.error('Error fetching itineraries:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch itineraries' });
+  }
 });
 
-// GET /itinerary/user/:userId - Get user's saved itineraries
+// 4. GET /user/:userId
 router.get('/user/:userId', async (req: Request, res: Response) => {
-  const itineraries = await prisma.itinerary.findMany({
-    where: { userId: req.params.userId as string },
-    include: { items: { orderBy: { order: 'asc' } } },
-    orderBy: { createdAt: 'desc' },
-  });
+  try {
+    const itineraries = await prisma.itinerary.findMany({
+      where: { userId: req.params.userId as string },
+      include: { items: { orderBy: { order: 'asc' } } },
+      orderBy: { createdAt: 'desc' },
+    });
 
-  res.json({ success: true, data: itineraries });
+    res.json({ success: true, data: itineraries });
+  } catch (error) {
+    console.error('Error fetching user itineraries:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch user itineraries' });
+  }
+});
+
+// 5. GET /:id (Single itinerary by ID)
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const itinerary = await prisma.itinerary.findUnique({
+      where: { id: req.params.id as string },
+      include: { items: { orderBy: { order: 'asc' } } },
+    });
+
+    if (!itinerary) {
+      return res.status(404).json({ success: false, error: 'Itinerary not found' });
+    }
+
+    res.json({ success: true, data: itinerary });
+  } catch (error) {
+    console.error('Error fetching itinerary:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch itinerary' });
+  }
+});
+
+// 6. DELETE /:id
+router.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    await prisma.itinerary.delete({
+      where: { id: req.params.id as string },
+    }).catch(() => {});
+
+    res.json({ success: true, message: 'Itinerary deleted' });
+  } catch (error) {
+    console.error('Error deleting itinerary:', error);
+    res.status(500).json({ success: false, error: 'Failed to delete itinerary' });
+  }
 });
 
 export default router;

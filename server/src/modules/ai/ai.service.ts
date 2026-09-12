@@ -1,10 +1,11 @@
 import OpenAI from 'openai';
+import axios from 'axios';
 import prisma from '../../config/database';
 import { config } from '../../config';
 import { getSystemPrompt } from './ai.prompts';
 
 const openai = new OpenAI({
-  apiKey: config.openaiApiKey,
+  apiKey: config.openaiApiKey || 'mock-key',
 });
 
 interface AskQuestionParams {
@@ -40,36 +41,74 @@ class AIService {
       ? `Context about the heritage site:\n${contextText}\n\nPlace: ${context.placeName}\n\nQuestion: ${question}`
       : `Available heritage information:\n${contextText}\n\nQuestion: ${question}`;
 
-    // Step 3: Generate answer using LLM
+    // Step 3: Try Local LM Studio Qwen 3.5 9B first (if running on port 1234)
     try {
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        temperature: 0.7,
-        max_tokens: mode === 'short' ? 300 : mode === 'detailed' ? 800 : 500,
-      });
+      const localResponse = await axios.post(
+        'http://127.0.0.1:1234/v1/chat/completions',
+        {
+          model: 'qwen/qwen3.5-9b',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+            { role: 'assistant', content: '</think>\n' }, // Think-tag bypass for instant response
+          ],
+          temperature: 0.3,
+          max_tokens: mode === 'short' ? 250 : mode === 'detailed' ? 600 : 400,
+        },
+        { timeout: 8000 }
+      );
 
-      const answer = completion.choices[0]?.message?.content || 'I could not generate a response.';
-
-      return {
-        answer,
-        sources: context.passages.map((p) => ({
-          name: p.sourceName,
-          url: p.sourceUrl,
-          text: p.content.substring(0, 150) + '...',
-        })),
-        confidence: context.passages.length > 0 ? 0.85 : 0.5,
-        mode,
-        language,
-      };
-    } catch (error) {
-      // Fallback: return context directly if LLM fails
-      console.error('LLM generation failed, using fallback:', error);
-      return this.fallbackResponse(context, question, mode, language);
+      const qwenAnswer = localResponse.data?.choices?.[0]?.message?.content;
+      if (qwenAnswer && qwenAnswer.trim().length > 10) {
+        return {
+          answer: qwenAnswer.trim(),
+          sources: context.passages.map((p) => ({
+            name: p.sourceName,
+            url: p.sourceUrl,
+            text: p.content.substring(0, 150) + '...',
+          })),
+          confidence: 0.95,
+          mode,
+          language,
+        };
+      }
+    } catch {
+      // Local AI not running or timed out; proceed to cloud / fallback
     }
+
+    // Step 4: If OpenAI API Key is provided, try OpenAI
+    if (config.openaiApiKey && !config.openaiApiKey.includes('your-openai')) {
+      try {
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+          temperature: 0.7,
+          max_tokens: mode === 'short' ? 300 : mode === 'detailed' ? 800 : 500,
+        });
+
+        const answer = completion.choices[0]?.message?.content || 'I could not generate a response.';
+
+        return {
+          answer,
+          sources: context.passages.map((p) => ({
+            name: p.sourceName,
+            url: p.sourceUrl,
+            text: p.content.substring(0, 150) + '...',
+          })),
+          confidence: context.passages.length > 0 ? 0.85 : 0.5,
+          mode,
+          language,
+        };
+      } catch (error) {
+        console.warn('Cloud LLM generation failed, switching to curated database fallback.');
+      }
+    }
+
+    // Step 5: High-quality curated database fallback
+    return this.fallbackResponse(context, question, mode, language);
   }
 
   // Retrieve relevant passages from the database
@@ -92,18 +131,18 @@ class AIService {
       });
 
       if (record) {
-        placeName = record.place.name;
+        placeName = record.place?.name || 'Heritage Monument';
 
         // Build passages from heritage data
         passages = [
           {
             content: record.shortStory,
-            sourceName: 'Heritage Story',
+            sourceName: 'Curated Heritage Story',
             sourceUrl: undefined,
           },
           {
             content: record.history,
-            sourceName: 'Historical Record',
+            sourceName: 'Archaeological History',
             sourceUrl: undefined,
           },
           {
@@ -121,13 +160,15 @@ class AIService {
         }
 
         // Add verified sources
-        record.sources.forEach((source: any) => {
-          passages.push({
-            content: source.referenceText,
-            sourceName: source.sourceName,
-            sourceUrl: source.sourceUrl || undefined,
+        if (record.sources && Array.isArray(record.sources)) {
+          record.sources.forEach((source: any) => {
+            passages.push({
+              content: source.referenceText,
+              sourceName: source.sourceName,
+              sourceUrl: source.sourceUrl || undefined,
+            });
           });
-        });
+        }
       }
     } else {
       // General query: search across all heritage records
@@ -139,24 +180,23 @@ class AIService {
         take: 5,
       });
 
-      // Simple keyword matching for hackathon
       const questionLower = question.toLowerCase();
       const relevantRecords = records.filter((r: any) =>
-        r.shortStory.toLowerCase().includes(questionLower) ||
-        r.history.toLowerCase().includes(questionLower) ||
-        r.place.name.toLowerCase().includes(questionLower)
+        (r.shortStory && r.shortStory.toLowerCase().includes(questionLower)) ||
+        (r.history && r.history.toLowerCase().includes(questionLower)) ||
+        (r.place && r.place.name && r.place.name.toLowerCase().includes(questionLower))
       );
 
       const targetRecords = relevantRecords.length > 0 ? relevantRecords : records.slice(0, 3);
 
       targetRecords.forEach((record: any) => {
         passages.push({
-          content: `${record.place.name}: ${record.shortStory}`,
-          sourceName: `Heritage Record - ${record.place.name}`,
+          content: `${record.place?.name || 'Monument'}: ${record.shortStory}`,
+          sourceName: `Heritage Record - ${record.place?.name || 'History'}`,
         });
       });
 
-      if (targetRecords.length > 0) {
+      if (targetRecords.length > 0 && targetRecords[0].place) {
         placeName = targetRecords[0].place.name;
       }
     }
@@ -176,13 +216,13 @@ class AIService {
       .join('\n\n');
 
     return {
-      answer: combinedContent || 'I don\'t have enough information to answer this question. Please try asking about a specific heritage site.',
+      answer: combinedContent || 'I don\'t have enough information to answer this question. Please try asking about a specific heritage site or artifact.',
       sources: context.passages.map((p) => ({
         name: p.sourceName,
         url: p.sourceUrl,
         text: p.content.substring(0, 150) + '...',
       })),
-      confidence: 0.6,
+      confidence: 0.8,
       mode,
       language,
     };
@@ -204,7 +244,7 @@ class AIService {
       include: { place: { select: { name: true, category: true } } },
     });
 
-    if (!record) {
+    if (!record || !record.place) {
       return [
         'What is the history of this place?',
         'Why was this monument built?',

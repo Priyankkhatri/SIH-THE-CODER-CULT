@@ -70,7 +70,29 @@ export const inMemoryDb: any = {
       }
       return u;
     },
-    findUnique: async ({ where }: any) => users.get(where.id) || null,
+    findUnique: async ({ where }: any) => {
+      if (!where?.id) return null;
+      return users.get(where.id) || null;
+    },
+    findFirst: async ({ where }: any) => {
+      if (where?.email) {
+        for (const u of users.values()) {
+          if (u.email === where.email) return u;
+        }
+      }
+      const first = users.values().next().value;
+      return first || null;
+    },
+    upsert: async ({ where, update, create }: any) => {
+      const existing = users.get(where.id);
+      if (existing) {
+        Object.assign(existing, update, { updatedAt: new Date() });
+        return existing;
+      }
+      const newUser = { ...create, id: where.id || uuidv4(), createdAt: new Date(), updatedAt: new Date() };
+      users.set(newUser.id, newUser);
+      return newUser;
+    },
   },
 
   preference: {
@@ -92,6 +114,21 @@ export const inMemoryDb: any = {
       if (args?.where?.category) {
         result = result.filter((p: any) => p.category === args.where.category);
       }
+      if (args?.where?.id?.in && Array.isArray(args.where.id.in)) {
+        result = result.filter((p: any) => args.where.id.in.includes(p.id));
+      }
+      if (args?.where?.id?.not) {
+        result = result.filter((p: any) => p.id !== args.where.id.not);
+      }
+      if (args?.where?.OR && Array.isArray(args.where.OR)) {
+        const query = (args.where.OR[0]?.name?.contains || '').toLowerCase();
+        if (query) {
+          result = result.filter((p: any) => 
+            p.name.toLowerCase().includes(query) || 
+            (p.shortDescription && p.shortDescription.toLowerCase().includes(query))
+          );
+        }
+      }
       if (args?.distinct?.includes('category')) {
         const seen = new Set();
         const uniqueCat: any[] = [];
@@ -106,7 +143,7 @@ export const inMemoryDb: any = {
       return result;
     },
     findUnique: async (args: any) => {
-      const p = PLACES_DATA.find((x: any) => x.id === args.where.id);
+      const p = PLACES_DATA.find((x: any) => x.id === args?.where?.id);
       return p ? getPlace(p, args.include) : null;
     },
   },
@@ -120,7 +157,7 @@ export const inMemoryDb: any = {
       return records;
     },
     findUnique: async (args: any) => {
-      const r = HERITAGE_RECORDS.find((x: any) => x.placeId === args.where.placeId);
+      const r = HERITAGE_RECORDS.find((x: any) => x.placeId === args?.where?.placeId);
       return r ? getHeritageRecord(r, args.include) : null;
     },
   },
@@ -166,11 +203,11 @@ export const inMemoryDb: any = {
   },
 
   itinerary: {
-    create: async ({ data, include }: any) => {
+    create: async ({ data }: any) => {
       const items = (data.items?.create || []).map((item: any, idx: number) => ({
         ...item,
         id: uuidv4(),
-        order: item.order ?? idx,
+        order: item.order ?? idx + 1,
       }));
       const itin = {
         ...data,
@@ -187,6 +224,16 @@ export const inMemoryDb: any = {
         return list.filter((i: any) => i.userId === args.where.userId);
       }
       return list;
+    },
+    findUnique: async (args?: any) => {
+      if (!args?.where?.id) return null;
+      return itineraries.get(args.where.id) || null;
+    },
+    delete: async (args?: any) => {
+      if (args?.where?.id) {
+        itineraries.delete(args.where.id);
+      }
+      return { success: true };
     },
   },
 };
