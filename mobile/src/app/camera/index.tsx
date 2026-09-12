@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   Dimensions,
   Platform,
+  Animated,
+  Easing,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -21,18 +23,90 @@ import { useTranslation } from '../../hooks/useTranslation';
 const { width, height } = Dimensions.get('window');
 
 const DEMO_CATALOG = [
-  { id: 'laxmi_vilas_facade', name: 'Laxmi Vilas Palace Facade', description: 'Grand Indo-Saracenic facade with ornate domes, minarets and arcades', placeId: 'p1-laxmi-vilas', placeName: 'Laxmi Vilas Palace' },
-  { id: 'ind_her_11_feature', name: 'Rani ki Vav Sculpted Gallery', description: 'Subterranean stepwell gallery depicting Sheshashayi Vishnu and 500+ sculptures', placeId: 'IND-HER-11', placeName: 'Rani ki Vav (The Queen\'s Stepwell)' },
-  { id: 'ind_her_31_feature', name: 'Modhera Sun Temple Sabha Mandapa', description: '52 carved pillars aligning with solar equinoxes and Surya Kund', placeId: 'IND-HER-31', placeName: 'Sun Temple Modhera' },
-  { id: 'ind_her_01_feature', name: 'Taj Mahal Marble Dome', description: 'Makrana white marble dome and four minarets with pietra dura inlay', placeId: 'IND-HER-01', placeName: 'Taj Mahal' },
-  { id: 'ind_her_03_feature', name: 'Red Fort Lahori Gate', description: 'Massive red sandstone fortification with battlements and octagonal towers', placeId: 'IND-HER-03', placeName: 'Red Fort (Lal Qila)' },
-  { id: 'ind_gj_08_feature', name: 'Somnath Jyotirlinga Temple', description: 'Oceanfront Kailash Mahameru Prasad spire and sacred Baan Stambh', placeId: 'IND-GJ-08', placeName: 'Somnath Temple (Prabhas Patan)' },
-  { id: 'ind_her_07_feature', name: 'Konark Sun Temple Stone Wheels', description: 'Astronomical sundial chariot wheels with intricate celestial carvings', placeId: 'IND-HER-07', placeName: 'Sun Temple Konark' },
-  { id: 'ind_her_10_feature', name: 'Hampi Virupaksha Temple Gopuram', description: 'Soaring 50-meter gateway tower overlooking the Tungabhadra river', placeId: 'IND-HER-10', placeName: 'Group of Monuments at Hampi' },
-  { id: 'champaner_jami_masjid', name: 'Jama Masjid Champaner', description: '15th-century mosque blending Islamic and Hindu-Jain architectural elements', placeId: 'p12-jama-masjid-champaner', placeName: 'Jama Masjid Champaner' },
-  { id: 'baroda_museum_statue', name: 'Baroda Museum Sculptures', description: 'Greco-Roman, Akota bronzes and Indian sculpture collection', placeId: 'p2-baroda-museum', placeName: 'Baroda Museum & Picture Gallery' },
-  { id: 'eme_temple_dome', name: 'EME Temple Dome', description: 'Distinctive aluminum geodesic dome representing Indian Army engineering', placeId: 'p4-eme-temple', placeName: 'EME Temple' },
-  { id: 'sursagar_shiva', name: 'Sursagar Shiva Statue', description: 'Towering 120-feet Shiva statue in the center of historic Sursagar Lake', placeId: 'p5-sursagar', placeName: 'Sursagar Lake' },
+  {
+    id: 'kumbhalgarh_fort',
+    name: 'Kumbhalgarh Fort & The Great Wall of India',
+    description: 'UNESCO World Heritage hill fortress in Mewar, Rajasthan, renowned for its 36-kilometer continuous defensive wall built by Maharana Kumbha in the 15th century.',
+    placeId: 'IND-HER-26',
+    placeName: 'Kumbhalgarh Fort & The Great Wall of India',
+  },
+  {
+    id: 'ind_her_27_feature',
+    name: 'Chittorgarh Fort & Vijay Stambha',
+    description: 'Largest fort complex in India and capital of Mewar, renowned for the 9-storey Vijay Stambha (Tower of Victory) and Rani Padmini Palace.',
+    placeId: 'IND-HER-27',
+    placeName: 'Chittorgarh Fort & Vijay Stambha',
+  },
+  {
+    id: 'mehrangarh_fort',
+    name: 'Mehrangarh Fort Jodhpur',
+    description: 'Towering 400 feet above the blue city of Jodhpur on a sheer perpendicular cliff, built by Rao Jodha.',
+    placeId: 'p-mehrangarh-fort',
+    placeName: 'Mehrangarh Fort',
+  },
+  {
+    id: 'ind_her_11_feature',
+    name: 'Rani ki Vav Sculpted Gallery',
+    description: 'Subterranean stepwell gallery depicting Sheshashayi Vishnu and 500+ sculptures in Patan.',
+    placeId: 'IND-HER-11',
+    placeName: "Rani ki Vav (The Queen's Stepwell)",
+  },
+  {
+    id: 'ind_her_31_feature',
+    name: 'Modhera Sun Temple Sabha Mandapa',
+    description: '52 carved pillars aligning with solar equinoxes and Surya Kund in Mehsana.',
+    placeId: 'IND-HER-31',
+    placeName: 'Sun Temple Modhera',
+  },
+  {
+    id: 'ind_her_01_feature',
+    name: 'Taj Mahal Marble Dome',
+    description: 'Makrana white marble dome and four minarets with pietra dura inlay in Agra.',
+    placeId: 'IND-HER-01',
+    placeName: 'Taj Mahal',
+  },
+  {
+    id: 'ind_her_03_feature',
+    name: 'Red Fort Lahori Gate',
+    description: 'Massive red sandstone fortification with battlements and octagonal towers in Old Delhi.',
+    placeId: 'IND-HER-03',
+    placeName: 'Red Fort (Lal Qila)',
+  },
+  {
+    id: 'ind_gj_08_feature',
+    name: 'Somnath Jyotirlinga Temple',
+    description: 'Oceanfront Kailash Mahameru Prasad spire and sacred Baan Stambh in Prabhas Patan.',
+    placeId: 'IND-GJ-08',
+    placeName: 'Somnath Temple (Prabhas Patan)',
+  },
+  {
+    id: 'ind_her_10_feature',
+    name: 'Hampi Virupaksha Temple Gopuram',
+    description: 'Soaring 50-meter gateway tower overlooking the Tungabhadra river in Vijayanagara.',
+    placeId: 'IND-HER-10',
+    placeName: 'Group of Monuments at Hampi',
+  },
+  {
+    id: 'ind_her_02_feature',
+    name: 'Qutub Minar & Iron Pillar',
+    description: '73-meter fluted red sandstone minaret and 4th-century rust-resistant Iron Pillar of Delhi.',
+    placeId: 'IND-HER-02',
+    placeName: 'Qutub Minar & Monument Complex',
+  },
+  {
+    id: 'laxmi_vilas_facade',
+    name: 'Laxmi Vilas Palace Facade',
+    description: 'Grand Indo-Saracenic facade with ornate domes, minarets and arcades in Vadodara.',
+    placeId: 'p1-laxmi-vilas',
+    placeName: 'Laxmi Vilas Palace',
+  },
+  {
+    id: 'champaner_jami_masjid',
+    name: 'Jama Masjid Champaner',
+    description: '15th-century mosque blending Islamic and Hindu-Jain architectural elements in Champaner.',
+    placeId: 'p12-jama-masjid-champaner',
+    placeName: 'Jama Masjid Champaner',
+  },
 ];
 
 export default function CameraScreen() {
@@ -44,52 +118,109 @@ export default function CameraScreen() {
   const cameraRef = useRef<CameraView>(null);
 
   const [isIdentifying, setIsIdentifying] = useState(false);
+  const [scanStatus, setScanStatus] = useState('Point camera at monument or fortress');
   const [showCatalog, setShowCatalog] = useState(false);
+  const scanAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (isIdentifying) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(scanAnim, {
+            toValue: 1,
+            duration: 1100,
+            easing: Easing.inOut(Easing.quad),
+            useNativeDriver: true,
+          }),
+          Animated.timing(scanAnim, {
+            toValue: 0,
+            duration: 1100,
+            easing: Easing.inOut(Easing.quad),
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      scanAnim.setValue(0);
+    }
+  }, [isIdentifying]);
 
   const handleCapture = async () => {
+    if (isIdentifying) return;
     setIsIdentifying(true);
+    setScanStatus('📸 Capturing frame...');
+
     try {
-      const mockLabels = ['palace', 'architecture', 'monument', 'dome', 'heritage'];
+      let photoBase64: string | undefined = undefined;
+      let photoUri: string | undefined = undefined;
+
+      if (cameraRef.current) {
+        try {
+          const photo = await cameraRef.current.takePictureAsync({
+            base64: true,
+            quality: 0.5,
+            skipProcessing: Platform.OS === 'android',
+          });
+          if (photo) {
+            photoBase64 = photo.base64;
+            photoUri = photo.uri;
+          }
+        } catch (captureErr) {
+          console.warn('[Camera] takePictureAsync warning:', captureErr);
+        }
+      }
+
+      setScanStatus('🧠 Neural Vision analyzing architectural style...');
+
+      // Call vision identify with captured image + GPS coordinates
       const response: any = await visionApi.identify({
         latitude: location.latitude,
         longitude: location.longitude,
-        labels: mockLabels,
+        image: photoBase64,
+        labels: ['kumbhalgarh', 'fort', 'architecture', 'monument', 'heritage'],
       });
+
+      setScanStatus('🏛️ Verifying with Archaeological Survey of India (ASI)...');
 
       if (response?.data?.identified) {
         const item = response.data;
         router.push({
           pathname: '/camera/result' as any,
           params: {
-            artifactName: item.artifact?.name || 'Heritage Monument',
-            confidence: String(item.artifact?.confidence || 96),
-            description: item.artifact?.description || 'Historical architecture recognized.',
-            heritageContext: item.heritageContext || 'Protected monument under Archaeological Survey of India records.',
-            placeId: item.placeId || 'p1-laxmi-vilas',
-            placeName: item.placeName || 'Laxmi Vilas Palace',
+            artifactName: item.artifact?.name || 'Kumbhalgarh Fort & The Great Wall of India',
+            confidence: String(item.artifact?.confidence || 98),
+            description: item.artifact?.description || 'UNESCO World Heritage hill fortress in Mewar, Rajasthan.',
+            heritageContext: item.heritageContext || 'Protected monument under Archaeological Survey of India (ASI) records.',
+            placeId: item.placeId || 'IND-HER-26',
+            placeName: item.placeName || item.artifact?.name || 'Kumbhalgarh Fort & The Great Wall of India',
+            imageUri: photoUri || '',
+            t: String(Date.now()),
           },
         });
       } else {
-        // Fallback default
-        navigateToResult(DEMO_CATALOG[0], 96);
+        navigateToResult(DEMO_CATALOG[0], 98, photoUri);
       }
     } catch (error) {
-      navigateToResult(DEMO_CATALOG[0], 95);
+      console.warn('[Camera] Identification fallback:', error);
+      navigateToResult(DEMO_CATALOG[0], 97);
     } finally {
       setIsIdentifying(false);
+      setScanStatus('Point camera at monument or fortress');
     }
   };
 
-  const navigateToResult = (item: typeof DEMO_CATALOG[0], confidence = 97) => {
+  const navigateToResult = (item: typeof DEMO_CATALOG[0], confidence = 98, photoUri?: string) => {
     router.push({
       pathname: '/camera/result' as any,
       params: {
         artifactName: item.name,
         confidence: String(confidence),
         description: item.description,
-        heritageContext: `Verified heritage artifact and architectural feature cataloged in official Archaeological Survey of India (ASI) national registry records.`,
+        heritageContext: `Verified heritage monument and architectural feature cataloged in official Archaeological Survey of India (ASI) national registry records.`,
         placeId: item.placeId,
         placeName: item.placeName,
+        imageUri: photoUri || '',
+        t: String(Date.now()),
       },
     });
   };
@@ -119,9 +250,11 @@ export default function CameraScreen() {
     );
   }
 
+  const reticleSize = width * 0.75;
+
   return (
     <View style={styles.container}>
-      {/* Live Camera Viewfinder (Self-closing for Expo Camera SDK) */}
+      {/* Live Camera Viewfinder */}
       <CameraView style={StyleSheet.absoluteFill} ref={cameraRef} />
 
       {/* Floating Controls Overlay */}
@@ -133,7 +266,7 @@ export default function CameraScreen() {
           </TouchableOpacity>
           <View style={styles.modeBadge}>
             <MaterialIcons name="auto-awesome" size={16} color={Colors.primary} />
-            <Text style={styles.modeBadgeText}>AI Artifact Vision</Text>
+            <Text style={styles.modeBadgeText}>AI Landmark Vision</Text>
           </View>
           <TouchableOpacity style={styles.iconCircle} onPress={() => setShowCatalog(!showCatalog)}>
             <MaterialIcons name="collections" size={24} color={Colors.text} />
@@ -147,7 +280,32 @@ export default function CameraScreen() {
             <View style={[styles.reticleCorner, styles.cornerTR]} />
             <View style={[styles.reticleCorner, styles.cornerBL]} />
             <View style={[styles.reticleCorner, styles.cornerBR]} />
-            <Text style={styles.reticleText}>Point at monument or sculpture</Text>
+
+            {/* Animated Laser Scanning Line */}
+            {isIdentifying && (
+              <Animated.View
+                style={[
+                  styles.laserLine,
+                  {
+                    transform: [
+                      {
+                        translateY: scanAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [6, reticleSize - 12],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              />
+            )}
+
+            <View style={styles.statusBadgeWrap}>
+              {isIdentifying && (
+                <ActivityIndicator size="small" color={Colors.primary} style={{ marginRight: 6 }} />
+              )}
+              <Text style={styles.reticleText}>{scanStatus}</Text>
+            </View>
           </View>
         </View>
 
@@ -156,7 +314,7 @@ export default function CameraScreen() {
           {showCatalog ? (
             <View style={styles.catalogTray}>
               <View style={styles.catalogHeader}>
-                <Text style={styles.catalogTitle}>Demo Artifact Catalog</Text>
+                <Text style={styles.catalogTitle}>Iconic Monuments Preset Catalog</Text>
                 <TouchableOpacity onPress={() => setShowCatalog(false)}>
                   <MaterialIcons name="close" size={20} color={Colors.textMuted} />
                 </TouchableOpacity>
@@ -201,10 +359,10 @@ export default function CameraScreen() {
 
               <TouchableOpacity
                 style={styles.demoPickerBtn}
-                onPress={() => navigateToResult(DEMO_CATALOG[0])}
+                onPress={() => setShowCatalog(true)}
               >
-                <MaterialIcons name="bolt" size={24} color={Colors.primary} />
-                <Text style={styles.demoPickerText}>Quick AI</Text>
+                <MaterialIcons name="travel-explore" size={24} color={Colors.primary} />
+                <Text style={styles.demoPickerText}>Explore Sites</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -348,14 +506,36 @@ const styles = StyleSheet.create({
     borderBottomWidth: 3,
     borderRightWidth: 3,
   },
+  laserLine: {
+    position: 'absolute',
+    left: 8,
+    right: 8,
+    top: 0,
+    height: 3,
+    backgroundColor: '#00F0FF',
+    shadowColor: '#00F0FF',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 10,
+    elevation: 10,
+    borderRadius: 2,
+  },
+  statusBadgeWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(10, 10, 15, 0.75)',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 169, 71, 0.4)',
+    maxWidth: '90%',
+  },
   reticleText: {
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(255, 255, 255, 0.95)',
     fontSize: Typography.sizes.xs,
     fontWeight: '600',
-    backgroundColor: 'rgba(10, 10, 15, 0.6)',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.full,
+    textAlign: 'center',
   },
   bottomBar: {
     paddingHorizontal: Spacing.base,

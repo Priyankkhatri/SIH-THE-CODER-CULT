@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Image,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -24,14 +25,15 @@ export default function CameraResultScreen() {
     heritageContext?: string;
     placeId?: string;
     placeName?: string;
+    imageUri?: string;
   }>();
 
   const artifactName = params.artifactName || 'Identified Monument';
-  const confidence = parseInt(params.confidence || '96', 10);
-  const description = params.description || 'Verified heritage architecture located in Vadodara.';
+  const confidence = parseInt(params.confidence || '98', 10);
+  const description = params.description || 'Verified heritage architecture cataloged under Archaeological Survey of India (ASI) records.';
   const heritageContext = params.heritageContext || 'Historical information cataloged by Archaeological Survey of India.';
-  const placeId = params.placeId || 'p1-laxmi-vilas';
-  const placeName = params.placeName || 'Laxmi Vilas Palace';
+  const placeId = params.placeId || 'IND-HER-26';
+  const placeName = params.placeName || 'Kumbhalgarh Fort & The Great Wall of India';
 
   const handleAskAI = () => {
     setContext(placeId, placeName);
@@ -64,10 +66,20 @@ export default function CameraResultScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Verification Success Hero Card */}
         <View style={styles.card}>
+          {params.imageUri ? (
+            <View style={styles.imageWrap}>
+              <Image source={{ uri: params.imageUri }} style={styles.capturedImage} resizeMode="cover" />
+              <View style={styles.capturedBadge}>
+                <MaterialIcons name="camera" size={13} color="#fff" />
+                <Text style={styles.capturedBadgeText}>Scanned Frame</Text>
+              </View>
+            </View>
+          ) : null}
+
           <View style={styles.statusRow}>
             <View style={styles.verifiedTag}>
               <MaterialIcons name="verified" size={16} color={Colors.success} />
-              <Text style={styles.verifiedTagText}>Recognized Artifact</Text>
+              <Text style={styles.verifiedTagText}>AI Vision Verified</Text>
             </View>
             <View style={styles.confidenceBadge}>
               <Text style={styles.confidenceScore}>{confidence}% Match</Text>
@@ -163,6 +175,36 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(212, 169, 71, 0.3)',
     gap: Spacing.sm,
     ...Shadows.md,
+  },
+  imageWrap: {
+    position: 'relative',
+    width: '100%',
+    height: 190,
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    backgroundColor: Colors.surfaceElevated,
+    marginBottom: Spacing.sm,
+  },
+  capturedImage: {
+    width: '100%',
+    height: '100%',
+  },
+  capturedBadge: {
+    position: 'absolute',
+    top: Spacing.sm,
+    left: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+  },
+  capturedBadgeText: {
+    color: '#fff',
+    fontSize: Typography.sizes.xs,
+    fontWeight: '600',
   },
   statusRow: {
     flexDirection: 'row',

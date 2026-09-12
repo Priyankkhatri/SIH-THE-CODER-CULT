@@ -152,6 +152,56 @@ const STATIC_MONUMENTS: Record<string, StaticMonument> = {
       },
     ],
   },
+  'kumbhalgarh': {
+    name: 'Kumbhalgarh Fort & The Great Wall of India',
+    ids: ['IND-HER-26'],
+    passages: [
+      {
+        sourceName: 'Curated Heritage Chronicle',
+        content: 'Built in the 15th century AD by Rana Kumbha of the Sisodia Rajput clan in the western Aravalli Hills, Kumbhalgarh is the birthplace of the legendary warrior king Maharana Pratap and served as an impregnable refuge for the rulers of Mewar in times of strife.',
+      },
+      {
+        sourceName: 'Architectural Engineering',
+        content: 'Encircled by thirty-six kilometers of massive stone ramparts and thick battlements, Kumbhalgarh boasts the second-longest continuous fortification wall on Earth after the Great Wall of China. The walls are broad enough for eight horses to gallop abreast along its parapets.',
+      },
+      {
+        sourceName: 'Monuments Within the Citadel',
+        content: 'The fort encompasses over 360 temples (300 ancient Jain shrines and 60 Hindu shrines), stepwells, and the magnificent two-storey Badal Mahal (Cloud Palace) perched atop the highest peak, offering panoramic vistas across the Thar desert borders.',
+      },
+      {
+        sourceName: 'UNESCO & Military History',
+        content: 'Inscribed as a UNESCO World Heritage Site in 2013 under Hill Forts of Rajasthan. The fortress fell only once in its entire history, and only after an alliance of Mughal and Amber armies poisoned its drinking water supply.',
+      },
+    ],
+  },
+  'chittorgarh': {
+    name: 'Chittorgarh Fort & Vijay Stambha',
+    ids: ['IND-HER-27'],
+    passages: [
+      {
+        sourceName: 'Curated Heritage Chronicle',
+        content: 'Sprawling across a 700-acre rocky hill, Chittorgarh Fort is the grandest citadel in India and the historic capital of Mewar, immortalized by legendary tales of Rajput chivalry, Rani Padmini, and Mirabai.',
+      },
+      {
+        sourceName: 'Architectural Details',
+        content: 'Home to the iconic 9-storey Vijay Stambha (Tower of Victory) built by Rana Kumbha in 1448 to commemorate victory over the sultanates of Malwa and Gujarat, as well as the 12th-century Kirti Stambha (Tower of Fame) dedicated to Adinatha.',
+      },
+    ],
+  },
+  'mehrangarh': {
+    name: 'Mehrangarh Fort (Jodhpur)',
+    ids: ['p-mehrangarh-fort'],
+    passages: [
+      {
+        sourceName: 'Curated Heritage Chronicle',
+        content: 'Towering 400 feet above the blue city of Jodhpur on an imposing perpendicular cliff, Mehrangarh was founded by Rao Jodha in 1459 as the seat of the Rathore dynasty.',
+      },
+      {
+        sourceName: 'Architectural Details',
+        content: 'Features intricate latticed sandstone courtyards, the opulently gilded Sheesh Mahal, Phool Mahal, and world-renowned museum collections of royal palanquins, turbans, and historic weaponry.',
+      },
+    ],
+  },
 };
 
 class AIService {
