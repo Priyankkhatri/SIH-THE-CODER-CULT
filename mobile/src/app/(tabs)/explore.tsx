@@ -23,6 +23,7 @@ import { HeritageMapView } from '../../components/HeritageMapView';
 import { PlaceCard } from '../../components/PlaceCard';
 import { placesApi } from '../../services/api';
 import { getLiveCrowd } from '../../utils/touristMeta';
+import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
 
 const { width, height } = Dimensions.get('window');
 
@@ -40,7 +41,7 @@ export default function ExploreScreen() {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Auto-fetch all cataloged heritage places on mount and category change
+  // Auto-fetch all cataloged heritage places with instant 155+ offline seed fallback
   const loadPlaces = async () => {
     setIsLoading(true);
     try {
@@ -48,15 +49,23 @@ export default function ExploreScreen() {
       const list = Array.isArray(response) ? response : (response?.data || []);
       if (list && list.length > 0) {
         setPlaces(list);
+      } else if (places.length === 0) {
+        setPlaces(ALL_SEED_PLACES);
       }
     } catch (err) {
-      console.warn('[ExploreScreen] Error loading places:', err);
+      console.warn('[ExploreScreen] Error loading places, activating full seed catalog:', err);
+      if (places.length === 0) {
+        setPlaces(ALL_SEED_PLACES);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
+    if (places.length === 0) {
+      setPlaces(ALL_SEED_PLACES);
+    }
     loadPlaces();
   }, [selectedCategory]);
 
@@ -97,12 +106,28 @@ export default function ExploreScreen() {
 
   const centerOnUser = () => {
     if (mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
+      const lat = location.latitude || 22.3072;
+      const lng = location.longitude || 73.1812;
       mapRef.current.animateToRegion({
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: lat,
+        longitude: lng,
         latitudeDelta: 0.08,
         longitudeDelta: 0.08,
       });
+    }
+  };
+
+  const centerGujarat = () => {
+    if (mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
+      mapRef.current.animateToRegion(
+        {
+          latitude: 22.85,
+          longitude: 72.35,
+          latitudeDelta: 3.6,
+          longitudeDelta: 3.6,
+        },
+        500
+      );
     }
   };
 
@@ -227,11 +252,24 @@ export default function ExploreScreen() {
         />
       </View>
 
-      {/* My location button (map mode only) */}
+      {/* Floating Map Actions (map mode only) */}
       {viewMode === 'map' && (
-        <TouchableOpacity style={styles.myLocationBtn} onPress={centerOnUser}>
-          <MaterialIcons name="my-location" size={22} color={Colors.primary} />
-        </TouchableOpacity>
+        <View style={[styles.mapActionCol, selectedPlace ? { bottom: 250 } : {}]}>
+          <TouchableOpacity
+            style={styles.mapActionBtn}
+            onPress={centerGujarat}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons name="public" size={22} color={Colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.mapActionBtn}
+            onPress={centerOnUser}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons name="my-location" size={22} color={Colors.primary} />
+          </TouchableOpacity>
+        </View>
       )}
 
       {/* Bottom place card (map mode only) */}
@@ -411,10 +449,14 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 10,
   },
-  myLocationBtn: {
+  mapActionCol: {
     position: 'absolute',
     right: Spacing.base,
     bottom: 180,
+    gap: 10,
+    zIndex: 15,
+  },
+  mapActionBtn: {
     width: 44,
     height: 44,
     borderRadius: 22,

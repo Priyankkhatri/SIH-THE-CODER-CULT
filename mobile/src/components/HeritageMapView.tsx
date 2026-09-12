@@ -26,31 +26,74 @@ const DARK_MAP_STYLE = [
 
 export function HeritageMapView({
   places,
+  selectedPlace,
   onSelectPlace,
   onPlaceDetails,
   userLocation,
   mapRef,
 }: HeritageMapViewProps) {
+  // 1. Sanitize & filter valid numeric coordinates to prevent any map crash
+  const validPlaces = React.useMemo(() => {
+    return (places || []).filter(
+      (p) =>
+        p &&
+        typeof p.latitude === 'number' &&
+        typeof p.longitude === 'number' &&
+        !isNaN(p.latitude) &&
+        !isNaN(p.longitude) &&
+        p.latitude > 5 &&
+        p.longitude > 5
+    );
+  }, [places]);
+
+  // 2. Smooth auto-focus camera when a place is tapped or searched
+  React.useEffect(() => {
+    if (selectedPlace && mapRef?.current && typeof (mapRef.current as any).animateToRegion === 'function') {
+      const lat = Number(selectedPlace.latitude);
+      const lng = Number(selectedPlace.longitude);
+      if (!isNaN(lat) && !isNaN(lng) && lat > 0) {
+        (mapRef.current as any).animateToRegion(
+          {
+            latitude: lat,
+            longitude: lng,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          },
+          500
+        );
+      }
+    }
+  }, [selectedPlace]);
+
+  // 3. Default wide-angle viewport displaying all of Gujarat & West India heritage
+  const initialRegion = {
+    latitude: 22.85,
+    longitude: 72.35,
+    latitudeDelta: 3.6,
+    longitudeDelta: 3.6,
+  };
+
   return (
     <MapView
       ref={mapRef as any}
       style={styles.map}
-      initialRegion={{
-        latitude: userLocation.latitude,
-        longitude: userLocation.longitude,
-        latitudeDelta: 0.12,
-        longitudeDelta: 0.12,
-      }}
-      showsUserLocation
+      initialRegion={initialRegion}
+      customMapStyle={DARK_MAP_STYLE}
+      loadingEnabled={true}
+      loadingIndicatorColor={Colors.primary}
+      loadingBackgroundColor={Colors.background}
+      showsUserLocation={Boolean(userLocation?.latitude)}
       showsMyLocationButton={false}
-      showsCompass={false}
+      showsCompass={true}
+      toolbarEnabled={false}
     >
-      {places.map((place) => (
+      {validPlaces.map((place) => (
         <Marker
           key={place.id}
           coordinate={{ latitude: place.latitude, longitude: place.longitude }}
           pinColor={CATEGORY_COLORS[place.category] || Colors.primary}
           onPress={() => onSelectPlace(place)}
+          tracksViewChanges={false}
         >
           <Callout tooltip onPress={() => onPlaceDetails(place.id)}>
             <View style={styles.calloutContainer}>
