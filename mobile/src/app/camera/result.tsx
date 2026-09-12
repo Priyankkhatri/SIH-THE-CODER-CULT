@@ -35,7 +35,14 @@ export default function CameraResultScreen() {
 
   const handleAskAI = () => {
     setContext(placeId, placeName);
-    router.push('/(tabs)/ai');
+    router.push({
+      pathname: '/(tabs)/ai',
+      params: {
+        autoAsk: `Tell me the architectural marvels, historical significance, and legends of ${artifactName} at ${placeName}.`,
+        placeId,
+        placeName,
+      },
+    });
   };
 
   const handleViewPlace = () => {
