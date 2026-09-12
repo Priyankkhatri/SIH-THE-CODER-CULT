@@ -146,13 +146,13 @@ const expoHostUri =
 
 const detectedHostIp = expoHostUri ? expoHostUri.split(':')[0] : null;
 
-// Auto-resolves to dev machine LAN IP (192.168.1.92:3000) for mobile devices, or localhost for web
-export const API_BASE_URL = detectedHostIp
-  ? `http://${detectedHostIp}:3000`
-  : Platform.select({
-      web: 'http://localhost:3000',
-      default: 'http://192.168.1.92:3000',
-    });
+// Auto-resolves: On web always use localhost (or window.location.hostname) to prevent network errors.
+// On physical mobile devices (Expo Go), auto-resolve to dev machine LAN IP.
+export const API_BASE_URL = Platform.OS === 'web'
+  ? (typeof window !== 'undefined' && window.location.hostname
+      ? `http://${window.location.hostname}:3000`
+      : 'http://localhost:3000')
+  : (detectedHostIp ? `http://${detectedHostIp}:3000` : 'http://localhost:3000');
 
 
 // Language configuration

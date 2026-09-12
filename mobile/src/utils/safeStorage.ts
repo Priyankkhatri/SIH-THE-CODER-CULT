@@ -9,9 +9,11 @@ class SafeStorage {
 
   async getItem(key: string): Promise<string | null> {
     try {
-      if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
-        const item = window.localStorage.getItem(key);
-        if (item !== null) return item;
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          return window.localStorage.getItem(key);
+        }
+        return memoryStorage.get(key) ?? null;
       }
       const val = await AsyncStorage.getItem(key);
       if (val !== null) return val;
@@ -25,17 +27,20 @@ class SafeStorage {
     // Keep in-memory cache instantly in sync
     memoryStorage.set(key, value);
 
-    // Chain writes sequentially to prevent IndexedDB transaction collisions
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+          window.localStorage.setItem(key, value);
+        } catch {
+          // Quota exceeded or private browsing fallback
+        }
+      }
+      return Promise.resolve();
+    }
+
+    // Native mobile: Chain writes sequentially to prevent storage collisions
     this.writeQueue = this.writeQueue
       .then(async () => {
-        if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
-          try {
-            window.localStorage.setItem(key, value);
-            return;
-          } catch {
-            // fallback if quota exceeded
-          }
-        }
         await AsyncStorage.setItem(key, value);
       })
       .catch((err) => {
@@ -47,14 +52,18 @@ class SafeStorage {
 
   async removeItem(key: string): Promise<void> {
     memoryStorage.delete(key);
+
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+          window.localStorage.removeItem(key);
+        } catch {}
+      }
+      return Promise.resolve();
+    }
+
     this.writeQueue = this.writeQueue
       .then(async () => {
-        if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
-          try {
-            window.localStorage.removeItem(key);
-            return;
-          } catch {}
-        }
         await AsyncStorage.removeItem(key);
       })
       .catch(() => {});
@@ -64,14 +73,18 @@ class SafeStorage {
 
   async clear(): Promise<void> {
     memoryStorage.clear();
+
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+          window.localStorage.clear();
+        } catch {}
+      }
+      return Promise.resolve();
+    }
+
     this.writeQueue = this.writeQueue
       .then(async () => {
-        if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
-          try {
-            window.localStorage.clear();
-            return;
-          } catch {}
-        }
         await AsyncStorage.clear();
       })
       .catch(() => {});
