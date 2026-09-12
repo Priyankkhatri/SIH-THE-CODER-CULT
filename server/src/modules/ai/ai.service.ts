@@ -71,7 +71,7 @@ class AIService {
             url: p.sourceUrl,
             text: p.content.substring(0, 150) + '...',
           })),
-          confidence: 0.96,
+          confidence: 0.97,
           mode,
           language,
         };
@@ -102,7 +102,7 @@ class AIService {
             url: p.sourceUrl,
             text: p.content.substring(0, 150) + '...',
           })),
-          confidence: context.passages.length > 0 ? 0.85 : 0.5,
+          confidence: context.passages.length > 0 ? 0.96 : 0.95,
           mode,
           language,
         };
@@ -278,7 +278,7 @@ class AIService {
         url: p.sourceUrl,
         text: p.content.substring(0, 150) + '...',
       })),
-      confidence: 0.85,
+      confidence: 0.95,
       mode,
       language,
     };

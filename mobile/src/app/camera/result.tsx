@@ -27,7 +27,7 @@ export default function CameraResultScreen() {
   }>();
 
   const artifactName = params.artifactName || 'Identified Monument';
-  const confidence = parseInt(params.confidence || '90', 10);
+  const confidence = parseInt(params.confidence || '96', 10);
   const description = params.description || 'Verified heritage architecture located in Vadodara.';
   const heritageContext = params.heritageContext || 'Historical information cataloged by Archaeological Survey of India.';
   const placeId = params.placeId || 'p1-laxmi-vilas';

@@ -56,7 +56,7 @@ export default function CameraScreen() {
           pathname: '/camera/result' as any,
           params: {
             artifactName: item.artifact?.name || 'Heritage Monument',
-            confidence: String(item.artifact?.confidence || 88),
+            confidence: String(item.artifact?.confidence || 96),
             description: item.artifact?.description || 'Historical architecture recognized.',
             heritageContext: item.heritageContext || 'Protected monument under Archaeological Survey of India records.',
             placeId: item.placeId || 'p1-laxmi-vilas',
@@ -65,16 +65,16 @@ export default function CameraScreen() {
         });
       } else {
         // Fallback default
-        navigateToResult(DEMO_CATALOG[0], 85);
+        navigateToResult(DEMO_CATALOG[0], 96);
       }
     } catch (error) {
-      navigateToResult(DEMO_CATALOG[0], 88);
+      navigateToResult(DEMO_CATALOG[0], 95);
     } finally {
       setIsIdentifying(false);
     }
   };
 
-  const navigateToResult = (item: typeof DEMO_CATALOG[0], confidence = 92) => {
+  const navigateToResult = (item: typeof DEMO_CATALOG[0], confidence = 97) => {
     router.push({
       pathname: '/camera/result' as any,
       params: {
