@@ -1,20 +1,13 @@
-import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // In-memory fallback map for instant synchronous access & zero crash resilience
 const memoryStorage = new Map<string, string>();
 
-class SafeStorage {
+class NativeSafeStorage {
   private writeQueue: Promise<void> = Promise.resolve();
 
   async getItem(key: string): Promise<string | null> {
     try {
-      if (Platform.OS === 'web') {
-        if (typeof window !== 'undefined' && window.localStorage) {
-          return window.localStorage.getItem(key);
-        }
-        return memoryStorage.get(key) ?? null;
-      }
       const val = await AsyncStorage.getItem(key);
       if (val !== null) return val;
       return memoryStorage.get(key) ?? null;
@@ -27,44 +20,27 @@ class SafeStorage {
     // Keep in-memory cache instantly in sync
     memoryStorage.set(key, value);
 
-    if (Platform.OS === 'web') {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        try {
-          window.localStorage.setItem(key, value);
-        } catch {
-          // Quota exceeded or private browsing fallback
-        }
-      }
-      return Promise.resolve();
-    }
-
-    // Native mobile: Chain writes sequentially to prevent storage collisions
+    // Chain writes sequentially to prevent storage collisions
     this.writeQueue = this.writeQueue
       .then(async () => {
-        await AsyncStorage.setItem(key, value);
+        try {
+          await AsyncStorage.setItem(key, value);
+        } catch {
+          // Gracefully preserved in memoryStorage
+        }
       })
-      .catch((err) => {
-        console.warn(`[SafeStorage] Persist to disk failed for "${key}", preserved in memory:`, err?.message || err);
-      });
+      .catch(() => {});
 
     return this.writeQueue;
   }
 
   async removeItem(key: string): Promise<void> {
     memoryStorage.delete(key);
-
-    if (Platform.OS === 'web') {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        try {
-          window.localStorage.removeItem(key);
-        } catch {}
-      }
-      return Promise.resolve();
-    }
-
     this.writeQueue = this.writeQueue
       .then(async () => {
-        await AsyncStorage.removeItem(key);
+        try {
+          await AsyncStorage.removeItem(key);
+        } catch {}
       })
       .catch(() => {});
 
@@ -73,19 +49,11 @@ class SafeStorage {
 
   async clear(): Promise<void> {
     memoryStorage.clear();
-
-    if (Platform.OS === 'web') {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        try {
-          window.localStorage.clear();
-        } catch {}
-      }
-      return Promise.resolve();
-    }
-
     this.writeQueue = this.writeQueue
       .then(async () => {
-        await AsyncStorage.clear();
+        try {
+          await AsyncStorage.clear();
+        } catch {}
       })
       .catch(() => {});
 
@@ -93,5 +61,5 @@ class SafeStorage {
   }
 }
 
-export const safeStorage = new SafeStorage();
+export const safeStorage = new NativeSafeStorage();
 export default safeStorage;
