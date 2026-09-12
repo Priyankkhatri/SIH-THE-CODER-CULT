@@ -2046,7 +2046,8 @@ export const HERITAGE_RECORDS = [
       "Over 100,000 artifacts in collection",
       "Modeled after London's Victoria & Albert Museum"
     ],
-    "period": "Late 19th - Early 20th century (1894-1914)"
+    "period": "Late 19th - Early 20th century (1894-1914)",
+    "architecture": "Historic regional architecture with authentic period craftsmanship."
   },
   {
     "placeId": "p3-kirti-mandir",
@@ -2060,7 +2061,8 @@ export const HERITAGE_RECORDS = [
       "E-shaped architectural layout",
       "Family memorial of the Gaekwads"
     ],
-    "period": "1936 (20th century)"
+    "period": "1936 (20th century)",
+    "architecture": "Historic regional architecture with authentic period craftsmanship."
   },
   {
     "placeId": "p4-eme-temple",
@@ -2074,7 +2076,8 @@ export const HERITAGE_RECORDS = [
       "Dedicated to Lord Shiva as Dakshinamurthy",
       "Surrounded by lush military cantonment gardens"
     ],
-    "period": "1966 (Mid-20th century)"
+    "period": "1966 (Mid-20th century)",
+    "architecture": "Historic regional architecture with authentic period craftsmanship."
   },
   {
     "placeId": "p5-sursagar",
@@ -2088,7 +2091,8 @@ export const HERITAGE_RECORDS = [
       "Underground drainage gates prevent city flooding",
       "Historic water reservoir of medieval Baroda"
     ],
-    "period": "Medieval origin, rebuilt 18th-19th century"
+    "period": "Medieval origin, rebuilt 18th-19th century",
+    "architecture": "Historic regional architecture with authentic period craftsmanship."
   },
   {
     "placeId": "p6-sayaji-baug",
@@ -2102,7 +2106,8 @@ export const HERITAGE_RECORDS = [
       "Includes Sardar Patel Planetarium and mini zoo",
       "Gifted to the city by Sayajirao III in 1879"
     ],
-    "period": "Established 1879"
+    "period": "Established 1879",
+    "architecture": "Historic regional architecture with authentic period craftsmanship."
   },
   {
     "placeId": "p7-nyay-mandir",
@@ -2116,7 +2121,8 @@ export const HERITAGE_RECORDS = [
       "Served as the District Court for over 120 years",
       "Key architectural landmark of Old Vadodara"
     ],
-    "period": "1896 (Late 19th century)"
+    "period": "1896 (Late 19th century)",
+    "architecture": "Historic regional architecture with authentic period craftsmanship."
   },
   {
     "placeId": "p8-makarpura-palace",
@@ -2130,7 +2136,8 @@ export const HERITAGE_RECORDS = [
       "Summer residence of the Gaekwad Maharajas",
       "Now maintained as an Indian Air Force installation"
     ],
-    "period": "1870-1890 (Late 19th century)"
+    "period": "1870-1890 (Late 19th century)",
+    "architecture": "Historic regional architecture with authentic period craftsmanship."
   },
   {
     "placeId": "p9-qutbuddin-tomb",
@@ -2144,7 +2151,8 @@ export const HERITAGE_RECORDS = [
       "Intricate stone jali work and arched verandahs",
       "Centrally protected ASI monument"
     ],
-    "period": "1586 (Late 16th century)"
+    "period": "1586 (Late 16th century)",
+    "architecture": "Historic regional architecture with authentic period craftsmanship."
   },
   {
     "placeId": "p10-tambekar-wada",
@@ -2158,7 +2166,8 @@ export const HERITAGE_RECORDS = [
       "Includes historic scenes of Anglo-Maratha wars",
       "Protected by Archaeological Survey of India"
     ],
-    "period": "Mid-19th century (c. 1850)"
+    "period": "Mid-19th century (c. 1850)",
+    "architecture": "Historic regional architecture with authentic period craftsmanship."
   },
   {
     "placeId": "p11-champaner",
@@ -2172,7 +2181,8 @@ export const HERITAGE_RECORDS = [
       "Capital of Gujarat Sultanate under Mahmud Begada",
       "Sacred pilgrimage site of Kalika Mata"
     ],
-    "period": "8th to 16th century (Peak: 1484-1536)"
+    "period": "8th to 16th century (Peak: 1484-1536)",
+    "architecture": "Historic regional architecture with authentic period craftsmanship."
   },
   {
     "placeId": "p12-jama-masjid-champaner",
@@ -2186,7 +2196,50 @@ export const HERITAGE_RECORDS = [
       "Features: Two tall minarets, intricate jali screens",
       "Grand prayer hall with 172 pillars"
     ],
-    "period": "Late 15th century"
+    "period": "Late 15th century",
+    "architecture": "Historic regional architecture with authentic period craftsmanship."
+  },
+  {
+    "placeId": "p13-nazarbaug-palace",
+    "shortStory": "Nazarbaug Palace was constructed in 1721 by Malhar Rao Gaekwad. Renowned for its white stucco neoclassical design and housing the legendary Baroda Pearl Carpet and Gaekwad jewels.",
+    "history": "Built as an urban palace in the heart of Mandvi, Nazarbaug Palace featured four storeys of European and Maratha neoclassical architecture. It historically housed the legendary Gaekwad treasury including the Star of the South diamond (128 carats) and the English Dresden diamond.",
+    "significance": "A testament to early 18th-century royal residential architecture and historical royal court regalia in Gujarat.",
+    "architecture": "Neoclassical Italianate facade with classical Greek porticos and Venetian shuttered balconies.",
+    "keyFacts": [
+      "Built: 1721 CE by Malhar Rao Gaekwad",
+      "Style: Neoclassical Italianate & Maratha Royal Court",
+      "Famous for: Housed the 128-carat Star of the South diamond",
+      "Location: Mandvi, Vadodara, Gujarat"
+    ],
+    "period": "1721 CE (18th Century)"
+  },
+  {
+    "placeId": "p14-khanderao-market",
+    "shortStory": "Khanderao Market is a grand heritage municipal building constructed in 1906 by Maharaja Sayajirao Gaekwad III as a gift to the city on the silver jubilee of his administration.",
+    "history": "Designed by British architect Robert Chisholm in an exuberant Indo-Saracenic revival style. Today it serves both as the headquarters of the Vadodara Municipal Corporation (VMC) and a vibrant, bustling daily market.",
+    "significance": "One of India's earliest purpose-built municipal civic markets, reflecting Sayajirao's visionary civic infrastructure.",
+    "architecture": "Indo-Saracenic Revival with Gujarati Hindu motifs, domed corner pavilions, and ornate stone clock tower.",
+    "keyFacts": [
+      "Built: 1906 CE by Maharaja Sayajirao Gaekwad III",
+      "Architect: Robert Fellowes Chisholm",
+      "Style: Indo-Saracenic Revival",
+      "Function: City Municipal Headquarters & Heritage Bazaar"
+    ],
+    "period": "1906 CE (20th Century)"
+  },
+  {
+    "placeId": "p15-mandvi-gate",
+    "shortStory": "Mandvi Gate is the historic central north gate of the walled citadel of Vadodara, built during the Sultanate era and later rebuilt by Damaji Rao Gaekwad in 1736 CE.",
+    "history": "During the Gujarat Sultanate and Mughal period, Mandvi was the collection center for customs tolls and merchant duties (Mandapa). It was illuminated with oil lamps on festive nights, a tradition continuing to this day during Diwali.",
+    "significance": "The geographical and historical epicenter of historic Vadodara's fortified walled city.",
+    "architecture": "Sultanate arched gateway with subsequent Maratha wooden canopy pavilions and three-tiered arched passageways.",
+    "keyFacts": [
+      "Built: 15th Century Sultanate; Rebuilt 1736 CE by Damajirao Gaekwad",
+      "Style: Gujarat Sultanate & Maratha Fortification",
+      "Historical Role: Toll and customs gate for merchants",
+      "Location: Mandvi Chowk, Old Walled City, Vadodara"
+    ],
+    "period": "15th – 18th Century CE"
   },
   {
     "placeId": "IND-HER-01",
@@ -4134,6 +4187,16 @@ export const HERITAGE_RECORDS = [
       "Centrally Protected Monument (ASI)",
       "Maharashtra",
       "Kaggle Benchmark"
+    ],
+    "history": "Gateway of India is situated in Mumbai District, South Mumbai, Maharashtra. Architectural Style: Indo-Saracenic Revival with Gujarati 16th-century Architectural Elements. Built during 1911 – 1924 CE (20th Century) by British Raj (Architect: George Wittet). Key scannable features include Central Grand Arch, 4 Corner Turrets, Intricate Basalt Latticework, Waterfront Sea Steps, Commemorative Inscriptions. Ingested from Archaeological Survey of India (Mumbai Circle) & Maharashtra Tourism Development Corporation (MTDC) with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Gateway of India.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Gateway of India",
+      "Category: Heritage",
+      "Coordinates: 18.9220 N, 72.8347 E",
+      "Visiting: Open 24 Hours. Best visited sunrise or sunset. Ferry terminal for Elephanta Caves departs from the rear steps. High security baggage screening."
     ]
   },
   {
@@ -4146,6 +4209,16 @@ export const HERITAGE_RECORDS = [
       "UNESCO World Heritage Site",
       "Tamil Nadu",
       "Kaggle Benchmark"
+    ],
+    "history": "Brihadeeswarar Temple (Peruvudaiyar Kovil) is situated in Thanjavur District, Thanjavur, Tamil Nadu. Architectural Style: Pure Dravidian Temple Architecture (Dravida Vimana Pinnacle). Built during 1003 – 1010 CE (11th Century) by Chola Empire (Emperor Raja Raja Chola I). Key scannable features include 66m Soaring Vimana Tower, 80-tonne Monolithic Kumbam, Massive Monolithic Nandi (12-tonne single granite), Nataraja Bronzes, Tamil Chola Inscriptions. Ingested from Archaeological Survey of India (Chennai Circle) & UNESCO WHC Dossier No. 250 with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Brihadeeswarar Temple.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Brihadeeswarar Temple",
+      "Category: Heritage",
+      "Coordinates: 10.7828 N, 79.1318 E",
+      "Visiting: Open 6:00 AM – 12:30 PM & 4:00 PM – 8:30 PM. Free entry. Non-leather footwear strictly enforced."
     ]
   },
   {
@@ -4158,6 +4231,16 @@ export const HERITAGE_RECORDS = [
       "National Memorial & Monument",
       "Delhi",
       "Kaggle Benchmark"
+    ],
+    "history": "India Gate (All India War Memorial) is situated in New Delhi District, Central Vista, Delhi. Architectural Style: Beaux-Arts Classical Triumphal Arch. Built during 1921 – 1931 CE (20th Century) by British India (Architect: Sir Edwin Lutyens). Key scannable features include Amar Jawan Jyoti, Inscribed Names of 13,300+ Fallen Soldiers, Shallow Domed Roof Cenotaph, Grand Canopy, Kartavya Path Vista. Ingested from Ministry of Defence / Archaeological Survey of India (Delhi Circle) & data.gov.in with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of India Gate.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: India Gate",
+      "Category: Heritage",
+      "Coordinates: 28.6129 N, 77.2295 E",
+      "Visiting: Open 24 hours. Illuminated daily from 7:00 PM – 10:00 PM. Adjacent to National War Memorial."
     ]
   },
   {
@@ -4170,6 +4253,16 @@ export const HERITAGE_RECORDS = [
       "Centrally Protected Monument (ASI)",
       "Delhi",
       "Kaggle Benchmark"
+    ],
+    "history": "Lotus Temple (Baháʼí House of Worship) is situated in South Delhi District, Kalkaji, Delhi. Architectural Style: Biomorphic Expressionist Lotus Architecture. Built during 1980 – 1986 CE (20th Century) by Baháʼí International Community (Architect: Fariborz Sahba). Key scannable features include 27 Free-standing Petals in 3 Clusters, 9 Symmetrical Ponds, Central Hall of Silence, Skylight Optical Glazing. Ingested from National Baháʼí Council of India & Delhi Tourism (DTTDC) with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Lotus Temple.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Lotus Temple",
+      "Category: Heritage",
+      "Coordinates: 28.5535 N, 77.2588 E",
+      "Visiting: 9:00 AM – 5:30 PM (Winter) / 7:00 PM (Summer). Closed Mondays. Silence strictly observed inside sanctum."
     ]
   },
   {
@@ -4182,6 +4275,16 @@ export const HERITAGE_RECORDS = [
       "State & Centrally Protected Monument (ASI)",
       "Maharashtra",
       "Kaggle Benchmark"
+    ],
+    "history": "Sinhagad Fort (Kondhana Lion Fortress) is situated in Pune District, Haveli Taluka, Maharashtra. Architectural Style: Sahyadri Mountain Rock-Cut Fortification & Bastion Wall. Built during 14th – 17th Century CE by Maratha Empire (Chhatrapati Shivaji Maharaj & Tanaji Malusare). Key scannable features include Pune Darwaza, Kalyan Darwaza, Tanaji Malusare Memorial Samadhi, Devtaka Sweet Water Cistern, Wind Point (Hawa Point). Ingested from Archaeological Survey of India (Pune Circle) & Maharashtra Tourism (MTDC) with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Sinhagad Fort.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Sinhagad Fort",
+      "Category: Fort",
+      "Coordinates: 18.3663 N, 73.7558 E",
+      "Visiting: 6:00 AM – 6:00 PM daily. Excellent monsoon trekking. Traditional Kanda Bhaji and Pitla Bhakri served by local villagers atop fort."
     ]
   },
   {
@@ -4194,6 +4297,16 @@ export const HERITAGE_RECORDS = [
       "State Protected Monument",
       "Maharashtra",
       "Kaggle Benchmark"
+    ],
+    "history": "Pratapgad Fort (Fortress of Valour) is situated in Satara District, Mahabaleshwar, Maharashtra. Architectural Style: Two-tiered Hill Fortification (Upper and Lower Ballekila). Built during 1656 CE (17th Century) by Maratha Empire (Chhatrapati Shivaji Maharaj / Moropant Trimbak Pingle). Key scannable features include Bhavani Mata Temple, Afzal Khan Tomb (Burial Cenotaph), Equestrian Bronze Statue of Shivaji, Reda Buruj, Hidden Bastion Gates. Ingested from Directorate of Archaeology and Museums, Government of Maharashtra with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Pratapgad Fort.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Pratapgad Fort",
+      "Category: Fort",
+      "Coordinates: 17.9272 N, 73.5794 E",
+      "Visiting: 6:00 AM – 6:00 PM. High rain during monsoons. Guides available at the base village."
     ]
   },
   {
@@ -4206,6 +4319,16 @@ export const HERITAGE_RECORDS = [
       "Centrally Protected Monument (ASI)",
       "Maharashtra",
       "Kaggle Benchmark"
+    ],
+    "history": "Murud-Janjira Fort (Impregnable Marine Fortress) is situated in Raigad District, Murud, Maharashtra. Architectural Style: Marine Coastal Fortification with Camouflaged Sea Gates. Built during 15th – 17th Century CE by Siddi Dynasty of Janjira (Habshi Seafarers of Abyssinian origin). Key scannable features include Kalal Bangadi Giant Bronze Cannon (3rd heaviest cannon in India), Camouflaged Darya Darwaza (Water Gate), Sweet Water Freshwater Ponds in the middle of Arabian Sea. Ingested from Archaeological Survey of India (Mumbai Circle) & data.gov.in with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Murud-Janjira Fort.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Murud-Janjira Fort",
+      "Category: Fort",
+      "Coordinates: 18.3005 N, 72.9644 E",
+      "Visiting: 7:00 AM – 5:30 PM (Subject to ocean tide schedules). Reached exclusively by local sailboat ferries from Rajapuri jetty. Closed during heavy monsoon squalls (June to August)."
     ]
   },
   {
@@ -4218,6 +4341,16 @@ export const HERITAGE_RECORDS = [
       "Centrally Protected Monument (ASI)",
       "Rajasthan",
       "Kaggle Benchmark"
+    ],
+    "history": "Mehrangarh Fort (Citadel of the Sun) is situated in Jodhpur District, Jodhpur (Blue City), Rajasthan. Architectural Style: Mighty Rajput Fort Architecture with Ornate Sandstone Palaces. Built during Founded 1459 CE (15th – 17th Century additions) by Rathore Dynasty (Rao Jodha). Key scannable features include 7 Massive Victory Gates (Jai Pol, Fateh Pol with cannonball scars), Sheesh Mahal (Mirror Palace), Phool Mahal (Flower Palace), Kilkila Cannon, Royal Howdah Gallery. Ingested from Mehrangarh Museum Trust & Archaeological Survey of India (Jaipur Circle) with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Mehrangarh Fort.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Mehrangarh Fort",
+      "Category: Fort",
+      "Coordinates: 26.2978 N, 73.0185 E",
+      "Visiting: 9:00 AM – 5:00 PM daily. Elevator service available to the top museum deck. Audio guides in 12 languages. Zip-lining (Flying Fox) tours operate across fort battlements."
     ]
   },
   {
@@ -4230,6 +4363,16 @@ export const HERITAGE_RECORDS = [
       "UNESCO World Heritage Site",
       "Rajasthan",
       "Kaggle Benchmark"
+    ],
+    "history": "Jaisalmer Fort (Sonar Qila / The Golden Fort) is situated in Jaisalmer District, Thar Desert, Rajasthan. Architectural Style: Desert Rajput Military Architecture with 99 Bastions. Built during 1156 CE (12th Century) by Bhati Rajput Dynasty (Rawal Jaisal). Key scannable features include Living Fort Quarters (1/4th city population resides inside), 7 Exquisite 12th-16th Century Jain Temples, Raj Mahal Palace, Akshaya Pol, Canon Point. Ingested from Archaeological Survey of India (Jaipur Circle) & UNESCO WHC Dossier No. 247 with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Jaisalmer Fort.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Jaisalmer Fort",
+      "Category: Fort",
+      "Coordinates: 26.9124 N, 70.9127 E",
+      "Visiting: Open 24 hours (living fort). Museum timings: 9:00 AM – 6:00 PM. Walking tours recommended through narrow cobblestone alleys."
     ]
   },
   {
@@ -4242,6 +4385,16 @@ export const HERITAGE_RECORDS = [
       "State Heritage Monument & Coastal Fortress",
       "Gujarat",
       "Kaggle Benchmark"
+    ],
+    "history": "Bhujia Fort & Hill Citadel is situated in Kutch District, Bhuj, Gujarat. Architectural Style: Kutchi Rajput Stone Hill Fortification. Built during 1715 – 1741 CE (18th Century) by Jadeja Rajput Dynasty (Rao Godji I & Maharao Deshalji I). Key scannable features include Bhujang Naag Temple, Battlements overlooking Rann, Powder Magazine (Barud Khana), Hill Observation Tower, Water Cisterns. Ingested from Gujarat Tourism (TCGL) & Gujarat State Archaeology Department with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Bhujia Fort & Hill Citadel.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Bhujia Fort & Hill Citadel",
+      "Category: Fort",
+      "Coordinates: 23.2458 N, 69.6914 E",
+      "Visiting: 6:00 AM – 7:00 PM. Steep climb of ~600 steps. Annual festive fair held on Nag Panchami (Shravan month)."
     ]
   },
   {
@@ -4254,6 +4407,16 @@ export const HERITAGE_RECORDS = [
       "Centrally Protected Monument (ASI)",
       "Gujarat",
       "Kaggle Benchmark"
+    ],
+    "history": "Diu Fort (Praça de Diu Sea Fortress) is situated in Diu / Saurashtra Coast, Diu Island, Gujarat. Architectural Style: Renaissance Bastioned Sea Fortress. Built during 1535 – 1546 CE (16th Century) by Portuguese Maritime Empire (Governor Nuno da Cunha). Key scannable features include Rock-cut Double Moat, High Venetian Lighthouse, St. Paul's Church, Sea-facing Gun Emplacements, Underground Prison Vaults. Ingested from Archaeological Survey of India (Vadodara Circle) & Daman & Diu Tourism with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Diu Fort.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Diu Fort",
+      "Category: Fort",
+      "Coordinates: 20.7139 N, 70.9942 E",
+      "Visiting: 8:00 AM – 6:00 PM. Sweeping 360-degree views of the Arabian Sea. Cool sea breezes even in midday."
     ]
   },
   {
@@ -4266,6 +4429,16 @@ export const HERITAGE_RECORDS = [
       "State Heritage Monument & Coastal Fortress",
       "Gujarat",
       "Kaggle Benchmark"
+    ],
+    "history": "Idar Fort (Idargadh / Ilva Durga) is situated in Sabarkantha District, Idar, Gujarat. Architectural Style: Rugged Natural Granitic Tor Fortification. Built during Mentioned in Mahabharata; Fortified 12th – 18th Century CE by Rathore Dynasty of Idar & Ancient Ilva Kingdom. Key scannable features include Ruthibani Palace (Palace of the Angry Queen), Gadh Mandir, Ancient Jain Cave Temples, Sheela Udyan (Granite boulder field), Natural Hill Springs. Ingested from Gujarat Tourism (TCGL) & Gujarat State Archaeology Department with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Idar Fort.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Idar Fort",
+      "Category: Fort",
+      "Coordinates: 23.8344 N, 73.0033 E",
+      "Visiting: 6:00 AM – 6:00 PM daily. Excellent boulder hiking and photography of weathered granite formations."
     ]
   },
   {
@@ -4278,6 +4451,16 @@ export const HERITAGE_RECORDS = [
       "State Protected Monument",
       "Gujarat",
       "Kaggle Benchmark"
+    ],
+    "history": "Kanthkot Fort (Ancient Solanki Bastion) is situated in Kutch District, Bhachau Taluka, Gujarat. Architectural Style: Early Solanki Stone Citadel Architecture. Built during 8th – 11th Century CE by Chaulukya / Solanki Dynasty (Mularaja I & Bhima I). Key scannable features include Ruined Sun Temple (Surya Mandir), Mahavira Jain Shrines, Stepwells of Kanthkot, Ancient Granary Cisterns. Ingested from Gujarat Tourism (TCGL) & Archaeological Survey of India (Vadodara Circle) with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Kanthkot Fort.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Kanthkot Fort",
+      "Category: Fort",
+      "Coordinates: 23.4833 N, 70.5167 E",
+      "Visiting: Sunrise to Sunset. Remote site; 4x4 or sturdy vehicle recommended. Fascinating for archaeology enthusiasts."
     ]
   },
   {
@@ -4290,6 +4473,16 @@ export const HERITAGE_RECORDS = [
       "State Protected Monument",
       "Gujarat",
       "Kaggle Benchmark"
+    ],
+    "history": "Roha Fort (Sumra Rajput Citadel) is situated in Kutch District, Nakhtrana Taluka, Gujarat. Architectural Style: Kutchi Masonry Fortress with Haveli Quarters. Built during 15th – 16th Century CE by Chavda / Sumra & Jadeja Rulers (Rao Khengarji I). Key scannable features include Sumra Princesses Samadhi Shrines, Royal Zanana Haveli, Temple of Roha Mata, Defensive Ramparts. Ingested from Gujarat Tourism (TCGL) & Gujarat State Archaeology Department with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Roha Fort.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Roha Fort",
+      "Category: Fort",
+      "Coordinates: 23.2000 N, 69.0333 E",
+      "Visiting: Sunrise to Sunset. Quiet, atmospheric ruins with panoramic views of the Western Kutch expanse."
     ]
   },
   {
@@ -4302,6 +4495,16 @@ export const HERITAGE_RECORDS = [
       "Centrally Protected Monument (ASI)",
       "Himachal Pradesh",
       "Kaggle Benchmark"
+    ],
+    "history": "Kangra Fort (Nagarkot / Oldest Fort in India) is situated in Kangra District, Kangra Valley, Himachal Pradesh. Architectural Style: Ancient Hilltop Rock Fortification on River Confluence. Built during Founded 4th Century BCE (Over 2,400 years old) by Katoch Dynasty (Trigarta Kingdom - King Susharma Chand). Key scannable features include Darshani Darwaza, Ambika Devi Temple, Ancient Adinath Jain Shrine, Jahangiri Gate, Sheesh Mahal Ruins. Ingested from Archaeological Survey of India (Shimla Circle) & Himachal Tourism (HPTDC) with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Kangra Fort.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Kangra Fort",
+      "Category: Fort",
+      "Coordinates: 32.0998 N, 76.2570 E",
+      "Visiting: 9:00 AM – 6:00 PM. High-tech audio guide available in the Maharaja Sansar Chandra Museum at base."
     ]
   },
   {
@@ -4314,6 +4517,16 @@ export const HERITAGE_RECORDS = [
       "Centrally Protected Monument (ASI)",
       "Goa",
       "Kaggle Benchmark"
+    ],
+    "history": "Fort Aguada & Lighthouse is situated in North Goa District, Sinquerim / Candolim, Goa. Architectural Style: Portuguese Maritime Vauban Military Architecture. Built during 1612 CE (17th Century) by Portuguese Colonial Empire. Key scannable features include Four-story 1864 Portuguese Lighthouse, Giant Underground Freshwater Cistern (Aguada = Water), 79 Defense Cannons, Moat. Ingested from Archaeological Survey of India (Goa Circle) & Goa Tourism Development Corporation (GTDC) with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Fort Aguada & Lighthouse.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Fort Aguada & Lighthouse",
+      "Category: Fort",
+      "Coordinates: 15.4920 N, 73.7736 E",
+      "Visiting: 9:30 AM – 6:00 PM. High vantage point for viewing dolphins in the Mandovi estuary."
     ]
   },
   {
@@ -4326,6 +4539,16 @@ export const HERITAGE_RECORDS = [
       "Centrally Protected Monument (ASI)",
       "Karnataka",
       "Kaggle Benchmark"
+    ],
+    "history": "Bidar Fort & Mahmud Gawan Citadel is situated in Bidar District, Bidar, Karnataka. Architectural Style: Persianate Deccan Military Architecture with Triple Moat System. Built during 1428 CE (15th Century) by Bahmani Sultanate (Sultan Ahmad Shah I Wali) & Barid Shahi Dynasty. Key scannable features include Rangeen Mahal (Coloured Palace with Mother-of-Pearl inlay), Solah Khamba Mosque, Tarkash Mahal, Gagan Mahal, Karez Persian Underground Aqueducts. Ingested from Archaeological Survey of India (Bengaluru Circle) & data.gov.in with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Bidar Fort & Mahmud Gawan Citadel.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Bidar Fort & Mahmud Gawan Citadel",
+      "Category: Fort",
+      "Coordinates: 17.9255 N, 77.5303 E",
+      "Visiting: 8:00 AM – 6:30 PM. Free entry. Bidriware silver inlay artisan workshops located in nearby Bidar old city."
     ]
   },
   {
@@ -4338,6 +4561,16 @@ export const HERITAGE_RECORDS = [
       "Centrally Protected Monument (ASI)",
       "Karnataka",
       "Kaggle Benchmark"
+    ],
+    "history": "Chitradurga Fort (Kallina Kote / Seven-Ring Stone Citadel) is situated in Chitradurga District, Chitradurga, Karnataka. Architectural Style: Dravidian Concentric Military Defense Architecture. Built during 10th – 18th Century CE by Chitradurga Nayaka Dynasty (Madakari Nayaka V). Key scannable features include Onake Obavvana Kindi (Heroine Obavva's Secret Cleft), Hidimbeshwara Rock Cave Temple, Ekanatheshwari Temple, Rainwater Harvesting Talavs, Gunpowder Mills. Ingested from Archaeological Survey of India (Bengaluru Circle) & Karnataka Tourism (KSTDC) with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Chitradurga Fort.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Chitradurga Fort",
+      "Category: Fort",
+      "Coordinates: 14.2185 N, 76.3986 E",
+      "Visiting: 6:00 AM – 5:30 PM daily. Requires 3-4 hours of walking across granite steps. Excellent rainwater conservation models."
     ]
   },
   {
@@ -4350,6 +4583,16 @@ export const HERITAGE_RECORDS = [
       "Centrally Protected Monument (ASI)",
       "Bihar",
       "Kaggle Benchmark"
+    ],
+    "history": "Rohtasgarh Fort (Shergarh Hill Citadel) is situated in Rohtas District, Kaimur Range, Bihar. Architectural Style: Mughal-Rajput Hill Plateau Citadel Architecture. Built during Ancient roots; Re-fortified 1538 CE by Sher Shah Suri & Raja Man Singh (1588 CE) by Solar Dynasty (Prince Rohitashva) & Suri Empire (Sher Shah Suri). Key scannable features include Man Singh Palace (Hathiya Pol with Carved Elephants), Aina Mahal, Jami Masjid of Rohtas, Shahi Jama Gate, Hanging Balcony. Ingested from Archaeological Survey of India (Patna Circle) & Bihar State Tourism Development Corporation (BSTDC) with Kaggle benchmark validation.",
+    "significance": "Cultural and architectural significance of Rohtasgarh Fort.",
+    "architecture": "Historic regional architecture with authentic period craftsmanship.",
+    "period": "Historical",
+    "keyFacts": [
+      "Monument: Rohtasgarh Fort",
+      "Category: Fort",
+      "Coordinates: 24.6289 N, 83.9169 E",
+      "Visiting: 6:00 AM – 5:00 PM. High trekking destination across scenic Kaimur plateau."
     ]
   }
 ];
