@@ -24,6 +24,14 @@ import { LocalArtisansSection } from '../../components/LocalArtisansSection';
 
 const { width } = Dimensions.get('window');
 
+const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
+  heritage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80',
+  museum: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=1200&q=80',
+  culture: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=80',
+  food: 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=1200&q=80',
+  activity: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1200&q=80',
+};
+
 interface HeritageDetail {
   shortStory: string;
   history: string;
@@ -58,11 +66,15 @@ export default function PlaceDetailScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSection, setExpandedSection] = useState<string | null>('story');
   const [sosVisible, setSosVisible] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const isFavorite = id ? favorites.includes(id) : false;
 
   useEffect(() => {
-    if (id) loadHeritage();
+    if (id) {
+      setImageError(false);
+      loadHeritage();
+    }
   }, [id]);
 
   const loadHeritage = async () => {
@@ -185,24 +197,11 @@ export default function PlaceDetailScreen() {
   const safeKeyFacts = Array.isArray(heritage.keyFacts) ? heritage.keyFacts : [];
   const safeSources = Array.isArray(heritage.sources) ? heritage.sources : [];
 
-  const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
-    heritage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80',
-    museum: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=1200&q=80',
-    culture: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=80',
-    food: 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=1200&q=80',
-    activity: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1200&q=80',
-  };
-
   const defaultHeroFallback = CATEGORY_FALLBACK_IMAGES[category] || CATEGORY_FALLBACK_IMAGES.heritage;
   const rawHeroUri = placeObj.imageUrl;
-  const initialHeroUri = (rawHeroUri && !rawHeroUri.includes('upload.wikimedia.org')) ? rawHeroUri : defaultHeroFallback;
-  const [heroUri, setHeroUri] = useState<string>(initialHeroUri);
-
-  useEffect(() => {
-    const raw = placeObj?.imageUrl;
-    const fallback = CATEGORY_FALLBACK_IMAGES[category] || CATEGORY_FALLBACK_IMAGES.heritage;
-    setHeroUri((raw && !raw.includes('upload.wikimedia.org')) ? raw : fallback);
-  }, [placeObj?.imageUrl, category]);
+  const heroUri = (!imageError && rawHeroUri && !rawHeroUri.includes('upload.wikimedia.org')) 
+    ? rawHeroUri 
+    : defaultHeroFallback;
 
   return (
     <View style={styles.container}>
@@ -215,7 +214,7 @@ export default function PlaceDetailScreen() {
             contentFit="cover"
             placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
             transition={300}
-            onError={() => setHeroUri(defaultHeroFallback)}
+            onError={() => setImageError(true)}
           />
           <View style={styles.heroOverlay} />
 
