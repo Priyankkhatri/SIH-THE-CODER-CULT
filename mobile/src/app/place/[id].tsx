@@ -195,14 +195,15 @@ export default function PlaceDetailScreen() {
 
   const handleDirections = () => {
     if (!heritage) return;
-    const latitude = heritage.place?.latitude ?? 22.3072;
-    const longitude = heritage.place?.longitude ?? 73.1812;
     const name = heritage.placeName || heritage.place?.name || 'Heritage Site';
-    const url = Platform.select({
-      ios: `maps:0,0?q=${latitude},${longitude}`,
-      android: `geo:${latitude},${longitude}?q=${latitude},${longitude}(${name})`,
+    router.push({
+      pathname: '/(tabs)/explore',
+      params: {
+        destinationId: id,
+        destinationName: name,
+        routeTo: 'true',
+      },
     });
-    if (url) Linking.openURL(url);
   };
 
   const toggleSection = (section: string) => {

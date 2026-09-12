@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } from '../../constants/theme';
 import { usePlacesStore, useChatStore } from '../../stores';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -26,12 +26,19 @@ import { PlaceCardVerticalSkeleton } from '../../components/Skeleton';
 import { placesApi } from '../../services/api';
 import { getLiveCrowd } from '../../utils/touristMeta';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
+import { dynamicImageService } from '../../services/dynamicImageService';
+import { getRoute, RouteResult } from '../../utils/routeService';
 
 const { width, height } = Dimensions.get('window');
 
 export default function ExploreScreen() {
   const router = useRouter();
   const location = useLocation();
+  const params = useLocalSearchParams<{
+    destinationId?: string;
+    destinationName?: string;
+    routeTo?: string;
+  }>();
   const { places, setPlaces } = usePlacesStore();
   const { setContext } = useChatStore();
   const { t, getPlaceName } = useTranslation();
@@ -44,6 +51,9 @@ export default function ExploreScreen() {
   const [mapLayer, setMapLayer] = useState<MapLayerType>('streets');
   const [showLayerPicker, setShowLayerPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [routeDestination, setRouteDestination] = useState<Place | null>(null);
+  const [routeInfo, setRouteInfo] = useState<RouteResult | null>(null);
 
   // Auto-fetch all cataloged heritage places with instant 155+ offline seed fallback
   const loadPlaces = async () => {
@@ -73,8 +83,17 @@ export default function ExploreScreen() {
     loadPlaces();
   }, [selectedCategory]);
 
+  // Merge loaded places with the offline catalog to ensure all 155+ sites are always searchable
+  const allCatalogPlaces = React.useMemo(() => {
+    if (places.length >= ALL_SEED_PLACES.length) return places;
+    const map = new Map<string, Place>();
+    for (const p of ALL_SEED_PLACES) map.set(p.id, p);
+    for (const p of places) map.set(p.id, p);
+    return Array.from(map.values());
+  }, [places]);
+
   // Comprehensive filter by category, crowd level & real-time search query
-  const filteredPlaces = places.filter((p) => {
+  const filteredPlaces = allCatalogPlaces.filter((p) => {
     const matchesCategory = !selectedCategory || p.category === selectedCategory;
     if (!matchesCategory) return false;
 
@@ -89,6 +108,74 @@ export default function ExploreScreen() {
     const descMatch = (p.shortDescription || '').toLowerCase().includes(q);
     return nameMatch || descMatch;
   });
+
+  // Top suggestions for the search dropdown
+  const searchSuggestions = React.useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase().trim();
+    return allCatalogPlaces
+      .filter((p) => {
+        const nameMatch = p.name.toLowerCase().includes(q) || (p.nameHi && p.nameHi.toLowerCase().includes(q));
+        const descMatch = (p.shortDescription || '').toLowerCase().includes(q);
+        return nameMatch || descMatch;
+      })
+      .slice(0, 6);
+  }, [searchQuery, allCatalogPlaces]);
+
+  // Starts in-app route drawing with direction arrow and fits camera
+  const startNavigationTo = async (place: Place) => {
+    setSelectedPlace(place);
+    setRouteDestination(place);
+    const userLat = location.latitude || 22.3072;
+    const userLng = location.longitude || 73.1812;
+
+    try {
+      const route = await getRoute(userLat, userLng, place.latitude, place.longitude);
+      setRouteInfo(route);
+
+      if (mapRef.current?.fitToCoordinates && route.coordinates.length > 0) {
+        mapRef.current.fitToCoordinates(
+          [
+            { latitude: userLat, longitude: userLng },
+            { latitude: place.latitude, longitude: place.longitude },
+          ],
+          {
+            edgePadding: { top: 160, right: 60, bottom: 280, left: 60 },
+            animated: true,
+          }
+        );
+      }
+    } catch (err) {
+      console.warn('[ExploreScreen] Route fetch notice:', err);
+    }
+  };
+
+  // Listen for navigation parameters (e.g. from Home tab Explore button)
+  useEffect(() => {
+    if (params.destinationId || params.destinationName) {
+      const target = allCatalogPlaces.find(
+        (p) =>
+          (params.destinationId && p.id === params.destinationId) ||
+          (params.destinationName && p.name.toLowerCase().includes(params.destinationName.toLowerCase()))
+      );
+      if (target) {
+        setSelectedPlace(target);
+        if (params.routeTo === 'true' || params.routeTo === '1') {
+          startNavigationTo(target);
+        } else if (mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
+          mapRef.current.animateToRegion(
+            {
+              latitude: target.latitude,
+              longitude: target.longitude,
+              latitudeDelta: 0.04,
+              longitudeDelta: 0.04,
+            },
+            600
+          );
+        }
+      }
+    }
+  }, [params.destinationId, params.destinationName, params.routeTo, allCatalogPlaces]);
 
   const handleMarkerPress = (place: Place) => {
     setSelectedPlace(place);
@@ -108,12 +195,7 @@ export default function ExploreScreen() {
   };
 
   const handleNavigate = (place: Place) => {
-    const url = Platform.select({
-      ios: `maps:0,0?q=${place.latitude},${place.longitude}`,
-      android: `geo:${place.latitude},${place.longitude}?q=${place.latitude},${place.longitude}(${place.name})`,
-      web: `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`,
-    });
-    if (url) Linking.openURL(url);
+    startNavigationTo(place);
   };
 
   const zoomIn = () => {
@@ -183,6 +265,15 @@ export default function ExploreScreen() {
           userLocation={{ latitude: location.latitude, longitude: location.longitude }}
           mapRef={mapRef}
           mapLayer={mapLayer}
+          routeDestination={routeDestination}
+          routeCoordinates={routeInfo?.coordinates}
+          routeBearing={routeInfo?.bearing}
+          routeDistanceKm={routeInfo?.distanceKm}
+          routeDurationMin={routeInfo?.durationMin}
+          onClearRoute={() => {
+            setRouteDestination(null);
+            setRouteInfo(null);
+          }}
         />
       ) : (
         <View style={styles.listContainer}>
@@ -250,6 +341,63 @@ export default function ExploreScreen() {
             />
           </TouchableOpacity>
         </View>
+
+        {/* Floating Search Suggestions Dropdown */}
+        {searchQuery.trim().length > 0 && searchSuggestions.length > 0 && (
+          <View style={styles.searchSuggestionsDropdown}>
+            {searchSuggestions.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.searchSuggestionItem}
+                onPress={() => {
+                  setSelectedPlace(item);
+                  setSearchQuery('');
+                  if (mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
+                    mapRef.current.animateToRegion(
+                      {
+                        latitude: item.latitude,
+                        longitude: item.longitude,
+                        latitudeDelta: 0.04,
+                        longitudeDelta: 0.04,
+                      },
+                      600
+                    );
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                <Image
+                  source={{
+                    uri: dynamicImageService.getPlaceImage(
+                      item.name,
+                      item.category,
+                      item.imageUrl
+                    ),
+                  }}
+                  style={styles.suggestionThumb}
+                  contentFit="cover"
+                />
+                <View style={styles.suggestionTextCol}>
+                  <Text style={styles.suggestionTitle} numberOfLines={1}>
+                    {getPlaceName(item)}
+                  </Text>
+                  <Text style={styles.suggestionSub} numberOfLines={1}>
+                    {(item.category || 'heritage').toUpperCase()} • {(item as any).city || 'Gujarat'}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.suggestionGoBtn}
+                  onPress={() => {
+                    setSearchQuery('');
+                    startNavigationTo(item);
+                  }}
+                >
+                  <MaterialIcons name="directions" size={18} color={Colors.primary} />
+                </TouchableOpacity>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </View>
 
       {/* Category & Live Crowd Filters */}
@@ -381,18 +529,51 @@ export default function ExploreScreen() {
         <View style={styles.bottomCard}>
           <View style={styles.bottomCardContent}>
             <View style={styles.bottomCardInfo}>
-              {selectedPlace.imageUrl ? (
+              {/* Dynamic Heritage Thumbnail with Category Badge & Placeholder */}
+              <View style={styles.bottomCardThumbWrap}>
+                <View style={styles.bottomCardThumbPlaceholder}>
+                  <MaterialIcons
+                    name={
+                      selectedPlace.category === 'museum'
+                        ? 'museum'
+                        : selectedPlace.category === 'culture'
+                        ? 'palette'
+                        : selectedPlace.category === 'food'
+                        ? 'restaurant'
+                        : 'account-balance'
+                    }
+                    size={28}
+                    color={Colors.primary}
+                  />
+                </View>
                 <Image
-                  source={{ uri: selectedPlace.imageUrl }}
+                  source={{
+                    uri: dynamicImageService.getPlaceImage(
+                      selectedPlace.name,
+                      selectedPlace.category,
+                      selectedPlace.imageUrl
+                    ),
+                  }}
                   style={styles.bottomCardThumb}
                   contentFit="cover"
-                  transition={200}
+                  transition={250}
                 />
-              ) : null}
+                <View
+                  style={[
+                    styles.bottomCardCatBadge,
+                    { backgroundColor: CATEGORY_COLORS[selectedPlace.category] || Colors.primary },
+                  ]}
+                >
+                  <Text style={styles.bottomCardCatBadgeText}>
+                    {(selectedPlace.category || 'site').toUpperCase()}
+                  </Text>
+                </View>
+              </View>
+
               <View style={{ flex: 1 }}>
                 <View style={styles.bottomCardTitleRow}>
-                  <View style={[styles.catDot, { backgroundColor: CATEGORY_COLORS[selectedPlace.category] || Colors.primary }]} />
                   <Text style={styles.bottomCardName} numberOfLines={1}>{getPlaceName(selectedPlace)}</Text>
+                  <MaterialIcons name="verified" size={15} color="#D4AF37" />
                 </View>
                 <Text style={styles.bottomCardDesc} numberOfLines={2}>{selectedPlace.shortDescription}</Text>
                 
@@ -423,10 +604,21 @@ export default function ExploreScreen() {
               </View>
             </View>
 
+            {/* Active Navigation Route Status */}
+            {routeDestination?.id === selectedPlace.id && routeInfo && (
+              <View style={styles.activeRouteBar}>
+                <MaterialIcons name="navigation" size={15} color="#D4AF37" />
+                <Text style={styles.activeRouteText}>
+                  Navigation Route Active • {routeInfo.distanceKm} km (~{routeInfo.durationMin} min)
+                </Text>
+              </View>
+            )}
+
             <View style={styles.bottomCardActions}>
               <TouchableOpacity
                 style={styles.aiBtn}
                 onPress={() => handleAskAI(selectedPlace)}
+                activeOpacity={0.8}
               >
                 <MaterialIcons name="auto-awesome" size={16} color={Colors.textInverse} />
                 <Text style={styles.aiBtnText}>Ask AI</Text>
@@ -434,16 +626,39 @@ export default function ExploreScreen() {
               <TouchableOpacity
                 style={styles.detailsBtn}
                 onPress={() => router.push(`/place/${selectedPlace.id}`)}
+                activeOpacity={0.8}
               >
                 <MaterialIcons name="info" size={16} color={Colors.textInverse} />
                 <Text style={styles.detailsBtnText}>Details</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.navBtn}
-                onPress={() => handleNavigate(selectedPlace)}
+                style={[
+                  styles.navBtn,
+                  routeDestination?.id === selectedPlace.id && styles.navBtnActive,
+                ]}
+                onPress={() => {
+                  if (routeDestination?.id === selectedPlace.id) {
+                    const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedPlace.latitude},${selectedPlace.longitude}&travelmode=driving`;
+                    Linking.openURL(url).catch(() => {});
+                  } else {
+                    handleNavigate(selectedPlace);
+                  }
+                }}
+                activeOpacity={0.8}
               >
-                <MaterialIcons name="directions" size={16} color={Colors.primary} />
-                <Text style={styles.navBtnText}>Go</Text>
+                <MaterialIcons
+                  name={routeDestination?.id === selectedPlace.id ? 'open-in-new' : 'directions'}
+                  size={16}
+                  color={routeDestination?.id === selectedPlace.id ? Colors.textInverse : Colors.primary}
+                />
+                <Text
+                  style={[
+                    styles.navBtnText,
+                    routeDestination?.id === selectedPlace.id && styles.navBtnTextActive,
+                  ]}
+                >
+                  {routeDestination?.id === selectedPlace.id ? 'Google Maps ↗' : 'Directions'}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -691,12 +906,45 @@ const styles = StyleSheet.create({
     gap: 12,
     alignItems: 'flex-start',
   },
+  bottomCardThumbWrap: {
+    position: 'relative',
+    width: 84,
+    height: 84,
+    borderRadius: 14,
+    overflow: 'hidden',
+    backgroundColor: Colors.surfaceHighlight,
+    borderWidth: 1.5,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+    ...Shadows.sm,
+  },
+  bottomCardThumbPlaceholder: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1a2234',
+  },
   bottomCardThumb: {
-    width: 68,
-    height: 68,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    width: '100%',
+    height: '100%',
+  },
+  bottomCardCatBadge: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingVertical: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bottomCardCatBadgeText: {
+    fontSize: 8,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
   },
   bottomCardTitleRow: {
     flexDirection: 'row',
@@ -704,16 +952,12 @@ const styles = StyleSheet.create({
     gap: 6,
     marginBottom: 3,
   },
-  catDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
   bottomCardName: {
     fontSize: Typography.sizes.lg,
     fontWeight: '700',
     color: Colors.text,
     marginBottom: 2,
+    flexShrink: 1,
   },
   bottomCardDesc: {
     fontSize: Typography.sizes.sm,
@@ -729,12 +973,28 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.xs,
     color: Colors.textMuted,
   },
+  activeRouteBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(212, 175, 55, 0.12)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.35)',
+  },
+  activeRouteText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '700',
+    color: '#D4AF37',
+  },
   bottomCardActions: {
     flexDirection: 'row',
     gap: 8,
   },
   aiBtn: {
-    flex: 1.2,
+    flex: 1.1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -764,7 +1024,7 @@ const styles = StyleSheet.create({
     color: Colors.textInverse,
   },
   navBtn: {
-    flex: 1,
+    flex: 1.2,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -775,10 +1035,64 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
   },
+  navBtnActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
   navBtnText: {
     fontSize: Typography.sizes.base,
     fontWeight: '600',
     color: Colors.primary,
+  },
+  navBtnTextActive: {
+    color: Colors.textInverse,
+    fontWeight: '700',
+  },
+  searchSuggestionsDropdown: {
+    marginTop: 8,
+    backgroundColor: 'rgba(18, 24, 38, 0.98)',
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    maxHeight: 280,
+    overflow: 'hidden',
+    ...Shadows.lg,
+  },
+  searchSuggestionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  suggestionThumb: {
+    width: 38,
+    height: 38,
+    borderRadius: 8,
+    backgroundColor: Colors.surfaceHighlight,
+  },
+  suggestionTextCol: {
+    flex: 1,
+  },
+  suggestionTitle: {
+    fontSize: Typography.sizes.sm,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  suggestionSub: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.textMuted,
+    marginTop: 2,
+  },
+  suggestionGoBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   closeBtn: {
     position: 'absolute',

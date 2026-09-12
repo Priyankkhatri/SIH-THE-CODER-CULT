@@ -31,6 +31,8 @@ import {
   LocationBadgeSkeleton,
 } from '../../components/Skeleton';
 import { useSpeech } from '../../hooks/useSpeech';
+import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
+import { dynamicImageService } from '../../services/dynamicImageService';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SPOTLIGHT_CARD_WIDTH = Math.min(SCREEN_WIDTH - 48, 340);
@@ -245,15 +247,24 @@ export default function HomeScreen() {
     });
   };
 
-  const filteredPlaces = places.filter((p) => {
+  // Merge loaded places with ALL_SEED_PLACES to ensure all 155+ sites are always searchable
+  const allCatalogPlaces = React.useMemo(() => {
+    if (places.length >= ALL_SEED_PLACES.length) return places;
+    const map = new Map<string, Place>();
+    for (const p of ALL_SEED_PLACES) map.set(p.id, p);
+    for (const p of places) map.set(p.id, p);
+    return Array.from(map.values());
+  }, [places]);
+
+  const filteredPlaces = allCatalogPlaces.filter((p) => {
     if (selectedCategory && p.category !== selectedCategory) return false;
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase().trim();
     const matchesName =
       p.name?.toLowerCase().includes(q) ||
-      (p as any).nameHi?.includes(q) ||
-      (p as any).nameGu?.includes(q);
-    const matchesDesc = p.shortDescription?.toLowerCase().includes(q);
+      (p as any).nameHi?.toLowerCase().includes(q) ||
+      (p as any).nameGu?.toLowerCase().includes(q);
+    const matchesDesc = (p.shortDescription || '').toLowerCase().includes(q);
     const matchesCity =
       (p as any).city?.toLowerCase().includes(q) ||
       (p as any).state?.toLowerCase().includes(q);
@@ -354,16 +365,90 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Search Results Filter Banner */}
+        {/* Live Search Results Section */}
         {searchQuery.trim().length > 0 && (
-          <View style={styles.searchActiveBadge}>
-            <MaterialIcons name="filter-list" size={16} color={Colors.primary} />
-            <Text style={styles.searchActiveText}>
-              Found {filteredPlaces.length} site{filteredPlaces.length === 1 ? '' : 's'} matching "{searchQuery}"
-            </Text>
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Text style={styles.clearSearchText}>Clear</Text>
-            </TouchableOpacity>
+          <View style={styles.searchResultsSection}>
+            <View style={styles.searchActiveBadge}>
+              <MaterialIcons name="filter-list" size={16} color={Colors.primary} />
+              <Text style={styles.searchActiveText}>
+                Found {filteredPlaces.length} site{filteredPlaces.length === 1 ? '' : 's'} matching "{searchQuery}"
+              </Text>
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Text style={styles.clearSearchText}>Clear</Text>
+              </TouchableOpacity>
+            </View>
+
+            {filteredPlaces.length === 0 ? (
+              <View style={styles.searchEmptyContainer}>
+                <MaterialIcons name="search-off" size={44} color={Colors.textMuted} />
+                <Text style={styles.searchEmptyTitle}>No monuments found</Text>
+                <Text style={styles.searchEmptySub}>
+                  Try searching for forts, stepwells, temples, or cities like 'Patan', 'Somnath', or 'Kumbhalgarh'.
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.searchResultsList}>
+                {filteredPlaces.slice(0, 15).map((place) => {
+                  const placeImg = dynamicImageService.getPlaceImage(
+                    place.name,
+                    place.category,
+                    place.imageUrl
+                  );
+                  return (
+                    <TouchableOpacity
+                      key={place.id}
+                      style={styles.searchResultCard}
+                      onPress={() => router.push(`/place/${place.id}`)}
+                      activeOpacity={0.75}
+                    >
+                      <ExpoImage
+                        source={{ uri: placeImg }}
+                        style={styles.searchResultThumb}
+                        contentFit="cover"
+                        transition={200}
+                      />
+                      <View style={styles.searchResultInfo}>
+                        <View style={styles.searchResultHeaderRow}>
+                          <Text style={styles.searchResultName} numberOfLines={1}>
+                            {place.name}
+                          </Text>
+                          <View style={styles.searchResultCatBadge}>
+                            <Text style={styles.searchResultCatText}>
+                              {(place.category || 'site').toUpperCase()}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text style={styles.searchResultDesc} numberOfLines={2}>
+                          {place.shortDescription || 'Historic Indian architectural wonder.'}
+                        </Text>
+                        <View style={styles.searchResultFooter}>
+                          <Text style={styles.searchResultMeta}>
+                            📍 {(place as any).city || 'Gujarat'}
+                          </Text>
+                          <TouchableOpacity
+                            style={styles.searchResultRouteBtn}
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              router.push({
+                                pathname: '/(tabs)/explore',
+                                params: {
+                                  destinationId: place.id,
+                                  destinationName: place.name,
+                                  routeTo: 'true',
+                                },
+                              });
+                            }}
+                          >
+                            <MaterialIcons name="directions" size={14} color="#D4AF37" />
+                            <Text style={styles.searchResultRouteBtnText}>Route</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
           </View>
         )}
 
@@ -473,16 +558,19 @@ export default function HomeScreen() {
                         <TouchableOpacity
                           style={styles.spotlightViewBtn}
                           onPress={() => {
-                            const match = places.find(
+                            const match = allCatalogPlaces.find(
                               (p) =>
                                 p.name.toLowerCase().includes(item.title.toLowerCase()) ||
                                 item.title.toLowerCase().includes(p.name.toLowerCase())
                             );
-                            if (match) {
-                              router.push(`/place/${match.id}`);
-                            } else {
-                              router.push('/(tabs)/explore');
-                            }
+                            router.push({
+                              pathname: '/(tabs)/explore',
+                              params: {
+                                destinationId: match?.id || item.id,
+                                destinationName: item.title,
+                                routeTo: 'true',
+                              },
+                            });
                           }}
                           activeOpacity={0.85}
                         >
@@ -852,12 +940,15 @@ const styles = StyleSheet.create({
     color: Colors.text,
     padding: 0,
   },
+  searchResultsSection: {
+    paddingHorizontal: Spacing.xl,
+    marginBottom: Spacing.md,
+  },
   searchActiveBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: 'rgba(212, 169, 71, 0.12)',
-    marginHorizontal: Spacing.xl,
     marginBottom: Spacing.md,
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -876,6 +967,105 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.xs,
     fontWeight: '700',
     color: Colors.primary,
+  },
+  searchResultsList: {
+    gap: 12,
+  },
+  searchResultCard: {
+    flexDirection: 'row',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.xl,
+    padding: 10,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.sm,
+  },
+  searchResultThumb: {
+    width: 78,
+    height: 78,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.surfaceHighlight,
+  },
+  searchResultInfo: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  searchResultHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 6,
+  },
+  searchResultName: {
+    fontSize: Typography.sizes.base,
+    fontWeight: '700',
+    color: Colors.text,
+    flex: 1,
+  },
+  searchResultCatBadge: {
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  searchResultCatText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#D4AF37',
+  },
+  searchResultDesc: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.textSecondary,
+    lineHeight: 16,
+    marginVertical: 3,
+  },
+  searchResultFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  searchResultMeta: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.textMuted,
+  },
+  searchResultRouteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+  },
+  searchResultRouteBtnText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '700',
+    color: '#D4AF37',
+  },
+  searchEmptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 36,
+    gap: 8,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: 20,
+  },
+  searchEmptyTitle: {
+    fontSize: Typography.sizes.md,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  searchEmptySub: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 18,
   },
   quickActionsSection: {
     paddingHorizontal: Spacing.xl,
