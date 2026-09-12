@@ -24,6 +24,7 @@ import { SafetySOSModal } from '../../components/SafetySOSModal';
 import { LocalArtisansSection } from '../../components/LocalArtisansSection';
 import { ReviewsSection } from '../../components/ReviewsSection';
 import { PlaceDetailSkeleton } from '../../components/Skeleton';
+import { dynamicImageService, GalleryImage } from '../../services/dynamicImageService';
 
 const { width } = Dimensions.get('window');
 
@@ -66,6 +67,9 @@ export default function PlaceDetailScreen() {
   const { speak, stop, isSpeaking } = useSpeech();
 
   const [heritage, setHeritage] = useState<HeritageDetail | null>(null);
+  const [gallery, setGallery] = useState<GalleryImage[]>([]);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const heroScrollRef = React.useRef<ScrollView>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>('story');
@@ -77,6 +81,8 @@ export default function PlaceDetailScreen() {
   useEffect(() => {
     if (id) {
       setImageError(false);
+      setActiveSlide(0);
+      setGallery([]);
       loadHeritage(true);
     }
   }, [id]);
@@ -138,6 +144,22 @@ export default function PlaceDetailScreen() {
     setHeritage(resultHeritage);
     setIsLoading(false);
     setIsRefreshing(false);
+
+    // Dynamically fetch authentic multi-image gallery from internet / curated catalog
+    if (resultHeritage) {
+      const pName = resultHeritage.placeName || (resultHeritage.place ? getPlaceName(resultHeritage.place) : '');
+      const rawImage = resultHeritage.place?.imageUrl;
+      dynamicImageService
+        .getPlaceGallery(pName, id, rawImage)
+        .then((fetchedGallery) => {
+          if (fetchedGallery && fetchedGallery.length > 0) {
+            setGallery(fetchedGallery);
+          }
+        })
+        .catch((err) => {
+          console.warn('[PlaceDetail] Dynamic gallery fetch notice:', err);
+        });
+    }
   };
 
   const handleRefresh = async () => {
@@ -219,11 +241,15 @@ export default function PlaceDetailScreen() {
   const safeKeyFacts = Array.isArray(heritage.keyFacts) ? heritage.keyFacts : [];
   const safeSources = Array.isArray(heritage.sources) ? heritage.sources : [];
 
-  const defaultHeroFallback = CATEGORY_FALLBACK_IMAGES[category] || CATEGORY_FALLBACK_IMAGES.heritage;
-  const rawHeroUri = placeObj.imageUrl;
-  const heroUri = (!imageError && rawHeroUri && !rawHeroUri.includes('upload.wikimedia.org')) 
-    ? rawHeroUri 
-    : defaultHeroFallback;
+  const defaultHeroFallback = dynamicImageService.getPlaceImage(displayName, category, placeObj.imageUrl);
+  const heroUri = !imageError ? defaultHeroFallback : CATEGORY_FALLBACK_IMAGES[category] || CATEGORY_FALLBACK_IMAGES.heritage;
+  const displayGallery: GalleryImage[] = gallery.length > 0 ? gallery : [
+    {
+      url: heroUri,
+      caption: `${displayName} — Authentic Heritage Architecture`,
+      source: 'Archaeological Survey of India',
+    },
+  ];
 
   return (
     <View style={styles.container}>
@@ -238,16 +264,35 @@ export default function PlaceDetailScreen() {
           />
         }
       >
-        {/* Hero Image */}
+        {/* Hero Image Sliding Carousel */}
         <View style={styles.heroSection}>
-          <Image
-            source={{ uri: heroUri }}
-            style={styles.heroImage}
-            contentFit="cover"
-            placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
-            transition={300}
-            onError={() => setImageError(true)}
-          />
+          <ScrollView
+            ref={heroScrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            decelerationRate="fast"
+            scrollEventThrottle={16}
+            onMomentumScrollEnd={(e) => {
+              const slideIdx = Math.round(e.nativeEvent.contentOffset.x / width);
+              if (slideIdx >= 0 && slideIdx < displayGallery.length) {
+                setActiveSlide(slideIdx);
+              }
+            }}
+            style={styles.heroScrollView}
+          >
+            {displayGallery.map((img, idx) => (
+              <View key={idx} style={{ width, height: 350 }}>
+                <Image
+                  source={{ uri: img.url }}
+                  style={styles.heroImage}
+                  contentFit="cover"
+                  placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+                  transition={300}
+                />
+              </View>
+            ))}
+          </ScrollView>
           <View style={styles.heroOverlay} />
 
           {/* Top buttons */}
@@ -279,13 +324,59 @@ export default function PlaceDetailScreen() {
             </View>
           </View>
 
-          {/* Hero title */}
-          <View style={styles.heroContent}>
-            <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30' }]}>
-              <Text style={[styles.categoryText, { color: categoryColor }]}>
-                {getCategoryName(category).toUpperCase()}
+          {/* Photo Counter Badge (Top Right) */}
+          {displayGallery.length > 1 && (
+            <View style={styles.photoCountBadge}>
+              <MaterialIcons name="photo-camera" size={12} color="#FFFFFF" />
+              <Text style={styles.photoCountText}>
+                {activeSlide + 1} / {displayGallery.length}
               </Text>
             </View>
+          )}
+
+          {/* Hero title & badges */}
+          <View style={styles.heroContent}>
+            <View style={styles.heroBadgeRow}>
+              <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30', marginBottom: 0 }]}>
+                <Text style={[styles.categoryText, { color: categoryColor }]}>
+                  {getCategoryName(category).toUpperCase()}
+                </Text>
+              </View>
+
+              {/* Pagination Dots */}
+              {displayGallery.length > 1 && (
+                <View style={styles.paginationRow}>
+                  {displayGallery.map((_, i) => (
+                    <TouchableOpacity
+                      key={i}
+                      onPress={() => {
+                        setActiveSlide(i);
+                        heroScrollRef.current?.scrollTo({ x: i * width, animated: true });
+                      }}
+                      hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
+                    >
+                      <View
+                        style={[
+                          styles.dot,
+                          i === activeSlide && styles.activeDot,
+                        ]}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+
+            {/* Photo Perspective Caption */}
+            {displayGallery[activeSlide]?.caption && (
+              <View style={styles.perspectiveCaptionPill}>
+                <MaterialIcons name="collections" size={12} color="#D4AF37" />
+                <Text style={styles.perspectiveCaptionText} numberOfLines={1}>
+                  {displayGallery[activeSlide].caption}
+                </Text>
+              </View>
+            )}
+
             <Text style={styles.heroTitle}>{displayName}</Text>
             <View style={styles.heroMeta}>
               {placeObj.rating && (
@@ -374,6 +465,64 @@ export default function PlaceDetailScreen() {
                 <Text style={styles.storyText}>{heritage.shortStory}</Text>
               )}
             </TouchableOpacity>
+          )}
+
+          {/* Visual Architecture & Photo Perspectives Gallery */}
+          {displayGallery.length > 1 && (
+            <View style={styles.perspectivesSection}>
+              <View style={styles.perspectivesHeader}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <MaterialIcons name="photo-library" size={18} color={Colors.primary} />
+                  <Text style={styles.perspectivesSectionTitle}>Visual Architecture Gallery</Text>
+                </View>
+                <Text style={styles.perspectivesCountBadge}>
+                  {displayGallery.length} Perspectives
+                </Text>
+              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 12, paddingVertical: 6 }}
+              >
+                {displayGallery.map((item, idx) => (
+                  <TouchableOpacity
+                    key={idx}
+                    style={[
+                      styles.galleryCard,
+                      activeSlide === idx && styles.galleryCardActive,
+                    ]}
+                    onPress={() => {
+                      setActiveSlide(idx);
+                      heroScrollRef.current?.scrollTo({ x: idx * width, animated: true });
+                    }}
+                    activeOpacity={0.85}
+                  >
+                    <Image
+                      source={{ uri: item.url }}
+                      style={styles.galleryCardImg}
+                      contentFit="cover"
+                      transition={200}
+                    />
+                    <View style={styles.galleryCardOverlay}>
+                      <Text style={styles.galleryCardCaption} numberOfLines={2}>
+                        {item.caption}
+                      </Text>
+                      {item.source && (
+                        <Text style={styles.galleryCardSource} numberOfLines={1}>
+                          {item.source}
+                        </Text>
+                      )}
+                    </View>
+                    {activeSlide === idx && (
+                      <View style={styles.activeViewBadge}>
+                        <MaterialIcons name="visibility" size={11} color="#FFFFFF" />
+                        <Text style={styles.activeViewText}>Viewing</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
           )}
 
           {/* Expandable sections */}
@@ -532,12 +681,159 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   heroSection: {
-    height: 320,
+    height: 350,
     position: 'relative',
+  },
+  heroScrollView: {
+    width: '100%',
+    height: 350,
   },
   heroImage: {
     width: '100%',
     height: '100%',
+  },
+  photoCountBadge: {
+    position: 'absolute',
+    top: 104,
+    right: Spacing.base,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(10, 10, 15, 0.72)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  photoCountText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+  heroBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  paginationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(10, 10, 15, 0.55)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  activeDot: {
+    width: 18,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.primary,
+  },
+  perspectiveCaptionPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(10, 10, 15, 0.75)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.md,
+    alignSelf: 'flex-start',
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 169, 71, 0.35)',
+    maxWidth: '92%',
+  },
+  perspectiveCaptionText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#E8E8E8',
+  },
+  perspectivesSection: {
+    marginBottom: Spacing.xl,
+  },
+  perspectivesHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.sm,
+  },
+  perspectivesSectionTitle: {
+    fontSize: Typography.sizes.base,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  perspectivesCountBadge: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.primary,
+    fontWeight: '600',
+    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
+  },
+  galleryCard: {
+    width: 180,
+    height: 125,
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    position: 'relative',
+    backgroundColor: Colors.surface,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+  },
+  galleryCardActive: {
+    borderColor: Colors.primary,
+    borderWidth: 2,
+  },
+  galleryCardImg: {
+    width: '100%',
+    height: '100%',
+  },
+  galleryCardOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(10, 10, 15, 0.8)',
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+  },
+  galleryCardCaption: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  galleryCardSource: {
+    fontSize: 9,
+    color: Colors.textMuted,
+    marginTop: 2,
+  },
+  activeViewBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
+  },
+  activeViewText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   heroOverlay: {
     ...StyleSheet.absoluteFill,

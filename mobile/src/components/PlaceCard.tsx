@@ -6,6 +6,7 @@ import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } f
 import type { Place } from '../stores';
 import { useTranslation } from '../hooks/useTranslation';
 import { getLiveCrowd } from '../utils/touristMeta';
+import { dynamicImageService } from '../services/dynamicImageService';
 
 const { width } = Dimensions.get('window');
 
@@ -34,13 +35,30 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
   const crowd = getLiveCrowd(place.name);
 
   const defaultFallback = CATEGORY_FALLBACK_IMAGES[place.category] || CATEGORY_FALLBACK_IMAGES.heritage;
-  const initialUri = (place.imageUrl && !place.imageUrl.includes('upload.wikimedia.org')) ? place.imageUrl : defaultFallback;
+  const initialUri = dynamicImageService.getPlaceImage(place.name, place.category, place.imageUrl);
   const [currentImg, setCurrentImg] = React.useState<string>(initialUri);
 
   React.useEffect(() => {
-    const validUri = (place.imageUrl && !place.imageUrl.includes('upload.wikimedia.org')) ? place.imageUrl : defaultFallback;
-    setCurrentImg(validUri);
-  }, [place.imageUrl, place.category]);
+    let isMounted = true;
+    const resolved = dynamicImageService.getPlaceImage(place.name, place.category, place.imageUrl);
+    setCurrentImg(resolved);
+
+    // If initial image is fallback, attempt background dynamic fetch from internet
+    if (resolved === defaultFallback) {
+      dynamicImageService
+        .fetchPlaceImageAsync(place.name)
+        .then((dynUrl) => {
+          if (isMounted && dynUrl) {
+            setCurrentImg(dynUrl);
+          }
+        })
+        .catch(() => {});
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [place.name, place.imageUrl, place.category]);
 
   if (variant === 'horizontal') {
     return (
