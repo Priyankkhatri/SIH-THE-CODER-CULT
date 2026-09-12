@@ -18,6 +18,9 @@ import { usePlacesStore, useChatStore, useUserStore } from '../../stores';
 import { heritageApi, placesApi } from '../../services/api';
 import { useSpeech } from '../../hooks/useSpeech';
 import { useTranslation } from '../../hooks/useTranslation';
+import { WeatherCrowdBar } from '../../components/WeatherCrowdBar';
+import { SafetySOSModal } from '../../components/SafetySOSModal';
+import { LocalArtisansSection } from '../../components/LocalArtisansSection';
 
 const { width } = Dimensions.get('window');
 
@@ -54,6 +57,7 @@ export default function PlaceDetailScreen() {
   const [heritage, setHeritage] = useState<HeritageDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSection, setExpandedSection] = useState<string | null>('story');
+  const [sosVisible, setSosVisible] = useState(false);
 
   const isFavorite = id ? favorites.includes(id) : false;
 
@@ -220,13 +224,21 @@ export default function PlaceDetailScreen() {
             <TouchableOpacity style={styles.topBtn} onPress={() => router.back()}>
               <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.topBtn} onPress={() => id && toggleFavorite(id)}>
-              <MaterialIcons
-                name={isFavorite ? 'favorite' : 'favorite-border'}
-                size={24}
-                color={isFavorite ? Colors.error : Colors.text}
-              />
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity
+                style={[styles.topBtn, { backgroundColor: 'rgba(239, 83, 80, 0.25)' }]}
+                onPress={() => setSosVisible(true)}
+              >
+                <MaterialIcons name="emergency" size={20} color="#EF5350" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.topBtn} onPress={() => id && toggleFavorite(id)}>
+                <MaterialIcons
+                  name={isFavorite ? 'favorite' : 'favorite-border'}
+                  size={24}
+                  color={isFavorite ? Colors.error : Colors.text}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Hero title */}
@@ -281,6 +293,33 @@ export default function PlaceDetailScreen() {
               <Text style={styles.actionLabel}>{t('common.directions')}</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Live Weather & Crowd Density Radar Bar */}
+          <WeatherCrowdBar
+            latitude={placeObj.latitude}
+            longitude={placeObj.longitude}
+            placeName={displayName}
+            variant="full"
+          />
+
+          {/* Official Monument Ticketing Card */}
+          <TouchableOpacity
+            style={styles.ticketCard}
+            onPress={() => Linking.openURL('https://asi.payumoney.com')}
+            activeOpacity={0.85}
+          >
+            <View style={styles.ticketIconWrap}>
+              <MaterialIcons name="confirmation-number" size={22} color={Colors.background} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.ticketTitle}>Book Official ASI Entry Ticket</Text>
+              <Text style={styles.ticketSubtitle}>Direct Govt e-portal • Fast-track QR scan entry</Text>
+            </View>
+            <View style={styles.ticketActionBadge}>
+              <Text style={styles.ticketActionText}>Book Online</Text>
+              <MaterialIcons name="open-in-new" size={13} color={Colors.primary} />
+            </View>
+          </TouchableOpacity>
 
           {/* 2-Minute Heritage Story */}
           {heritage.shortStory && (
@@ -340,6 +379,9 @@ export default function PlaceDetailScreen() {
             </View>
           )}
 
+          {/* Local Artisans & Regional Gastronomy Showcase */}
+          <LocalArtisansSection placeName={displayName} stateOrCity={displayName} />
+
           {/* Deep Heritage Link */}
           <TouchableOpacity
             style={styles.deepHeritageBtn}
@@ -357,6 +399,15 @@ export default function PlaceDetailScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Geo-Fenced Safety & SOS Emergency Modal */}
+      <SafetySOSModal
+        visible={sosVisible}
+        onClose={() => setSosVisible(false)}
+        latitude={placeObj.latitude}
+        longitude={placeObj.longitude}
+        currentLocationName={displayName}
+      />
     </View>
   );
 
@@ -525,6 +576,50 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.xs,
     fontWeight: '600',
     color: Colors.textSecondary,
+  },
+  ticketCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.md,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    marginBottom: Spacing.lg,
+  },
+  ticketIconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ticketTitle: {
+    fontSize: Typography.sizes.sm,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  ticketSubtitle: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  ticketActionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: 'rgba(212, 169, 71, 0.25)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.sm,
+  },
+  ticketActionText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: Colors.primary,
+    textTransform: 'uppercase',
   },
   storyCard: {
     backgroundColor: Colors.surfaceElevated,

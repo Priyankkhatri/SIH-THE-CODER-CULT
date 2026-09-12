@@ -22,6 +22,7 @@ import { CategoryFilter } from '../../components/CategoryFilter';
 import { HeritageMapView } from '../../components/HeritageMapView';
 import { PlaceCard } from '../../components/PlaceCard';
 import { placesApi } from '../../services/api';
+import { getLiveCrowd } from '../../utils/touristMeta';
 
 const { width, height } = Dimensions.get('window');
 
@@ -34,6 +35,7 @@ export default function ExploreScreen() {
   const mapRef = useRef<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [selectedCrowd, setSelectedCrowd] = useState<'all' | 'Low' | 'Moderate' | 'Peak'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [isLoading, setIsLoading] = useState(false);
@@ -58,10 +60,16 @@ export default function ExploreScreen() {
     loadPlaces();
   }, [selectedCategory]);
 
-  // Comprehensive filter by category & real-time search query
+  // Comprehensive filter by category, crowd level & real-time search query
   const filteredPlaces = places.filter((p) => {
     const matchesCategory = !selectedCategory || p.category === selectedCategory;
     if (!matchesCategory) return false;
+
+    if (selectedCrowd !== 'all') {
+      const crowd = getLiveCrowd(p.name);
+      if (crowd.level !== selectedCrowd) return false;
+    }
+
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase().trim();
     const nameMatch = p.name.toLowerCase().includes(q) || (p.nameHi && p.nameHi.toLowerCase().includes(q));
@@ -176,9 +184,47 @@ export default function ExploreScreen() {
         </View>
       </View>
 
-      {/* Category filter */}
+      {/* Category & Live Crowd Filters */}
       <View style={styles.filterOverlay}>
         <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
+        
+        {/* Footfall / Crowd Density Filter (Hackathon PPT Feature) */}
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.crowdFilterRow}
+          data={[
+            { key: 'all', label: '👥 All Footfall', color: Colors.surfaceHighlight },
+            { key: 'Low', label: '🟢 Low Crowd', color: '#10B981' },
+            { key: 'Moderate', label: '🟡 Moderate', color: '#F59E0B' },
+            { key: 'Peak', label: '🔴 Peak Busy', color: '#EF4444' },
+          ] as const}
+          keyExtractor={(item) => item.key}
+          renderItem={({ item }) => {
+            const isSelected = selectedCrowd === item.key;
+            return (
+              <TouchableOpacity
+                style={[
+                  styles.crowdChip,
+                  isSelected && styles.crowdChipActive,
+                  isSelected && item.key !== 'all' && { backgroundColor: item.color + '25', borderColor: item.color },
+                ]}
+                onPress={() => setSelectedCrowd(item.key)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    styles.crowdChipText,
+                    isSelected && styles.crowdChipTextActive,
+                    isSelected && item.key !== 'all' && { color: item.color, fontWeight: '700' },
+                  ]}
+                >
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          }}
+        />
       </View>
 
       {/* My location button (map mode only) */}
@@ -197,6 +243,20 @@ export default function ExploreScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.bottomCardName}>{getPlaceName(selectedPlace)}</Text>
                 <Text style={styles.bottomCardDesc} numberOfLines={2}>{selectedPlace.shortDescription}</Text>
+                
+                {/* Real-time crowd badge */}
+                {(() => {
+                  const crowd = getLiveCrowd(selectedPlace.name);
+                  return (
+                    <View style={styles.bottomCardCrowdRow}>
+                      <View style={[styles.crowdDotSmall, { backgroundColor: crowd.color }]} />
+                      <Text style={[styles.bottomCardCrowdText, { color: crowd.color }]}>
+                        {crowd.badge} • Est. wait: {crowd.waitTime}
+                      </Text>
+                    </View>
+                  );
+                })()}
+
                 <View style={styles.bottomCardMeta}>
                   {selectedPlace.distance !== undefined && (
                     <Text style={styles.metaText}>📍 {selectedPlace.distance.toFixed(1)} km</Text>
@@ -252,7 +312,7 @@ const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
     backgroundColor: Colors.background,
-    paddingTop: 160,
+    paddingTop: 205,
   },
   listContent: {
     padding: Spacing.base,
@@ -506,5 +566,47 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceHighlight,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  crowdFilterRow: {
+    paddingHorizontal: Spacing.base,
+    gap: 8,
+    paddingTop: 4,
+    paddingBottom: 8,
+  },
+  crowdChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+    backgroundColor: Colors.surface + 'EE',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.sm,
+  },
+  crowdChipActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  crowdChipText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+  },
+  crowdChipTextActive: {
+    color: Colors.textInverse,
+  },
+  bottomCardCrowdRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  crowdDotSmall: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+  },
+  bottomCardCrowdText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '700',
   },
 });

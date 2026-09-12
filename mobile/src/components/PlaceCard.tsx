@@ -5,6 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } from '../constants/theme';
 import type { Place } from '../stores';
 import { useTranslation } from '../hooks/useTranslation';
+import { getLiveCrowd } from '../utils/touristMeta';
 
 const { width } = Dimensions.get('window');
 
@@ -30,6 +31,7 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
   const placeName = getPlaceName(place);
   const categoryLabel = getCategoryName(place.category).toUpperCase();
   const kmUnit = t('common.km');
+  const crowd = getLiveCrowd(place.name);
 
   const defaultFallback = CATEGORY_FALLBACK_IMAGES[place.category] || CATEGORY_FALLBACK_IMAGES.heritage;
   const initialUri = (place.imageUrl && !place.imageUrl.includes('upload.wikimedia.org')) ? place.imageUrl : defaultFallback;
@@ -56,10 +58,18 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
           onError={() => setCurrentImg(defaultFallback)}
         />
         <View style={styles.horizontalOverlay}>
-          <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30' }]}>
-            <Text style={[styles.categoryText, { color: categoryColor }]}>
-              {categoryLabel}
-            </Text>
+          <View style={styles.cardHeaderRow}>
+            <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30', marginBottom: 0 }]}>
+              <Text style={[styles.categoryText, { color: categoryColor }]}>
+                {categoryLabel}
+              </Text>
+            </View>
+            <View style={[styles.crowdBadge, { backgroundColor: crowd.color + '25', borderColor: crowd.color + '55' }]}>
+              <View style={[styles.crowdDot, { backgroundColor: crowd.color }]} />
+              <Text style={[styles.crowdBadgeText, { color: crowd.color }]}>
+                {crowd.level}
+              </Text>
+            </View>
           </View>
           <Text style={styles.horizontalName} numberOfLines={1}>{placeName}</Text>
           <View style={styles.horizontalMeta}>
@@ -109,10 +119,18 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
         </TouchableOpacity>
       )}
       <View style={styles.verticalContent}>
-        <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30' }]}>
-          <Text style={[styles.categoryText, { color: categoryColor }]}>
-            {categoryLabel}
-          </Text>
+        <View style={styles.cardHeaderRow}>
+          <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30', marginBottom: 0 }]}>
+            <Text style={[styles.categoryText, { color: categoryColor }]}>
+              {categoryLabel}
+            </Text>
+          </View>
+          <View style={[styles.crowdBadge, { backgroundColor: crowd.color + '20', borderColor: crowd.color + '55' }]}>
+            <View style={[styles.crowdDot, { backgroundColor: crowd.color }]} />
+            <Text style={[styles.crowdBadgeText, { color: crowd.color }]}>
+              {crowd.badge}
+            </Text>
+          </View>
         </View>
         <Text style={styles.verticalName} numberOfLines={2}>{placeName}</Text>
         <Text style={styles.verticalDesc} numberOfLines={2}>{place.shortDescription}</Text>
@@ -248,5 +266,30 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.xs,
     color: Colors.textSecondary,
     fontWeight: '500',
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 6,
+  },
+  crowdBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    gap: 5,
+  },
+  crowdDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  crowdBadgeText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '700',
   },
 });

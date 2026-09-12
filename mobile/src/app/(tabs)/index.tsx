@@ -19,6 +19,8 @@ import { placesApi } from '../../services/api';
 import { useLocation } from '../../hooks/useLocation';
 import { PlaceCard } from '../../components/PlaceCard';
 import { CategoryFilter } from '../../components/CategoryFilter';
+import { WeatherCrowdBar } from '../../components/WeatherCrowdBar';
+import { SafetySOSModal } from '../../components/SafetySOSModal';
 
 const QUICK_ACTIONS = [
   { key: 'explore', label: 'Explore Map', icon: 'map', color: Colors.accent },
@@ -36,6 +38,7 @@ export default function HomeScreen() {
   const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [sosVisible, setSosVisible] = useState(false);
 
   const fetchPlaces = async () => {
     setLoading(true);
@@ -140,13 +143,26 @@ export default function HomeScreen() {
             <Text style={styles.greeting}>{greeting()} 👋</Text>
             <Text style={styles.userName}>{name}</Text>
           </View>
-          <TouchableOpacity style={styles.locationBadge}>
-            <MaterialIcons name="place" size={16} color={Colors.primary} />
-            <Text style={styles.locationText}>
-              {location.isLoading ? t('common.locating') : `${location.city}, ${location.region}`}
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.headerRight}>
+            <TouchableOpacity style={styles.locationBadge}>
+              <MaterialIcons name="place" size={16} color={Colors.primary} />
+              <Text style={styles.locationText}>
+                {location.isLoading ? t('common.locating') : `${location.city}, ${location.region}`}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.sosBadge}
+              onPress={() => setSosVisible(true)}
+              activeOpacity={0.8}
+            >
+              <MaterialIcons name="emergency" size={14} color="#FFFFFF" />
+              <Text style={styles.sosBadgeText}>SOS</Text>
+            </TouchableOpacity>
+          </View>
         </View>
+
+        {/* Live Weather & Crowd Density Radar */}
+        <WeatherCrowdBar latitude={location.latitude || 22.3072} longitude={location.longitude || 73.1812} />
 
         {/* Quick Actions */}
         <View style={styles.quickActionsSection}>
@@ -218,6 +234,15 @@ export default function HomeScreen() {
           ))}
         </View>
       </ScrollView>
+
+      {/* Geo-Fenced Safety & SOS Emergency Modal */}
+      <SafetySOSModal
+        visible={sosVisible}
+        onClose={() => setSosVisible(false)}
+        latitude={location.latitude || 22.3072}
+        longitude={location.longitude || 73.1812}
+        currentLocationName={`${location.city}, ${location.region}`}
+      />
     </View>
   );
 }
@@ -329,6 +354,12 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: Colors.text,
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
   locationBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -339,12 +370,27 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: Colors.border,
-    marginTop: 8,
   },
   locationText: {
     fontSize: Typography.sizes.sm,
     color: Colors.text,
     fontWeight: '500',
+  },
+  sosBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#EF5350',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.full,
+    ...Shadows.sm,
+  },
+  sosBadgeText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
   },
   quickActionsSection: {
     paddingHorizontal: Spacing.xl,
