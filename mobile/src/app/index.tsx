@@ -135,12 +135,7 @@ export default function LoadingScreen() {
       duration: 350,
       useNativeDriver: true,
     }).start(() => {
-      const onboarded = useUserStore.getState().isOnboarded;
-      if (onboarded) {
-        router.replace('/(tabs)');
-      } else {
-        router.replace('/onboarding');
-      }
+      router.replace('/auth/login' as any);
     });
   };
 
@@ -241,7 +236,7 @@ export default function LoadingScreen() {
             onPress={navigateNext}
             activeOpacity={0.7}
           >
-            <Text style={styles.skipText}>Enter Yatra</Text>
+            <Text style={styles.skipText}>Sign In / Skip</Text>
             <MaterialIcons name="arrow-forward" size={14} color={Colors.primary} />
           </TouchableOpacity>
         </View>

@@ -66,16 +66,40 @@ export default function RegisterScreen() {
     }
   };
 
+  const handleDevSkip = () => {
+    setUser(
+      `dev-${Date.now().toString().slice(-4)}`,
+      'dev-token-local-bypass',
+      'Developer Explorer',
+      'dev@yatra.local',
+      false
+    );
+    setOnboarded(true);
+    router.replace('/(tabs)');
+  };
+
   return (
     <KeyboardAvoidingView
       style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        {/* Back Button */}
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
-        </TouchableOpacity>
+        {/* Top Header Bar */}
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.topSkipBtn}
+            onPress={handleDevSkip}
+            activeOpacity={0.75}
+          >
+            <MaterialIcons name="bolt" size={16} color={Colors.primary} />
+            <Text style={styles.topSkipText}>Skip (Dev)</Text>
+            <MaterialIcons name="arrow-forward" size={13} color={Colors.primary} />
+          </TouchableOpacity>
+        </View>
 
         {/* Header */}
         <View style={styles.header}>
@@ -192,6 +216,22 @@ export default function RegisterScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Dedicated Dev Skip Card Button */}
+        <TouchableOpacity
+          style={styles.devBypassCard}
+          onPress={handleDevSkip}
+          activeOpacity={0.85}
+        >
+          <View style={styles.devBypassIconWrap}>
+            <MaterialIcons name="bolt" size={22} color="#FFD700" />
+          </View>
+          <View style={styles.devBypassInfo}>
+            <Text style={styles.devBypassTitle}>Skip Login (Development Mode)</Text>
+            <Text style={styles.devBypassSubtitle}>Instant 1-tap bypass into Yatra App Tabs</Text>
+          </View>
+          <MaterialIcons name="arrow-forward" size={20} color="#FFD700" />
+        </TouchableOpacity>
+
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Already have an account? </Text>
@@ -213,6 +253,63 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: Spacing.xl,
   },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.base,
+  },
+  topSkipBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 169, 71, 0.4)',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+  },
+  topSkipText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '700',
+    color: Colors.primary,
+    letterSpacing: 0.3,
+  },
+  devBypassCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.08)',
+    borderWidth: 1.5,
+    borderColor: '#FFD700',
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    gap: Spacing.md,
+    marginTop: Spacing.lg,
+    ...Shadows.glow,
+  },
+  devBypassIconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  devBypassInfo: {
+    flex: 1,
+  },
+  devBypassTitle: {
+    fontSize: Typography.sizes.sm,
+    fontWeight: '700',
+    color: '#FFD700',
+    letterSpacing: 0.3,
+  },
+  devBypassSubtitle: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
   backBtn: {
     width: 40,
     height: 40,
@@ -220,7 +317,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceElevated,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.base,
   },
   header: {
     marginBottom: Spacing.xl,
