@@ -26,10 +26,11 @@ const RESPONSE_MODES = [
 ];
 
 const DEFAULT_SUGGESTIONS = [
-  'What are the top heritage sites in Vadodara?',
-  'Tell me about the Gaekwad dynasty',
-  'History of Champaner-Pavagadh',
-  'Explain Gujarat architecture styles',
+  'What makes Rani ki Vav in Patan a World Heritage marvel?',
+  'Tell me the astronomical secrets of Modhera Sun Temple',
+  'Why is Laxmi Vilas Palace four times the size of Buckingham Palace?',
+  'Tell me an epic medieval story of Champaner-Pavagadh',
+  'What architectural wonders define the Taj Mahal?',
 ];
 
 export default function AIGuideScreen() {

@@ -22,11 +22,17 @@ const { width, height } = Dimensions.get('window');
 
 const DEMO_CATALOG = [
   { id: 'laxmi_vilas_facade', name: 'Laxmi Vilas Palace Facade', description: 'Grand Indo-Saracenic facade with ornate domes and arches', placeId: 'p1-laxmi-vilas', placeName: 'Laxmi Vilas Palace' },
-  { id: 'eme_temple_dome', name: 'EME Temple Dome', description: 'Distinctive aluminum geodesic dome', placeId: 'p4-eme-temple', placeName: 'EME Temple' },
+  { id: 'ind_gj_01_feature', name: 'Rani ki Vav Sculpted Gallery', description: 'Subterranean stepwell gallery depicting Sheshashayi Vishnu', placeId: 'IND-GJ-01', placeName: 'Rani ki Vav (Queen\'s Stepwell)' },
+  { id: 'ind_gj_02_feature', name: 'Modhera Sun Temple Sabha Mandapa', description: '52 carved pillars aligning with solar equinoxes', placeId: 'IND-GJ-02', placeName: 'Sun Temple, Modhera' },
+  { id: 'ind_her_01_feature', name: 'Taj Mahal Marble Dome', description: 'Makrana white marble dome and four minarets with pietra dura inlay', placeId: 'IND-HER-01', placeName: 'Taj Mahal' },
+  { id: 'ind_her_05_feature', name: 'Red Fort Lahori Gate', description: 'Massive red sandstone fortification with battlements and octagonal towers', placeId: 'IND-HER-05', placeName: 'Red Fort (Lal Qila)' },
+  { id: 'ind_gj_07_feature', name: 'Somnath Jyotirlinga Temple', description: 'Oceanfront Kailash Mahameru Prasad spire and sacred sabha mandapa', placeId: 'IND-GJ-07', placeName: 'Somnath Jyotirlinga Temple' },
+  { id: 'ind_her_07_feature', name: 'Konark Sun Temple Stone Wheels', description: 'Astronomical sundial chariot wheels with intricate celestial carvings', placeId: 'IND-HER-07', placeName: 'Sun Temple Konark' },
+  { id: 'ind_her_09_feature', name: 'Hampi Virupaksha Temple Gopuram', description: 'Soaring 50-meter gateway tower overlooking the Tungabhadra river', placeId: 'IND-HER-09', placeName: 'Group of Monuments at Hampi' },
   { id: 'champaner_jami_masjid', name: 'Jama Masjid Champaner', description: '15th-century mosque blending Islamic and Jain elements', placeId: 'p12-jama-masjid-champaner', placeName: 'Jama Masjid Champaner' },
   { id: 'baroda_museum_statue', name: 'Baroda Museum Sculptures', description: 'Greco-Roman and Indian sculpture collection', placeId: 'p2-baroda-museum', placeName: 'Baroda Museum' },
+  { id: 'eme_temple_dome', name: 'EME Temple Dome', description: 'Distinctive aluminum geodesic dome', placeId: 'p4-eme-temple', placeName: 'EME Temple' },
   { id: 'sursagar_shiva', name: 'Sursagar Shiva Statue', description: 'Towering 120-feet Shiva statue at Sursagar Lake', placeId: 'p5-sursagar', placeName: 'Sursagar Lake' },
-  { id: 'tambekar_wada_murals', name: 'Tambekar Wada Murals', description: 'Maratha-era wall paintings from Hindu epics', placeId: 'p10-tambekar-wada', placeName: 'Tambekar Wada' },
 ];
 
 export default function CameraScreen() {

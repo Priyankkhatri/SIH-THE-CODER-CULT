@@ -35,8 +35,6 @@ export function HeritageMapView({
     <MapView
       ref={mapRef as any}
       style={styles.map}
-      provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
-      customMapStyle={Platform.OS === 'android' ? DARK_MAP_STYLE : undefined}
       initialRegion={{
         latitude: userLocation.latitude,
         longitude: userLocation.longitude,

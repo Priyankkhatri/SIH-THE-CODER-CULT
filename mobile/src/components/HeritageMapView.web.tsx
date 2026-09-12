@@ -15,7 +15,6 @@ interface HeritageMapViewProps {
 }
 
 export function HeritageMapView({
-
   places,
   selectedPlace,
   onSelectPlace,
@@ -23,6 +22,17 @@ export function HeritageMapView({
   userLocation,
 }: HeritageMapViewProps) {
   const { t, getPlaceName } = useTranslation();
+
+  // Dynamically calculate bounding coordinates across all displayed places
+  const lats = places.map((p) => p.latitude).filter((n) => typeof n === 'number' && !isNaN(n));
+  const lngs = places.map((p) => p.longitude).filter((n) => typeof n === 'number' && !isNaN(n));
+  const minLat = lats.length > 0 ? Math.min(...lats) : 20.0;
+  const maxLat = lats.length > 0 ? Math.max(...lats) : 28.0;
+  const minLng = lngs.length > 0 ? Math.min(...lngs) : 69.0;
+  const maxLng = lngs.length > 0 ? Math.max(...lngs) : 88.0;
+  const latSpan = Math.max(maxLat - minLat, 0.08);
+  const lngSpan = Math.max(maxLng - minLng, 0.08);
+
   return (
     <View style={styles.container}>
       {/* Web Interactive Map Canvas / Radar */}
@@ -34,19 +44,26 @@ export function HeritageMapView({
           <View style={styles.radarAxisH} />
           <View style={styles.radarAxisV} />
 
+          {/* Compass Indicators */}
+          <Text style={[styles.compassText, { top: 6, alignSelf: 'center' }]}>N</Text>
+          <Text style={[styles.compassText, { bottom: 6, alignSelf: 'center' }]}>S</Text>
+          <Text style={[styles.compassText, { right: 8, top: '48%' }]}>E</Text>
+          <Text style={[styles.compassText, { left: 8, top: '48%' }]}>W</Text>
+
           {/* User Location Pulse */}
           <View style={styles.userPin}>
             <View style={styles.userDot} />
-            <Text style={styles.userLabel}>You</Text>
+            <Text style={styles.userLabel}>Radar Center</Text>
           </View>
 
-          {/* Heritage Pins positioned by delta */}
-          {places.map((place) => {
-            // Map lat/lng delta to radar container percentage (-0.1 to +0.1 delta -> 10% to 90%)
-            const latDelta = (place.latitude - userLocation.latitude);
-            const lngDelta = (place.longitude - userLocation.longitude);
-            const topPct = Math.min(Math.max(50 - latDelta * 250, 10), 85);
-            const leftPct = Math.min(Math.max(50 + lngDelta * 250, 10), 85);
+          {/* Heritage Pins scaled proportionally across India/Gujarat geography */}
+          {places.slice(0, 45).map((place) => {
+            const relY = (place.latitude - minLat) / latSpan; // 0 (South) to 1 (North)
+            const relX = (place.longitude - minLng) / lngSpan; // 0 (West) to 1 (East)
+
+            // Invert Y for screen coordinates (North = top)
+            const topPct = Math.min(Math.max(82 - relY * 64, 12), 85);
+            const leftPct = Math.min(Math.max(16 + relX * 68, 14), 86);
             const isSelected = selectedPlace?.id === place.id;
             const pinColor = CATEGORY_COLORS[place.category] || Colors.primary;
 
@@ -59,6 +76,7 @@ export function HeritageMapView({
                   isSelected && styles.mapPinSelected,
                 ]}
                 onPress={() => onSelectPlace(place)}
+                activeOpacity={0.8}
               >
                 <View style={[styles.pinIconWrap, { backgroundColor: pinColor }]}>
                   <MaterialIcons name="account-balance" size={12} color="#fff" />
@@ -73,7 +91,7 @@ export function HeritageMapView({
 
         {/* Web Quick Selection Carousel */}
         <View style={styles.carouselContainer}>
-          <Text style={styles.carouselTitle}>📍 Sites on Radar</Text>
+          <Text style={styles.carouselTitle}>📍 {places.length} Heritage Sites Cataloged</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carouselScroll}>
             {places.map((place) => {
               const isSelected = selectedPlace?.id === place.id;
@@ -84,13 +102,14 @@ export function HeritageMapView({
                   onPress={() => {
                     onSelectPlace(place);
                   }}
+                  activeOpacity={0.7}
                 >
                   <View style={[styles.siteChipDot, { backgroundColor: CATEGORY_COLORS[place.category] || Colors.primary }]} />
                   <Text style={[styles.siteChipText, isSelected && styles.siteChipTextActive]}>
                     {place.name}
                   </Text>
-                  {place.distance !== undefined && (
-                    <Text style={styles.siteChipDist}>{place.distance.toFixed(1)} km</Text>
+                  {place.rating !== undefined && (
+                    <Text style={styles.siteChipDist}>⭐ {place.rating}</Text>
                   )}
                 </TouchableOpacity>
               );
@@ -126,6 +145,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  compassText: {
+    position: 'absolute',
+    fontSize: 10,
+    fontWeight: '800',
+    color: 'rgba(212, 169, 71, 0.6)',
+    letterSpacing: 1,
+    zIndex: 2,
   },
   circleOuter: {
     position: 'absolute',

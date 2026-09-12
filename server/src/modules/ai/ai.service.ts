@@ -44,6 +44,9 @@ class AIService {
 
     // Step 3: Try Local LM Studio Qwen 3.5 9B first (running on port 1234)
     try {
+      const temperature = mode === 'narrative' ? 0.65 : mode === 'child' ? 0.5 : 0.35;
+      const maxTokens = mode === 'short' ? 200 : mode === 'detailed' ? 380 : 250;
+
       const localResponse = await axios.post(
         'http://127.0.0.1:1234/v1/chat/completions',
         {
@@ -53,10 +56,10 @@ class AIService {
             { role: 'user', content: userPrompt },
             { role: 'assistant', content: '</think>\n' }, // Think-tag bypass for instant response
           ],
-          temperature: 0.3,
-          max_tokens: mode === 'short' ? 140 : mode === 'detailed' ? 280 : 180,
+          temperature,
+          max_tokens: maxTokens,
         },
-        { timeout: 30000 }
+        { timeout: 35000 }
       );
 
       let qwenAnswer = localResponse.data?.choices?.[0]?.message?.content;

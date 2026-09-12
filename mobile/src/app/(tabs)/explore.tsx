@@ -3,78 +3,176 @@ import {
   View,
   Text,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
   Dimensions,
   Platform,
   Linking,
+  FlatList,
+  ActivityIndicator,
 } from 'react-native';
-import MapView from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } from '../../constants/theme';
-import { usePlacesStore } from '../../stores';
+import { usePlacesStore, useChatStore } from '../../stores';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { Place } from '../../stores';
 import { useLocation } from '../../hooks/useLocation';
 import { CategoryFilter } from '../../components/CategoryFilter';
 import { HeritageMapView } from '../../components/HeritageMapView';
+import { PlaceCard } from '../../components/PlaceCard';
+import { placesApi } from '../../services/api';
 
 const { width, height } = Dimensions.get('window');
 
 export default function ExploreScreen() {
   const router = useRouter();
   const location = useLocation();
-  const { places } = usePlacesStore();
+  const { places, setPlaces } = usePlacesStore();
+  const { setContext } = useChatStore();
   const { t, getPlaceName } = useTranslation();
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const filteredPlaces = selectedCategory
-    ? places.filter((p) => p.category === selectedCategory)
-    : places;
+  // Auto-fetch all cataloged heritage places on mount and category change
+  const loadPlaces = async () => {
+    setIsLoading(true);
+    try {
+      const response: any = await placesApi.getAll(selectedCategory || undefined);
+      const list = Array.isArray(response) ? response : (response?.data || []);
+      if (list && list.length > 0) {
+        setPlaces(list);
+      }
+    } catch (err) {
+      console.warn('[ExploreScreen] Error loading places:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPlaces();
+  }, [selectedCategory]);
+
+  // Comprehensive filter by category & real-time search query
+  const filteredPlaces = places.filter((p) => {
+    const matchesCategory = !selectedCategory || p.category === selectedCategory;
+    if (!matchesCategory) return false;
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase().trim();
+    const nameMatch = p.name.toLowerCase().includes(q) || (p.nameHi && p.nameHi.toLowerCase().includes(q));
+    const descMatch = (p.shortDescription || '').toLowerCase().includes(q);
+    return nameMatch || descMatch;
+  });
 
   const handleMarkerPress = (place: Place) => {
     setSelectedPlace(place);
+  };
+
+  const handleAskAI = (place: Place) => {
+    setContext(place.id, place.name);
+    router.push('/(tabs)/ai');
   };
 
   const handleNavigate = (place: Place) => {
     const url = Platform.select({
       ios: `maps:0,0?q=${place.latitude},${place.longitude}`,
       android: `geo:${place.latitude},${place.longitude}?q=${place.latitude},${place.longitude}(${place.name})`,
+      web: `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`,
     });
     if (url) Linking.openURL(url);
   };
 
   const centerOnUser = () => {
-    mapRef.current?.animateToRegion({
-      latitude: location.latitude,
-      longitude: location.longitude,
-      latitudeDelta: 0.05,
-      longitudeDelta: 0.05,
-    });
+    if (mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
+      mapRef.current.animateToRegion({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        latitudeDelta: 0.08,
+        longitudeDelta: 0.08,
+      });
+    }
   };
 
   return (
     <View style={styles.container}>
-      <HeritageMapView
-        places={filteredPlaces}
-        selectedPlace={selectedPlace}
-        onSelectPlace={handleMarkerPress}
-        onPlaceDetails={(placeId) => router.push(`/place/${placeId}`)}
-        userLocation={{ latitude: location.latitude, longitude: location.longitude }}
-        mapRef={mapRef as any}
-      />
-
+      {/* View Switcher: Radar/Map or Directory List */}
+      {viewMode === 'map' ? (
+        <HeritageMapView
+          places={filteredPlaces}
+          selectedPlace={selectedPlace}
+          onSelectPlace={handleMarkerPress}
+          onPlaceDetails={(placeId) => router.push(`/place/${placeId}`)}
+          userLocation={{ latitude: location.latitude, longitude: location.longitude }}
+          mapRef={mapRef}
+        />
+      ) : (
+        <View style={styles.listContainer}>
+          {isLoading ? (
+            <View style={styles.loaderCenter}>
+              <ActivityIndicator size="large" color={Colors.primary} />
+              <Text style={styles.loaderText}>Loading Heritage Directory...</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={filteredPlaces}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.listContent}
+              renderItem={({ item }) => (
+                <PlaceCard
+                  place={item}
+                  onPress={() => router.push(`/place/${item.id}`)}
+                />
+              )}
+              ListEmptyComponent={
+                <View style={styles.emptyState}>
+                  <MaterialIcons name="search-off" size={48} color={Colors.textMuted} />
+                  <Text style={styles.emptyTitle}>No heritage sites found</Text>
+                  <Text style={styles.emptySubtitle}>Try changing your search query or category filter</Text>
+                </View>
+              }
+            />
+          )}
+        </View>
+      )}
 
       {/* Header overlay */}
       <View style={styles.headerOverlay}>
-        <View style={styles.searchBar}>
-          <MaterialIcons name="search" size={22} color={Colors.textMuted} />
-          <Text style={styles.searchText}>{t('explore.exploreSites')}</Text>
-          <View style={styles.placeCount}>
-            <Text style={styles.placeCountText}>{filteredPlaces.length}</Text>
+        <View style={styles.searchBarRow}>
+          <View style={styles.searchBar}>
+            <MaterialIcons name="search" size={20} color={Colors.textMuted} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search 136+ heritage sites, forts, temples..."
+              placeholderTextColor={Colors.textMuted}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <MaterialIcons name="close" size={18} color={Colors.textMuted} />
+              </TouchableOpacity>
+            )}
+            <View style={styles.placeCount}>
+              <Text style={styles.placeCountText}>{filteredPlaces.length}</Text>
+            </View>
           </View>
+
+          {/* View Toggle Button */}
+          <TouchableOpacity
+            style={styles.viewToggleBtn}
+            onPress={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
+          >
+            <MaterialIcons
+              name={viewMode === 'map' ? 'view-list' : 'map'}
+              size={22}
+              color={Colors.primary}
+            />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -83,13 +181,15 @@ export default function ExploreScreen() {
         <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
       </View>
 
-      {/* My location button */}
-      <TouchableOpacity style={styles.myLocationBtn} onPress={centerOnUser}>
-        <MaterialIcons name="my-location" size={22} color={Colors.primary} />
-      </TouchableOpacity>
+      {/* My location button (map mode only) */}
+      {viewMode === 'map' && (
+        <TouchableOpacity style={styles.myLocationBtn} onPress={centerOnUser}>
+          <MaterialIcons name="my-location" size={22} color={Colors.primary} />
+        </TouchableOpacity>
+      )}
 
-      {/* Bottom place card */}
-      {selectedPlace && (
+      {/* Bottom place card (map mode only) */}
+      {viewMode === 'map' && selectedPlace && (
         <View style={styles.bottomCard}>
           <View style={styles.bottomCardContent}>
             <View style={styles.bottomCardInfo}>
@@ -99,7 +199,7 @@ export default function ExploreScreen() {
                 <Text style={styles.bottomCardDesc} numberOfLines={2}>{selectedPlace.shortDescription}</Text>
                 <View style={styles.bottomCardMeta}>
                   {selectedPlace.distance !== undefined && (
-                    <Text style={styles.metaText}>📍 {selectedPlace.distance.toFixed(1)} {t('common.km')}</Text>
+                    <Text style={styles.metaText}>📍 {selectedPlace.distance.toFixed(1)} km</Text>
                   )}
                   {selectedPlace.rating && (
                     <Text style={styles.metaText}>⭐ {selectedPlace.rating}</Text>
@@ -113,18 +213,25 @@ export default function ExploreScreen() {
 
             <View style={styles.bottomCardActions}>
               <TouchableOpacity
+                style={styles.aiBtn}
+                onPress={() => handleAskAI(selectedPlace)}
+              >
+                <MaterialIcons name="auto-awesome" size={16} color={Colors.textInverse} />
+                <Text style={styles.aiBtnText}>Ask AI</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 style={styles.detailsBtn}
                 onPress={() => router.push(`/place/${selectedPlace.id}`)}
               >
-                <MaterialIcons name="info" size={18} color={Colors.textInverse} />
-                <Text style={styles.detailsBtnText}>{t('common.details')}</Text>
+                <MaterialIcons name="info" size={16} color={Colors.textInverse} />
+                <Text style={styles.detailsBtnText}>Details</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.navBtn}
                 onPress={() => handleNavigate(selectedPlace)}
               >
-                <MaterialIcons name="directions" size={18} color={Colors.primary} />
-                <Text style={styles.navBtnText}>{t('common.directions')}</Text>
+                <MaterialIcons name="directions" size={16} color={Colors.primary} />
+                <Text style={styles.navBtnText}>Go</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -142,37 +249,94 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  listContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    paddingTop: 160,
+  },
+  listContent: {
+    padding: Spacing.base,
+    paddingBottom: 110,
+    gap: Spacing.md,
+  },
+  loaderCenter: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 100,
+    gap: 12,
+  },
+  loaderText: {
+    color: Colors.textSecondary,
+    fontSize: Typography.sizes.sm,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 80,
+    gap: 10,
+  },
+  emptyTitle: {
+    fontSize: Typography.sizes.lg,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  emptySubtitle: {
+    fontSize: Typography.sizes.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    maxWidth: 280,
+  },
   map: {
     width: '100%',
     height: '100%',
   },
   headerOverlay: {
     position: 'absolute',
-    top: 56,
+    top: 52,
     left: Spacing.base,
     right: Spacing.base,
+    zIndex: 10,
+  },
+  searchBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   searchBar: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.surface + 'F0',
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.base,
-    paddingVertical: 12,
-    gap: 10,
+    paddingVertical: 8,
+    gap: 8,
     borderWidth: 1,
     borderColor: Colors.border,
     ...Shadows.md,
   },
-  searchText: {
+  searchInput: {
     flex: 1,
-    fontSize: Typography.sizes.base,
-    color: Colors.textMuted,
+    fontSize: Typography.sizes.sm,
+    color: Colors.text,
+    paddingVertical: 4,
+  },
+  viewToggleBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: Colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.md,
   },
   placeCount: {
     backgroundColor: Colors.primary,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
     borderRadius: BorderRadius.full,
   },
   placeCountText: {
@@ -182,9 +346,10 @@ const styles = StyleSheet.create({
   },
   filterOverlay: {
     position: 'absolute',
-    top: 110,
+    top: 104,
     left: 0,
     right: 0,
+    zIndex: 10,
   },
   myLocationBtn: {
     position: 'absolute',
@@ -282,7 +447,22 @@ const styles = StyleSheet.create({
   },
   bottomCardActions: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
+  },
+  aiBtn: {
+    flex: 1.2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: Colors.accent,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.lg,
+  },
+  aiBtnText: {
+    fontSize: Typography.sizes.sm,
+    fontWeight: '700',
+    color: Colors.textInverse,
   },
   detailsBtn: {
     flex: 1,
