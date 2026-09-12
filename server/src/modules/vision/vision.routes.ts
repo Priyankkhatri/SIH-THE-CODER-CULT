@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../../config/database';
+import { ARTIFACTS_DATA } from '../../seed/data';
 
 const router = Router();
 
@@ -56,6 +57,25 @@ const ARTIFACT_CATALOG: Record<string, { name: string; description: string; visi
     visionLabels: ['garden', 'palace', 'fountain', 'park', 'italian'],
   },
 };
+
+// Augment catalog with all 122+ scannable master artifacts
+if (Array.isArray(ARTIFACTS_DATA)) {
+  ARTIFACTS_DATA.forEach((item: any) => {
+    if (item.visionLabel && !ARTIFACT_CATALOG[item.visionLabel]) {
+      const keywords = `${item.name} ${item.description || ''}`
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter((w: string) => w.length > 3 && !['feature', 'scannable', 'with', 'from', 'this', 'that'].includes(w));
+
+      ARTIFACT_CATALOG[item.visionLabel] = {
+        name: item.name,
+        description: item.description,
+        visionLabels: Array.from(new Set(keywords)).slice(0, 8),
+      };
+    }
+  });
+}
 
 // POST /vision/identify - Identify an artifact from image + GPS
 router.post('/identify', async (req: Request, res: Response) => {

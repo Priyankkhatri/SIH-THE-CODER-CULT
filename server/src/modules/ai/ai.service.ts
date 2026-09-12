@@ -31,17 +31,18 @@ class AIService {
     // Step 1: Retrieve relevant heritage context
     const context = await this.retrieveContext(question, placeId);
 
-    // Step 2: Build the prompt with retrieved context
+    // Step 2: Build the prompt with retrieved context (compact for fast local inference)
     const systemPrompt = getSystemPrompt(mode, language);
-    const contextText = context.passages.map((p, i) => 
-      `[Source ${i + 1}: ${p.sourceName}]\n${p.content}`
-    ).join('\n\n');
+    const contextText = context.passages
+      .slice(0, 3)
+      .map((p, i) => `[Source ${i + 1}: ${p.sourceName}]\n${p.content.slice(0, 300)}`)
+      .join('\n\n');
 
     const userPrompt = placeId 
-      ? `Context about the heritage site:\n${contextText}\n\nPlace: ${context.placeName}\n\nQuestion: ${question}`
-      : `Available heritage information:\n${contextText}\n\nQuestion: ${question}`;
+      ? `Context:\n${contextText}\n\nPlace: ${context.placeName}\n\nQuestion: ${question}`
+      : `Context:\n${contextText}\n\nQuestion: ${question}`;
 
-    // Step 3: Try Local LM Studio Qwen 3.5 9B first (if running on port 1234)
+    // Step 3: Try Local LM Studio Qwen 3.5 9B first (running on port 1234)
     try {
       const localResponse = await axios.post(
         'http://127.0.0.1:1234/v1/chat/completions',
@@ -53,27 +54,30 @@ class AIService {
             { role: 'assistant', content: '</think>\n' }, // Think-tag bypass for instant response
           ],
           temperature: 0.3,
-          max_tokens: mode === 'short' ? 250 : mode === 'detailed' ? 600 : 400,
+          max_tokens: mode === 'short' ? 140 : mode === 'detailed' ? 280 : 180,
         },
-        { timeout: 8000 }
+        { timeout: 30000 }
       );
 
-      const qwenAnswer = localResponse.data?.choices?.[0]?.message?.content;
+      let qwenAnswer = localResponse.data?.choices?.[0]?.message?.content;
       if (qwenAnswer && qwenAnswer.trim().length > 10) {
+        // Strip any residual think block if present
+        qwenAnswer = qwenAnswer.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
         return {
-          answer: qwenAnswer.trim(),
+          answer: qwenAnswer,
           sources: context.passages.map((p) => ({
             name: p.sourceName,
             url: p.sourceUrl,
             text: p.content.substring(0, 150) + '...',
           })),
-          confidence: 0.95,
+          confidence: 0.96,
           mode,
           language,
         };
       }
-    } catch {
-      // Local AI not running or timed out; proceed to cloud / fallback
+    } catch (err: any) {
+      console.log(`[AIService] Local Qwen 3.5 9B skipped (${err.message || 'offline'}). Checking cloud/fallback.`);
     }
 
     // Step 4: If OpenAI API Key is provided, try OpenAI
@@ -118,7 +122,7 @@ class AIService {
       sourceName: string;
       sourceUrl?: string;
     }> = [];
-    let placeName = 'Unknown Place';
+    let placeName = 'Indian Heritage Landmark';
 
     if (placeId) {
       // Get heritage record for specific place
@@ -133,7 +137,6 @@ class AIService {
       if (record) {
         placeName = record.place?.name || 'Heritage Monument';
 
-        // Build passages from heritage data
         passages = [
           {
             content: record.shortStory,
@@ -159,7 +162,6 @@ class AIService {
           });
         }
 
-        // Add verified sources
         if (record.sources && Array.isArray(record.sources)) {
           record.sources.forEach((source: any) => {
             passages.push({
@@ -171,33 +173,87 @@ class AIService {
         }
       }
     } else {
-      // General query: search across all heritage records
-      const records = await prisma.heritageRecord.findMany({
+      // Intelligent general query: search across all heritage records in the database
+      const allRecords = await prisma.heritageRecord.findMany({
         include: {
           sources: true,
-          place: { select: { name: true } },
+          place: { select: { name: true, category: true, shortDescription: true } },
         },
-        take: 5,
       });
 
       const questionLower = question.toLowerCase();
-      const relevantRecords = records.filter((r: any) =>
-        (r.shortStory && r.shortStory.toLowerCase().includes(questionLower)) ||
-        (r.history && r.history.toLowerCase().includes(questionLower)) ||
-        (r.place && r.place.name && r.place.name.toLowerCase().includes(questionLower))
-      );
+      const questionWords = questionLower
+        .replace(/[^\w\s]/g, '')
+        .split(/\s+/)
+        .filter((w: string) => w.length > 2);
 
-      const targetRecords = relevantRecords.length > 0 ? relevantRecords : records.slice(0, 3);
+      // Score each record based on relevance to the user's question
+      const scoredRecords = allRecords.map((r: any) => {
+        let score = 0;
+        const pName = (r.place?.name || '').toLowerCase();
+        const story = (r.shortStory || '').toLowerCase();
+        const hist = (r.history || '').toLowerCase();
+        const arch = (r.architecture || '').toLowerCase();
 
-      targetRecords.forEach((record: any) => {
-        passages.push({
-          content: `${record.place?.name || 'Monument'}: ${record.shortStory}`,
-          sourceName: `Heritage Record - ${record.place?.name || 'History'}`,
-        });
+        // Exact place name match is weighted highest
+        if (pName && questionLower.includes(pName)) {
+          score += 100;
+        }
+
+        for (const word of questionWords) {
+          if (pName.includes(word)) score += 30;
+          if (story.includes(word)) score += 10;
+          if (hist.includes(word)) score += 8;
+          if (arch.includes(word)) score += 6;
+        }
+
+        return { record: r, score };
       });
 
-      if (targetRecords.length > 0 && targetRecords[0].place) {
-        placeName = targetRecords[0].place.name;
+      scoredRecords.sort((a: any, b: any) => b.score - a.score);
+
+      // Top matching record
+      const bestMatch = scoredRecords.find((s: any) => s.score > 0)?.record;
+
+      if (bestMatch) {
+        placeName = bestMatch.place?.name || 'Heritage Monument';
+        passages.push({
+          content: `${bestMatch.place?.name}: ${bestMatch.shortStory}`,
+          sourceName: `Heritage Record - ${bestMatch.place?.name}`,
+        });
+        if (bestMatch.history) {
+          passages.push({
+            content: bestMatch.history,
+            sourceName: `Archaeological History - ${bestMatch.place?.name}`,
+          });
+        }
+        if (bestMatch.significance) {
+          passages.push({
+            content: bestMatch.significance,
+            sourceName: `Significance - ${bestMatch.place?.name}`,
+          });
+        }
+        if (bestMatch.sources && Array.isArray(bestMatch.sources)) {
+          bestMatch.sources.forEach((s: any) => {
+            passages.push({
+              content: s.referenceText,
+              sourceName: s.sourceName,
+              sourceUrl: s.sourceUrl || undefined,
+            });
+          });
+        }
+      } else {
+        // Broad fallback: take top 3 prominent records
+        const sampleRecords = allRecords.slice(0, 3);
+        sampleRecords.forEach((record: any) => {
+          passages.push({
+            content: `${record.place?.name || 'Monument'}: ${record.shortStory}`,
+            sourceName: `Heritage Record - ${record.place?.name || 'History'}`,
+          });
+        });
+        if (sampleRecords.length > 0 && sampleRecords[0].place) {
+          placeName = sampleRecords[0].place.name;
+        }
       }
     }
 
@@ -222,7 +278,7 @@ class AIService {
         url: p.sourceUrl,
         text: p.content.substring(0, 150) + '...',
       })),
-      confidence: 0.8,
+      confidence: 0.85,
       mode,
       language,
     };
