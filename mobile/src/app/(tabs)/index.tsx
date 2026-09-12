@@ -9,7 +9,10 @@ import {
   RefreshControl,
   FlatList,
   Image,
+  TextInput,
+  Dimensions,
 } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
@@ -27,25 +30,89 @@ import {
   PlaceCardVerticalSkeleton,
   LocationBadgeSkeleton,
 } from '../../components/Skeleton';
+import { useSpeech } from '../../hooks/useSpeech';
 
-const QUICK_ACTIONS = [
-  { key: 'explore', label: 'Explore Map', icon: 'map', color: Colors.accent },
-  { key: 'ai', label: 'Ask AI', icon: 'auto-awesome', color: Colors.primary },
-  { key: 'camera', label: 'Identify', icon: 'camera-alt', color: Colors.secondary },
-  { key: 'plan', label: 'Plan Trip', icon: 'route', color: Colors.success },
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const SPOTLIGHT_CARD_WIDTH = Math.min(SCREEN_WIDTH - 48, 340);
+
+const SPOTLIGHT_MONUMENTS = [
+  {
+    id: 'p-rani-ki-vav',
+    title: 'Rani Ki Vav',
+    subtitle: 'UNESCO World Heritage Stepwell',
+    location: 'Patan, Gujarat',
+    era: '11th Century CE (Solanki Dynasty)',
+    imageUrl: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1200&q=80',
+    audioNarration:
+      'Rani Ki Vav was built by Queen Udayamati in memory of King Bhima the First. Designed as an inverted temple honoring subterranean water, it features seven intricate tiers with over 500 principal sculptures of Lord Vishnu.',
+    aiPrompt: 'Tell me the secret architectural geometry and legend behind Rani Ki Vav in Patan.',
+    badge: 'UNESCO Wonder',
+  },
+  {
+    id: 'p-statue-of-unity',
+    title: 'Statue of Unity',
+    subtitle: "World's Tallest Monument (182m)",
+    location: 'Kevadia, Gujarat',
+    era: 'Modern Marvel (2018)',
+    imageUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1200&q=80',
+    audioNarration:
+      'Standing at 182 meters tall on the Narmada River, the Statue of Unity honors Sardar Vallabhbhai Patel, the Iron Man who unified 562 princely states into the Republic of India.',
+    aiPrompt: 'What is the structural engineering marvel behind the 182m Statue of Unity and the best visiting tips?',
+    badge: 'Global Icon',
+  },
+  {
+    id: 'p-sun-temple-modhera',
+    title: 'Sun Temple Modhera',
+    subtitle: 'Solar Equinox Astronomical Marvel',
+    location: 'Mehsana, Gujarat',
+    era: '1026 CE (King Bhimdev I)',
+    imageUrl: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=1200&q=80',
+    audioNarration:
+      'Sun Temple Modhera is designed with breathtaking precision so the first rays of the rising sun illuminate the sanctum on equinox days. The complex features the majestic Surya Kund with 108 miniature shrines.',
+    aiPrompt: 'Explain how the solar alignment works at Modhera Sun Temple during the equinox.',
+    badge: 'Astronomical Gem',
+  },
+  {
+    id: 'p-somnath-temple',
+    title: 'Somnath Mahadev',
+    subtitle: 'First of the Twelve Sacred Jyotirlingas',
+    location: 'Prabhas Patan, Gujarat',
+    era: 'Ancient (Rebuilt 1951)',
+    imageUrl: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=80',
+    audioNarration:
+      'Standing at the shore of the Arabian Sea, Somnath is known as the Eternal Shrine. The arrow pillar, Baan Stambh, indicates an unobstructed sea route directly from Somnath to Antarctica.',
+    aiPrompt: 'Tell me about the mysterious Baan Stambh arrow pillar at Somnath and its connection to the South Pole.',
+    badge: 'Eternal Shrine',
+  },
+  {
+    id: 'p-dholavira-harappa',
+    title: 'Dholavira: Indus Metropolis',
+    subtitle: 'UNESCO Bronze Age Urban Citadel',
+    location: 'Khadir Bet, Kutch',
+    era: '3000 BCE - 1500 BCE',
+    imageUrl: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=1200&q=80',
+    audioNarration:
+      'Dholavira is one of the most prominent archaeological sites of the Harappan civilization, famous for its sophisticated water harvesting system, grand stadium, and unique sign board inscriptions.',
+    aiPrompt: 'How did the ancient engineers of Dholavira master desert water harvesting 5000 years ago?',
+    badge: '5000 Yr Civilisation',
+  },
 ];
 
 export default function HomeScreen() {
   const router = useRouter();
   const { name, language } = useUserStore();
   const { t } = useTranslation();
-  const { places, setPlaces, favorites, toggleFavorite, isLoading, setLoading } = usePlacesStore();
+  const { places, setPlaces, favorites, toggleFavorite, isLoading } = usePlacesStore();
   const { setContext } = useChatStore();
   const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [initialLoading, setInitialLoading] = useState(places.length === 0);
   const [refreshing, setRefreshing] = useState(false);
   const [sosVisible, setSosVisible] = useState(false);
+  const [activeAudioId, setActiveAudioId] = useState<string | null>(null);
+
+  const { speak, stop, isSpeaking } = useSpeech();
 
   // Instant render if places already present in store
   const isScreenLoading = (places.length === 0 && (initialLoading || isLoading)) || refreshing;
@@ -131,9 +198,45 @@ export default function HomeScreen() {
     router.push(`/place/${place.id}`);
   };
 
-  const filteredPlaces = selectedCategory
-    ? places.filter((p) => p.category === selectedCategory)
-    : places;
+  const handleToggleAudio = (id: string, text: string) => {
+    if (isSpeaking && activeAudioId === id) {
+      stop();
+      setActiveAudioId(null);
+    } else {
+      setActiveAudioId(id);
+      speak(text, language);
+    }
+  };
+
+  const handleSpotlightAskAi = (item: (typeof SPOTLIGHT_MONUMENTS)[0]) => {
+    setContext(item.id, item.title);
+    router.push({
+      pathname: '/(tabs)/ai',
+      params: {
+        autoAsk: item.aiPrompt,
+        placeId: item.id,
+        placeName: item.title,
+      },
+    });
+  };
+
+  const filteredPlaces = places.filter((p) => {
+    if (selectedCategory && p.category !== selectedCategory) return false;
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase().trim();
+    const matchesName =
+      p.name?.toLowerCase().includes(q) ||
+      (p as any).nameHi?.includes(q) ||
+      (p as any).nameGu?.includes(q);
+    const matchesDesc = p.shortDescription?.toLowerCase().includes(q);
+    const matchesCity =
+      (p as any).city?.toLowerCase().includes(q) ||
+      (p as any).state?.toLowerCase().includes(q);
+    const matchesTags =
+      Array.isArray((p as any).tags) &&
+      (p as any).tags.some((t: string) => t.toLowerCase().includes(q));
+    return matchesName || matchesDesc || matchesCity || matchesTags;
+  });
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -165,6 +268,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
         contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
         <View style={styles.header}>
@@ -183,9 +287,9 @@ export default function HomeScreen() {
             {isScreenLoading ? (
               <LocationBadgeSkeleton />
             ) : (
-              <TouchableOpacity style={styles.locationBadge}>
+              <TouchableOpacity style={styles.locationBadge} onPress={() => router.push('/(tabs)/explore')}>
                 <MaterialIcons name="place" size={16} color={Colors.primary} />
-                <Text style={styles.locationText}>
+                <Text style={styles.locationText} numberOfLines={1}>
                   {`${location.city}, ${location.region}`}
                 </Text>
               </TouchableOpacity>
@@ -200,6 +304,43 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Live Search Bar */}
+        <View style={styles.searchSection}>
+          <View style={styles.searchBar}>
+            <MaterialIcons name="search" size={22} color={Colors.primary} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search 155+ heritage sites, temples, palaces..."
+              placeholderTextColor={Colors.textMuted}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              returnKeyType="search"
+              clearButtonMode="while-editing"
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity
+                onPress={() => setSearchQuery('')}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <MaterialIcons name="cancel" size={20} color={Colors.textMuted} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
+        {/* Search Results Filter Banner */}
+        {searchQuery.trim().length > 0 && (
+          <View style={styles.searchActiveBadge}>
+            <MaterialIcons name="filter-list" size={16} color={Colors.primary} />
+            <Text style={styles.searchActiveText}>
+              Found {filteredPlaces.length} site{filteredPlaces.length === 1 ? '' : 's'} matching "{searchQuery}"
+            </Text>
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Text style={styles.clearSearchText}>Clear</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Live Weather & Crowd Density Radar */}
         <WeatherCrowdBar
@@ -228,10 +369,152 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* Spotlight Hero Carousel (Visible when not actively searching) */}
+        {!searchQuery && (
+          <View style={styles.spotlightSection}>
+            <View style={styles.sectionHeader}>
+              <View>
+                <Text style={styles.sectionTitle}>🌟 Must-Visit Wonders</Text>
+                <Text style={styles.sectionSubtitle}>Iconic civilisations with AI voice narration</Text>
+              </View>
+              <View style={styles.audioHintPill}>
+                <MaterialIcons name="volume-up" size={14} color={Colors.primary} />
+                <Text style={styles.audioHintText}>Audio Guide</Text>
+              </View>
+            </View>
+
+            <FlatList
+              data={SPOTLIGHT_MONUMENTS}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: 14, paddingTop: 4, paddingBottom: 10 }}
+              renderItem={({ item }) => {
+                const isPlayingThis = isSpeaking && activeAudioId === item.id;
+                return (
+                  <View style={styles.spotlightCard}>
+                    <ExpoImage
+                      source={{ uri: item.imageUrl }}
+                      style={styles.spotlightImage}
+                      contentFit="cover"
+                      transition={300}
+                    />
+                    <View style={styles.spotlightScrim} />
+
+                    {/* Top Badges */}
+                    <View style={styles.spotlightTopRow}>
+                      <View style={styles.spotlightBadge}>
+                        <MaterialIcons name="verified" size={12} color="#D4AF37" />
+                        <Text style={styles.spotlightBadgeText}>{item.badge}</Text>
+                      </View>
+                      <TouchableOpacity
+                        style={[styles.audioPlayBtn, isPlayingThis && styles.audioPlayBtnActive]}
+                        onPress={() => handleToggleAudio(item.id, item.audioNarration)}
+                        activeOpacity={0.8}
+                      >
+                        <MaterialIcons
+                          name={isPlayingThis ? 'stop' : 'volume-up'}
+                          size={16}
+                          color={isPlayingThis ? '#FFFFFF' : '#D4AF37'}
+                        />
+                        <Text style={[styles.audioPlayBtnText, isPlayingThis && styles.audioPlayBtnTextActive]}>
+                          {isPlayingThis ? 'Stop' : 'Audio'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* Bottom Content */}
+                    <View style={styles.spotlightContent}>
+                      <Text style={styles.spotlightEra}>{item.era}</Text>
+                      <Text style={styles.spotlightTitle}>{item.title}</Text>
+                      <View style={styles.spotlightLocRow}>
+                        <MaterialIcons name="location-on" size={14} color="rgba(255,255,255,0.85)" />
+                        <Text style={styles.spotlightLocText}>{item.location}</Text>
+                      </View>
+                      <Text style={styles.spotlightSubtitle} numberOfLines={2}>
+                        {item.subtitle}
+                      </Text>
+
+                      <View style={styles.spotlightActions}>
+                        <TouchableOpacity
+                          style={styles.spotlightAiBtn}
+                          onPress={() => handleSpotlightAskAi(item)}
+                          activeOpacity={0.85}
+                        >
+                          <MaterialIcons name="auto-awesome" size={14} color="#FFFFFF" />
+                          <Text style={styles.spotlightAiBtnText}>Ask AI Guide</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={styles.spotlightViewBtn}
+                          onPress={() => {
+                            const match = places.find(
+                              (p) =>
+                                p.name.toLowerCase().includes(item.title.toLowerCase()) ||
+                                item.title.toLowerCase().includes(p.name.toLowerCase())
+                            );
+                            if (match) {
+                              router.push(`/place/${match.id}`);
+                            } else {
+                              router.push('/(tabs)/explore');
+                            }
+                          }}
+                          activeOpacity={0.85}
+                        >
+                          <Text style={styles.spotlightViewBtnText}>Explore →</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </View>
+                );
+              }}
+            />
+          </View>
+        )}
+
+        {/* Cultural Mystery Trivia Card (Visible when not actively searching) */}
+        {!searchQuery && (
+          <View style={styles.triviaCardContainer}>
+            <View style={styles.triviaCard}>
+              <View style={styles.triviaHeader}>
+                <View style={styles.triviaIconWrap}>
+                  <MaterialIcons name="psychology" size={24} color="#D4AF37" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.triviaBadge}>CULTURAL MYSTERY</Text>
+                  <Text style={styles.triviaTitle}>The Inverted Sanctuaries of Gujarat</Text>
+                </View>
+              </View>
+              <Text style={styles.triviaBody}>
+                Unlike traditional Indian temples that rise toward the heavens, Gujarat's ancient stepwells (Vavs) descend deep into the earth. They inverted sacred geometry to sanctify groundwater as a subterranean sanctuary for desert travelers!
+              </Text>
+              <TouchableOpacity
+                style={styles.triviaActionBtn}
+                onPress={() => {
+                  setContext(null, 'Stepwell Architecture');
+                  router.push({
+                    pathname: '/(tabs)/ai',
+                    params: {
+                      autoAsk: 'Explain the sacred geometry, folklore, and engineering of stepwells (Vavs) in Gujarat.',
+                    },
+                  });
+                }}
+                activeOpacity={0.8}
+              >
+                <MaterialIcons name="auto-awesome" size={16} color={Colors.primary} />
+                <Text style={styles.triviaActionText}>Ask AI to Unravel This Mystery →</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
         {/* Nearby Heritage Sites */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t('home.nearbyHeritageSites')}</Text>
+            <View>
+              <Text style={styles.sectionTitle}>{t('home.nearbyHeritageSites')}</Text>
+              <Text style={styles.sectionSubtitle}>Discover monuments near your GPS coordinates</Text>
+            </View>
             <Text style={styles.sectionCount}>{filteredPlaces.length} {t('home.placesCount')}</Text>
           </View>
 
@@ -265,14 +548,55 @@ export default function HomeScreen() {
             <View style={styles.emptyWrap}>
               <MaterialIcons name="search-off" size={48} color={Colors.textMuted} />
               <Text style={styles.emptyText}>{t('home.noPlacesFound')}</Text>
+              {searchQuery.length > 0 && (
+                <TouchableOpacity style={styles.emptyClearBtn} onPress={() => setSearchQuery('')}>
+                  <Text style={styles.emptyClearText}>Clear search filter</Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
         </View>
 
+        {/* Living Crafts & Artisans of Gujarat Banner */}
+        {!searchQuery && (
+          <View style={styles.craftsBannerContainer}>
+            <View style={styles.craftsBanner}>
+              <View style={styles.craftsContent}>
+                <View style={styles.craftsBadge}>
+                  <MaterialIcons name="palette" size={14} color="#FFFFFF" />
+                  <Text style={styles.craftsBadgeText}>LIVING CRAFTS</Text>
+                </View>
+                <Text style={styles.craftsTitle}>Patan Patola & Rogan Art</Text>
+                <Text style={styles.craftsDesc}>
+                  Centuries-old double ikat weaving and castor seed art preserved by master craftsmen of Gujarat.
+                </Text>
+                <TouchableOpacity
+                  style={styles.craftsBtn}
+                  onPress={() => {
+                    setContext(null, 'Artisans & Handicrafts');
+                    router.push({
+                      pathname: '/(tabs)/ai',
+                      params: {
+                        autoAsk: 'Tell me about the master artisans of Patola Silk in Patan and Rogan Art in Nirona, Kutch.',
+                      },
+                    });
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.craftsBtnText}>Discover Master Crafts →</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
+
         {/* Curated Heritage Showcase */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t('home.allNearbyPlaces')}</Text>
+            <View>
+              <Text style={styles.sectionTitle}>{t('home.allNearbyPlaces')}</Text>
+              <Text style={styles.sectionSubtitle}>Curated monuments, palaces & sacred sites</Text>
+            </View>
             <TouchableOpacity onPress={() => router.push('/(tabs)/explore')}>
               <Text style={styles.seeAllText}>View Map →</Text>
             </TouchableOpacity>
@@ -418,8 +742,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: Spacing.xl,
-    paddingTop: 60,
-    paddingBottom: Spacing.lg,
+    paddingTop: 56,
+    paddingBottom: Spacing.md,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -434,12 +758,12 @@ const styles = StyleSheet.create({
     borderColor: '#D4AF37',
   },
   greeting: {
-    fontSize: Typography.sizes.base,
+    fontSize: Typography.sizes.sm,
     color: Colors.textSecondary,
     marginBottom: 2,
   },
   userName: {
-    fontSize: Typography.sizes['2xl'],
+    fontSize: Typography.sizes.xl,
     fontWeight: '800',
     color: Colors.text,
   },
@@ -447,7 +771,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginTop: 8,
   },
   locationBadge: {
     flexDirection: 'row',
@@ -455,15 +778,16 @@ const styles = StyleSheet.create({
     gap: 4,
     backgroundColor: Colors.surface,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 7,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: Colors.border,
+    maxWidth: 140,
   },
   locationText: {
-    fontSize: Typography.sizes.sm,
+    fontSize: Typography.sizes.xs,
     color: Colors.text,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   sosBadge: {
     flexDirection: 'row',
@@ -471,7 +795,7 @@ const styles = StyleSheet.create({
     gap: 4,
     backgroundColor: '#EF5350',
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 7,
     borderRadius: BorderRadius.full,
     ...Shadows.sm,
   },
@@ -481,9 +805,57 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: 0.5,
   },
+  searchSection: {
+    paddingHorizontal: Spacing.xl,
+    marginBottom: Spacing.sm,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.sm,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: Typography.sizes.sm,
+    color: Colors.text,
+    padding: 0,
+  },
+  searchActiveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    marginHorizontal: Spacing.xl,
+    marginBottom: Spacing.md,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 169, 71, 0.3)',
+  },
+  searchActiveText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '600',
+    color: Colors.primary,
+    flex: 1,
+    marginLeft: 6,
+  },
+  clearSearchText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
   quickActionsSection: {
     paddingHorizontal: Spacing.xl,
     marginBottom: Spacing.xl,
+    marginTop: Spacing.sm,
   },
   quickActionsGrid: {
     flexDirection: 'row',
@@ -508,6 +880,277 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
   },
+  spotlightSection: {
+    marginBottom: Spacing['2xl'],
+  },
+  spotlightCard: {
+    width: SPOTLIGHT_CARD_WIDTH,
+    height: 250,
+    borderRadius: BorderRadius['2xl'],
+    overflow: 'hidden',
+    backgroundColor: '#1E1E2E',
+    position: 'relative',
+    ...Shadows.md,
+  },
+  spotlightImage: {
+    ...StyleSheet.absoluteFill,
+  },
+  spotlightScrim: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(15, 10, 5, 0.55)',
+  },
+  spotlightTopRow: {
+    position: 'absolute',
+    top: 14,
+    left: 14,
+    right: 14,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    zIndex: 2,
+  },
+  spotlightBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(20, 15, 10, 0.75)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+  },
+  spotlightBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#D4AF37',
+    letterSpacing: 0.3,
+  },
+  audioPlayBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(20, 15, 10, 0.75)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+  },
+  audioPlayBtnActive: {
+    backgroundColor: '#E53935',
+    borderColor: '#EF5350',
+  },
+  audioPlayBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#D4AF37',
+  },
+  audioPlayBtnTextActive: {
+    color: '#FFFFFF',
+  },
+  spotlightContent: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 14,
+    zIndex: 2,
+  },
+  spotlightEra: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#D4AF37',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  spotlightTitle: {
+    fontSize: Typography.sizes.xl,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  spotlightLocRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  spotlightLocText: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontWeight: '500',
+  },
+  spotlightSubtitle: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.75)',
+    marginTop: 3,
+  },
+  spotlightActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 10,
+  },
+  spotlightAiBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: Colors.primary,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.lg,
+  },
+  spotlightAiBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  spotlightViewBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  spotlightViewBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  audioHintPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(212, 169, 71, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+  },
+  audioHintText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  triviaCardContainer: {
+    paddingHorizontal: Spacing.xl,
+    marginBottom: Spacing['2xl'],
+  },
+  triviaCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius['2xl'],
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.35)',
+    ...Shadows.sm,
+  },
+  triviaHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 10,
+  },
+  triviaIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  triviaBadge: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#D4AF37',
+    letterSpacing: 1,
+  },
+  triviaTitle: {
+    fontSize: Typography.sizes.base,
+    fontWeight: '700',
+    color: Colors.text,
+    marginTop: 2,
+  },
+  triviaBody: {
+    fontSize: Typography.sizes.sm,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+    marginBottom: 14,
+  },
+  triviaActionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.lg,
+  },
+  triviaActionText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  craftsBannerContainer: {
+    paddingHorizontal: Spacing.xl,
+    marginBottom: Spacing['2xl'],
+  },
+  craftsBanner: {
+    borderRadius: BorderRadius['2xl'],
+    overflow: 'hidden',
+    backgroundColor: '#3E2723',
+    padding: Spacing.lg,
+    ...Shadows.sm,
+  },
+  craftsContent: {
+    gap: 6,
+  },
+  craftsBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
+    marginBottom: 4,
+  },
+  craftsBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.8,
+  },
+  craftsTitle: {
+    fontSize: Typography.sizes.lg,
+    fontWeight: '800',
+    color: '#FFF8E7',
+  },
+  craftsDesc: {
+    fontSize: Typography.sizes.xs,
+    color: 'rgba(255, 248, 231, 0.8)',
+    lineHeight: 18,
+    marginBottom: 6,
+  },
+  craftsBtn: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#D4AF37',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.lg,
+  },
+  craftsBtnText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '800',
+    color: '#2C1810',
+  },
   section: {
     marginBottom: Spacing['2xl'],
   },
@@ -516,25 +1159,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: Spacing.xl,
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.sm,
   },
   sectionTitle: {
     fontSize: Typography.sizes.lg,
     fontWeight: '700',
     color: Colors.text,
-    paddingHorizontal: Spacing.xl,
-    marginBottom: Spacing.xs,
+  },
+  sectionSubtitle: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.textMuted,
+    marginTop: 2,
   },
   sectionCount: {
-    fontSize: Typography.sizes.sm,
-    color: Colors.textMuted,
-  },
-  loadingWrap: {
-    padding: Spacing['3xl'],
-    alignItems: 'center',
-    gap: 12,
-  },
-  loadingText: {
     fontSize: Typography.sizes.sm,
     color: Colors.textMuted,
   },
@@ -546,6 +1183,18 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: Typography.sizes.base,
     color: Colors.textMuted,
+  },
+  emptyClearBtn: {
+    marginTop: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.full,
+    backgroundColor: 'rgba(212, 169, 71, 0.15)',
+  },
+  emptyClearText: {
+    fontSize: Typography.sizes.xs,
+    fontWeight: '700',
+    color: Colors.primary,
   },
   seeAllText: {
     fontSize: Typography.sizes.sm,
@@ -562,6 +1211,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.base,
     borderRadius: BorderRadius.xl,
     marginTop: Spacing.sm,
+    marginHorizontal: Spacing.xl,
     borderWidth: 1,
     borderColor: 'rgba(212, 169, 71, 0.35)',
     ...Shadows.sm,

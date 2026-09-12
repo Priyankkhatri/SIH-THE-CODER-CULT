@@ -11,6 +11,7 @@ import {
   FlatList,
   ActivityIndicator,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } from '../../constants/theme';
@@ -379,9 +380,19 @@ export default function ExploreScreen() {
         <View style={styles.bottomCard}>
           <View style={styles.bottomCardContent}>
             <View style={styles.bottomCardInfo}>
-              <View style={[styles.catDot, { backgroundColor: CATEGORY_COLORS[selectedPlace.category] || Colors.primary }]} />
+              {selectedPlace.imageUrl ? (
+                <Image
+                  source={{ uri: selectedPlace.imageUrl }}
+                  style={styles.bottomCardThumb}
+                  contentFit="cover"
+                  transition={200}
+                />
+              ) : null}
               <View style={{ flex: 1 }}>
-                <Text style={styles.bottomCardName}>{getPlaceName(selectedPlace)}</Text>
+                <View style={styles.bottomCardTitleRow}>
+                  <View style={[styles.catDot, { backgroundColor: CATEGORY_COLORS[selectedPlace.category] || Colors.primary }]} />
+                  <Text style={styles.bottomCardName} numberOfLines={1}>{getPlaceName(selectedPlace)}</Text>
+                </View>
                 <Text style={styles.bottomCardDesc} numberOfLines={2}>{selectedPlace.shortDescription}</Text>
                 
                 {/* Real-time crowd badge */}
@@ -677,12 +688,25 @@ const styles = StyleSheet.create({
   bottomCardInfo: {
     flexDirection: 'row',
     gap: 12,
+    alignItems: 'flex-start',
+  },
+  bottomCardThumb: {
+    width: 68,
+    height: 68,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  bottomCardTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 3,
   },
   catDot: {
-    width: 4,
-    height: '100%',
-    borderRadius: 2,
-    marginTop: 4,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   bottomCardName: {
     fontSize: Typography.sizes.lg,
