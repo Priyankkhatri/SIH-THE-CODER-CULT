@@ -21,6 +21,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { WeatherCrowdBar } from '../../components/WeatherCrowdBar';
 import { SafetySOSModal } from '../../components/SafetySOSModal';
 import { LocalArtisansSection } from '../../components/LocalArtisansSection';
+import { ReviewsSection } from '../../components/ReviewsSection';
 
 const { width } = Dimensions.get('window');
 
@@ -380,6 +381,13 @@ export default function PlaceDetailScreen() {
 
           {/* Local Artisans & Regional Gastronomy Showcase */}
           <LocalArtisansSection placeName={displayName} stateOrCity={displayName} />
+
+          {/* Visitor Reviews & Community Ratings */}
+          <ReviewsSection
+            placeId={placeObj.id || id || ''}
+            placeName={displayName}
+            initialRating={placeObj.rating}
+          />
 
           {/* Deep Heritage Link */}
           <TouchableOpacity

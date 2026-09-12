@@ -1,9 +1,10 @@
-import { PLACES_DATA, HERITAGE_RECORDS, SOURCES_DATA, ARTIFACTS_DATA } from '../seed/data';
+import { PLACES_DATA, HERITAGE_RECORDS, SOURCES_DATA, ARTIFACTS_DATA, getReviewsForPlace, ReviewItem } from '../seed/data';
 import { v4 as uuidv4 } from 'uuid';
 
 const users = new Map<string, any>();
 const preferences = new Map<string, any>();
 const itineraries = new Map<string, any>();
+const userReviews = new Map<string, ReviewItem[]>();
 
 // Helper to assemble full heritage record with relation
 function getHeritageRecord(record: any, include?: any) {
@@ -234,6 +235,54 @@ export const inMemoryDb: any = {
         itineraries.delete(args.where.id);
       }
       return { success: true };
+    },
+  },
+
+  review: {
+    findMany: async (args?: any) => {
+      const placeId = args?.where?.placeId;
+      if (!placeId) return [];
+      let list = userReviews.get(placeId);
+      if (!list) {
+        const p = PLACES_DATA.find((x: any) => x.id === placeId);
+        list = getReviewsForPlace(placeId, p?.name || 'Monument', p?.rating || 4.6);
+        userReviews.set(placeId, [...list]);
+      }
+      if (args?.orderBy?.createdAt === 'desc') {
+        return [...list].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      }
+      return list;
+    },
+    create: async ({ data }: any) => {
+      const placeId = data.placeId;
+      const newReview: ReviewItem = {
+        id: data.id || uuidv4(),
+        placeId,
+        userId: data.userId || undefined,
+        userName: data.userName || 'Anonymous Visitor',
+        userAvatar: data.userAvatar || undefined,
+        rating: Number(data.rating) || 5,
+        title: data.title || '',
+        comment: data.comment || '',
+        badge: data.badge || 'Verified Visitor',
+        visitType: data.visitType || 'Family',
+        helpfulCount: data.helpfulCount || 0,
+        createdAt: new Date().toISOString(),
+      };
+      const current = userReviews.get(placeId) || (
+        PLACES_DATA.find((x: any) => x.id === placeId)
+          ? [...getReviewsForPlace(placeId, PLACES_DATA.find((x: any) => x.id === placeId)?.name)]
+          : []
+      );
+      const updated = [newReview, ...current];
+      userReviews.set(placeId, updated);
+      return newReview;
+    },
+    count: async (args?: any) => {
+      const placeId = args?.where?.placeId;
+      if (!placeId) return 0;
+      const list = userReviews.get(placeId) || getReviewsForPlace(placeId);
+      return list.length;
     },
   },
 };

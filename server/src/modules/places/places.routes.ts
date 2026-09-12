@@ -185,7 +185,92 @@ router.get('/:id/recommendations', async (req: Request, res: Response) => {
   }
 });
 
-// 6. GET /places/:id (Parametric route at the bottom)
+// 6. GET /places/:id/reviews - Fetch visitor reviews and rating breakdown
+router.get('/:id/reviews', async (req: Request, res: Response) => {
+  try {
+    const placeId = req.params.id as string;
+    const reviews = await prisma.review.findMany({
+      where: { placeId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const total = reviews.length;
+    let avg = 4.6;
+    const distribution: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+
+    if (total > 0) {
+      let sum = 0;
+      for (const r of reviews) {
+        const roundedStar = Math.min(5, Math.max(1, Math.round(r.rating)));
+        distribution[roundedStar] = (distribution[roundedStar] || 0) + 1;
+        sum += r.rating;
+      }
+      avg = Number((sum / total).toFixed(1));
+    }
+
+    const percentages: Record<number, number> = {
+      5: total > 0 ? Math.round((distribution[5] / total) * 100) : 75,
+      4: total > 0 ? Math.round((distribution[4] / total) * 100) : 20,
+      3: total > 0 ? Math.round((distribution[3] / total) * 100) : 5,
+      2: total > 0 ? Math.round((distribution[2] / total) * 100) : 0,
+      1: total > 0 ? Math.round((distribution[1] / total) * 100) : 0,
+    };
+
+    res.json({
+      success: true,
+      data: {
+        reviews,
+        stats: {
+          totalReviews: total,
+          averageRating: avg,
+          distribution,
+          percentages,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching reviews:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch reviews' });
+  }
+});
+
+// 7. POST /places/:id/reviews - Submit a new review
+router.post('/:id/reviews', async (req: Request, res: Response) => {
+  try {
+    const placeId = req.params.id as string;
+    const { userName, rating, title, comment, visitType, badge } = req.body;
+
+    if (!comment || typeof comment !== 'string' || comment.trim().length === 0) {
+      return res.status(400).json({ success: false, error: 'Review comment is required' });
+    }
+
+    const parsedRating = Math.min(5, Math.max(1, Number(rating) || 5));
+
+    const newReview = await prisma.review.create({
+      data: {
+        placeId,
+        userName: userName && typeof userName === 'string' && userName.trim() ? userName.trim() : 'Heritage Traveler',
+        rating: parsedRating,
+        title: title && typeof title === 'string' ? title.trim() : 'Splendid Heritage Experience',
+        comment: comment.trim(),
+        badge: badge || 'Verified Visitor',
+        visitType: visitType || 'Family',
+        helpfulCount: 0,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Review submitted successfully',
+      data: newReview,
+    });
+  } catch (error) {
+    console.error('Error submitting review:', error);
+    res.status(500).json({ success: false, error: 'Failed to submit review' });
+  }
+});
+
+// 8. GET /places/:id (Parametric route at the bottom)
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const place = await prisma.place.findUnique({

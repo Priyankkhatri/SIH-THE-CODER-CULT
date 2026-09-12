@@ -6506,3 +6506,5 @@ export async function seedDatabase() {
   console.log(`   Sources: ${SOURCES_DATA.length}`);
   console.log(`   Artifacts: ${ARTIFACTS_DATA.length}`);
 }
+
+export * from './reviews';

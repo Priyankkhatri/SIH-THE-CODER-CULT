@@ -45,6 +45,7 @@ model Place {
   heritageRecord HeritageRecord?
   artifacts      Artifact[]
   favorites      Favorite[]
+  reviews        Review[]
   createdAt      DateTime        @default(now())
 }
 
@@ -121,4 +122,20 @@ model ItineraryItem {
   travelTime    Int
   travelMode    String    @default("walk")
   reason        String
+}
+
+model Review {
+  id           String   @id @default(uuid())
+  placeId      String
+  place        Place    @relation(fields: [placeId], references: [id])
+  userId       String?
+  userName     String
+  userAvatar   String?
+  rating       Float
+  title        String?
+  comment      String
+  badge        String?
+  visitType    String?
+  helpfulCount Int      @default(0)
+  createdAt    DateTime @default(now())
 }
