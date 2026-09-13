@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Platform, TouchableOpacity, Linking } from 'react-native';
-import MapView, { Marker, Polyline, Callout, PROVIDER_GOOGLE, UrlTile } from 'react-native-maps';
+import MapView, { Marker, Polyline, Callout, UrlTile } from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, CATEGORY_COLORS, Shadows, BorderRadius, Spacing, Typography } from '../constants/theme';
 import type { Place } from '../stores';
@@ -43,18 +43,28 @@ export const DARK_GOOGLE_MAP_STYLE = [
   { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#64748b' }] },
 ];
 
-// High-Definition Tile Layers (CartoDB removed to eliminate watermark)
+// High-Definition free tile layers — no API key required (OSM + CARTO + Esri + OTM).
+// UrlTile replaces base map content so Android never depends on Google vector tiles
+// (which render blank white in Expo Go without a dev-build-injected key).
 export const TILE_URLS: Record<MapLayerType, string | null> = {
-  // streets: Real native Google Maps vector layer (null = no UrlTile overlay needed)
-  streets: null,
-  // satellite: Real native Google Maps hybrid layer (null = no UrlTile overlay needed)
-  satellite: null,
-  // terrain: Real native Google Maps terrain layer (null = no UrlTile overlay needed)
-  terrain: null,
-  // dark: Native Google Maps with DARK_GOOGLE_MAP_STYLE (null = no UrlTile overlay needed)
-  dark: null,
-  // osm: OpenStreetMap standard global street atlas (100% free, no watermarks)
+  // Detailed streets: CARTO Voyager HD retina
+  streets: 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+  // Satellite: Esri World Imagery (true satellite detail)
+  satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  // Terrain: OpenTopoMap topographic detail
+  terrain: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
+  // Dark: CARTO Dark Matter HD — matches heritage-gold theme
+  dark: 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+  // OSM: OpenStreetMap standard global street atlas (100% free)
   osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+};
+
+export const TILE_ATTRIBUTION: Record<MapLayerType, string> = {
+  streets: '© OpenStreetMap © CARTO',
+  satellite: '© Esri World Imagery',
+  terrain: '© OpenTopoMap © OSM',
+  dark: '© OpenStreetMap © CARTO',
+  osm: '© OpenStreetMap',
 };
 
 function getCategoryIcon(category: string): keyof typeof MaterialIcons.glyphMap {
@@ -89,7 +99,8 @@ export function HeritageMapView({
   routeDurationMin,
   onClearRoute,
 }: HeritageMapViewProps) {
-  // 1. Sanitize & filter valid numeric coordinates to prevent map render glitches
+  // 1. Sanitize & filter valid numeric coordinates to prevent map render glitches.
+  // Tight India bbox drops null-island / corrupt seeds that stretch the camera.
   const validPlaces = React.useMemo(() => {
     return (places || []).filter(
       (p) =>
@@ -98,10 +109,26 @@ export function HeritageMapView({
         typeof p.longitude === 'number' &&
         !isNaN(p.latitude) &&
         !isNaN(p.longitude) &&
-        p.latitude > 5 &&
-        p.longitude > 5
+        p.latitude >= 6 &&
+        p.latitude <= 38 &&
+        p.longitude >= 68 &&
+        p.longitude <= 98
     );
   }, [places]);
+
+  const [mapReady, setMapReady] = React.useState(false);
+  const [tileFailed, setTileFailed] = React.useState(false);
+
+  // Never trap the user behind a loading veil: reveal map after 6s even if
+  // onMapReady is delayed by slow tiles, and flag degraded mode.
+  React.useEffect(() => {
+    if (mapReady) return;
+    const t = setTimeout(() => {
+      setMapReady(true);
+      setTileFailed(true);
+    }, 6000);
+    return () => clearTimeout(t);
+  }, [mapReady, mapLayer]);
 
   // 2. Smooth auto-focus camera when a place is tapped or searched
   React.useEffect(() => {
@@ -122,55 +149,69 @@ export function HeritageMapView({
     }
   }, [selectedPlace]);
 
-  // 3. Wide-angle Gujarat & West India heritage region
+  // 3. Vadodara-first detail region — streets/labels visible instantly.
+  // Old 3.6 delta showed all Gujarat as empty wash; 0.12 ≈ 12km street detail.
   const initialRegion = {
-    latitude: 22.85,
-    longitude: 72.35,
-    latitudeDelta: 3.6,
-    longitudeDelta: 3.6,
+    latitude: 22.3072,
+    longitude: 73.1812,
+    latitudeDelta: 0.14,
+    longitudeDelta: 0.14,
   };
 
   const tileUrl = TILE_URLS[mapLayer];
-  const mapType = mapLayer === 'satellite' ? 'hybrid' : mapLayer === 'terrain' ? 'terrain' : 'standard';
-  const isGoogleProvider = Platform.OS === 'android';
+
+  // Mid-route arrow bearing from local segment (not whole-trip bearing)
+  const midArrowBearing = React.useMemo(() => {
+    if (!routeCoordinates || routeCoordinates.length < 4) return routeBearing ?? 0;
+    const mid = Math.floor(routeCoordinates.length / 2);
+    const a = routeCoordinates[Math.max(0, mid - 1)];
+    const b = routeCoordinates[Math.min(routeCoordinates.length - 1, mid + 1)];
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const toDeg = (r: number) => (r * 180) / Math.PI;
+    const y = Math.sin(toRad(b.longitude - a.longitude)) * Math.cos(toRad(b.latitude));
+    const x =
+      Math.cos(toRad(a.latitude)) * Math.sin(toRad(b.latitude)) -
+      Math.sin(toRad(a.latitude)) * Math.cos(toRad(b.latitude)) * Math.cos(toRad(b.longitude - a.longitude));
+    return (toDeg(Math.atan2(y, x)) + 360) % 360;
+  }, [routeCoordinates, routeBearing]);
 
   if (Platform.OS === 'web') {
-    return (
-      <View style={[styles.map, styles.webMapContainer]}>
-        <iframe
-          title="Heritage Map Web"
-          src="https://www.openstreetmap.org/export/embed.html?bbox=68.1,20.1,74.5,24.7&layer=mapnik"
-          style={{ width: '100%', height: '100%', border: 'none' } as any}
-        />
-        <View style={styles.webOverlayInfo}>
-          <View style={styles.webBadge}>
-            <MaterialIcons name="explore" size={16} color={Colors.primary} />
-            <Text style={styles.webBadgeText}>{validPlaces.length} Monuments Cataloged</Text>
-          </View>
-        </View>
-      </View>
-    );
+    // Bundler resolves HeritageMapView.web.tsx on web; never render native MapView here.
+    return null;
   }
 
   return (
     <View style={styles.mapContainer}>
+      {/* Dark base so tiles fading in never flash white */}
+      <View style={styles.mapBase} />
+      {!mapReady && (
+        <View style={styles.mapLoadingOverlay}>
+          <Text style={styles.mapLoadingText}>Loading heritage streets…</Text>
+          <Text style={styles.mapLoadingSub}>{TILE_ATTRIBUTION[mapLayer]}</Text>
+        </View>
+      )}
       <MapView
         ref={mapRef as any}
         style={styles.map}
         initialRegion={initialRegion}
-        provider={isGoogleProvider ? PROVIDER_GOOGLE : undefined}
-        mapType={mapType}
-        customMapStyle={mapLayer === 'dark' ? DARK_GOOGLE_MAP_STYLE : undefined}
+        provider={undefined}
+        mapType={mapLayer === 'satellite' ? 'none' : 'standard'}
         loadingEnabled={true}
         loadingIndicatorColor={Colors.primary}
-        loadingBackgroundColor="#121824"
+        loadingBackgroundColor="#0A0A0F"
         showsUserLocation={Boolean(userLocation?.latitude)}
         showsMyLocationButton={false}
         showsCompass={true}
+        showsPointsOfInterests={true}
+        showsBuildings={true}
         toolbarEnabled={false}
         moveOnMarkerPress={false}
+        onMapReady={() => {
+          setMapReady(true);
+          setTileFailed(false);
+        }}
       >
-        {/* Only render UrlTile if a free non-watermarked layer like OSM is active */}
+        {/* Raster tiles replace the base map on both platforms — guarantees paint */}
         {tileUrl && (
           <UrlTile
             key={mapLayer}
@@ -178,8 +219,9 @@ export function HeritageMapView({
             maximumZ={19}
             minimumZ={1}
             flipY={false}
+            tileSize={256}
             zIndex={-1}
-            shouldReplaceMapContent={Platform.OS === 'ios'}
+            shouldReplaceMapContent={true}
           />
         )}
 
@@ -216,9 +258,25 @@ export function HeritageMapView({
                     size={16}
                     color="#0A0A0F"
                     style={{
-                      transform: [{ rotate: `${routeBearing ?? 0}deg` }],
+                      transform: [{ rotate: `${midArrowBearing}deg` }],
                     }}
                   />
+                </View>
+              </Marker>
+            )}
+            {/* Destination flag pin */}
+            {routeDestination && (
+              <Marker
+                coordinate={{
+                  latitude: routeDestination.latitude,
+                  longitude: routeDestination.longitude,
+                }}
+                title={routeDestination.name}
+                anchor={{ x: 0.5, y: 0.5 }}
+                tracksViewChanges={false}
+              >
+                <View style={styles.destFlagBadge}>
+                  <MaterialIcons name="flag" size={15} color="#0A0A0F" />
                 </View>
               </Marker>
             )}
@@ -312,6 +370,17 @@ export function HeritageMapView({
         })}
       </MapView>
 
+      {/* Tile attribution — proves rich sourced tiles, never blank */}
+      <View style={styles.attributionBadge}>
+        <Text style={styles.attributionText}>{TILE_ATTRIBUTION[mapLayer]}</Text>
+      </View>
+
+      {tileFailed && (
+        <View style={styles.tileErrorBar}>
+          <MaterialIcons name="cloud-off" size={15} color="#F59E0B" />
+          <Text style={styles.tileErrorText}>Map tiles slow — check connection, still showing cached streets.</Text>
+        </View>
+      )}
       {/* Floating Active Direction & Navigation HUD */}
       {routeDestination && (
         <View style={styles.navigationHud}>
@@ -379,6 +448,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    backgroundColor: '#0A0A0F',
+  },
+  mapBase: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#0A0A0F',
   },
   map: {
     position: 'absolute',
@@ -386,6 +464,75 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  mapLoadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#0A0A0F',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    zIndex: 1,
+  },
+  mapLoadingText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  mapLoadingSub: {
+    fontSize: 11,
+    color: Colors.textMuted,
+  },
+  attributionBadge: {
+    position: 'absolute',
+    right: 10,
+    bottom: 12,
+    backgroundColor: 'rgba(10,10,15,0.75)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    zIndex: 5,
+  },
+  attributionText: {
+    fontSize: 9,
+    color: 'rgba(245,240,232,0.75)',
+    fontWeight: '600',
+  },
+  tileErrorBar: {
+    position: 'absolute',
+    top: 196,
+    left: Spacing.base,
+    right: Spacing.base,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(30,22,8,0.95)',
+    borderWidth: 1,
+    borderColor: '#F59E0B',
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    zIndex: 6,
+  },
+  tileErrorText: {
+    fontSize: 11,
+    color: '#FCD34D',
+    fontWeight: '600',
+    flex: 1,
+  },
+  destFlagBadge: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#D4AF37',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    ...Shadows.md,
   },
   // User navigation pulse & heading
   userNavMarker: {

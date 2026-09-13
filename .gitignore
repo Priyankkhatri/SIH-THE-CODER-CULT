@@ -36,3 +36,7 @@ Thumbs.db
 
 # Native generated folders
 *.orig.*
+
+# ML Training Raw Data
+ml/data/
+ml/inspect_dataset.py

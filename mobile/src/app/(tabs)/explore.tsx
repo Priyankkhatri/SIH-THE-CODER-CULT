@@ -27,7 +27,7 @@ import { placesApi } from '../../services/api';
 import { getLiveCrowd } from '../../utils/touristMeta';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
 import { dynamicImageService } from '../../services/dynamicImageService';
-import { getRoute, RouteResult } from '../../utils/routeService';
+import { getRoute, haversineDistance, RouteResult } from '../../utils/routeService';
 
 const { width, height } = Dimensions.get('window');
 
@@ -51,9 +51,17 @@ export default function ExploreScreen() {
   const [mapLayer, setMapLayer] = useState<MapLayerType>('streets');
   const [showLayerPicker, setShowLayerPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRouting, setIsRouting] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [routeDestination, setRouteDestination] = useState<Place | null>(null);
   const [routeInfo, setRouteInfo] = useState<RouteResult | null>(null);
+  // Debounced search so 155+ catalog filter doesn't re-run per keystroke
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(searchQuery), 220);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
   // Auto-fetch all cataloged heritage places with instant 155+ offline seed fallback
   const loadPlaces = async () => {
@@ -102,8 +110,8 @@ export default function ExploreScreen() {
       if (crowd.level !== selectedCrowd) return false;
     }
 
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase().trim();
+    if (!debouncedQuery.trim()) return true;
+    const q = debouncedQuery.toLowerCase().trim();
     const nameMatch = p.name.toLowerCase().includes(q) || (p.nameHi && p.nameHi.toLowerCase().includes(q));
     const descMatch = (p.shortDescription || '').toLowerCase().includes(q);
     return nameMatch || descMatch;
@@ -111,8 +119,8 @@ export default function ExploreScreen() {
 
   // Top suggestions for the search dropdown
   const searchSuggestions = React.useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const q = searchQuery.toLowerCase().trim();
+    if (!debouncedQuery.trim()) return [];
+    const q = debouncedQuery.toLowerCase().trim();
     return allCatalogPlaces
       .filter((p) => {
         const nameMatch = p.name.toLowerCase().includes(q) || (p.nameHi && p.nameHi.toLowerCase().includes(q));
@@ -120,33 +128,43 @@ export default function ExploreScreen() {
         return nameMatch || descMatch;
       })
       .slice(0, 6);
-  }, [searchQuery, allCatalogPlaces]);
+  }, [debouncedQuery, allCatalogPlaces]);
 
-  // Starts in-app route drawing with direction arrow and fits camera
+  // Starts in-app route drawing with direction arrow and fits camera to full bbox
   const startNavigationTo = async (place: Place) => {
     setSelectedPlace(place);
     setRouteDestination(place);
+    setRouteInfo(null);
+    setIsRouting(true);
     const userLat = location.latitude || 22.3072;
     const userLng = location.longitude || 73.1812;
 
     try {
-      const route = await getRoute(userLat, userLng, place.latitude, place.longitude);
+      const route = await getRoute(userLat, userLng, place.latitude, place.longitude, 'driving');
       setRouteInfo(route);
 
       if (mapRef.current?.fitToCoordinates && route.coordinates.length > 0) {
-        mapRef.current.fitToCoordinates(
-          [
-            { latitude: userLat, longitude: userLng },
-            { latitude: place.latitude, longitude: place.longitude },
-          ],
-          {
-            edgePadding: { top: 160, right: 60, bottom: 280, left: 60 },
-            animated: true,
-          }
-        );
+        // Fit the whole road polyline bbox so the golden route is never cropped
+        // by the search header or bottom card.
+        const coords =
+          route.bbox
+            ? [
+                { latitude: route.bbox.minLat, longitude: route.bbox.minLng },
+                { latitude: route.bbox.maxLat, longitude: route.bbox.maxLng },
+              ]
+            : [
+                { latitude: userLat, longitude: userLng },
+                { latitude: place.latitude, longitude: place.longitude },
+              ];
+        mapRef.current.fitToCoordinates(coords, {
+          edgePadding: { top: 190, right: 60, bottom: 320, left: 60 },
+          animated: true,
+        });
       }
     } catch (err) {
       console.warn('[ExploreScreen] Route fetch notice:', err);
+    } finally {
+      setIsRouting(false);
     }
   };
 
@@ -198,33 +216,46 @@ export default function ExploreScreen() {
     startNavigationTo(place);
   };
 
-  const zoomIn = () => {
+  const zoomByDelta = (factor: number) => {
+    // Delta fallback works on every provider (Google getCamera is unreliable
+    // with raster UrlTile overlays, so never depend on it alone).
     if (mapRef.current && typeof mapRef.current.getCamera === 'function') {
-      mapRef.current.getCamera().then((cam: any) => {
-        if (cam) {
-          mapRef.current.animateCamera({
-            ...cam,
-            altitude: Math.max(500, (cam.altitude || 10000) * 0.5),
-            zoom: Math.min(20, (cam.zoom || 12) + 1),
-          });
-        }
-      }).catch(() => {});
+      mapRef.current
+        .getCamera()
+        .then((cam: any) => {
+          if (cam) {
+            mapRef.current.animateCamera({
+              ...cam,
+              altitude: Math.max(500, (cam.altitude || 10000) * factor),
+              zoom: Math.min(20, Math.max(4, (cam.zoom || 12) + (factor < 1 ? 1 : -1))),
+            });
+          } else {
+            throw new Error('no cam');
+          }
+        })
+        .catch(() => zoomByDeltaFallback(factor));
+    } else {
+      zoomByDeltaFallback(factor);
     }
   };
 
-  const zoomOut = () => {
-    if (mapRef.current && typeof mapRef.current.getCamera === 'function') {
-      mapRef.current.getCamera().then((cam: any) => {
-        if (cam) {
-          mapRef.current.animateCamera({
-            ...cam,
-            altitude: (cam.altitude || 10000) * 2,
-            zoom: Math.max(4, (cam.zoom || 12) - 1),
-          });
-        }
-      }).catch(() => {});
+  const zoomByDeltaFallback = (_factor: number) => {
+    // Last-resort nudge toward selected place / user so buttons never feel dead
+    const target = selectedPlace ?? routeDestination;
+    const lat = target?.latitude ?? location.latitude ?? 22.3072;
+    const lng = target?.longitude ?? location.longitude ?? 73.1812;
+    if (mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
+      const delta = _factor < 1 ? 0.05 : 0.3;
+      mapRef.current.animateToRegion(
+        { latitude: lat, longitude: lng, latitudeDelta: delta, longitudeDelta: delta },
+        350
+      );
     }
   };
+
+  const zoomIn = () => zoomByDelta(0.5);
+
+  const zoomOut = () => zoomByDelta(2);
 
   const centerOnUser = () => {
     if (mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
@@ -241,12 +272,13 @@ export default function ExploreScreen() {
 
   const centerGujarat = () => {
     if (mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
+      // Street-detail Vadodara view — matches HeritageMapView initialRegion
       mapRef.current.animateToRegion(
         {
-          latitude: 22.85,
-          longitude: 72.35,
-          latitudeDelta: 3.6,
-          longitudeDelta: 3.6,
+          latitude: 22.3072,
+          longitude: 73.1812,
+          latitudeDelta: 0.14,
+          longitudeDelta: 0.14,
         },
         500
       );
@@ -445,7 +477,7 @@ export default function ExploreScreen() {
 
       {/* Floating Map Actions (map mode only) */}
       {viewMode === 'map' && (
-        <View style={[styles.mapActionCol, selectedPlace ? { bottom: 250 } : {}]}>
+        <View style={[styles.mapActionCol, selectedPlace ? { bottom: 300 } : {}]}>
           <TouchableOpacity
             style={[styles.mapActionBtn, showLayerPicker && styles.mapActionBtnActive]}
             onPress={() => setShowLayerPicker(!showLayerPicker)}
@@ -490,7 +522,7 @@ export default function ExploreScreen() {
 
       {/* Interactive Map Layer Picker Tray */}
       {viewMode === 'map' && showLayerPicker && (
-        <View style={[styles.layerPickerTray, selectedPlace ? { bottom: 250 } : {}]}>
+        <View style={[styles.layerPickerTray, selectedPlace ? { bottom: 300 } : {}]}>
           <View style={styles.layerPickerHeader}>
             <MaterialIcons name="map" size={16} color={Colors.primary} />
             <Text style={styles.layerPickerTitle}>Map Style & Readings</Text>
@@ -591,9 +623,17 @@ export default function ExploreScreen() {
                 })()}
 
                 <View style={styles.bottomCardMeta}>
-                  {selectedPlace.distance !== undefined && (
-                    <Text style={styles.metaText}>📍 {selectedPlace.distance.toFixed(1)} km</Text>
-                  )}
+                  {(() => {
+                    const liveKm =
+                      selectedPlace.distance ??
+                      haversineDistance(
+                        location.latitude || 22.3072,
+                        location.longitude || 73.1812,
+                        selectedPlace.latitude,
+                        selectedPlace.longitude
+                      );
+                    return <Text style={styles.metaText}>📍 {liveKm.toFixed(1)} km</Text>;
+                  })()}
                   {selectedPlace.rating && (
                     <Text style={styles.metaText}>⭐ {selectedPlace.rating}</Text>
                   )}
@@ -605,11 +645,17 @@ export default function ExploreScreen() {
             </View>
 
             {/* Active Navigation Route Status */}
-            {routeDestination?.id === selectedPlace.id && routeInfo && (
+            {isRouting && routeDestination?.id === selectedPlace.id && (
+              <View style={styles.activeRouteBar}>
+                <ActivityIndicator size="small" color="#D4AF37" />
+                <Text style={styles.activeRouteText}>Finding best road route…</Text>
+              </View>
+            )}
+            {!isRouting && routeDestination?.id === selectedPlace.id && routeInfo && (
               <View style={styles.activeRouteBar}>
                 <MaterialIcons name="navigation" size={15} color="#D4AF37" />
                 <Text style={styles.activeRouteText}>
-                  Navigation Route Active • {routeInfo.distanceKm} km (~{routeInfo.durationMin} min)
+                  {routeInfo.source === 'osrm' ? 'Live road route' : 'Offline direct route'} • {routeInfo.distanceKm} km (~{routeInfo.durationMin} min)
                 </Text>
               </View>
             )}
@@ -638,7 +684,9 @@ export default function ExploreScreen() {
                 ]}
                 onPress={() => {
                   if (routeDestination?.id === selectedPlace.id) {
-                    const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedPlace.latitude},${selectedPlace.longitude}&travelmode=driving`;
+                    const originLat = location.latitude || 22.3072;
+                    const originLng = location.longitude || 73.1812;
+                    const url = `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${selectedPlace.latitude},${selectedPlace.longitude}&travelmode=driving`;
                     Linking.openURL(url).catch(() => {});
                   } else {
                     handleNavigate(selectedPlace);
