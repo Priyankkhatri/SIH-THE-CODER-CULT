@@ -191,3 +191,21 @@ export const CATEGORY_COLORS: Record<string, string> = {
   food: Colors.food,
   activity: Colors.activity,
 };
+
+// High-End Editorial Auth Palette (Reference Design)
+export const AuthTheme = {
+  background: '#0F0F0F',
+  surface: '#161616',
+  surfaceElevated: '#1E1E1E',
+  gold: '#D4AF7C',
+  goldDark: '#B89158',
+  goldLight: '#E5C9A4',
+  textPrimary: '#F5F1E8',
+  textSecondary: '#A7A7A7',
+  textMuted: '#666666',
+  border: 'rgba(255, 255, 255, 0.10)',
+  borderLight: 'rgba(255, 255, 255, 0.16)',
+  borderFocus: '#D4AF7C',
+  inputBg: '#161616',
+  fontSerif: Platform.select({ ios: 'Georgia', android: 'serif', default: 'serif' }),
+};
