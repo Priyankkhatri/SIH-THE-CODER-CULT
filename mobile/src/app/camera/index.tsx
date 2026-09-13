@@ -177,7 +177,6 @@ export default function CameraScreen() {
         latitude: location.latitude,
         longitude: location.longitude,
         image: photoBase64,
-        labels: ['kumbhalgarh', 'fort', 'architecture', 'monument', 'heritage'],
       });
 
       setScanStatus('🏛️ Verifying with Archaeological Survey of India (ASI)...');
@@ -187,25 +186,24 @@ export default function CameraScreen() {
         router.push({
           pathname: '/camera/result' as any,
           params: {
-            artifactName: item.artifact?.name || 'Kumbhalgarh Fort & The Great Wall of India',
+            artifactName: item.artifact?.name || 'Heritage Landmark',
             confidence: String(item.artifact?.confidence || 98),
-            description: item.artifact?.description || 'UNESCO World Heritage hill fortress in Mewar, Rajasthan.',
+            description: item.artifact?.description || 'Heritage landmark identified by Yatra Heritage Vision Model.',
             heritageContext: item.heritageContext || 'Protected monument under Archaeological Survey of India (ASI) records.',
             placeId: item.placeId || 'IND-HER-26',
-            placeName: item.placeName || item.artifact?.name || 'Kumbhalgarh Fort & The Great Wall of India',
+            placeName: item.placeName || item.artifact?.name || 'Heritage Landmark',
             imageUri: photoUri || '',
             t: String(Date.now()),
           },
         });
       } else {
-        navigateToResult(DEMO_CATALOG[0], 98, photoUri);
+        setScanStatus('Could not identify monument. Hold steady or pick from Presets.');
       }
     } catch (error) {
-      console.warn('[Camera] Identification fallback:', error);
-      navigateToResult(DEMO_CATALOG[0], 97);
+      console.warn('[Camera] Identification error:', error);
+      setScanStatus('Camera scan error. Please try again or pick from Presets.');
     } finally {
       setIsIdentifying(false);
-      setScanStatus('Point camera at monument or fortress');
     }
   };
 

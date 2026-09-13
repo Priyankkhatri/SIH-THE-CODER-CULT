@@ -248,7 +248,7 @@ class AIService {
           temperature,
           max_tokens: maxTokens,
         },
-        { timeout: 3500 } // Fast check - skip immediately if local LM Studio is offline
+        { timeout: 12000 } // Give local Llama 3.2 3B plenty of time for rich responses
       );
 
       let qwenAnswer = localResponse.data?.choices?.[0]?.message?.content;
