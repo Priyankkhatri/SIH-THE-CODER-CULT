@@ -63,7 +63,7 @@ if sys.platform == 'win32':
     except Exception:
         pass
 
-def train(epochs=12, batch_size=16, lr=1e-3):
+def train(epochs=12, batch_size=16, lr=1e-3, resume=False):
     os.makedirs(WEIGHTS_DIR, exist_ok=True)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"\n=======================================================")
@@ -107,6 +107,16 @@ def train(epochs=12, batch_size=16, lr=1e-3):
     print(f"Classes dictionary saved to: {classes_json_path}")
 
     model = build_model(num_classes).to(device)
+
+    # Resume from previous best checkpoint if requested and shapes match
+    if resume and os.path.exists(os.path.join(WEIGHTS_DIR, 'heritage_vision_model.pth')):
+        try:
+            prev_state = torch.load(os.path.join(WEIGHTS_DIR, 'heritage_vision_model.pth'), map_location=device)
+            if 'classifier.3.1.weight' in prev_state and prev_state['classifier.3.1.weight'].shape[0] == num_classes:
+                model.load_state_dict(prev_state)
+                print("[RESUME] Loaded previous best model weights for progressive fine-tuning!")
+        except Exception as e:
+            print(f"[RESUME NOTE] Initializing fresh weights: {e}")
 
     # Label smoothing cross entropy prevents overconfident misclassification
     criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
@@ -224,6 +234,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=12)
     parser.add_argument('--batch-size', type=int, default=16)
     parser.add_argument('--lr', type=float, default=1e-3)
+    parser.add_argument('--resume', action='store_true', help='Resume from previous best weights')
     args = parser.parse_args()
 
-    train(epochs=args.epochs, batch_size=args.batch_size, lr=args.lr)
+    train(epochs=args.epochs, batch_size=args.batch_size, lr=args.lr, resume=args.resume)
