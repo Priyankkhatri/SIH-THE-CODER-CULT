@@ -12,11 +12,14 @@ import {
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, INTERESTS_OPTIONS, DURATION_OPTIONS } from '../../constants/theme';
-import { useUserStore, usePlacesStore } from '../../stores';
+import { useUserStore, usePlacesStore, Place } from '../../stores';
 import { useTranslation } from '../../hooks/useTranslation';
 import { itineraryApi } from '../../services/api';
 import { useLocation } from '../../hooks/useLocation';
 import { TimelineItem } from '../../components/TimelineItem';
+import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
+import { dynamicImageService } from '../../services/dynamicImageService';
+import { haversineDistance } from '../../utils/routeService';
 
 interface ItineraryData {
   title: string;
@@ -67,10 +70,20 @@ export default function PlanScreen() {
       if (response?.data) {
         setItinerary(response.data);
         setShowForm(false);
+      } else {
+        const pool = usePlacesStore.getState().places;
+        const lat = location.latitude ?? 22.3072;
+        const lng = location.longitude ?? 73.1812;
+        const dynamicTour = generateDynamicItinerary(pool, lat, lng, selectedInterests, selectedDuration);
+        setItinerary(dynamicTour);
+        setShowForm(false);
       }
     } catch (error) {
-      // Fallback demo itinerary
-      setItinerary(DEMO_ITINERARY);
+      const pool = usePlacesStore.getState().places;
+      const lat = location.latitude ?? 22.3072;
+      const lng = location.longitude ?? 73.1812;
+      const dynamicTour = generateDynamicItinerary(pool, lat, lng, selectedInterests, selectedDuration);
+      setItinerary(dynamicTour);
       setShowForm(false);
     } finally {
       setIsGenerating(false);
@@ -243,50 +256,74 @@ export default function PlanScreen() {
   );
 }
 
-const DEMO_ITINERARY: ItineraryData = {
-  title: '90min Heritage Tour',
-  duration: '90min',
-  totalTimeMinutes: 85,
-  stops: 3,
-  items: [
-    {
-      placeId: 'p5-sursagar',
-      placeName: 'Sursagar Lake',
-      order: 1,
-      visitDuration: 20,
-      travelTime: 5,
-      travelMode: 'walk',
-      reason: 'Very close to your current location',
-      distance: 0.8,
-      imageUrl: null,
-      shortStory: null,
-    },
-    {
-      placeId: 'p1-laxmi-vilas',
-      placeName: 'Laxmi Vilas Palace',
-      order: 2,
-      visitDuration: 35,
-      travelTime: 8,
-      travelMode: 'drive',
-      reason: 'Matches your interest in heritage',
-      distance: 2.3,
-      imageUrl: null,
-      shortStory: null,
-    },
-    {
-      placeId: 'p6-sayaji-baug',
-      placeName: 'Sayaji Baug',
-      order: 3,
-      visitDuration: 25,
-      travelTime: 5,
-      travelMode: 'walk',
-      reason: 'Highly rated heritage site (4.5★)',
-      distance: 1.2,
-      imageUrl: null,
-      shortStory: null,
-    },
-  ],
-};
+function generateDynamicItinerary(
+  places: Place[],
+  userLat: number,
+  userLng: number,
+  selectedInterests: string[],
+  selectedDuration: string
+): ItineraryData {
+  let targetStops = 3;
+  let targetMinutes = 90;
+  let tourTitle = '90-Minute Heritage Circuit';
+
+  if (selectedDuration === 'halfDay' || selectedDuration === 'half_day' || selectedDuration === '4h') {
+    targetStops = 4;
+    targetMinutes = 240;
+    tourTitle = 'Half-Day Cultural Odyssey';
+  } else if (selectedDuration === 'fullDay' || selectedDuration === 'full_day' || selectedDuration === '8h') {
+    targetStops = 6;
+    targetMinutes = 480;
+    tourTitle = 'Full-Day Grand Heritage Expedition';
+  }
+
+  const pool = places && places.length > 0 ? places : ALL_SEED_PLACES;
+
+  // Filter / score places by proximity and category match
+  const scored = pool.map((p) => {
+    const dist = haversineDistance(userLat, userLng, p.latitude, p.longitude);
+    const categoryMatches = selectedInterests.length === 0 || selectedInterests.includes(p.category);
+    const score = (categoryMatches ? 10 : 0) + (p.rating || 4.5) * 2 - Math.min(dist / 20, 8);
+    return {
+      place: p,
+      distance: dist,
+      score,
+    };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+
+  const selectedStops = scored.slice(0, targetStops);
+  let totalTime = 0;
+
+  const items = selectedStops.map((item, index) => {
+    const p = item.place;
+    const visitDuration = Math.round(targetMinutes / (targetStops * 1.3));
+    const travelTime = Math.max(5, Math.min(45, Math.round(item.distance * 2.5)));
+    totalTime += visitDuration + travelTime;
+
+    return {
+      placeId: p.id,
+      placeName: p.name,
+      order: index + 1,
+      visitDuration,
+      travelTime,
+      travelMode: item.distance <= 2 ? 'walk' : 'drive',
+      reason: `Matches your interest in ${p.category} (${p.rating || 4.8}★ rating, ${item.distance.toFixed(1)} km away)`,
+      distance: Number(item.distance.toFixed(1)),
+      imageUrl: dynamicImageService.getPlaceImage(p.name, p.category, p.imageUrl),
+      shortStory: (p as any).heritageRecord?.shortStory || p.shortDescription || null,
+    };
+  });
+
+  return {
+    title: tourTitle,
+    duration: selectedDuration,
+    totalTimeMinutes: totalTime,
+    stops: items.length,
+    items,
+  };
+}
 
 const styles = StyleSheet.create({
   container: {

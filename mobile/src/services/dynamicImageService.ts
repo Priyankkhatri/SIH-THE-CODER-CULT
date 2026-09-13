@@ -261,6 +261,35 @@ function getStringHash(str: string): number {
 // Curated authentic 4-to-5 photo galleries for iconic Indian monuments
 // (Guaranteed authentic, verified high-resolution stock photography with zero rate limits)
 export const CURATED_MONUMENT_GALLERIES: Record<string, GalleryImage[]> = {
+  // Kevadia: Statue of Unity
+  'statue of unity': [
+    {
+      url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Statue_of_Unity.jpg/960px-Statue_of_Unity.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail',
+      caption: '182-Meter Colossal Bronze Monument Honoring Sardar Vallabhbhai Patel',
+      source: 'Wikimedia Commons / Statue of Unity Authority',
+    },
+    {
+      url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/Statue_of_Unity_-_Close_Shot_from_the_other_bank_of_Narmada.jpg/960px-Statue_of_Unity_-_Close_Shot_from_the_other_bank_of_Narmada.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail',
+      caption: 'Detailed Bronze Cladding & Facial Sculpture by Ram V. Sutar',
+      source: 'Wikimedia Commons',
+    },
+    {
+      url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Statue_of_Unity_-_View_from_the_other_bank_of_Narmada.jpg/960px-Statue_of_Unity_-_View_from_the_other_bank_of_Narmada.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail',
+      caption: 'Panoramic Vista Across the Sacred Narmada River & Sadhu Bet',
+      source: 'Wikimedia Commons',
+    },
+    {
+      url: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Statue_lawns.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled',
+      caption: 'Landscaped Promenades, Valley of Flowers & Viewing Grounds',
+      source: 'Wikimedia Commons',
+    },
+    {
+      url: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Statue_from_highway.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled',
+      caption: 'Monumental Approach Highway Showing Sardar Sarovar Catchment',
+      source: 'Wikimedia Commons',
+    },
+  ],
+
   // Ahmedabad: Hutheesing Jain Temple
   'hutheesing': [
     {

@@ -124,39 +124,31 @@ export default function DownloadsSettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionHeading}>Available for Instant Download</Text>
           <Text style={styles.sectionSubtitle}>
-            Popular Vadodara heritage packages available for offline preservation demo.
+            Popular Indian heritage packages available for complete offline preservation.
           </Text>
 
           <View style={styles.demoList}>
-            <View style={styles.demoRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.demoPlaceName}>Laxmi Vilas Palace</Text>
-                <Text style={styles.demoPlaceSize}>Includes 500-acre chronicle, sources & audio</Text>
+            {[
+              { id: 'IND-HER-26', name: 'Kumbhalgarh Fort', size: '36km Continuous Ramparts & Mewar Chronicles' },
+              { id: 'IND-HER-11', name: 'Rani Ki Vav', size: 'UNESCO Subterranean Stepwell in Patan' },
+              { id: 'IND-GJ-SOU', name: 'Statue of Unity', size: '182m World Wonder & Sardar Patel Heritage' },
+              { id: 'IND-HER-01', name: 'Taj Mahal', size: 'Parchin Kari Marble Masterpiece in Agra' },
+            ].map((preset) => (
+              <View key={preset.id} style={styles.demoRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.demoPlaceName}>{preset.name}</Text>
+                  <Text style={styles.demoPlaceSize}>{preset.size}</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.downloadChip}
+                  onPress={() => handleDownloadPreset(preset.id)}
+                  disabled={isDownloadingDemo}
+                >
+                  <MaterialIcons name="file-download" size={18} color={Colors.background} />
+                  <Text style={styles.downloadChipText}>Download</Text>
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                style={styles.downloadChip}
-                onPress={() => handleDownloadPreset('p1-laxmi-vilas')}
-                disabled={isDownloadingDemo}
-              >
-                <MaterialIcons name="file-download" size={18} color={Colors.background} />
-                <Text style={styles.downloadChipText}>Download</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.demoRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.demoPlaceName}>Champaner Archaeological Park</Text>
-                <Text style={styles.demoPlaceSize}>UNESCO World Heritage data & mosque guides</Text>
-              </View>
-              <TouchableOpacity
-                style={styles.downloadChip}
-                onPress={() => handleDownloadPreset('p11-champaner')}
-                disabled={isDownloadingDemo}
-              >
-                <MaterialIcons name="file-download" size={18} color={Colors.background} />
-                <Text style={styles.downloadChipText}>Download</Text>
-              </TouchableOpacity>
-            </View>
+            ))}
           </View>
         </View>
       </ScrollView>

@@ -6060,5 +6060,46 @@
         }
       ]
     }
+  },
+  {
+    "id": "IND-GJ-SOU",
+    "name": "Statue of Unity",
+    "nameHi": "स्टैच्यू ऑफ यूनिटी",
+    "nameGu": "સ્ટેચ્યુ ઓફ યુનિટી",
+    "latitude": 21.838,
+    "longitude": 73.7191,
+    "city": "Kevadia",
+    "district": "Narmada District, Ekta Nagar",
+    "state": "Gujarat",
+    "category": "heritage",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Statue_of_Unity.jpg/330px-Statue_of_Unity.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "openingHours": "Open 08:00 AM to 06:00 PM (Closed Mondays). Laser Show at 07:00 PM.",
+    "rating": 4.9,
+    "shortDescription": "World's tallest monument standing at 182 meters (597 ft), dedicated to Sardar Vallabhbhai Patel on the Narmada River in Ekta Nagar, Gujarat.",
+    "heritageRecord": {
+      "placeId": "IND-GJ-SOU",
+      "shortStory": "Standing at 182 meters tall on Sadhu Bet island overlooking the Narmada River, the Statue of Unity is the tallest monument in the world. Dedicated to Sardar Vallabhbhai Patel, the visionary statesman who integrated 562 princely states into the Republic of India, the statue was sculpted by Padma Bhushan recipient Ram V. Sutar and inaugurated on October 31, 2018.",
+      "history": "Inaugurated on October 31, 2018, marking the 143rd birth anniversary of Sardar Vallabhbhai Patel. Built under the national leadership of Prime Minister Narendra Modi, the project was executed by Larsen & Toubro (L&T) alongside renowned Indian sculptor Ram V. Sutar. The iron used in the foundation and structural skeleton was collected from over 100,000 farmers across India through the Loha Campaign, symbolizing national integration. The statue rises 182 meters, matching the total number of constituencies in the Gujarat Legislative Assembly.",
+      "significance": "A global engineering marvel and national symbol of unity, patriotism, and sovereignty. Standing at 182 meters, it is almost twice the height of the Statue of Liberty. It houses a high-speed elevator taking visitors to a 153-meter high viewing gallery capable of accommodating 200 people with panoramic views of the Vindhyachal and Satpura mountain ranges and the Sardar Sarovar Dam reservoir.",
+      "architecture": "Engineered with high-grade structural steel and reinforced concrete core, clad with 6,500 bronze panels weighing 1,700 tonnes. Designed to withstand wind speeds of up to 180 km/h and earthquakes measuring up to 6.5 on the Richter scale. Features a museum at the base depicting the life and times of Sardar Patel, a laser light and sound show, Valley of Flowers, and riverfront promenade.",
+      "period": "2013-2018 CE (Modern Engineering Marvel)",
+      "keyFacts": [
+        "Exact Location: Narmada District, Ekta Nagar, Gujarat (21.8380° N, 73.7191° E)",
+        "Colossal Dimension: World's Tallest Monument at 182 metres (597 feet) high",
+        "Viewing Gallery: Located at 153m elevation offering 360° panoramic reservoir views",
+        "Sculptural Cladding: 6,500 individual bronze panels crafted under master sculptor Ram V. Sutar",
+        "Structural Engineering: Twin reinforced concrete core resistant to seismic activity and 180 km/h winds",
+        "National Unity Heritage: Foundation incorporates soil and iron farming tools donated by farmers across India",
+        "Nearby Attractions: Sardar Sarovar Dam (3.5 km), Valley of Flowers (2 km), Cactus Garden (4 km)"
+      ],
+      "nearbyCluster": "Sardar Sarovar Dam (3.5 km), Valley of Flowers (2 km), Cactus Garden (4 km)",
+      "sources": [
+        {
+          "sourceName": "Statue of Unity Official Authority & Gujarat Tourism",
+          "sourceUrl": "https://statueofunity.in",
+          "referenceText": "Official engineering and visitor registry of the Statue of Unity, Ekta Nagar, Gujarat."
+        }
+      ]
+    }
   }
 ]

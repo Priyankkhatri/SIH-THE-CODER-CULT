@@ -38,91 +38,17 @@ import { haversineDistance } from '../../utils/routeService';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SPOTLIGHT_CARD_WIDTH = Math.min(SCREEN_WIDTH - 48, 340);
 
-const SPOTLIGHT_MONUMENTS = [
-  {
-    id: 'IND-HER-26',
-    title: 'Kumbhalgarh Fort',
-    subtitle: 'The Great Wall of India (36 km Continuous Ramparts)',
-    location: 'Rajsamand, Rajasthan',
-    era: '15th Century (Maharana Kumbha)',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Kumbhalgarh_055.jpg/500px-Kumbhalgarh_055.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail',
-    audioNarration:
-      'Perched 3,600 feet high in the Aravalli hills of Mewar, Kumbhalgarh Fort is enclosed by a continuous 36-kilometer stone wall, recognized as the second-longest wall on Earth after the Great Wall of China.',
-    aiPrompt: 'Tell me the history of Kumbhalgarh Fort and how Maharana Kumbha engineered the 36 km Great Wall of India.',
-    badge: 'Great Wall of India',
-  },
-  {
-    id: 'IND-HER-11',
-    title: 'Rani Ki Vav',
-    subtitle: 'UNESCO World Heritage Subterranean Stepwell',
-    location: 'Patan, Gujarat',
-    era: '11th Century CE (Solanki Dynasty)',
-    imageUrl: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Rani_ki_vav_02.jpg/500px-Rani_ki_vav_02.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail',
-    audioNarration:
-      'Rani Ki Vav was built by Queen Udayamati in memory of King Bhima the First. Designed as an inverted temple honoring subterranean water, it features seven intricate tiers with over 500 principal sculptures of Lord Vishnu.',
-    aiPrompt: 'Tell me the secret architectural geometry and legend behind Rani Ki Vav in Patan.',
-    badge: 'UNESCO Wonder',
-  },
-  {
-    id: 'IND-HER-31',
-    title: 'Sun Temple Modhera',
-    subtitle: 'Solar Equinox Astronomical Marvel & Surya Kund',
-    location: 'Mehsana, Gujarat',
-    era: '1026 CE (King Bhimdev I)',
-    imageUrl: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Surya_mandhir.jpg/500px-Surya_mandhir.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail',
-    audioNarration:
-      'Sun Temple Modhera is designed with breathtaking precision so the first rays of the rising sun illuminate the sanctum on equinox days. The complex features the majestic Surya Kund with 108 miniature shrines.',
-    aiPrompt: 'Explain how the solar alignment works at Modhera Sun Temple during the equinox.',
-    badge: 'Astronomical Gem',
-  },
-  {
-    id: 'IND-GJ-06',
-    title: 'Statue of Unity',
-    subtitle: "World's Tallest Monument (182m)",
-    location: 'Kevadia, Gujarat',
-    era: 'Modern Marvel (2018)',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Statue_of_Unity.jpg/500px-Statue_of_Unity.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail',
-    audioNarration:
-      'Standing at 182 meters tall on the Narmada River, the Statue of Unity honors Sardar Vallabhbhai Patel, the Iron Man who unified 562 princely states into the Republic of India.',
-    aiPrompt: 'What is the structural engineering marvel behind the 182m Statue of Unity and the best visiting tips?',
-    badge: 'Global Icon',
-  },
-  {
-    id: 'IND-GJ-08',
-    title: 'Somnath Mahadev',
-    subtitle: 'First of the Twelve Sacred Jyotirlingas',
-    location: 'Prabhas Patan, Gujarat',
-    era: 'Ancient (Rebuilt 1951)',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Somanath_mandir_%28cropped%29.jpg/500px-Somanath_mandir_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail',
-    audioNarration:
-      'Standing at the shore of the Arabian Sea, Somnath is known as the Eternal Shrine. The arrow pillar, Baan Stambh, indicates an unobstructed sea route directly from Somnath to Antarctica.',
-    aiPrompt: 'Tell me about the mysterious Baan Stambh arrow pillar at Somnath and its connection to the South Pole.',
-    badge: 'Eternal Shrine',
-  },
-  {
-    id: 'IND-HER-13',
-    title: 'Dholavira: Indus Metropolis',
-    subtitle: 'UNESCO Bronze Age Urban Citadel & Reservoirs',
-    location: 'Khadir Bet, Kutch',
-    era: '3000 BCE - 1500 BCE',
-    imageUrl: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/DHOLAVIRA_SITE_%2824%29.jpg/500px-DHOLAVIRA_SITE_%2824%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail',
-    audioNarration:
-      'Dholavira is one of the most prominent archaeological sites of the Harappan civilization, famous for its sophisticated water harvesting system, grand stadium, and unique sign board inscriptions.',
-    aiPrompt: 'How did the ancient engineers of Dholavira master desert water harvesting 5000 years ago?',
-    badge: '5000 Yr Civilisation',
-  },
-  {
-    id: 'IND-HER-27',
-    title: 'Chittorgarh Fort',
-    subtitle: "India's Largest Fort Citadel & Tower of Victory",
-    location: 'Chittorgarh, Mewar, Rajasthan',
-    era: '7th-15th Century (Rana Kumbha)',
-    imageUrl: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Chittorgarh_fort.JPG/500px-Chittorgarh_fort.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail',
-    audioNarration:
-      'Spanning nearly 700 acres atop a high cliff, Chittorgarh Fort is the grandest fortress in India, famous for the 9-storey Vijay Stambha, Rani Padmini Palace, and timeless Rajput chivalry.',
-    aiPrompt: 'Describe the architecture of Vijay Stambha and the history of Chittorgarh Fort in Mewar.',
-    badge: 'Epic Citadel',
-  },
+const ICONIC_SPOTLIGHT_IDS = [
+  'IND-HER-26', // Kumbhalgarh Fort
+  'IND-HER-11', // Rani Ki Vav
+  'IND-HER-31', // Sun Temple Modhera
+  'IND-GJ-SOU', // Statue of Unity
+  'IND-GJ-08',  // Somnath Mahadev
+  'IND-HER-13', // Dholavira: Indus Metropolis
+  'IND-HER-27', // Chittorgarh Fort
+  'IND-HER-01', // Taj Mahal
+  'IND-HER-10', // Hampi
+  'IND-HER-02', // Qutub Minar
 ];
 
 export default function HomeScreen() {
@@ -235,7 +161,7 @@ export default function HomeScreen() {
     }
   };
 
-  const handleSpotlightAskAi = (item: (typeof SPOTLIGHT_MONUMENTS)[0]) => {
+  const handleSpotlightAskAi = (item: { id: string; title: string; aiPrompt: string }) => {
     setContext(item.id, item.title);
     router.push({
       pathname: '/(tabs)/ai',
@@ -270,6 +196,58 @@ export default function HomeScreen() {
     merged.sort((a, b) => (a.distance ?? 99999) - (b.distance ?? 99999));
     return merged;
   }, [places, location.latitude, location.longitude]);
+
+  // Dynamically derive spotlight monuments from live/seed catalog with authentic data
+  const spotlightMonuments = React.useMemo(() => {
+    const matched: Place[] = [];
+    for (const tid of ICONIC_SPOTLIGHT_IDS) {
+      const p = allCatalogPlaces.find((item) => item.id === tid || item.id?.toLowerCase() === tid.toLowerCase());
+      if (p) matched.push(p);
+    }
+    // Fallback fill with highest rated places if some IDs not found
+    if (matched.length < 5) {
+      for (const p of allCatalogPlaces) {
+        if (!matched.some((m) => m.id === p.id)) {
+          matched.push(p);
+          if (matched.length >= 7) break;
+        }
+      }
+    }
+
+    return matched.map((p) => {
+      const hr = (p as any).heritageRecord || {};
+      const title = (language === 'hi' && (p as any).nameHi)
+        ? (p as any).nameHi
+        : (language === 'gu' && (p as any).nameGu)
+        ? (p as any).nameGu
+        : p.name;
+      const cityOrDistrict = (p as any).city || (p as any).district || '';
+      const state = (p as any).state || '';
+      const locationStr = [cityOrDistrict, state].filter(Boolean).join(', ') || 'India';
+      const era = hr.period || 'Historical Era';
+      const audioNarration = hr.shortStory || p.shortDescription || `${title} is a celebrated heritage monument of India.`;
+      const aiPrompt = `Tell me the history, architecture, and significance of ${p.name}.`;
+      const badge = hr.significance?.includes('UNESCO')
+        ? 'UNESCO Wonder'
+        : (p.rating && p.rating >= 4.8)
+        ? 'Top Rated'
+        : 'Heritage Wonder';
+      const imageUrl = dynamicImageService.getPlaceImage(p.name, p.category, p.imageUrl);
+
+      return {
+        id: p.id,
+        title,
+        subtitle: p.shortDescription || hr.significance || title,
+        location: locationStr,
+        era,
+        imageUrl,
+        audioNarration,
+        aiPrompt,
+        badge,
+        place: p,
+      };
+    });
+  }, [allCatalogPlaces, language]);
 
   const filteredPlaces = allCatalogPlaces.filter((p) => {
     if (selectedCategory && p.category !== selectedCategory) return false;
@@ -509,7 +487,7 @@ export default function HomeScreen() {
             </View>
 
             <FlatList
-              data={SPOTLIGHT_MONUMENTS}
+              data={spotlightMonuments}
               horizontal
               showsHorizontalScrollIndicator={false}
               keyExtractor={(item) => item.id}
@@ -517,9 +495,18 @@ export default function HomeScreen() {
               renderItem={({ item }) => {
                 const isPlayingThis = isSpeaking && activeAudioId === item.id;
                 return (
-                  <View style={styles.spotlightCard}>
+                  <TouchableOpacity
+                    style={styles.spotlightCard}
+                    activeOpacity={0.95}
+                    onPress={() => router.push(`/place/${item.id}`)}
+                  >
                     <ExpoImage
-                      source={{ uri: item.imageUrl }}
+                      source={{
+                        uri: item.imageUrl,
+                        headers: {
+                          'User-Agent': 'YatraHeritageCompanion/1.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
+                        },
+                      }}
                       style={styles.spotlightImage}
                       contentFit="cover"
                       transition={300}
@@ -534,7 +521,10 @@ export default function HomeScreen() {
                       </View>
                       <TouchableOpacity
                         style={[styles.audioPlayBtn, isPlayingThis && styles.audioPlayBtnActive]}
-                        onPress={() => handleToggleAudio(item.id, item.audioNarration)}
+                        onPress={(e) => {
+                          e.stopPropagation?.();
+                          handleToggleAudio(item.id, item.audioNarration);
+                        }}
                         activeOpacity={0.8}
                       >
                         <MaterialIcons
@@ -563,7 +553,10 @@ export default function HomeScreen() {
                       <View style={styles.spotlightActions}>
                         <TouchableOpacity
                           style={styles.spotlightAiBtn}
-                          onPress={() => handleSpotlightAskAi(item)}
+                          onPress={(e) => {
+                            e.stopPropagation?.();
+                            handleSpotlightAskAi(item);
+                          }}
                           activeOpacity={0.85}
                         >
                           <MaterialIcons name="auto-awesome" size={14} color="#FFFFFF" />
@@ -572,16 +565,12 @@ export default function HomeScreen() {
 
                         <TouchableOpacity
                           style={styles.spotlightViewBtn}
-                          onPress={() => {
-                            const match = allCatalogPlaces.find(
-                              (p) =>
-                                p.name.toLowerCase().includes(item.title.toLowerCase()) ||
-                                item.title.toLowerCase().includes(p.name.toLowerCase())
-                            );
+                          onPress={(e) => {
+                            e.stopPropagation?.();
                             router.push({
                               pathname: '/(tabs)/explore',
                               params: {
-                                destinationId: match?.id || item.id,
+                                destinationId: item.id,
                                 destinationName: item.title,
                                 routeTo: 'true',
                               },
@@ -593,7 +582,7 @@ export default function HomeScreen() {
                         </TouchableOpacity>
                       </View>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 );
               }}
             />
@@ -775,87 +764,6 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-// Demo data for when backend is not connected
-const DEMO_PLACES: Place[] = [
-  {
-    id: 'p1-laxmi-vilas',
-    name: 'Laxmi Vilas Palace',
-    nameHi: 'लक्ष्मी विलास पैलेस',
-    nameGu: 'લક્ષ્મી વિલાસ પેલેસ',
-    latitude: 22.2932,
-    longitude: 73.1903,
-    category: 'heritage',
-    imageUrl: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=1200&q=80',
-    openingHours: '9:30 AM - 5:00 PM',
-    rating: 4.6,
-    shortDescription: 'Grand royal palace of the Gaekwad dynasty, four times the size of Buckingham Palace.',
-    distance: 2.3,
-    heritageRecord: { shortStory: 'Built in 1890 by Maharaja Sayajirao III...', period: '1878-1890' },
-  },
-  {
-    id: 'p2-baroda-museum',
-    name: 'Baroda Museum & Picture Gallery',
-    latitude: 22.3103,
-    longitude: 73.1879,
-    category: 'museum',
-    imageUrl: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=1200&q=80',
-    openingHours: '10:30 AM - 5:30 PM',
-    rating: 4.3,
-    shortDescription: 'One of the oldest museums in Gujarat with Mughal miniatures and a blue whale skeleton.',
-    distance: 3.1,
-    heritageRecord: { shortStory: 'Established in 1894...', period: '1894' },
-  },
-  {
-    id: 'p4-eme-temple',
-    name: 'EME Temple',
-    latitude: 22.3149,
-    longitude: 73.1729,
-    category: 'heritage',
-    imageUrl: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1200&q=80',
-    openingHours: '6:00 AM - 9:00 PM',
-    rating: 4.4,
-    shortDescription: 'Unique multi-faith temple built by the Indian Army with an aluminum dome.',
-    distance: 4.5,
-  },
-  {
-    id: 'p5-sursagar',
-    name: 'Sursagar Lake',
-    latitude: 22.3009,
-    longitude: 73.1941,
-    category: 'culture',
-    imageUrl: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=80',
-    openingHours: 'Open 24 hours',
-    rating: 4.1,
-    shortDescription: 'Historic lake in the heart of Vadodara with a towering Shiva statue.',
-    distance: 1.8,
-  },
-  {
-    id: 'p6-sayaji-baug',
-    name: 'Sayaji Baug (Kamati Baug)',
-    latitude: 22.3108,
-    longitude: 73.1892,
-    category: 'culture',
-    imageUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1200&q=80',
-    openingHours: '5:30 AM - 10:30 PM',
-    rating: 4.5,
-    shortDescription: 'Sprawling 113-acre garden commissioned by Maharaja Sayajirao III.',
-    distance: 3.0,
-  },
-  {
-    id: 'p11-champaner',
-    name: 'Champaner-Pavagadh',
-    latitude: 22.4860,
-    longitude: 73.5339,
-    category: 'heritage',
-    imageUrl: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=1200&q=80',
-    openingHours: '8:30 AM - 5:00 PM',
-    rating: 4.7,
-    shortDescription: 'UNESCO World Heritage Site with remarkable Hindu-Muslim architecture.',
-    distance: 38.4,
-    heritageRecord: { shortStory: 'A 2000-year-old UNESCO site...', period: '10th-16th century' },
-  },
-];
 
 const styles = StyleSheet.create({
   container: {

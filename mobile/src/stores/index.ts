@@ -298,11 +298,35 @@ export const useOfflineStore = create<OfflineState>((set, get) => ({
         await safeStorage.setItem('offline_packages', JSON.stringify(current));
         return true;
       }
-      return false;
     } catch (e) {
-      console.warn('[OfflineStore] Failed to download place for offline:', e);
-      return false;
+      console.warn('[OfflineStore] Remote fetch notice, checking local catalog:', e);
     }
+
+    const matched = ALL_SEED_PLACES.find(
+      (p) => p.id === placeId || p.id?.toLowerCase() === placeId?.toLowerCase()
+    );
+    if (matched) {
+      const hr = (matched.heritageRecord as any) || {};
+      const pkg: OfflinePackage = {
+        packageId: `pkg-${matched.id}`,
+        version: '1.0.0',
+        downloadedAt: new Date().toISOString(),
+        place: matched,
+        heritage: hr,
+        artifacts: (matched as any).artifacts || [],
+        offlineAudioGuide: {
+          en: hr.shortStory || matched.shortDescription,
+          hi: hr.shortStoryHi || hr.shortStory || matched.shortDescription,
+          gu: hr.shortStoryGu || hr.shortStory || matched.shortDescription,
+        },
+      };
+      const current = { ...get().downloadedPackages, [matched.id]: pkg };
+      set({ downloadedPackages: current });
+      await safeStorage.setItem('offline_packages', JSON.stringify(current));
+      return true;
+    }
+
+    return false;
   },
 
   removeDownload: async (placeId: string) => {

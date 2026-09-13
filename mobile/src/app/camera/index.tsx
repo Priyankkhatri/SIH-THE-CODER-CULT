@@ -20,94 +20,35 @@ import { visionApi } from '../../services/api';
 import { useLocation } from '../../hooks/useLocation';
 import { useTranslation } from '../../hooks/useTranslation';
 
+import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
+
 const { width, height } = Dimensions.get('window');
 
-const DEMO_CATALOG = [
-  {
-    id: 'kumbhalgarh_fort',
-    name: 'Kumbhalgarh Fort & The Great Wall of India',
-    description: 'UNESCO World Heritage hill fortress in Mewar, Rajasthan, renowned for its 36-kilometer continuous defensive wall built by Maharana Kumbha in the 15th century.',
-    placeId: 'IND-HER-26',
-    placeName: 'Kumbhalgarh Fort & The Great Wall of India',
-  },
-  {
-    id: 'ind_her_27_feature',
-    name: 'Chittorgarh Fort & Vijay Stambha',
-    description: 'Largest fort complex in India and capital of Mewar, renowned for the 9-storey Vijay Stambha (Tower of Victory) and Rani Padmini Palace.',
-    placeId: 'IND-HER-27',
-    placeName: 'Chittorgarh Fort & Vijay Stambha',
-  },
-  {
-    id: 'mehrangarh_fort',
-    name: 'Mehrangarh Fort Jodhpur',
-    description: 'Towering 400 feet above the blue city of Jodhpur on a sheer perpendicular cliff, built by Rao Jodha.',
-    placeId: 'p-mehrangarh-fort',
-    placeName: 'Mehrangarh Fort',
-  },
-  {
-    id: 'ind_her_11_feature',
-    name: 'Rani ki Vav Sculpted Gallery',
-    description: 'Subterranean stepwell gallery depicting Sheshashayi Vishnu and 500+ sculptures in Patan.',
-    placeId: 'IND-HER-11',
-    placeName: "Rani ki Vav (The Queen's Stepwell)",
-  },
-  {
-    id: 'ind_her_31_feature',
-    name: 'Modhera Sun Temple Sabha Mandapa',
-    description: '52 carved pillars aligning with solar equinoxes and Surya Kund in Mehsana.',
-    placeId: 'IND-HER-31',
-    placeName: 'Sun Temple Modhera',
-  },
-  {
-    id: 'ind_her_01_feature',
-    name: 'Taj Mahal Marble Dome',
-    description: 'Makrana white marble dome and four minarets with pietra dura inlay in Agra.',
-    placeId: 'IND-HER-01',
-    placeName: 'Taj Mahal',
-  },
-  {
-    id: 'ind_her_03_feature',
-    name: 'Red Fort Lahori Gate',
-    description: 'Massive red sandstone fortification with battlements and octagonal towers in Old Delhi.',
-    placeId: 'IND-HER-03',
-    placeName: 'Red Fort (Lal Qila)',
-  },
-  {
-    id: 'ind_gj_08_feature',
-    name: 'Somnath Jyotirlinga Temple',
-    description: 'Oceanfront Kailash Mahameru Prasad spire and sacred Baan Stambh in Prabhas Patan.',
-    placeId: 'IND-GJ-08',
-    placeName: 'Somnath Temple (Prabhas Patan)',
-  },
-  {
-    id: 'ind_her_10_feature',
-    name: 'Hampi Virupaksha Temple Gopuram',
-    description: 'Soaring 50-meter gateway tower overlooking the Tungabhadra river in Vijayanagara.',
-    placeId: 'IND-HER-10',
-    placeName: 'Group of Monuments at Hampi',
-  },
-  {
-    id: 'ind_her_02_feature',
-    name: 'Qutub Minar & Iron Pillar',
-    description: '73-meter fluted red sandstone minaret and 4th-century rust-resistant Iron Pillar of Delhi.',
-    placeId: 'IND-HER-02',
-    placeName: 'Qutub Minar & Monument Complex',
-  },
-  {
-    id: 'laxmi_vilas_facade',
-    name: 'Laxmi Vilas Palace Facade',
-    description: 'Grand Indo-Saracenic facade with ornate domes, minarets and arcades in Vadodara.',
-    placeId: 'p1-laxmi-vilas',
-    placeName: 'Laxmi Vilas Palace',
-  },
-  {
-    id: 'champaner_jami_masjid',
-    name: 'Jama Masjid Champaner',
-    description: '15th-century mosque blending Islamic and Hindu-Jain architectural elements in Champaner.',
-    placeId: 'p12-jama-masjid-champaner',
-    placeName: 'Jama Masjid Champaner',
-  },
+const PRESET_MONUMENT_IDS = [
+  'IND-HER-26', // Kumbhalgarh Fort
+  'IND-HER-27', // Chittorgarh Fort
+  'IND-HER-11', // Rani ki Vav
+  'IND-HER-31', // Sun Temple Modhera
+  'IND-GJ-SOU', // Statue of Unity
+  'IND-HER-01', // Taj Mahal
+  'IND-HER-03', // Red Fort
+  'IND-GJ-08',  // Somnath Temple
+  'IND-HER-10', // Hampi
+  'IND-HER-02', // Qutub Minar
+  'IND-HER-13', // Dholavira
+  'p1-laxmi-vilas', // Laxmi Vilas Palace
 ];
+
+const PRESET_CATALOG = PRESET_MONUMENT_IDS.map((id) => {
+  const p = ALL_SEED_PLACES.find((item) => item.id === id || item.id?.toLowerCase() === id.toLowerCase());
+  return {
+    id: p ? p.id : id,
+    name: p ? p.name : id,
+    description: p?.shortDescription || (p?.heritageRecord as any)?.shortStory || 'Iconic Indian Heritage Monument',
+    placeId: p ? p.id : id,
+    placeName: p ? p.name : id,
+  };
+});
 
 export default function CameraScreen() {
   const { t } = useTranslation();
@@ -207,7 +148,7 @@ export default function CameraScreen() {
     }
   };
 
-  const navigateToResult = (item: typeof DEMO_CATALOG[0], confidence = 98, photoUri?: string) => {
+  const navigateToResult = (item: typeof PRESET_CATALOG[0], confidence = 98, photoUri?: string) => {
     router.push({
       pathname: '/camera/result' as any,
       params: {
@@ -318,7 +259,7 @@ export default function CameraScreen() {
                 </TouchableOpacity>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catalogList}>
-                {DEMO_CATALOG.map((item) => (
+                {PRESET_CATALOG.map((item) => (
                   <TouchableOpacity
                     key={item.id}
                     style={styles.catalogChip}

@@ -14,6 +14,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { itineraryApi } from '../../services/api';
 import { TimelineItem } from '../../components/TimelineItem';
+import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
+import { usePlacesStore } from '../../stores';
 
 export default function ItineraryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -36,61 +38,45 @@ export default function ItineraryDetailScreen() {
       if (res.success && res.data) {
         setItinerary(res.data);
       } else {
-        // Fallback demo itinerary data if created in-memory with local ID
+        const pool = usePlacesStore.getState().places.length > 0
+          ? usePlacesStore.getState().places
+          : ALL_SEED_PLACES;
+        const topStops = pool.slice(0, 3);
         setItinerary({
           id,
-          title: '90min Curated Vadodara Heritage Tour',
+          title: 'Curated Heritage Tour',
           duration: '90min',
           totalTime: 85,
-          items: [
-            {
-              order: 1,
-              placeId: 'p1-laxmi-vilas',
-              placeName: 'Laxmi Vilas Palace',
-              visitDuration: 40,
-              travelTime: 5,
-              travelMode: 'walk',
-              reason: 'Matches your interest in Heritage & Royal Architecture',
-            },
-            {
-              order: 2,
-              placeId: 'p2-baroda-museum',
-              placeName: 'Baroda Museum & Picture Gallery',
-              visitDuration: 30,
-              travelTime: 10,
-              travelMode: 'walk',
-              reason: 'Houses 100,000+ artifacts and Mughal miniatures',
-            },
-          ],
+          items: topStops.map((p, idx) => ({
+            order: idx + 1,
+            placeId: p.id,
+            placeName: p.name,
+            visitDuration: 30,
+            travelTime: idx === 0 ? 5 : 12,
+            travelMode: 'walk',
+            reason: `Iconic ${p.category} landmark (${p.rating || 4.8}★)`,
+          })),
         });
       }
     } catch (e) {
-      // Demo fallback
+      const pool = usePlacesStore.getState().places.length > 0
+        ? usePlacesStore.getState().places
+        : ALL_SEED_PLACES;
+      const topStops = pool.slice(0, 3);
       setItinerary({
         id,
-        title: '90min Curated Vadodara Heritage Tour',
+        title: 'Curated Heritage Tour',
         duration: '90min',
         totalTime: 85,
-        items: [
-          {
-            order: 1,
-            placeId: 'p1-laxmi-vilas',
-            placeName: 'Laxmi Vilas Palace',
-            visitDuration: 40,
-            travelTime: 5,
-            travelMode: 'walk',
-            reason: 'Matches your interest in Heritage & Royal Architecture',
-          },
-          {
-            order: 2,
-            placeId: 'p2-baroda-museum',
-            placeName: 'Baroda Museum & Picture Gallery',
-            visitDuration: 30,
-            travelTime: 10,
-            travelMode: 'walk',
-            reason: 'Houses 100,000+ artifacts and Mughal miniatures',
-          },
-        ],
+        items: topStops.map((p, idx) => ({
+          order: idx + 1,
+          placeId: p.id,
+          placeName: p.name,
+          visitDuration: 30,
+          travelTime: idx === 0 ? 5 : 12,
+          travelMode: 'walk',
+          reason: `Iconic ${p.category} landmark (${p.rating || 4.8}★)`,
+        })),
       });
     } finally {
       setIsLoading(false);
