@@ -18,23 +18,59 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c;
 }
 
+import path from 'path';
+import fs from 'fs';
+
+// Load verified master catalog of all 148 Indian national monuments
+let masterUnifiedPlaces: any[] = [];
+try {
+  const masterPath = path.resolve(__dirname, '../../seed/master_unified_places.json');
+  if (fs.existsSync(masterPath)) {
+    masterUnifiedPlaces = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
+  }
+} catch (e) {
+  console.warn('[PlacesRoutes] Could not load master_unified_places.json:', e);
+}
+
 // 1. GET /places - All places with optional category & language filter
 router.get('/', async (req: Request, res: Response) => {
   try {
     const category = req.query.category as string | undefined;
     const lang = (req.query.lang as string) || 'en';
 
-    const places = await prisma.place.findMany({
-      where: category ? { category } : undefined,
-      include: {
-        heritageRecord: {
-          select: {
-            shortStory: true,
-            period: true,
+    let places: any[] = [];
+    try {
+      places = await prisma.place.findMany({
+        where: category ? { category } : undefined,
+        include: {
+          heritageRecord: {
+            select: {
+              shortStory: true,
+              period: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (dbErr) {
+      console.warn('[PlacesRoutes] Prisma findMany note, using master catalog:', dbErr);
+    }
+
+    if (places.length < masterUnifiedPlaces.length) {
+      const map = new Map<string, any>();
+      for (const p of masterUnifiedPlaces) {
+        if (!category || p.category === category) {
+          map.set(p.id, {
+            ...p,
+            heritageRecord: p.heritageRecord ? {
+              shortStory: p.heritageRecord.shortStory,
+              period: p.heritageRecord.period,
+            } : undefined,
+          });
+        }
+      }
+      for (const p of places) map.set(p.id, p);
+      places = Array.from(map.values());
+    }
 
     const localizedPlaces = places.map((place: any) => ({
       ...place,
@@ -79,33 +115,58 @@ router.get('/nearby', async (req: Request, res: Response) => {
     const category = req.query.category as string | undefined;
     const lang = (req.query.lang as string) || 'en';
 
-    let places = await prisma.place.findMany({
-      where: category ? { category } : undefined,
-      include: {
-        heritageRecord: {
-          select: {
-            shortStory: true,
-            period: true,
+    let places: any[] = [];
+    try {
+      places = await prisma.place.findMany({
+        where: category ? { category } : undefined,
+        include: {
+          heritageRecord: {
+            select: {
+              shortStory: true,
+              period: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (dbErr) {
+      console.warn('[PlacesRoutes] Prisma nearby query note, using master catalog:', dbErr);
+    }
 
-    // Calculate distances and filter by radius
+    if (places.length < masterUnifiedPlaces.length) {
+      const map = new Map<string, any>();
+      for (const p of masterUnifiedPlaces) {
+        if (!category || p.category === category) {
+          map.set(p.id, {
+            ...p,
+            heritageRecord: p.heritageRecord ? {
+              shortStory: p.heritageRecord.shortStory,
+              period: p.heritageRecord.period,
+            } : undefined,
+          });
+        }
+      }
+      for (const p of places) map.set(p.id, p);
+      places = Array.from(map.values());
+    }
+
+    // Calculate distances and sort strictly ascending by proximity
     const placesWithDistance = places
       .map((place: any) => ({
         ...place,
         name: lang === 'hi' && place.nameHi ? place.nameHi : lang === 'gu' && place.nameGu ? place.nameGu : place.name,
-        distance: haversineDistance(lat, lng, place.latitude, place.longitude),
+        distance: Number(haversineDistance(lat, lng, place.latitude, place.longitude).toFixed(1)),
       }))
-      .filter((place: any) => place.distance <= radius)
       .sort((a: any, b: any) => a.distance - b.distance);
+
+    // If within radius has items, return those. If none (e.g. wide distance), return closest 20
+    const withinRadius = placesWithDistance.filter((place: any) => place.distance <= radius);
+    const finalPlaces = withinRadius.length > 0 ? withinRadius : placesWithDistance.slice(0, 20);
 
     res.json({
       success: true,
-      data: placesWithDistance,
+      data: finalPlaces,
       meta: {
-        total: placesWithDistance.length,
+        total: finalPlaces.length,
         lat,
         lng,
         radius,
@@ -273,15 +334,30 @@ router.post('/:id/reviews', async (req: Request, res: Response) => {
 // 8. GET /places/:id (Parametric route at the bottom)
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const place = await prisma.place.findUnique({
-      where: { id: req.params.id as string },
-      include: {
-        heritageRecord: {
-          include: { sources: true },
+    let place: any = null;
+    try {
+      place = await prisma.place.findUnique({
+        where: { id: req.params.id as string },
+        include: {
+          heritageRecord: {
+            include: { sources: true },
+          },
+          artifacts: true,
         },
-        artifacts: true,
-      },
-    });
+      });
+    } catch (dbErr) {
+      console.warn('[PlacesRoutes] Prisma findUnique error, falling back to master catalog:', dbErr);
+    }
+
+    if (!place) {
+      const q = (req.params.id as string).toLowerCase().trim();
+      const masterMatch = masterUnifiedPlaces.find(
+        (p) => p.id?.toLowerCase() === q || p.name?.toLowerCase() === q
+      );
+      if (masterMatch) {
+        place = masterMatch;
+      }
+    }
 
     if (!place) {
       return res.status(404).json({ success: false, error: 'Place not found' });

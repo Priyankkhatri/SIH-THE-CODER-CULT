@@ -91,14 +91,27 @@ export default function ExploreScreen() {
     loadPlaces();
   }, [selectedCategory]);
 
-  // Merge loaded places with the offline catalog to ensure all 155+ sites are always searchable
+  // Merge loaded places with the offline catalog to ensure all 148+ sites are always searchable
+  // and attach dynamic Haversine distance from user GPS coordinates, sorted ascending
   const allCatalogPlaces = React.useMemo(() => {
-    if (places.length >= ALL_SEED_PLACES.length) return places;
+    const userLat = location.latitude ?? 22.3072;
+    const userLng = location.longitude ?? 73.1812;
+
     const map = new Map<string, Place>();
     for (const p of ALL_SEED_PLACES) map.set(p.id, p);
     for (const p of places) map.set(p.id, p);
-    return Array.from(map.values());
-  }, [places]);
+
+    const merged = Array.from(map.values()).map((p) => {
+      const dist = haversineDistance(userLat, userLng, p.latitude, p.longitude);
+      return {
+        ...p,
+        distance: Number(dist.toFixed(1)),
+      };
+    });
+
+    merged.sort((a, b) => (a.distance ?? 99999) - (b.distance ?? 99999));
+    return merged;
+  }, [places, location.latitude, location.longitude]);
 
   // Comprehensive filter by category, crowd level & real-time search query
   const filteredPlaces = allCatalogPlaces.filter((p) => {

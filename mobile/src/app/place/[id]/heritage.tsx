@@ -18,6 +18,7 @@ import { heritageApi, placesApi } from '../../../services/api';
 import { useSpeech } from '../../../hooks/useSpeech';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { useChatStore, useOfflineStore, usePlacesStore } from '../../../stores';
+import { ALL_SEED_PLACES } from '../../../utils/seedPlaces';
 
 const { width } = Dimensions.get('window');
 
@@ -63,19 +64,23 @@ export default function HeritageScreen() {
       console.warn('Backend fetch note in heritage subscreen, loading store fallback:', e);
     }
 
-    // High-resilience store fallback
+    // High-resilience store and seed fallback across all 148 verified monuments
     const storePlaces = usePlacesStore.getState().places;
-    const matched = storePlaces.find((p: any) => p.id === id || p.id?.toLowerCase() === id?.toLowerCase());
+    const matched =
+      storePlaces.find((p: any) => p.id === id || p.id?.toLowerCase() === id?.toLowerCase()) ||
+      ALL_SEED_PLACES.find((p: any) => p.id === id || p.id?.toLowerCase() === id?.toLowerCase() || p.name?.toLowerCase() === id?.toLowerCase());
+
     if (matched) {
+      const hr = matched.heritageRecord;
       setHeritage({
         placeId: matched.id,
         placeName: matched.name,
-        shortStory: matched.heritageRecord?.shortStory || matched.shortDescription || `${matched.name} is an iconic historic monument of India.`,
-        history: (matched.heritageRecord as any)?.detailedHistory || matched.shortDescription || `${matched.name} is deeply preserved with remarkable architectural chronicles.`,
-        significance: `Preserved cultural landmark representing the artistic and architectural legacy of ${matched.name}.`,
-        architecture: 'Traditional regional Indian architecture with intricate masonry.',
-        period: matched.heritageRecord?.period || 'Historical Era',
-        keyFacts: [
+        shortStory: hr?.shortStory || matched.shortDescription || `${matched.name} is an iconic historic monument of India.`,
+        history: hr?.history || (hr as any)?.detailedHistory || matched.shortDescription || `${matched.name} is deeply preserved with remarkable architectural chronicles.`,
+        significance: hr?.significance || `Preserved cultural landmark representing the artistic and architectural legacy of ${matched.name}.`,
+        architecture: hr?.architecture || 'Traditional regional Indian architecture with intricate masonry.',
+        period: hr?.period || 'Historical Era',
+        keyFacts: Array.isArray(hr?.keyFacts) && hr.keyFacts.length > 0 ? hr.keyFacts : [
           `Landmark: ${matched.name}`,
           `Category: ${matched.category || 'Heritage'}`,
           `Rating: ${matched.rating || 4.8} / 5.0`,
@@ -83,7 +88,7 @@ export default function HeritageScreen() {
         ],
         place: matched,
       });
-      setSources([
+      setSources(Array.isArray(hr?.sources) && hr.sources.length > 0 ? hr.sources : [
         {
           sourceName: 'Archaeological Survey of India & Open Govt Data',
           sourceUrl: 'https://asi.nic.in',

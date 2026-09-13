@@ -1,5 +1,7 @@
 import OpenAI from 'openai';
 import axios from 'axios';
+import path from 'path';
+import fs from 'fs';
 import prisma from '../../config/database';
 import { config } from '../../config';
 import { getSystemPrompt } from './ai.prompts';
@@ -204,6 +206,88 @@ const STATIC_MONUMENTS: Record<string, StaticMonument> = {
   },
 };
 
+// Ingest full 148 verified national monuments from master_unified_places.json
+try {
+  const masterPath = path.resolve(__dirname, '../../seed/master_unified_places.json');
+  if (fs.existsSync(masterPath)) {
+    const masterUnified: any[] = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
+    for (const p of masterUnified) {
+      const hr = p.heritageRecord;
+      const key = p.name.toLowerCase().trim();
+      const passages: Array<{ content: string; sourceName: string; sourceUrl?: string }> = [];
+
+      // 1. Geographic Location, Coordinates & District/State
+      passages.push({
+        sourceName: 'Geographic Location & Coordinates',
+        content: `${p.name} is situated in ${p.district || p.city || 'India'}, ${p.state || ''}. Precise GPS Coordinates: ${p.latitude.toFixed(4)}° N, ${p.longitude.toFixed(4)}° E.`,
+      });
+
+      // 2. Story / Summary
+      if (hr?.shortStory) {
+        passages.push({
+          sourceName: 'Curated Heritage Story',
+          content: hr.shortStory,
+        });
+      }
+
+      // 3. Detailed History & Dynasty
+      if (hr?.history) {
+        passages.push({
+          sourceName: 'Archaeological History',
+          content: hr.history,
+        });
+      }
+
+      // 4. Architecture & Engineering
+      if (hr?.architecture) {
+        passages.push({
+          sourceName: 'Architectural Details',
+          content: hr.architecture,
+        });
+      }
+
+      // 5. Key Facts & Visiting Guidelines
+      if (Array.isArray(hr?.keyFacts) && hr.keyFacts.length > 0) {
+        passages.push({
+          sourceName: 'Key Archaeological Facts & Visiting Guidelines',
+          content: hr.keyFacts.join('; '),
+        });
+      }
+
+      // 6. Significance
+      if (hr?.significance) {
+        passages.push({
+          sourceName: 'Cultural Significance',
+          content: hr.significance,
+        });
+      }
+
+      // Sources
+      if (Array.isArray(hr?.sources)) {
+        for (const s of hr.sources) {
+          passages.push({
+            sourceName: s.sourceName || 'ASI National Registry',
+            sourceUrl: s.sourceUrl,
+            content: s.referenceText || 'Verified ASI record.',
+          });
+        }
+      }
+
+      const allIds = [p.id];
+      if (p.id?.startsWith('IND-HER-')) allIds.push(p.id.replace('IND-HER-', 'IND-GJ-'));
+      if (p.id?.startsWith('IND-GJ-')) allIds.push(p.id.replace('IND-GJ-', 'IND-HER-'));
+
+      STATIC_MONUMENTS[key] = {
+        name: `${p.name} (${p.district || p.city || p.state || 'India'})`,
+        ids: allIds,
+        passages,
+      };
+    }
+  }
+} catch (loadErr) {
+  console.warn('[AIService] Failed to load master_unified_places.json:', loadErr);
+}
+
 class AIService {
   // Main RAG pipeline: retrieve relevant context → generate answer
   async askQuestion(params: AskQuestionParams): Promise<AIResponse> {
@@ -212,11 +296,11 @@ class AIService {
     // Step 1: Retrieve relevant heritage context
     const context = await this.retrieveContext(question, placeId);
 
-    // Step 2: Build the prompt with retrieved context
+    // Step 2: Build the prompt with retrieved context (allowing up to 5 rich verified passages)
     const systemPrompt = getSystemPrompt(mode, language);
     const contextText = context.passages
-      .slice(0, 3)
-      .map((p, i) => `[Source ${i + 1}: ${p.sourceName}]\n${p.content.slice(0, 300)}`)
+      .slice(0, 5)
+      .map((p, i) => `[Source ${i + 1}: ${p.sourceName}]\n${p.content.slice(0, 600)}`)
       .join('\n\n');
 
     const userPrompt = placeId 
@@ -228,11 +312,15 @@ class AIService {
       const temperature = mode === 'narrative' ? 0.65 : mode === 'child' ? 0.5 : 0.35;
       const maxTokens = mode === 'short' ? 250 : mode === 'detailed' ? 600 : 350;
 
-      let modelName = 'default';
+      let modelName = 'llama-3.2-3b-instruct';
       try {
-        const modelsRes = await axios.get('http://127.0.0.1:1234/v1/models', { timeout: 800 });
-        if (modelsRes.data?.data?.[0]?.id) {
-          modelName = modelsRes.data.data[0].id;
+        const modelsRes = await axios.get('http://127.0.0.1:1234/v1/models', { timeout: 1500 });
+        const list = modelsRes.data?.data || [];
+        const found = list.find((m: any) => m.id?.toLowerCase().includes('llama') || m.id?.toLowerCase().includes('instruct'));
+        if (found) {
+          modelName = found.id;
+        } else if (list[0]?.id) {
+          modelName = list[0].id;
         }
       } catch (_) {}
 
@@ -243,12 +331,11 @@ class AIService {
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
-            { role: 'assistant', content: '</think>\n' }, // Think-tag bypass for instant response
           ],
           temperature,
           max_tokens: maxTokens,
         },
-        { timeout: 12000 } // Give local Llama 3.2 3B plenty of time for rich responses
+        { timeout: 25000 } // Give local Llama 3.2 3B plenty of time for rich responses
       );
 
       let qwenAnswer = localResponse.data?.choices?.[0]?.message?.content;
@@ -455,22 +542,39 @@ class AIService {
       console.warn('[AIService] DB lookup fallback to static catalog:', (dbError as any)?.message || dbError);
     }
 
-    // Step 3: Check static built-in monuments if still empty
+    // Step 3: Check verified catalog of all 148 national monuments if passages still empty
     if (passages.length === 0) {
       const qLower = question.toLowerCase();
+      let bestScore = 0;
+      let matchedMonument: StaticMonument | null = null;
+
       for (const [key, monument] of Object.entries(STATIC_MONUMENTS)) {
-        if (
-          qLower.includes(key) ||
-          (targetPlaceId && monument.ids.includes(targetPlaceId))
-        ) {
-          placeName = monument.name;
-          passages = [...monument.passages];
-          break;
+        let score = 0;
+        if (targetPlaceId && monument.ids.some((id) => id.toLowerCase() === targetPlaceId.toLowerCase())) {
+          score += 500;
         }
+        if (qLower.includes(key) || key.includes(qLower)) {
+          score += 200;
+        } else {
+          const keyWords = key.split(/[\s,()]+/).filter((w) => w.length > 3);
+          for (const kw of keyWords) {
+            if (qLower.includes(kw)) score += 40;
+          }
+        }
+
+        if (score > bestScore) {
+          bestScore = score;
+          matchedMonument = monument;
+        }
+      }
+
+      if (matchedMonument && bestScore > 0) {
+        placeName = matchedMonument.name;
+        passages = [...matchedMonument.passages];
       }
     }
 
-    return { passages: passages.slice(0, 5), placeName };
+    return { passages: passages.slice(0, 6), placeName };
   }
 
   // Fallback when LLM is unavailable

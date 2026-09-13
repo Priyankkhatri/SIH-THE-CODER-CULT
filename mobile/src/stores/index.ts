@@ -131,10 +131,29 @@ export interface Place {
   rating?: number;
   shortDescription?: string;
   distance?: number;
+  city?: string;
+  district?: string;
+  state?: string;
   heritageRecord?: {
+    placeId?: string;
     shortStory: string;
+    history?: string;
+    detailedHistory?: string;
+    significance?: string;
+    architecture?: string;
     period?: string;
+    keyFacts?: string[];
+    nearbyCluster?: string;
+    nearbyMonuments?: any[];
+    visitingInfo?: any;
+    sources?: Array<{
+      sourceName: string;
+      sourceUrl?: string;
+      referenceText?: string;
+    }>;
+    [key: string]: any;
   };
+  [key: string]: any;
 }
 
 interface PlacesState {

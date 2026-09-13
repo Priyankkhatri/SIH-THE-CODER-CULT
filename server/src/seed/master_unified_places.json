@@ -1,6 +1,4 @@
-import type { Place } from '../stores';
-
-export const ALL_SEED_PLACES: Place[] = [
+[
   {
     "id": "IND-HER-01",
     "name": "Taj Mahal",
@@ -6063,4 +6061,4 @@ export const ALL_SEED_PLACES: Place[] = [
       ]
     }
   }
-];
+]

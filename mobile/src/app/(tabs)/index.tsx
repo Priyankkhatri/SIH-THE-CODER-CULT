@@ -33,6 +33,7 @@ import {
 import { useSpeech } from '../../hooks/useSpeech';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
 import { dynamicImageService } from '../../services/dynamicImageService';
+import { haversineDistance } from '../../utils/routeService';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SPOTLIGHT_CARD_WIDTH = Math.min(SCREEN_WIDTH - 48, 340);
@@ -247,14 +248,28 @@ export default function HomeScreen() {
     });
   };
 
-  // Merge loaded places with ALL_SEED_PLACES to ensure all 155+ sites are always searchable
+  // Merge loaded places with ALL_SEED_PLACES to ensure all 148+ sites are always searchable
+  // and dynamically compute Haversine distance from user GPS coordinates, sorting nearest first.
   const allCatalogPlaces = React.useMemo(() => {
-    if (places.length >= ALL_SEED_PLACES.length) return places;
+    const userLat = location.latitude ?? 22.3072;
+    const userLng = location.longitude ?? 73.1812;
+
     const map = new Map<string, Place>();
     for (const p of ALL_SEED_PLACES) map.set(p.id, p);
     for (const p of places) map.set(p.id, p);
-    return Array.from(map.values());
-  }, [places]);
+
+    const merged = Array.from(map.values()).map((p) => {
+      const dist = haversineDistance(userLat, userLng, p.latitude, p.longitude);
+      return {
+        ...p,
+        distance: Number(dist.toFixed(1)),
+      };
+    });
+
+    // Sort strictly ascending by distance so closest monuments are always first
+    merged.sort((a, b) => (a.distance ?? 99999) - (b.distance ?? 99999));
+    return merged;
+  }, [places, location.latitude, location.longitude]);
 
   const filteredPlaces = allCatalogPlaces.filter((p) => {
     if (selectedCategory && p.category !== selectedCategory) return false;
@@ -423,7 +438,7 @@ export default function HomeScreen() {
                         </Text>
                         <View style={styles.searchResultFooter}>
                           <Text style={styles.searchResultMeta}>
-                            📍 {(place as any).city || 'Gujarat'}
+                            📍 {(place as any).city || (place as any).state || 'India'} {place.distance !== undefined ? `• ${place.distance} km` : ''}
                           </Text>
                           <TouchableOpacity
                             style={styles.searchResultRouteBtn}
