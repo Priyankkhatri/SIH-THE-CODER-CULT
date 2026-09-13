@@ -20,6 +20,76 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 
 import path from 'path';
 import fs from 'fs';
+import https from 'https';
+import http from 'http';
+
+// In-memory cache for proxied images (max 150 images, max 24h TTL)
+interface CachedImage {
+  buffer: Buffer;
+  contentType: string;
+  cachedAt: number;
+}
+const imageProxyCache = new Map<string, CachedImage>();
+const MAX_PROXY_CACHE_SIZE = 150;
+const PROXY_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+function fetchRemoteImage(
+  targetUrl: string,
+  maxRedirects = 4
+): Promise<{ buffer: Buffer; contentType: string; statusCode: number }> {
+  return new Promise((resolve, reject) => {
+    try {
+      const parsed = new URL(targetUrl);
+      const client = parsed.protocol === 'http:' ? http : https;
+
+      const req = client.get(
+        parsed,
+        {
+          headers: {
+            'User-Agent':
+              'YatraHeritageCompanion/1.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
+            Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+            Referer: 'https://en.wikipedia.org/',
+          },
+          timeout: 10000,
+        },
+        (res) => {
+          if (
+            res.statusCode &&
+            [301, 302, 303, 307, 308].includes(res.statusCode) &&
+            res.headers.location &&
+            maxRedirects > 0
+          ) {
+            const redirectUrl = new URL(res.headers.location, targetUrl).toString();
+            return fetchRemoteImage(redirectUrl, maxRedirects - 1)
+              .then(resolve)
+              .catch(reject);
+          }
+
+          if (!res.statusCode || res.statusCode >= 400) {
+            return reject(new Error(`Remote returned HTTP ${res.statusCode}`));
+          }
+
+          const chunks: Buffer[] = [];
+          res.on('data', (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+          res.on('end', () => {
+            const buffer = Buffer.concat(chunks);
+            const contentType = res.headers['content-type'] || 'image/jpeg';
+            resolve({ buffer, contentType, statusCode: res.statusCode || 200 });
+          });
+        }
+      );
+
+      req.on('timeout', () => {
+        req.destroy();
+        reject(new Error('Image fetch timed out'));
+      });
+      req.on('error', reject);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
 
 // Load verified master catalog of all 148 Indian national monuments
 let masterUnifiedPlaces: any[] = [];
@@ -31,6 +101,55 @@ try {
 } catch (e) {
   console.warn('[PlacesRoutes] Could not load master_unified_places.json:', e);
 }
+
+// 1. GET /places/image-proxy?url=...
+router.get('/image-proxy', async (req: Request, res: Response) => {
+  try {
+    const rawUrl = req.query.url as string;
+    if (!rawUrl || typeof rawUrl !== 'string') {
+      return res.status(400).json({ success: false, error: 'Missing url parameter' });
+    }
+
+    const decodedUrl = decodeURIComponent(rawUrl.trim());
+    let parsed: URL;
+    try {
+      parsed = new URL(decodedUrl.startsWith('//') ? `https:${decodedUrl}` : decodedUrl);
+    } catch {
+      return res.status(400).json({ success: false, error: 'Invalid URL format' });
+    }
+
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return res.status(400).json({ success: false, error: 'Invalid protocol' });
+    }
+
+    const fullUrl = parsed.toString();
+    const now = Date.now();
+    const cached = imageProxyCache.get(fullUrl);
+
+    if (cached && now - cached.cachedAt < PROXY_CACHE_TTL_MS) {
+      res.setHeader('Content-Type', cached.contentType);
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      res.setHeader('X-Proxy-Cache', 'HIT');
+      return res.send(cached.buffer);
+    }
+
+    const { buffer, contentType } = await fetchRemoteImage(fullUrl);
+
+    if (imageProxyCache.size >= MAX_PROXY_CACHE_SIZE) {
+      const oldestKey = imageProxyCache.keys().next().value;
+      if (oldestKey) imageProxyCache.delete(oldestKey);
+    }
+    imageProxyCache.set(fullUrl, { buffer, contentType, cachedAt: now });
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.setHeader('X-Proxy-Cache', 'MISS');
+    return res.send(buffer);
+  } catch (err: any) {
+    console.error('[ImageProxy] Error proxying image:', err?.message || err);
+    return res.status(502).json({ success: false, error: 'Failed to proxy image', details: err?.message });
+  }
+});
 
 // 1. GET /places - All places with optional category & language filter
 router.get('/', async (req: Request, res: Response) => {

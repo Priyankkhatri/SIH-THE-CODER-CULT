@@ -287,7 +287,8 @@ export default function PlaceDetailScreen() {
                   source={{
                     uri: img.url,
                     headers: {
-                      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                      'User-Agent':
+                        'YatraHeritageCompanion/1.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
                     },
                   }}
                   style={styles.heroImage}
@@ -506,7 +507,8 @@ export default function PlaceDetailScreen() {
                       source={{
                         uri: item.url,
                         headers: {
-                          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                          'User-Agent':
+                            'YatraHeritageCompanion/1.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
                         },
                       }}
                       style={styles.galleryCardImg}
