@@ -20,556 +20,616 @@
     "placeId": "IND-HER-49"
   },
   "4": {
+    "class": "aihole_temple_complex",
+    "name": "Aihole Temple Complex",
+    "placeId": "N-KA-B4"
+  },
+  "5": {
     "class": "aina_mahal_and_prag",
     "name": "Aina Mahal & Prag Mahal",
     "placeId": "IND-GJ-18"
   },
-  "5": {
+  "6": {
     "class": "airavat_sacred_wooden_elephant",
     "name": "Airavat Sacred Wooden Elephant (Kutch Museum)",
     "placeId": "IND-ART-36"
   },
-  "6": {
+  "7": {
     "class": "ajanta_caves",
     "name": "Ajanta Caves",
     "placeId": "IND-HER-06"
   },
-  "7": {
+  "8": {
     "class": "akota_jain_bronzes_hoard",
     "name": "Akota Jain Bronzes Hoard (Vadodara)",
     "placeId": "IND-ART-33"
   },
-  "8": {
+  "9": {
     "class": "amer_fort_and_palace",
     "name": "Amer Fort & Palace",
     "placeId": "IND-HER-16"
   },
-  "9": {
+  "10": {
     "class": "ancient_indian_punchmarked_silver",
     "name": "Ancient Indian Punch-Marked Silver Karshapana & Gupta Gold Dinars",
     "placeId": "IND-ART-11"
   },
-  "10": {
+  "11": {
     "class": "archaeological_site_of_nalanda",
     "name": "Archaeological Site of Nalanda Mahavihara",
     "placeId": "IND-HER-22"
   },
-  "11": {
+  "12": {
     "class": "ardhanarisvara_chola_bronze_of",
     "name": "Ardhanarisvara Chola Bronze of Tiruvenkadu",
     "placeId": "IND-ART-32"
   },
-  "12": {
+  "13": {
     "class": "baan_stambh_arrow_pillar",
     "name": "Baan Stambh (Arrow Pillar of Somnath)",
     "placeId": "IND-ART-20"
   },
-  "13": {
+  "14": {
     "class": "badami_cave_temples",
     "name": "Badami Cave Temples",
     "placeId": "IND-HER-48"
   },
-  "14": {
+  "15": {
     "class": "basilica_of_bom_jesus",
     "name": "Basilica of Bom Jesus & Se Cathedral",
     "placeId": "IND-HER-33"
   },
-  "15": {
+  "16": {
     "class": "bekal_fort_sea_bastion",
     "name": "Bekal Fort (Sea Bastion of Malabar)",
     "placeId": "IND-HER-50"
   },
-  "16": {
+  "17": {
     "class": "bhadra_fort_and_teen",
     "name": "Bhadra Fort & Teen Darwaza",
     "placeId": "IND-GJ-22"
   },
-  "17": {
+  "18": {
     "class": "bharhut_stupa_torana_gateway",
     "name": "Bharhut Stupa Torana Gateway & Railing Panels",
     "placeId": "IND-ART-26"
   },
-  "18": {
+  "19": {
     "class": "bishnupur_terracotta_temples",
     "name": "Bishnupur Terracotta Temples",
     "placeId": "IND-HER-46"
   },
-  "19": {
+  "20": {
     "class": "brihadisvara_temple_peruvudaiyar_kovil",
     "name": "Brihadisvara Temple (Peruvudaiyar Kovil)",
     "placeId": "IND-HER-14"
   },
-  "20": {
+  "21": {
     "class": "cellular_jail_kala_pani",
     "name": "Cellular Jail (Kala Pani)",
     "placeId": "IND-HER-42"
   },
-  "21": {
+  "22": {
+    "class": "champanerpavagadh",
+    "name": "Champaner-Pavagadh",
+    "placeId": "N-GJ-P2"
+  },
+  "23": {
     "class": "champanerpavagadh_archaeological_park",
     "name": "Champaner-Pavagadh Archaeological Park",
     "placeId": "IND-GJ-04"
   },
-  "22": {
+  "24": {
     "class": "charminar",
     "name": "Charminar",
     "placeId": "IND-HER-17"
   },
-  "23": {
+  "25": {
     "class": "chhatrapati_shivaji_maharaj_terminus",
     "name": "Chhatrapati Shivaji Maharaj Terminus (CSMT)",
     "placeId": "IND-HER-34"
   },
-  "24": {
+  "26": {
     "class": "chittorgarh_fort",
     "name": "Chittorgarh Fort & Vijay Stambha",
     "placeId": "IND-HER-27"
   },
-  "25": {
+  "27": {
     "class": "chola_bronze_nataraja_cosmic",
     "name": "Chola Bronze Nataraja (Cosmic Dancer)",
     "placeId": "IND-ART-04"
   },
-  "26": {
+  "28": {
     "class": "dada_harir_stepwell_bai",
     "name": "Dada Harir Stepwell (Bai Harir Vav)",
     "placeId": "IND-GJ-17"
   },
-  "27": {
+  "29": {
     "class": "daulatabad_fort",
     "name": "Daulatabad Fort & Chand Minar",
     "placeId": "IND-HER-36"
   },
-  "28": {
+  "30": {
     "class": "dharmachakra_pravartana_buddha_gupta",
     "name": "Dharmachakra Pravartana Buddha (Gupta 5th Century)",
     "placeId": "IND-ART-25"
   },
-  "29": {
+  "31": {
     "class": "dholavira_ancient_harappan_metropolis",
     "name": "Dholavira: Ancient Harappan Metropolis",
     "placeId": "IND-HER-28"
   },
-  "30": {
+  "32": {
+    "class": "dholavira_ancient_site_kotada",
+    "name": "Dholavira (Ancient Site (Kotada))",
+    "placeId": ""
+  },
+  "33": {
     "class": "didarganj_yakshi_chauri_bearer",
     "name": "Didarganj Yakshi (Chauri Bearer)",
     "placeId": "IND-ART-03"
   },
-  "31": {
+  "34": {
     "class": "doublesided_wood_statue_of",
     "name": "Double-Sided Wood Statue of Mephistopheles and Margaretta",
     "placeId": "IND-ART-29"
   },
-  "32": {
+  "35": {
     "class": "dwarkadhish_temple_jagat_mandir",
     "name": "Dwarkadhish Temple (Jagat Mandir, Dwarka)",
     "placeId": "IND-GJ-09"
   },
-  "33": {
+  "36": {
     "class": "elephanta_caves",
     "name": "Elephanta Caves",
     "placeId": "IND-HER-24"
   },
-  "34": {
+  "37": {
     "class": "ellora_caves",
     "name": "Ellora Caves & Kailash Temple",
     "placeId": "IND-HER-07"
   },
-  "35": {
+  "38": {
     "class": "fateh_darwaza_acoustic_clapping",
     "name": "Fateh Darwaza Acoustic Clapping Dome (Golconda Fort)",
     "placeId": "IND-ART-41"
   },
-  "36": {
+  "39": {
     "class": "fatehpur_sikri",
     "name": "Fatehpur Sikri Imperial Citadel",
     "placeId": "IND-HER-05"
   },
-  "37": {
+  "40": {
     "class": "gandhara_standing_buddha_grecobuddhist",
     "name": "Gandhara Standing Buddha (Greco-Buddhist Masterpiece)",
     "placeId": "IND-ART-27"
   },
-  "38": {
+  "41": {
+    "class": "gateway_of_india",
+    "name": "Gateway of India",
+    "placeId": "IND-HER-123"
+  },
+  "42": {
     "class": "ghumli_navalakha_temple_and",
     "name": "Ghumli Navalakha Temple & Vichia Vav",
     "placeId": "IND-GJ-32"
   },
-  "39": {
+  "43": {
     "class": "gol_gumbaz_the_whispering",
     "name": "Gol Gumbaz (The Whispering Gallery)",
     "placeId": "IND-HER-39"
   },
-  "40": {
+  "44": {
     "class": "golconda_fort",
     "name": "Golconda Fort",
     "placeId": "IND-HER-18"
   },
-  "41": {
+  "45": {
     "class": "golden_temple",
     "name": "Golden Temple (Sri Harmandir Sahib)",
     "placeId": "IND-HER-20"
   },
-  "42": {
+  "46": {
+    "class": "golden_temple_harmandir_sahib",
+    "name": "Golden Temple (Harmandir Sahib)",
+    "placeId": "SGPC Sacred"
+  },
+  "47": {
     "class": "gop_temple_earliest_structural",
     "name": "Gop Temple (Earliest Structural Temple of Gujarat)",
     "placeId": "IND-GJ-30"
   },
-  "43": {
+  "48": {
     "class": "group_of_monuments_at",
     "name": "Group of Monuments at Mahabalipuram",
     "placeId": "IND-HER-12"
   },
-  "44": {
+  "49": {
     "class": "gwalior_fort_and_man",
     "name": "Gwalior Fort & Man Mandir Palace",
     "placeId": "IND-HER-35"
   },
-  "45": {
+  "50": {
     "class": "hampi",
     "name": "Hampi (Ruins of the Vijayanagara Empire)",
     "placeId": "IND-HER-10"
   },
-  "46": {
+  "51": {
     "class": "harappan_bronze_dancing_girl",
     "name": "Harappan Bronze 'Dancing Girl'",
     "placeId": "IND-ART-01"
   },
-  "47": {
+  "52": {
     "class": "hawa_mahal_palace_of",
     "name": "Hawa Mahal (Palace of Winds)",
     "placeId": "IND-HER-15"
   },
-  "48": {
+  "53": {
     "class": "holy_piprahwa_relics_of",
     "name": "Holy Piprahwa Relics of Lord Gautama Buddha",
     "placeId": "IND-ART-22"
   },
-  "49": {
+  "54": {
+    "class": "humayun_tomb",
+    "name": "Humayun Tomb",
+    "placeId": "N-DL-3"
+  },
+  "55": {
     "class": "humayuns_tomb",
     "name": "Humayun's Tomb Complex",
     "placeId": "IND-HER-04"
   },
-  "50": {
+  "56": {
     "class": "hutheesing_jain_temple",
     "name": "Hutheesing Jain Temple",
     "placeId": "IND-GJ-20"
   },
-  "51": {
+  "57": {
     "class": "jagannath_temple_puri",
     "name": "Jagannath Temple (Puri)",
     "placeId": "IND-HER-41"
   },
-  "52": {
+  "58": {
+    "class": "jaisalmer_fort_sonar_qila",
+    "name": "Jaisalmer Fort (Sonar Qila / The Golden Fort)",
+    "placeId": "IND-HER-135"
+  },
+  "59": {
     "class": "jama_masjid_of_ahmedabad",
     "name": "Jama Masjid of Ahmedabad",
     "placeId": "IND-GJ-23"
   },
-  "53": {
+  "60": {
     "class": "jhulta_minar_the_shaking",
     "name": "Jhulta Minar (The Shaking Minarets of Sidi Bashir)",
     "placeId": "IND-GJ-24"
   },
-  "54": {
+  "61": {
     "class": "junagadh_rock_inscriptions_of",
     "name": "Junagadh Rock Inscriptions of Ashoka, Rudradaman & Skandagupta",
     "placeId": "IND-GJ-10"
   },
-  "55": {
+  "62": {
     "class": "kakatiya_rudreshwara_ramappa_temple",
     "name": "Kakatiya Rudreshwara (Ramappa) Temple",
     "placeId": "IND-HER-29"
   },
-  "56": {
+  "63": {
     "class": "kamakhya_temple_guwahati",
     "name": "Kamakhya Temple (Guwahati)",
     "placeId": "IND-HER-43"
   },
-  "57": {
+  "64": {
     "class": "katar_indian_doubleedged_push",
     "name": "Katar (Indian Double-Edged Push Dagger)",
     "placeId": "IND-ART-12"
   },
-  "58": {
+  "65": {
     "class": "khajuraho",
     "name": "Khajuraho Group of Monuments",
     "placeId": "IND-HER-09"
   },
-  "59": {
+  "66": {
     "class": "khambhalida_buddhist_caves",
     "name": "Khambhalida Buddhist Caves",
     "placeId": "IND-GJ-29"
   },
-  "60": {
+  "67": {
     "class": "konark_sun_chariot_sundial",
     "name": "Konark Sun Chariot Sundial Wheels",
     "placeId": "IND-ART-18"
   },
-  "61": {
+  "68": {
     "class": "konark_sun_temple",
     "name": "Konark Sun Temple (The Black Pagoda)",
     "placeId": "IND-HER-08"
   },
-  "62": {
+  "69": {
     "class": "krishnas_butterball_mahabalipuram_balancing",
     "name": "Krishna's Butterball (Mahabalipuram Balancing Boulder)",
     "placeId": "IND-ART-40"
   },
-  "63": {
+  "70": {
     "class": "kumbhalgarh_fort",
     "name": "Kumbhalgarh Fort & The Great Wall of India",
     "placeId": "IND-HER-26"
   },
-  "64": {
+  "71": {
     "class": "lakhpat_fort_and_gurdwara",
     "name": "Lakhpat Fort & Gurdwara Pehli Patshahi",
     "placeId": "IND-GJ-26"
   },
-  "65": {
+  "72": {
     "class": "laxmi_vilas_palace",
     "name": "Laxmi Vilas Palace",
     "placeId": "IND-GJ-14"
   },
-  "66": {
+  "73": {
     "class": "lepakshi_veerabhadra_temple_and",
     "name": "Lepakshi Veerabhadra Temple & Hanging Pillar",
     "placeId": "IND-HER-47"
   },
-  "67": {
+  "74": {
     "class": "lion_capital_of_ashoka",
     "name": "Lion Capital of Ashoka (National Emblem of India)",
     "placeId": "IND-ART-02"
   },
-  "68": {
+  "75": {
     "class": "lothal_ancient_harappan_port",
     "name": "Lothal: Ancient Harappan Port & Tidal Dockyard",
     "placeId": "IND-GJ-07"
   },
-  "69": {
+  "76": {
+    "class": "mahabalipuram_monuments",
+    "name": "Mahabalipuram Monuments",
+    "placeId": "N-TN-C1"
+  },
+  "77": {
     "class": "mahabat_maqbara_complex",
     "name": "Mahabat Maqbara Complex",
     "placeId": "IND-GJ-16"
   },
-  "70": {
+  "78": {
     "class": "mahabodhi_temple_complex",
     "name": "Mahabodhi Temple Complex",
     "placeId": "IND-HER-23"
   },
-  "71": {
+  "79": {
     "class": "maratha_wagh_nakh_tiger",
     "name": "Maratha Wagh Nakh (Tiger Claws Concealed Weapon)",
     "placeId": "IND-ART-07"
   },
-  "72": {
+  "80": {
     "class": "martand_sun_temple",
     "name": "Martand Sun Temple",
     "placeId": "IND-HER-45"
   },
-  "73": {
+  "81": {
+    "class": "meenakshi_amman_temple",
+    "name": "Meenakshi Amman Temple",
+    "placeId": "HR&CE TN"
+  },
+  "82": {
     "class": "meenakshi_temple",
     "name": "Meenakshi Amman Temple",
     "placeId": "IND-HER-21"
   },
-  "74": {
+  "83": {
+    "class": "mehrangarh_fort_citadel_of",
+    "name": "Mehrangarh Fort (Citadel of the Sun)",
+    "placeId": "IND-HER-134"
+  },
+  "84": {
+    "class": "mehrangarh_fort_jodhpur",
+    "name": "Mehrangarh Fort (Jodhpur)",
+    "placeId": "MMF Trust"
+  },
+  "85": {
     "class": "mughal_elephant_combat_armor",
     "name": "Mughal Elephant Combat Armor (Gaj Charma)",
     "placeId": "IND-ART-09"
   },
-  "75": {
+  "86": {
     "class": "mughal_imperial_chaharaina_armoured",
     "name": "Mughal Imperial Chahar-Aina Armoured Cuirass",
     "placeId": "IND-ART-05"
   },
-  "76": {
+  "87": {
     "class": "murudjanjira_sea_fort",
     "name": "Murud-Janjira Sea Fort",
     "placeId": "IND-HER-38"
   },
-  "77": {
+  "88": {
     "class": "mysore_palace_amba_vilas",
     "name": "Mysore Palace (Amba Vilas Palace)",
     "placeId": "IND-HER-40"
   },
-  "78": {
+  "89": {
+    "class": "nalanda_mahavihara_ruins",
+    "name": "Nalanda Mahavihara (Ruins)",
+    "placeId": "N-BR-N1"
+  },
+  "90": {
     "class": "navagraha_frieze_and_ami",
     "name": "Navagraha Frieze & Ami Khumbh Reservoir (Adalaj Stepwell)",
     "placeId": "IND-ART-43"
   },
-  "79": {
+  "91": {
     "class": "neelam_and_manek_ottoman",
     "name": "Neelam and Manek Ottoman Cannons (Uparkot Fort)",
     "placeId": "IND-ART-42"
   },
-  "80": {
+  "92": {
     "class": "noor_jahans_white_nephrite",
     "name": "Noor Jahan's White Nephrite Jade Hilt Dagger",
     "placeId": "IND-ART-08"
   },
-  "81": {
+  "93": {
     "class": "padmapani_bodhisattva_fresco_ajanta",
     "name": "Padmapani Bodhisattva Fresco (Ajanta Cave 1)",
     "placeId": "IND-ART-39"
   },
-  "82": {
+  "94": {
     "class": "palitana_temples_on_shatrunjaya",
     "name": "Palitana Temples on Shatrunjaya Hill",
     "placeId": "IND-GJ-12"
   },
-  "83": {
+  "95": {
     "class": "pashupati_seal_protoshiva_intaglio",
     "name": "Pashupati Seal (Proto-Shiva Intaglio)",
     "placeId": "IND-ART-21"
   },
-  "84": {
+  "96": {
     "class": "patan_patola_doubleikat_silk",
     "name": "Patan Patola Double-Ikat Silk Heritage Textile",
     "placeId": "IND-ART-13"
   },
-  "85": {
+  "97": {
     "class": "qutub_minar",
     "name": "Qutub Minar & Monument Complex",
     "placeId": "IND-HER-02"
   },
-  "86": {
+  "98": {
     "class": "raigad_fort_capital_of",
     "name": "Raigad Fort (Capital of Maratha Empire)",
     "placeId": "IND-HER-37"
   },
-  "87": {
+  "99": {
     "class": "rang_ghar_and_talatal",
     "name": "Rang Ghar & Talatal Ghar (Ahom Kingdom)",
     "placeId": "IND-HER-44"
   },
-  "88": {
+  "100": {
     "class": "rani_ki_vav",
     "name": "Rani ki Vav (The Queen's Stepwell)",
     "placeId": "IND-HER-11"
   },
-  "89": {
+  "101": {
     "class": "ravana_shaking_mount_kailash",
     "name": "Ravana Shaking Mount Kailash Bas-Relief (Ellora Cave 16)",
     "placeId": "IND-ART-38"
   },
-  "90": {
+  "102": {
     "class": "red_fort",
     "name": "Red Fort (Lal Qila)",
     "placeId": "IND-HER-03"
   },
-  "91": {
+  "103": {
     "class": "rock_shelters_of_bhimbetka",
     "name": "Rock Shelters of Bhimbetka",
     "placeId": "IND-HER-32"
   },
-  "92": {
+  "104": {
     "class": "rustresistant_iron_pillar_of",
     "name": "Rust-Resistant Iron Pillar of Delhi",
     "placeId": "IND-ART-17"
   },
-  "93": {
+  "105": {
     "class": "sabarmati_ashram_hriday_kunj",
     "name": "Sabarmati Ashram (Hriday Kunj)",
     "placeId": "IND-GJ-25"
   },
-  "94": {
+  "106": {
     "class": "sacred_ensembles_of_the",
     "name": "Sacred Ensembles of the Hoysalas: Belur & Halebidu",
     "placeId": "IND-HER-30"
   },
-  "95": {
+  "107": {
     "class": "sahastralinga_talav",
     "name": "Sahastralinga Talav",
     "placeId": "IND-GJ-19"
   },
-  "96": {
+  "108": {
     "class": "sanchi_stupa",
     "name": "Buddhist Monuments at Sanchi (Great Stupa 1)",
     "placeId": "IND-HER-13"
   },
-  "97": {
+  "109": {
     "class": "sarkhej_roza_the_acropolis",
     "name": "Sarkhej Roza (The Acropolis of Ahmedabad)",
     "placeId": "IND-GJ-15"
   },
-  "98": {
+  "110": {
     "class": "shield_of_emperor_akbar",
     "name": "Shield of Emperor Akbar (Zodiac Gold Damascened Dhal)",
     "placeId": "IND-ART-24"
   },
-  "99": {
+  "111": {
     "class": "sidhpur_havelis_and_rudra",
     "name": "Sidhpur Havelis & Rudra Mahalaya Temple Ruins",
     "placeId": "IND-GJ-28"
   },
-  "100": {
+  "112": {
     "class": "sidi_saiyyed_mosque_the",
     "name": "Sidi Saiyyed Mosque (The Tree of Life Jali)",
     "placeId": "IND-GJ-05"
   },
-  "101": {
+  "113": {
     "class": "somnath_temple_prabhas_patan",
     "name": "Somnath Temple (Prabhas Patan)",
     "placeId": "IND-GJ-08"
   },
-  "102": {
+  "114": {
     "class": "sun_temple_modhera",
     "name": "Sun Temple Modhera",
     "placeId": "IND-HER-31"
   },
-  "103": {
+  "115": {
     "class": "surat_castle_old_fort",
     "name": "Surat Castle (Old Fort of Surat)",
     "placeId": "IND-GJ-31"
   },
-  "104": {
+  "116": {
     "class": "sword_of_chhatrapati_shivaji",
     "name": "Sword of Chhatrapati Shivaji Maharaj (Historical Maratha Talwar)",
     "placeId": "IND-ART-31"
   },
-  "105": {
+  "117": {
     "class": "sword_of_emperor_aurangzeb",
     "name": "Sword of Emperor Aurangzeb (Wootz Steel with Calligraphy)",
     "placeId": "IND-ART-23"
   },
-  "106": {
+  "118": {
     "class": "taj_mahal",
     "name": "Taj Mahal",
     "placeId": "IND-HER-01"
   },
-  "107": {
+  "119": {
     "class": "taranga_jain_temple_and",
     "name": "Taranga Jain Temple & Buddhist Caves",
     "placeId": "IND-GJ-27"
   },
-  "108": {
+  "120": {
     "class": "tipu_sultans_wootz_steel",
     "name": "Tipu Sultan's Wootz Steel 'Tiger of Mysore' Bedchamber Sword",
     "placeId": "IND-ART-06"
   },
-  "109": {
+  "121": {
     "class": "tree_of_life_stone",
     "name": "Tree of Life Stone Lattice Jali (Sidi Saiyyed Mosque)",
     "placeId": "IND-ART-14"
   },
-  "110": {
+  "122": {
     "class": "uparkot_fort_and_buddhist",
     "name": "Uparkot Fort & Buddhist Rock-Cut Caves",
     "placeId": "IND-GJ-11"
   },
-  "111": {
+  "123": {
     "class": "vadnagar_kirti_torana_and",
     "name": "Vadnagar Kirti Torana & Archaeological Site",
     "placeId": "IND-GJ-13"
   },
-  "112": {
+  "124": {
     "class": "veiled_rebecca_marble_sculpture",
     "name": "Veiled Rebecca Marble Sculpture",
     "placeId": "IND-ART-10"
   },
-  "113": {
+  "125": {
     "class": "victoria_memorial",
     "name": "Victoria Memorial Hall",
     "placeId": "IND-HER-19"
   },
-  "114": {
+  "126": {
     "class": "vijay_vilas_palace",
     "name": "Vijay Vilas Palace",
     "placeId": "IND-GJ-21"
