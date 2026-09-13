@@ -111,9 +111,15 @@ def train(epochs=12, batch_size=16, lr=1e-3):
     # Label smoothing cross entropy prevents overconfident misclassification
     criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
 
-    # AdamW with weight decay
-    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-5)
+    # Differential learning rates: keep pretrained backbone stable while training new classification head
+    backbone_params = [p for p in model.features.parameters()]
+    classifier_params = [p for p in model.classifier.parameters()]
+
+    optimizer = torch.optim.AdamW([
+        {'params': backbone_params, 'lr': lr * 0.15},
+        {'params': classifier_params, 'lr': lr}
+    ], weight_decay=1e-4)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-6)
 
     best_val_acc = 0.0
     start_time = time.time()
@@ -126,8 +132,9 @@ def train(epochs=12, batch_size=16, lr=1e-3):
         train_loss = 0.0
         train_correct = 0
         total_train = 0
+        num_batches = len(train_loader)
 
-        for images, labels in train_loader:
+        for batch_idx, (images, labels) in enumerate(train_loader, 1):
             images, labels = images.to(device), labels.to(device)
 
             optimizer.zero_grad()
@@ -141,6 +148,13 @@ def train(epochs=12, batch_size=16, lr=1e-3):
             train_correct += torch.sum(preds == labels.data).item()
             total_train += images.size(0)
 
+            # Live batch progress update every 10 batches
+            if batch_idx % 10 == 0 or batch_idx == num_batches:
+                current_acc = (train_correct / total_train) * 100
+                current_loss = train_loss / total_train
+                print(f"  -> [Epoch {epoch:02d}/{epochs:02d}] Batch {batch_idx:2d}/{num_batches:2d} | Running Loss: {current_loss:.4f} | Running Acc: {current_acc:5.1f}%", flush=True)
+
+        current_lr = scheduler.get_last_lr()[0] if hasattr(scheduler, 'get_last_lr') else lr
         scheduler.step()
 
         # Validation phase
@@ -166,18 +180,19 @@ def train(epochs=12, batch_size=16, lr=1e-3):
         avg_val_loss = val_loss / total_val if total_val > 0 else 0
         epoch_duration = time.time() - epoch_start
 
-        print(f"Epoch [{epoch:02d}/{epochs:02d}] ({epoch_duration:.1f}s) | "
-              f"Train Loss: {avg_train_loss:.4f} Acc: {train_acc:5.1f}% | "
-              f"Val Loss: {avg_val_loss:.4f} Acc: {val_acc:5.1f}%")
-
+        best_marker = ""
         if val_acc >= best_val_acc:
             best_val_acc = val_acc
-            # Save best PyTorch weights
             pth_path = os.path.join(WEIGHTS_DIR, 'heritage_vision_model.pth')
             torch.save(model.state_dict(), pth_path)
+            best_marker = " [★ NEW BEST MODEL SAVED]"
+
+        print(f"==> Epoch [{epoch:02d}/{epochs:02d}] ({epoch_duration:.1f}s) | LR: {current_lr:.6f}\n"
+              f"    Train Loss: {avg_train_loss:.4f} | Train Acc: {train_acc:5.1f}%\n"
+              f"    Val Loss:   {avg_val_loss:.4f} | Val Acc:   {val_acc:5.1f}%{best_marker}\n", flush=True)
 
     total_duration = time.time() - start_time
-    print(f"\nTraining completed in {total_duration:.1f} seconds! Best Val Acc: {best_val_acc:.1f}%")
+    print(f"\n[DONE] Training completed in {total_duration:.1f} seconds! Top Val Acc: {best_val_acc:.1f}%", flush=True)
 
     # Export best model to ONNX for production edge & server deployment
     print("\n[EXPORT] Exporting to ONNX format (heritage_vision_model.onnx)...")
