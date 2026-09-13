@@ -16,18 +16,10 @@ import { usePlacesStore, useUserStore } from '../../stores';
 import { placesApi, favoritesApi } from '../../services/api';
 import { useTranslation } from '../../hooks/useTranslation';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
-
-const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
-  heritage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80',
-  museum: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=1200&q=80',
-  culture: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=80',
-  food: 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=1200&q=80',
-  activity: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1200&q=80',
-};
+import { dynamicImageService } from '../../services/dynamicImageService';
 
 function FavoriteCard({ item, onPress, onToggle }: { item: any; onPress: () => void; onToggle: () => void }) {
-  const defaultFallback = CATEGORY_FALLBACK_IMAGES[item.category] || CATEGORY_FALLBACK_IMAGES.heritage;
-  const initialUri = (item.imageUrl && !item.imageUrl.includes('upload.wikimedia.org')) ? item.imageUrl : defaultFallback;
+  const initialUri = dynamicImageService.getPlaceImage(item.name, item.category, item.imageUrl);
   const [imgUri, setImgUri] = useState<string>(initialUri);
   const categoryColor = CATEGORY_COLORS[item.category] || Colors.primary;
 
@@ -38,12 +30,17 @@ function FavoriteCard({ item, onPress, onToggle }: { item: any; onPress: () => v
       activeOpacity={0.8}
     >
       <Image
-        source={{ uri: imgUri }}
+        source={{
+          uri: imgUri,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
+        }}
         style={styles.cardImage}
         contentFit="cover"
         placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
         transition={300}
-        onError={() => setImgUri(defaultFallback)}
+        onError={() => setImgUri(dynamicImageService.getArchitecturalFallback(item.name, item.category, 1))}
       />
       <View style={styles.cardOverlay} />
 

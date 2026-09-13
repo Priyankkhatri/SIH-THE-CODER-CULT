@@ -786,7 +786,7 @@ const DEMO_PLACES: Place[] = [
     latitude: 22.2932,
     longitude: 73.1903,
     category: 'heritage',
-    imageUrl: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=1200&q=80',
     openingHours: '9:30 AM - 5:00 PM',
     rating: 4.6,
     shortDescription: 'Grand royal palace of the Gaekwad dynasty, four times the size of Buckingham Palace.',

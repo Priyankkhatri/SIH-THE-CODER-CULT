@@ -29,14 +29,6 @@ import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
 
 const { width } = Dimensions.get('window');
 
-const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
-  heritage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80',
-  museum: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=1200&q=80',
-  culture: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=80',
-  food: 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=1200&q=80',
-  activity: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1200&q=80',
-};
-
 interface HeritageDetail {
   shortStory: string;
   history: string;
@@ -161,10 +153,11 @@ export default function PlaceDetailScreen() {
     if (resultHeritage) {
       const pName = resultHeritage.placeName || (resultHeritage.place ? getPlaceName(resultHeritage.place) : '');
       const rawImage = resultHeritage.place?.imageUrl;
+      const cat = resultHeritage.place?.category || 'heritage';
       dynamicImageService
-        .getPlaceGallery(pName, id, rawImage)
+        .getPlaceGallery(pName, id, rawImage, cat)
         .then((fetchedGallery) => {
-          if (fetchedGallery && fetchedGallery.length > 0) {
+          if (fetchedGallery && fetchedGallery.length >= 4) {
             setGallery(fetchedGallery);
           }
         })
@@ -255,14 +248,8 @@ export default function PlaceDetailScreen() {
   const safeSources = Array.isArray(heritage.sources) ? heritage.sources : [];
 
   const defaultHeroFallback = dynamicImageService.getPlaceImage(displayName, category, placeObj.imageUrl);
-  const heroUri = !imageError ? defaultHeroFallback : CATEGORY_FALLBACK_IMAGES[category] || CATEGORY_FALLBACK_IMAGES.heritage;
-  const displayGallery: GalleryImage[] = gallery.length > 0 ? gallery : [
-    {
-      url: heroUri,
-      caption: `${displayName} — Authentic Heritage Architecture`,
-      source: 'Archaeological Survey of India',
-    },
-  ];
+  const heroUri = !imageError ? defaultHeroFallback : dynamicImageService.getArchitecturalFallback(displayName, category, 1);
+  const displayGallery: GalleryImage[] = gallery.length >= 4 ? gallery : dynamicImageService.getArchitecturalFallbackGallery(displayName, category);
 
   return (
     <View style={styles.container}>
@@ -297,7 +284,12 @@ export default function PlaceDetailScreen() {
             {displayGallery.map((img, idx) => (
               <View key={idx} style={{ width, height: 350 }}>
                 <Image
-                  source={{ uri: img.url }}
+                  source={{
+                    uri: img.url,
+                    headers: {
+                      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    },
+                  }}
                   style={styles.heroImage}
                   contentFit="cover"
                   placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
@@ -511,7 +503,12 @@ export default function PlaceDetailScreen() {
                     activeOpacity={0.85}
                   >
                     <Image
-                      source={{ uri: item.url }}
+                      source={{
+                        uri: item.url,
+                        headers: {
+                          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        },
+                      }}
                       style={styles.galleryCardImg}
                       contentFit="cover"
                       transition={200}

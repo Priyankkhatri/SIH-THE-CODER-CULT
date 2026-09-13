@@ -18,14 +18,6 @@ interface PlaceCardProps {
   onFavoriteToggle?: (placeId: string) => void;
 }
 
-const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
-  heritage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80',
-  museum: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=1200&q=80',
-  culture: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=80',
-  food: 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=1200&q=80',
-  activity: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1200&q=80',
-};
-
 export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, onFavoriteToggle }: PlaceCardProps) {
   const { t, getPlaceName, getCategoryName } = useTranslation();
   const categoryColor = CATEGORY_COLORS[place.category] || Colors.primary;
@@ -34,7 +26,7 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
   const kmUnit = t('common.km');
   const crowd = getLiveCrowd(place.name);
 
-  const defaultFallback = CATEGORY_FALLBACK_IMAGES[place.category] || CATEGORY_FALLBACK_IMAGES.heritage;
+  const defaultFallback = dynamicImageService.getArchitecturalFallback(place.name, place.category, 0);
   const initialUri = dynamicImageService.getPlaceImage(place.name, place.category, place.imageUrl);
   const [currentImg, setCurrentImg] = React.useState<string>(initialUri);
 
@@ -68,12 +60,17 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
         activeOpacity={0.85}
       >
         <Image
-          source={{ uri: currentImg }}
+          source={{
+            uri: currentImg,
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            },
+          }}
           style={styles.horizontalImage}
           contentFit="cover"
           placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
           transition={250}
-          onError={() => setCurrentImg(defaultFallback)}
+          onError={() => setCurrentImg(dynamicImageService.getArchitecturalFallback(place.name, place.category, 1))}
         />
         <View style={styles.horizontalOverlay}>
           <View style={styles.cardHeaderRow}>
@@ -116,12 +113,17 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
       activeOpacity={0.85}
     >
       <Image
-        source={{ uri: currentImg }}
+        source={{
+          uri: currentImg,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
+        }}
         style={styles.verticalImage}
         contentFit="cover"
         placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
         transition={250}
-        onError={() => setCurrentImg(defaultFallback)}
+        onError={() => setCurrentImg(dynamicImageService.getArchitecturalFallback(place.name, place.category, 1))}
       />
 
       {onFavoriteToggle && (
