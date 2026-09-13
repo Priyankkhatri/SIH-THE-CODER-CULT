@@ -211,6 +211,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.text,
     marginTop: 4,
+    fontFamily: Typography.fontFamily.serif,
   },
   horizontalMeta: {
     flexDirection: 'row',
@@ -264,6 +265,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.text,
     marginBottom: 4,
+    fontFamily: Typography.fontFamily.serif,
   },
   verticalDesc: {
     fontSize: Typography.sizes.sm,

@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   giBadge: {
-    backgroundColor: 'rgba(212, 169, 71, 0.2)',
+    backgroundColor: 'rgba(212, 175, 124, 0.20)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     alignSelf: 'flex-start',
     paddingHorizontal: 8,
     paddingVertical: 3,

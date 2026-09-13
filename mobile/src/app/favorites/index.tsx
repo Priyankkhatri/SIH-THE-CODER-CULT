@@ -200,9 +200,10 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.md,
     fontWeight: '700',
     color: Colors.text,
+    fontFamily: Typography.fontFamily.serif,
   },
   countBadge: {
-    backgroundColor: 'rgba(212, 169, 71, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.15)',
     paddingHorizontal: Spacing.md,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
@@ -233,7 +234,7 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
@@ -317,6 +318,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.lg,
     fontWeight: '700',
     color: Colors.text,
+    fontFamily: Typography.fontFamily.serif,
   },
   cardDesc: {
     fontSize: Typography.sizes.xs,

@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.md,
     fontWeight: '700',
     color: Colors.text,
+    fontFamily: Typography.fontFamily.serif,
   },
   scrollContent: {
     padding: Spacing.base,
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
     gap: Spacing.base,
   },
   langCardSelected: {
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     borderColor: Colors.primary,
   },
   flag: {
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     gap: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(212, 169, 71, 0.25)',
+    borderColor: 'rgba(212, 175, 124, 0.25)',
   },
   audioNoteText: {
     flex: 1,

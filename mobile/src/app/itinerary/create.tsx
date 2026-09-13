@@ -215,6 +215,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.md,
     fontWeight: '700',
     color: Colors.text,
+    fontFamily: Typography.fontFamily.serif,
   },
   scrollContent: {
     padding: Spacing.base,
@@ -227,7 +228,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.base,
     borderWidth: 1,
-    borderColor: 'rgba(212, 169, 71, 0.25)',
+    borderColor: 'rgba(212, 175, 124, 0.25)',
     gap: Spacing.md,
   },
   introTitle: {
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   durationCardSelected: {
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     borderColor: Colors.primary,
   },
   durationLabel: {
@@ -312,7 +313,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
   },
   interestChipSelected: {
-    backgroundColor: 'rgba(212, 169, 71, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.15)',
     borderColor: Colors.primary,
   },
   interestIcon: {
@@ -340,7 +341,7 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   styleCardSelected: {
-    backgroundColor: 'rgba(212, 169, 71, 0.1)',
+    backgroundColor: 'rgba(212, 175, 124, 0.10)',
     borderColor: Colors.primary,
   },
   styleIcon: {

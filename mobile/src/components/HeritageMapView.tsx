@@ -35,7 +35,7 @@ export const DARK_GOOGLE_MAP_STYLE = [
   { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#263342' }] },
   { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#19222d' }] },
   { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#cbd5e1' }] },
-  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#d4af37' }] },
+  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#D4AF7C' }] },
   { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#1f2937' }] },
   { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#ffffff' }] },
   { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#1e293b' }] },
@@ -239,7 +239,7 @@ export function HeritageMapView({
             {/* Solid core line */}
             <Polyline
               coordinates={routeCoordinates}
-              strokeColor="#D4AF37"
+              strokeColor={Colors.primary}
               strokeWidth={4}
               lineCap="round"
               lineJoin="round"
@@ -311,7 +311,7 @@ export function HeritageMapView({
         {validPlaces.map((place) => {
           const isSelected = selectedPlace?.id === place.id;
           const isDestination = routeDestination?.id === place.id;
-          const pinColor = isDestination ? '#D4AF37' : CATEGORY_COLORS[place.category] || Colors.primary;
+          const pinColor = isDestination ? Colors.primary : CATEGORY_COLORS[place.category] || Colors.primary;
           const iconName = getCategoryIcon(place.category);
 
           return (
@@ -351,7 +351,7 @@ export function HeritageMapView({
                     </Text>
                     {place.rating && (
                       <View style={styles.calloutRating}>
-                        <MaterialIcons name="star" size={12} color="#D4AF37" />
+                        <MaterialIcons name="star" size={12} color={Colors.primary} />
                         <Text style={styles.calloutRatingText}>{place.rating}</Text>
                       </View>
                     )}
@@ -389,7 +389,7 @@ export function HeritageMapView({
               <MaterialIcons
                 name="navigation"
                 size={22}
-                color="#D4AF37"
+                color={Colors.primary}
                 style={{
                   transform: [{ rotate: `${routeBearing ?? 0}deg` }],
                 }}
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#D4AF37',
+    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#D4AF37',
+    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -584,7 +584,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: 10,
     borderWidth: 1.5,
-    borderColor: '#D4AF37',
+    borderColor: Colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -602,9 +602,9 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.4)',
+    borderColor: 'rgba(212, 175, 124, 0.4)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -640,7 +640,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#D4AF37',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 10,
     paddingVertical: 7,
     borderRadius: BorderRadius.md,
@@ -681,8 +681,12 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     borderWidth: 2.5,
-    borderColor: '#D4AF37',
-    ...Shadows.glow,
+    borderColor: Colors.primary,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   markerArrow: {
     width: 0,
@@ -699,9 +703,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(212, 175, 55, 0.35)',
+    backgroundColor: 'rgba(212, 175, 124, 0.25)',
     borderWidth: 1.5,
-    borderColor: '#D4AF37',
+    borderColor: Colors.primary,
   },
 
   // Callout styling

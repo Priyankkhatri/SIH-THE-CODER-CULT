@@ -262,6 +262,7 @@ const styles = StyleSheet.create({
     color: Colors.text,
     textAlign: 'center',
     marginBottom: Spacing.sm,
+    fontFamily: Typography.fontFamily.serif,
   },
   stepSubtitle: {
     fontSize: Typography.sizes.base,

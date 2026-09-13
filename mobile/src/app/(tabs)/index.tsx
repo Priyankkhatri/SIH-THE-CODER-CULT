@@ -432,7 +432,7 @@ export default function HomeScreen() {
                               });
                             }}
                           >
-                            <MaterialIcons name="directions" size={14} color="#D4AF37" />
+                            <MaterialIcons name="directions" size={14} color={Colors.primary} />
                             <Text style={styles.searchResultRouteBtnText}>Route</Text>
                           </TouchableOpacity>
                         </View>
@@ -516,7 +516,7 @@ export default function HomeScreen() {
                     {/* Top Badges */}
                     <View style={styles.spotlightTopRow}>
                       <View style={styles.spotlightBadge}>
-                        <MaterialIcons name="verified" size={12} color="#D4AF37" />
+                        <MaterialIcons name="verified" size={12} color={Colors.primary} />
                         <Text style={styles.spotlightBadgeText}>{item.badge}</Text>
                       </View>
                       <TouchableOpacity
@@ -530,7 +530,7 @@ export default function HomeScreen() {
                         <MaterialIcons
                           name={isPlayingThis ? 'stop' : 'volume-up'}
                           size={16}
-                          color={isPlayingThis ? '#FFFFFF' : '#D4AF37'}
+                          color={isPlayingThis ? '#FFFFFF' : Colors.primary}
                         />
                         <Text style={[styles.audioPlayBtnText, isPlayingThis && styles.audioPlayBtnTextActive]}>
                           {isPlayingThis ? 'Stop' : 'Audio'}
@@ -595,7 +595,7 @@ export default function HomeScreen() {
             <View style={styles.triviaCard}>
               <View style={styles.triviaHeader}>
                 <View style={styles.triviaIconWrap}>
-                  <MaterialIcons name="psychology" size={24} color="#D4AF37" />
+                  <MaterialIcons name="psychology" size={24} color={Colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.triviaBadge}>CULTURAL MYSTERY</Text>
@@ -791,7 +791,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: '#D4AF37',
+    borderColor: Colors.primary,
   },
   greeting: {
     fontSize: Typography.sizes.sm,
@@ -871,13 +871,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     marginBottom: Spacing.md,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(212, 169, 71, 0.3)',
+    borderColor: 'rgba(212, 175, 124, 0.25)',
   },
   searchActiveText: {
     fontSize: Typography.sizes.xs,
@@ -927,7 +927,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchResultCatBadge: {
-    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -935,7 +935,7 @@ const styles = StyleSheet.create({
   searchResultCatText: {
     fontSize: 9,
     fontWeight: '800',
-    color: '#D4AF37',
+    color: Colors.primary,
   },
   searchResultDesc: {
     fontSize: Typography.sizes.xs,
@@ -956,17 +956,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.4)',
+    borderColor: 'rgba(212, 175, 124, 0.35)',
   },
   searchResultRouteBtnText: {
     fontSize: Typography.sizes.xs,
     fontWeight: '700',
-    color: '#D4AF37',
+    color: Colors.primary,
   },
   searchEmptyContainer: {
     alignItems: 'center',
@@ -1051,29 +1051,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(20, 15, 10, 0.75)',
+    backgroundColor: 'rgba(23, 23, 23, 0.88)',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.4)',
+    borderColor: 'rgba(212, 175, 124, 0.35)',
   },
   spotlightBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#D4AF37',
+    color: Colors.primary,
     letterSpacing: 0.3,
   },
   audioPlayBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(20, 15, 10, 0.75)',
+    backgroundColor: 'rgba(23, 23, 23, 0.88)',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.4)',
+    borderColor: 'rgba(212, 175, 124, 0.35)',
   },
   audioPlayBtnActive: {
     backgroundColor: '#E53935',
@@ -1082,7 +1082,7 @@ const styles = StyleSheet.create({
   audioPlayBtnText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#D4AF37',
+    color: Colors.primary,
   },
   audioPlayBtnTextActive: {
     color: '#FFFFFF',
@@ -1098,12 +1098,13 @@ const styles = StyleSheet.create({
   spotlightEra: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#D4AF37',
+    color: Colors.primary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 2,
   },
   spotlightTitle: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.xl,
     fontWeight: '800',
     color: '#FFFFFF',
@@ -1166,7 +1167,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(212, 169, 71, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
@@ -1185,7 +1186,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius['2xl'],
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.35)',
+    borderColor: 'rgba(212, 175, 124, 0.25)',
     ...Shadows.sm,
   },
   triviaHeader: {
@@ -1198,17 +1199,18 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   triviaBadge: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#D4AF37',
+    color: Colors.primary,
     letterSpacing: 1,
   },
   triviaTitle: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.base,
     fontWeight: '700',
     color: Colors.text,
@@ -1225,7 +1227,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: BorderRadius.lg,
@@ -1242,7 +1244,7 @@ const styles = StyleSheet.create({
   craftsBanner: {
     borderRadius: BorderRadius['2xl'],
     overflow: 'hidden',
-    backgroundColor: '#3E2723',
+    backgroundColor: Colors.surfaceElevated, borderWidth: 1, borderColor: Colors.borderLight,
     padding: Spacing.lg,
     ...Shadows.sm,
   },
@@ -1267,9 +1269,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   craftsTitle: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.lg,
     fontWeight: '800',
-    color: '#FFF8E7',
+    color: Colors.text,
   },
   craftsDesc: {
     fontSize: Typography.sizes.xs,
@@ -1279,7 +1282,7 @@ const styles = StyleSheet.create({
   },
   craftsBtn: {
     alignSelf: 'flex-start',
-    backgroundColor: '#D4AF37',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: BorderRadius.lg,
@@ -1287,7 +1290,7 @@ const styles = StyleSheet.create({
   craftsBtnText: {
     fontSize: Typography.sizes.xs,
     fontWeight: '800',
-    color: '#2C1810',
+    color: Colors.textInverse,
   },
   section: {
     marginBottom: Spacing['2xl'],
@@ -1300,6 +1303,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   sectionTitle: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.lg,
     fontWeight: '700',
     color: Colors.text,
@@ -1327,7 +1331,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(212, 169, 71, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
   },
   emptyClearText: {
     fontSize: Typography.sizes.xs,
@@ -1351,7 +1355,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     marginHorizontal: Spacing.xl,
     borderWidth: 1,
-    borderColor: 'rgba(212, 169, 71, 0.35)',
+    borderColor: 'rgba(212, 175, 124, 0.25)',
     ...Shadows.sm,
   },
   exploreMoreText: {

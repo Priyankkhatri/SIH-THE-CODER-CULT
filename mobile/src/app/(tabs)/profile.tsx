@@ -249,7 +249,8 @@ const styles = StyleSheet.create({
     color: Colors.background,
   },
   userName: {
-    fontSize: Typography.sizes.lg,
+    fontFamily: Typography.fontFamily.serif,
+    fontSize: Typography.sizes.xl,
     fontWeight: '700',
     color: Colors.text,
   },
@@ -264,7 +265,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(212, 169, 71, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.25)',
   },
   guestText: {
     fontSize: Typography.sizes.xs,
@@ -295,7 +298,8 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   sectionTitle: {
-    fontSize: Typography.sizes.base,
+    fontFamily: Typography.fontFamily.serif,
+    fontSize: Typography.sizes.md,
     fontWeight: '700',
     color: Colors.text,
   },
@@ -347,7 +351,7 @@ const styles = StyleSheet.create({
   },
   langActive: {
     borderColor: Colors.primary,
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
   },
   langFlag: {
     fontSize: 24,
@@ -379,7 +383,7 @@ const styles = StyleSheet.create({
   },
   interestActive: {
     borderColor: Colors.primary,
-    backgroundColor: 'rgba(212, 169, 71, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.16)',
   },
   interestIcon: {
     fontSize: 16,
@@ -405,7 +409,7 @@ const styles = StyleSheet.create({
   },
   styleActive: {
     borderColor: Colors.primary,
-    backgroundColor: 'rgba(212, 169, 71, 0.1)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
   },
   styleIcon: {
     fontSize: 24,

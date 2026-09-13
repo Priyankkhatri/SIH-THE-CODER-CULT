@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: BorderRadius.sm,
@@ -821,7 +821,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.sm,
   },
   helpfulBtnActive: {
-    backgroundColor: 'rgba(212, 169, 71, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.15)',
   },
   helpfulText: {
     fontSize: 11,
@@ -928,7 +928,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   typeOptionSelected: {
-    backgroundColor: 'rgba(212, 169, 71, 0.18)',
+    backgroundColor: 'rgba(212, 175, 124, 0.18)',
     borderColor: Colors.primary,
   },
   typeOptionText: {

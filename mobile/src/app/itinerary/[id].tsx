@@ -312,6 +312,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.md,
     fontWeight: '700',
     color: Colors.text,
+    fontFamily: Typography.fontFamily.serif,
   },
   scrollContent: {
     padding: Spacing.base,
@@ -322,7 +323,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: 'rgba(212, 169, 71, 0.25)',
+    borderColor: 'rgba(212, 175, 124, 0.25)',
     gap: Spacing.base,
     ...Shadows.md,
   },
@@ -330,6 +331,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.xl,
     fontWeight: '700',
     color: Colors.text,
+    fontFamily: Typography.fontFamily.serif,
   },
   statsRow: {
     flexDirection: 'row',
@@ -391,7 +393,7 @@ const styles = StyleSheet.create({
   connectorLine: {
     width: 2,
     flex: 1,
-    backgroundColor: 'rgba(212, 169, 71, 0.3)',
+    backgroundColor: 'rgba(212, 175, 124, 0.25)',
     marginVertical: 4,
   },
   stopCard: {
@@ -420,7 +422,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(212, 169, 71, 0.1)',
+    backgroundColor: 'rgba(212, 175, 124, 0.10)',
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
     borderRadius: BorderRadius.full,

@@ -98,9 +98,9 @@ const styles = StyleSheet.create({
   activeIconWrap: {
     padding: 4,
     borderRadius: 12,
-    backgroundColor: 'rgba(212, 169, 71, 0.1)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
   },
   aiIconActive: {
-    backgroundColor: 'rgba(212, 169, 71, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.16)',
   },
 });

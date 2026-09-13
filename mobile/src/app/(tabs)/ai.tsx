@@ -386,6 +386,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   headerTitle: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.lg,
     fontWeight: '700',
     color: Colors.text,
@@ -420,13 +421,13 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   modeChipActive: {
-    backgroundColor: Colors.primary + '20',
+    backgroundColor: 'rgba(212, 175, 124, 0.16)',
     borderColor: Colors.primary,
   },
   modeLabel: {
-    fontSize: Typography.sizes.sm,
+    fontSize: Typography.sizes.xs,
     color: Colors.textSecondary,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   modeLabelActive: {
     color: Colors.primary,
@@ -446,6 +447,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.base,
   },
   emptyTitle: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.xl,
     fontWeight: '700',
     color: Colors.text,

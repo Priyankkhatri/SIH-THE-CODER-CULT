@@ -248,7 +248,7 @@ export default function LoadingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: Colors.background,
   },
   vignetteOverlay: {
     ...StyleSheet.absoluteFill,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     height: 96,
     borderRadius: 48,
     borderWidth: 1.5,
-    borderColor: 'rgba(212, 169, 71, 0.45)',
+    borderColor: 'rgba(212, 175, 124, 0.40)',
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
@@ -335,11 +335,11 @@ const styles = StyleSheet.create({
 
   // Progress Card
   progressCard: {
-    backgroundColor: 'rgba(14, 14, 24, 0.85)',
+    backgroundColor: 'rgba(23, 23, 23, 0.90)',
     borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(212, 169, 71, 0.3)',
+    borderColor: 'rgba(212, 175, 124, 0.25)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.5,
@@ -365,6 +365,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.text,
     letterSpacing: 0.3,
+    fontFamily: Typography.fontFamily.serif,
   },
   percentText: {
     fontSize: Typography.sizes.xs,
@@ -401,12 +402,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(20, 20, 31, 0.7)',
+    backgroundColor: 'rgba(29, 29, 29, 0.80)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: 'rgba(212, 169, 71, 0.35)',
+    borderColor: 'rgba(212, 175, 124, 0.35)',
   },
   skipText: {
     fontSize: 11,

@@ -341,6 +341,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.divider,
   },
   headerTitle: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.xl,
     fontWeight: '800',
     color: Colors.text,
@@ -390,12 +391,12 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.base,
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: Colors.border,
   },
   durationActive: {
     borderColor: Colors.primary,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
   },
   durationValue: {
     fontSize: Typography.sizes.lg,
@@ -428,7 +429,7 @@ const styles = StyleSheet.create({
   },
   interestActive: {
     borderColor: Colors.primary,
-    backgroundColor: Colors.primary + '20',
+    backgroundColor: 'rgba(212, 175, 124, 0.16)',
   },
   interestIcon: {
     fontSize: 16,
@@ -480,6 +481,7 @@ const styles = StyleSheet.create({
     ...Shadows.md,
   },
   summaryTitle: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.xl,
     fontWeight: '800',
     color: Colors.text,
@@ -510,6 +512,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.border,
   },
   timelineTitle: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.md,
     fontWeight: '700',
     color: Colors.text,

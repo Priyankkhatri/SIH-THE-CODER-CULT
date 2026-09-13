@@ -159,6 +159,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.md,
     fontWeight: '700',
     color: Colors.text,
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: 'rgba(212, 169, 71, 0.3)',
+    borderColor: Colors.border,
     gap: Spacing.sm,
     ...Shadows.md,
   },
@@ -226,7 +227,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   confidenceBadge: {
-    backgroundColor: 'rgba(212, 169, 71, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     paddingHorizontal: Spacing.md,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
@@ -249,6 +250,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   artifactName: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.xl,
     fontWeight: '700',
     color: Colors.text,
@@ -273,7 +275,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -1,18 +1,21 @@
-// Design System: AI Tourist Companion
-// Rich dark theme with heritage gold accents
+// Design System: YATRA — AI Tourist Companion
+// Luxury Dark Heritage Editorial Theme (Reference Design System)
+
+import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
 export const Colors = {
-  // Core palette
-  background: '#0A0A0F',
-  backgroundAlt: '#0E0E18',
-  surface: '#14141F',
-  surfaceElevated: '#1A1A2E',
-  surfaceHighlight: '#22223A',
+  // Core luxury palette
+  background: '#0F0F0F',
+  backgroundAlt: '#141414',
+  surface: '#171717',
+  surfaceElevated: '#1D1D1D',
+  surfaceHighlight: '#242424',
 
-  // Heritage accents
-  primary: '#D4A947',       // Heritage gold
-  primaryDark: '#B8912F',
-  primaryLight: '#E8C96A',
+  // Heritage accents (restrained gold)
+  primary: '#D4AF7C',       // Heritage accent gold
+  primaryDark: '#A8864F',   // Dark gold
+  primaryLight: '#E5C9A4',  // Light gold
   secondary: '#C17F59',     // Terracotta
   secondaryLight: '#D4976F',
   accent: '#5B8FB9',        // Sky blue (maps)
@@ -25,28 +28,28 @@ export const Colors = {
   info: '#42A5F5',
 
   // Text
-  text: '#F5F0E8',           // Warm white
-  textSecondary: '#A8A3B3',
-  textMuted: '#6B6B7B',
-  textInverse: '#0A0A0F',
+  text: '#F5F1E8',           // Warm ivory
+  textSecondary: '#A7A7A7',  // Muted sandstone
+  textMuted: '#777777',      // Subtle muted
+  textInverse: '#0F0F0F',    // Deep charcoal for text over gold
 
   // Borders & dividers
-  border: '#2A2A3E',
-  borderLight: '#3A3A52',
-  divider: '#1E1E30',
+  border: 'rgba(255, 255, 255, 0.10)',
+  borderLight: 'rgba(255, 255, 255, 0.14)',
+  divider: 'rgba(255, 255, 255, 0.08)',
 
   // Category colors
-  heritage: '#D4A947',
+  heritage: '#D4AF7C',
   museum: '#8B6FC0',
   culture: '#5B8FB9',
   food: '#E67E5A',
   activity: '#4CAF50',
 
   // Gradients (as arrays for LinearGradient)
-  gradientPrimary: ['#D4A947', '#B8912F'],
-  gradientHero: ['#0A0A0F', '#14141F', '#0A0A0F'],
-  gradientCard: ['#1A1A2E', '#14141F'],
-  gradientOverlay: ['transparent', 'rgba(10, 10, 15, 0.8)', 'rgba(10, 10, 15, 0.95)'],
+  gradientPrimary: ['#D4AF7C', '#A8864F'],
+  gradientHero: ['#0F0F0F', '#171717', '#0F0F0F'],
+  gradientCard: ['#1D1D1D', '#171717'],
+  gradientOverlay: ['transparent', 'rgba(15, 15, 15, 0.75)', '#0F0F0F'],
 };
 
 export const Typography = {
@@ -54,6 +57,7 @@ export const Typography = {
     regular: 'System',
     medium: 'System',
     bold: 'System',
+    serif: Platform.select({ ios: 'Georgia', android: 'serif', default: 'serif' }) as string,
   },
   sizes: {
     xs: 11,
@@ -99,30 +103,31 @@ export const Shadows = {
   sm: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 2,
   },
   md: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
   lg: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.4,
     shadowRadius: 16,
     elevation: 8,
   },
+  // Restrained, subtle elevation (no radioactive neon glow)
   glow: {
-    shadowColor: '#D4A947',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
 };
 
@@ -134,9 +139,6 @@ export const CATEGORIES = [
   { key: 'food', label: 'Food', icon: 'restaurant', color: Colors.food },
   { key: 'activity', label: 'Activities', icon: 'directions-walk', color: Colors.activity },
 ] as const;
-
-import { Platform } from 'react-native';
-import Constants from 'expo-constants';
 
 // Automatically detect host IP from Expo bundler connection (Expo Go on physical devices)
 const expoHostUri =
@@ -153,7 +155,6 @@ export const API_BASE_URL = Platform.OS === 'web'
       ? `http://${window.location.hostname}:3000`
       : 'http://localhost:3000')
   : (detectedHostIp ? `http://${detectedHostIp}:3000` : 'http://localhost:3000');
-
 
 // Language configuration
 export const LANGUAGES = [
@@ -198,14 +199,14 @@ export const AuthTheme = {
   surface: '#161616',
   surfaceElevated: '#1E1E1E',
   gold: '#D4AF7C',
-  goldDark: '#B89158',
+  goldDark: '#A8864F',
   goldLight: '#E5C9A4',
   textPrimary: '#F5F1E8',
   textSecondary: '#A7A7A7',
-  textMuted: '#666666',
+  textMuted: '#777777',
   border: 'rgba(255, 255, 255, 0.10)',
-  borderLight: 'rgba(255, 255, 255, 0.16)',
+  borderLight: 'rgba(255, 255, 255, 0.14)',
   borderFocus: '#D4AF7C',
   inputBg: '#161616',
-  fontSerif: Platform.select({ ios: 'Georgia', android: 'serif', default: 'serif' }),
+  fontSerif: Platform.select({ ios: 'Georgia', android: 'serif', default: 'serif' }) as string,
 };

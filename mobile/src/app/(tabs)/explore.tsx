@@ -626,7 +626,7 @@ export default function ExploreScreen() {
               <View style={{ flex: 1 }}>
                 <View style={styles.bottomCardTitleRow}>
                   <Text style={styles.bottomCardName} numberOfLines={1}>{getPlaceName(selectedPlace)}</Text>
-                  <MaterialIcons name="verified" size={15} color="#D4AF37" />
+                  <MaterialIcons name="verified" size={15} color={Colors.primary} />
                 </View>
                 <Text style={styles.bottomCardDesc} numberOfLines={2}>{selectedPlace.shortDescription}</Text>
                 
@@ -668,13 +668,13 @@ export default function ExploreScreen() {
             {/* Active Navigation Route Status */}
             {isRouting && routeDestination?.id === selectedPlace.id && (
               <View style={styles.activeRouteBar}>
-                <ActivityIndicator size="small" color="#D4AF37" />
+                <ActivityIndicator size="small" color={Colors.primary} />
                 <Text style={styles.activeRouteText}>Finding best road route…</Text>
               </View>
             )}
             {!isRouting && routeDestination?.id === selectedPlace.id && routeInfo && (
               <View style={styles.activeRouteBar}>
-                <MaterialIcons name="navigation" size={15} color="#D4AF37" />
+                <MaterialIcons name="navigation" size={15} color={Colors.primary} />
                 <Text style={styles.activeRouteText}>
                   {routeInfo.source === 'osrm' ? 'Live road route' : 'Offline direct route'} • {routeInfo.distanceKm} km (~{routeInfo.durationMin} min)
                 </Text>
@@ -874,7 +874,7 @@ const styles = StyleSheet.create({
     left: Spacing.base,
     right: 70,
     bottom: 180,
-    backgroundColor: 'rgba(18, 24, 38, 0.96)',
+    backgroundColor: Colors.surfaceElevated,
     borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
@@ -908,7 +908,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   layerChipActive: {
-    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    backgroundColor: 'rgba(212, 175, 124, 0.16)',
     borderColor: Colors.primary,
   },
   layerChipText: {
@@ -983,7 +983,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: Colors.surfaceHighlight,
     borderWidth: 1.5,
-    borderColor: 'rgba(212, 175, 55, 0.4)',
+    borderColor: Colors.borderLight,
     ...Shadows.sm,
   },
   bottomCardThumbPlaceholder: {
@@ -994,7 +994,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1a2234',
+    backgroundColor: Colors.surfaceHighlight,
   },
   bottomCardThumb: {
     width: '100%',
@@ -1022,6 +1022,7 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   bottomCardName: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.lg,
     fontWeight: '700',
     color: Colors.text,
@@ -1046,17 +1047,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(212, 175, 55, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.35)',
+    borderColor: 'rgba(212, 175, 124, 0.25)',
   },
   activeRouteText: {
     fontSize: Typography.sizes.xs,
     fontWeight: '700',
-    color: '#D4AF37',
+    color: Colors.primary,
   },
   bottomCardActions: {
     flexDirection: 'row',
@@ -1119,7 +1120,7 @@ const styles = StyleSheet.create({
   },
   searchSuggestionsDropdown: {
     marginTop: 8,
-    backgroundColor: 'rgba(18, 24, 38, 0.98)',
+    backgroundColor: Colors.surfaceElevated,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
     borderColor: Colors.border,
@@ -1159,7 +1160,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     justifyContent: 'center',
     alignItems: 'center',
   },

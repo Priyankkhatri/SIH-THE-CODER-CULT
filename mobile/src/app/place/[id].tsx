@@ -376,7 +376,7 @@ export default function PlaceDetailScreen() {
             {/* Photo Perspective Caption */}
             {displayGallery[activeSlide]?.caption && (
               <View style={styles.perspectiveCaptionPill}>
-                <MaterialIcons name="collections" size={12} color="#D4AF37" />
+                <MaterialIcons name="collections" size={12} color={Colors.primary} />
                 <Text style={styles.perspectiveCaptionText} numberOfLines={1}>
                   {displayGallery[activeSlide].caption}
                 </Text>
@@ -792,7 +792,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginBottom: 6,
     borderWidth: 1,
-    borderColor: 'rgba(212, 169, 71, 0.35)',
+    borderColor: 'rgba(212, 175, 124, 0.25)',
     maxWidth: '92%',
   },
   perspectiveCaptionText: {
@@ -818,7 +818,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.xs,
     color: Colors.primary,
     fontWeight: '600',
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: BorderRadius.sm,
@@ -918,6 +918,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   heroTitle: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes['2xl'],
     fontWeight: '800',
     color: Colors.text,
@@ -964,7 +965,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1.5,
@@ -993,7 +994,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: 'rgba(212, 169, 71, 0.25)',
+    backgroundColor: 'rgba(212, 175, 124, 0.18)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: BorderRadius.sm,
@@ -1061,6 +1062,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   sectionTitle: {
+    fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.md,
     fontWeight: '700',
     color: Colors.text,
@@ -1117,7 +1119,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     padding: Spacing.base,
     borderWidth: 1,
-    borderColor: 'rgba(212, 169, 71, 0.3)',
+    borderColor: 'rgba(212, 175, 124, 0.25)',
     gap: Spacing.md,
     marginTop: Spacing.base,
     marginBottom: Spacing.xl,
@@ -1126,7 +1128,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(212, 169, 71, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     justifyContent: 'center',
     alignItems: 'center',
   },
