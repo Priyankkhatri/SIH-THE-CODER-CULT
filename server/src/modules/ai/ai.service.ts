@@ -223,15 +223,23 @@ class AIService {
       ? `Context:\n${contextText}\n\nPlace: ${context.placeName}\n\nQuestion: ${question}`
       : `Context:\n${contextText}\n\nQuestion: ${question}`;
 
-    // Step 3: Try Local LM Studio Qwen 3.5 9B first (running on port 1234)
+    // Step 3: Try Local LM Studio (any loaded model on port 1234)
     try {
       const temperature = mode === 'narrative' ? 0.65 : mode === 'child' ? 0.5 : 0.35;
-      const maxTokens = mode === 'short' ? 200 : mode === 'detailed' ? 380 : 250;
+      const maxTokens = mode === 'short' ? 250 : mode === 'detailed' ? 600 : 350;
+
+      let modelName = 'default';
+      try {
+        const modelsRes = await axios.get('http://127.0.0.1:1234/v1/models', { timeout: 800 });
+        if (modelsRes.data?.data?.[0]?.id) {
+          modelName = modelsRes.data.data[0].id;
+        }
+      } catch (_) {}
 
       const localResponse = await axios.post(
         'http://127.0.0.1:1234/v1/chat/completions',
         {
-          model: 'qwen/qwen3.5-9b',
+          model: modelName,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
@@ -240,7 +248,7 @@ class AIService {
           temperature,
           max_tokens: maxTokens,
         },
-        { timeout: 1500 } // Fast check - skip immediately if local LM Studio is offline
+        { timeout: 3500 } // Fast check - skip immediately if local LM Studio is offline
       );
 
       let qwenAnswer = localResponse.data?.choices?.[0]?.message?.content;

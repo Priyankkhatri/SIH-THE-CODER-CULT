@@ -14,7 +14,15 @@ import numpy as np
 from PIL import Image
 import onnxruntime as ort
 
-WEIGHTS_DIR = os.path.join('ml', 'weights')
+EXTERNAL_MODELS_DIR = r'F:\models\heritage_vision'
+LOCAL_WEIGHTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'weights')
+
+# Prioritize external hard disk (F:\models\heritage_vision)
+if os.path.exists(os.path.join(EXTERNAL_MODELS_DIR, 'heritage_vision_model.onnx')):
+    WEIGHTS_DIR = EXTERNAL_MODELS_DIR
+else:
+    WEIGHTS_DIR = LOCAL_WEIGHTS_DIR
+
 ONNX_MODEL_PATH = os.path.join(WEIGHTS_DIR, 'heritage_vision_model.onnx')
 CLASSES_JSON_PATH = os.path.join(WEIGHTS_DIR, 'classes.json')
 

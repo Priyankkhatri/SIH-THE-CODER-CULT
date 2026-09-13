@@ -339,10 +339,16 @@ router.post('/identify', async (req: Request, res: Response) => {
       try {
         const base64Data = image.startsWith('data:') ? image : `data:image/jpeg;base64,${image}`;
 
+        let modelName = 'default';
+        try {
+          const mres = await axios.get('http://127.0.0.1:1234/v1/models', { timeout: 800 });
+          if (mres.data?.data?.[0]?.id) modelName = mres.data.data[0].id;
+        } catch (_) {}
+
         const visionResponse = await axios.post(
           'http://127.0.0.1:1234/v1/chat/completions',
           {
-            model: 'qwen/qwen3.5-9b',
+            model: modelName,
             messages: [
               {
                 role: 'system',
