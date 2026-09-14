@@ -433,10 +433,6 @@ export default function ExploreScreen() {
                       item.category,
                       item.imageUrl
                     ),
-                    headers: {
-                      'User-Agent':
-                        'YatraHeritageCompanion/1.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
-                    },
                   }}
                   style={styles.suggestionThumb}
                   contentFit="cover"
@@ -617,10 +613,6 @@ export default function ExploreScreen() {
                       selectedPlace.category,
                       selectedPlace.imageUrl
                     ),
-                    headers: {
-                      'User-Agent':
-                        'YatraHeritageCompanion/1.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
-                    },
                   }}
                   style={styles.bottomCardThumb}
                   contentFit="cover"

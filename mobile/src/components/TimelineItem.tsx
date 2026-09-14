@@ -4,6 +4,7 @@ import { Image as ExpoImage } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
 import { useTranslation } from '../hooks/useTranslation';
+import { dynamicImageService } from '../services/dynamicImageService';
 
 interface TimelineItemProps {
   item: {
@@ -24,6 +25,11 @@ interface TimelineItemProps {
 
 export function TimelineItem({ item, isLast, onNavigate, onRemove }: TimelineItemProps) {
   const { t, language } = useTranslation();
+  const [imgUrl, setImgUrl] = React.useState<string | null>(item.imageUrl || null);
+
+  React.useEffect(() => {
+    setImgUrl(item.imageUrl || null);
+  }, [item.imageUrl]);
   const kmUnit = t('common.km');
   const travelModeText =
     item.travelMode === 'drive'
@@ -61,12 +67,16 @@ export function TimelineItem({ item, isLast, onNavigate, onRemove }: TimelineIte
         )}
 
         <View style={styles.cardMainRow}>
-          {item.imageUrl ? (
+          {imgUrl ? (
             <ExpoImage
-              source={{ uri: item.imageUrl }}
+              source={{ uri: imgUrl }}
               style={styles.thumbImage}
               contentFit="cover"
               transition={200}
+              onError={() => {
+                const fallback = dynamicImageService.getArchitecturalFallback(item.placeName, 'heritage', 0);
+                setImgUrl(fallback);
+              }}
             />
           ) : (
             <View style={styles.thumbPlaceholder}>

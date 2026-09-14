@@ -67,13 +67,7 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
         activeOpacity={0.85}
       >
         <Image
-          source={{
-            uri: currentImg,
-            headers: {
-              'User-Agent':
-                'YatraHeritageCompanion/1.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
-            },
-          }}
+          source={{ uri: currentImg }}
           style={styles.horizontalImage}
           contentFit="cover"
           placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
@@ -121,13 +115,7 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
       activeOpacity={0.85}
     >
       <Image
-        source={{
-          uri: currentImg,
-          headers: {
-            'User-Agent':
-              'YatraHeritageCompanion/1.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
-          },
-        }}
+        source={{ uri: currentImg }}
         style={styles.verticalImage}
         contentFit="cover"
         placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}

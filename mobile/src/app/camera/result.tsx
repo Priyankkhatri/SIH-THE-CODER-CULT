@@ -12,6 +12,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { useChatStore } from '../../stores';
+import { dynamicImageService } from '../../services/dynamicImageService';
 
 export default function CameraResultScreen() {
   const router = useRouter();
@@ -35,6 +36,7 @@ export default function CameraResultScreen() {
   const heritageContext = params.heritageContext || 'Historical information cataloged by Archaeological Survey of India.';
   const placeId = params.placeId || '';
   const placeName = params.placeName || artifactName || 'Heritage Monument';
+  const displayImageUri = params.imageUri || dynamicImageService.getPlaceImage(placeName, 'heritage');
 
   const handleAskAI = () => {
     if (placeId) {
@@ -73,12 +75,12 @@ export default function CameraResultScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Verification Success Hero Card */}
         <View style={styles.card}>
-          {params.imageUri ? (
+          {displayImageUri ? (
             <View style={styles.imageWrap}>
-              <Image source={{ uri: params.imageUri }} style={styles.capturedImage} resizeMode="cover" />
+              <Image source={{ uri: displayImageUri }} style={styles.capturedImage} resizeMode="cover" />
               <View style={styles.capturedBadge}>
                 <MaterialIcons name="camera" size={13} color="#fff" />
-                <Text style={styles.capturedBadgeText}>Scanned Frame</Text>
+                <Text style={styles.capturedBadgeText}>{params.imageUri ? 'Scanned Frame' : 'Identified Landmark'}</Text>
               </View>
             </View>
           ) : null}

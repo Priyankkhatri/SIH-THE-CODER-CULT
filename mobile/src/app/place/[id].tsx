@@ -11,6 +11,7 @@ import {
   Dimensions,
   RefreshControl,
   FlatList,
+  PanResponder,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -175,7 +176,7 @@ export default function PlaceDetailScreen() {
         .getPlaceGallery(canonicalName, id, rawImage, cat)
         .then((fetchedGallery) => {
           if (requestSeq !== galleryRequestRef.current) return;
-          if (fetchedGallery && fetchedGallery.length >= 4) {
+          if (fetchedGallery && fetchedGallery.length > 0) {
             setGallery(fetchedGallery);
           }
         })
@@ -266,34 +267,72 @@ export default function PlaceDetailScreen() {
   const safeSources = Array.isArray(heritage.sources) ? heritage.sources : [];
 
   const verifiedPrimary = dynamicImageService.getPlaceImage(displayName, category, placeObj.imageUrl);
-  const heroUri = !imageError ? verifiedPrimary : dynamicImageService.getArchitecturalFallback(displayName, category, 1);
-  
-  let displayGallery: GalleryImage[] = [];
-  if (gallery.length > 0) {
-    displayGallery = [...gallery];
-  } else {
-    displayGallery = dynamicImageService.getArchitecturalFallbackGallery(displayName, category);
-  }
-  // Ensure the authentic verified Wikipedia photo is ALWAYS first in the gallery
-  if (verifiedPrimary && (!displayGallery[0] || displayGallery[0].url !== verifiedPrimary)) {
-    displayGallery = [
-      {
-        url: verifiedPrimary,
-        caption: `${displayName} — Primary Heritage Perspective`,
-        source: 'Archaeological Survey of India / Wikipedia',
-      },
-      ...displayGallery.filter((g) => g.url !== verifiedPrimary),
-    ];
-  }
-  // displayGallery[0] may be the prepended verified hero (not part of `gallery`
-  // state), so carousel index → gallery index needs this offset when patching.
-  const galleryOffset =
-    gallery.length > 0 && verifiedPrimary && gallery[0]?.url !== verifiedPrimary ? 1 : 0;
+  const effectivePrimary = !imageError
+    ? verifiedPrimary
+    : dynamicImageService.getArchitecturalFallback(displayName, category, 1);
+
+  const displayGallery: GalleryImage[] = React.useMemo(() => {
+    let list: GalleryImage[] = [];
+    if (gallery.length > 0) {
+      list = [...gallery];
+    } else {
+      list = dynamicImageService.getArchitecturalFallbackGallery(displayName, category);
+    }
+    // Ensure the primary photo is always first in the gallery
+    if (effectivePrimary) {
+      const filtered = list.filter(
+        (g) => g.url !== effectivePrimary && (!imageError || g.url !== verifiedPrimary)
+      );
+      list = [
+        {
+          url: effectivePrimary,
+          caption: `${displayName} — Primary Heritage Perspective`,
+          source: 'Archaeological Survey of India / Wikimedia Commons',
+        },
+        ...filtered,
+      ];
+    }
+    return list;
+  }, [gallery, effectivePrimary, displayName, category, imageError, verifiedPrimary]);
+
+  const panResponder = React.useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => false,
+        onMoveShouldSetPanResponder: (_, gestureState) => {
+          // Dominant horizontal drag: at least 16px and significantly more horizontal than vertical
+          return (
+            Math.abs(gestureState.dx) > 16 &&
+            Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.2
+          );
+        },
+        onPanResponderRelease: (_, gestureState) => {
+          if (gestureState.dx < -30) {
+            // Swiped left -> next image
+            setActiveSlide((curr) => {
+              const maxIdx = Math.max(0, displayGallery.length - 1);
+              const next = Math.min(maxIdx, curr + 1);
+              heroScrollRef.current?.scrollTo({ x: next * width, animated: true });
+              return next;
+            });
+          } else if (gestureState.dx > 30) {
+            // Swiped right -> previous image
+            setActiveSlide((curr) => {
+              const prev = Math.max(0, curr - 1);
+              heroScrollRef.current?.scrollTo({ x: prev * width, animated: true });
+              return prev;
+            });
+          }
+        },
+      }),
+    [displayGallery.length, width]
+  );
 
   return (
     <View style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
@@ -304,16 +343,21 @@ export default function PlaceDetailScreen() {
         }
       >
         {/* Hero Image Sliding Carousel */}
-        <View style={styles.heroSection}>
+        <View style={styles.heroSection} {...panResponder.panHandlers}>
           <ScrollView
             ref={heroScrollRef}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             nestedScrollEnabled={true}
-            directionalLockEnabled={true}
             decelerationRate="fast"
             scrollEventThrottle={16}
+            onScroll={(e) => {
+              const slideIdx = Math.round(e.nativeEvent.contentOffset.x / width);
+              if (slideIdx >= 0 && slideIdx < displayGallery.length && slideIdx !== activeSlide) {
+                setActiveSlide(slideIdx);
+              }
+            }}
             onMomentumScrollEnd={(e) => {
               const slideIdx = Math.round(e.nativeEvent.contentOffset.x / width);
               if (slideIdx >= 0 && slideIdx < displayGallery.length) {
@@ -325,32 +369,33 @@ export default function PlaceDetailScreen() {
             {displayGallery.map((img, idx) => (
               <View key={idx} style={{ width, height: 500 }}>
                 <Image
-                  source={{
-                    uri: img.url,
-                    headers: {
-                      'User-Agent':
-                        'YatraHeritageCompanion/1.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
-                    },
-                  }}
+                  source={{ uri: img.url }}
                   style={styles.heroImage}
                   contentFit="cover"
                   placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
                   transition={300}
                   onError={() => {
-                    // Index 0 with offset is the prepended verified hero — fall
-                    // back the hero instead of corrupting gallery[0].
-                    if (idx === 0 && galleryOffset === 1) {
+                    if (idx === 0) {
                       setImageError(true);
-                      return;
+                    } else {
+                      const fallback = dynamicImageService.getArchitecturalFallback(
+                        displayName,
+                        category,
+                        idx + 1
+                      );
+                      setGallery((prev) => {
+                        const base =
+                          prev.length > 0
+                            ? [...prev]
+                            : dynamicImageService.getArchitecturalFallbackGallery(
+                                displayName,
+                                category
+                              );
+                        const next = [...base];
+                        if (next[idx]) next[idx] = { ...next[idx], url: fallback };
+                        return next;
+                      });
                     }
-                    const galleryIdx = idx - galleryOffset;
-                    const fallback = dynamicImageService.getArchitecturalFallback(displayName, category, idx + 1);
-                    setGallery((prev) => {
-                      if (!prev || prev.length === 0) return prev;
-                      const next = [...prev];
-                      if (next[galleryIdx]) next[galleryIdx] = { ...next[galleryIdx], url: fallback };
-                      return next;
-                    });
                   }}
                 />
               </View>
@@ -430,12 +475,14 @@ export default function PlaceDetailScreen() {
 
           {/* Hero title & badges — box-none so horizontal swipes pass through */}
           <View style={styles.heroContent} pointerEvents="box-none">
-            <Text style={styles.heroEyebrow}>{getCategoryName(category).toUpperCase()} · INDIA</Text>
-            <View style={styles.heroBadgeRow}>
+            <Text style={styles.heroEyebrow} pointerEvents="none">
+              {getCategoryName(category).toUpperCase()} · INDIA
+            </Text>
+            <View style={styles.heroBadgeRow} pointerEvents="box-none">
 
               {/* Pagination Dots */}
               {displayGallery.length > 1 && (
-                <View style={styles.paginationRow}>
+                <View style={styles.paginationRow} pointerEvents="auto">
                   {displayGallery.map((_, i) => (
                     <TouchableOpacity
                       key={i}
@@ -459,7 +506,7 @@ export default function PlaceDetailScreen() {
 
             {/* Photo Perspective Caption */}
             {displayGallery[activeSlide]?.caption && (
-              <View style={styles.perspectiveCaptionPill}>
+              <View style={styles.perspectiveCaptionPill} pointerEvents="none">
                 <MaterialIcons name="collections" size={12} color={Colors.primary} />
                 <Text style={styles.perspectiveCaptionText} numberOfLines={1}>
                   {displayGallery[activeSlide].caption}
@@ -467,8 +514,8 @@ export default function PlaceDetailScreen() {
               </View>
             )}
 
-            <Text style={styles.heroTitle}>{displayName}</Text>
-            <View style={styles.heroMeta}>
+            <Text style={styles.heroTitle} pointerEvents="none">{displayName}</Text>
+            <View style={styles.heroMeta} pointerEvents="none">
               {placeObj.rating && (
                 <View style={styles.metaItem}>
                   <MaterialIcons name="star" size={16} color={Colors.primary} />
@@ -572,6 +619,7 @@ export default function PlaceDetailScreen() {
                 data={displayGallery}
                 horizontal
                 showsHorizontalScrollIndicator={false}
+                nestedScrollEnabled={true}
                 keyExtractor={(_, idx) => `gallery-${idx}`}
                 decelerationRate="fast"
                 snapToInterval={196}
@@ -597,16 +645,29 @@ export default function PlaceDetailScreen() {
                     activeOpacity={0.9}
                   >
                     <Image
-                      source={{
-                        uri: item.url,
-                        headers: {
-                          'User-Agent':
-                            'YatraHeritageCompanion/1.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
-                        },
-                      }}
+                      source={{ uri: item.url }}
                       style={styles.galleryCardImg}
                       contentFit="cover"
                       transition={200}
+                      onError={() => {
+                        const fallback = dynamicImageService.getArchitecturalFallback(
+                          displayName,
+                          category,
+                          idx + 1
+                        );
+                        setGallery((prev) => {
+                          const base =
+                            prev.length > 0
+                              ? [...prev]
+                              : dynamicImageService.getArchitecturalFallbackGallery(
+                                  displayName,
+                                  category
+                                );
+                          const next = [...base];
+                          if (next[idx]) next[idx] = { ...next[idx], url: fallback };
+                          return next;
+                        });
+                      }}
                     />
                     <View style={styles.galleryCardOverlay}>
                       <Text style={styles.galleryCardCaption} numberOfLines={1}>

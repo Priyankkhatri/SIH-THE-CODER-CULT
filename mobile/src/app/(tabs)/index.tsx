@@ -124,12 +124,7 @@ function SpotlightCard({
       onPress={onPress}
     >
       <ExpoImage
-        source={{
-          uri: imgUrl,
-          headers: {
-            'User-Agent': 'YatraHeritageCompanion/2.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
-          },
-        }}
+        source={{ uri: imgUrl }}
         style={styles.spotlightImage}
         contentFit="cover"
         transition={400}
@@ -227,6 +222,29 @@ export default function HomeScreen() {
 
   const latKey = (location.latitude || 22.30).toFixed(2);
   const lonKey = (location.longitude || 73.18).toFixed(2);
+
+  // Merge loaded places with ALL_SEED_PLACES to ensure all 148+ sites are always searchable
+  // and dynamically compute Haversine distance from user GPS coordinates, sorting nearest first.
+  const allCatalogPlaces = React.useMemo(() => {
+    const userLat = location.latitude ?? 22.3072;
+    const userLng = location.longitude ?? 73.1812;
+
+    const map = new Map<string, Place>();
+    for (const p of ALL_SEED_PLACES) map.set(p.id, p);
+    for (const p of places) map.set(p.id, p);
+
+    const merged = Array.from(map.values()).map((p) => {
+      const dist = haversineDistance(userLat, userLng, p.latitude, p.longitude);
+      return {
+        ...p,
+        distance: Number(dist.toFixed(1)),
+      };
+    });
+
+    // Sort strictly ascending by distance so closest monuments are always first
+    merged.sort((a, b) => (a.distance ?? 99999) - (b.distance ?? 99999));
+    return merged;
+  }, [places, location.latitude, location.longitude]);
 
   const fetchPlaces = async () => {
     try {
@@ -339,29 +357,6 @@ export default function HomeScreen() {
     });
   };
 
-  // Merge loaded places with ALL_SEED_PLACES to ensure all 148+ sites are always searchable
-  // and dynamically compute Haversine distance from user GPS coordinates, sorting nearest first.
-  const allCatalogPlaces = React.useMemo(() => {
-    const userLat = location.latitude ?? 22.3072;
-    const userLng = location.longitude ?? 73.1812;
-
-    const map = new Map<string, Place>();
-    for (const p of ALL_SEED_PLACES) map.set(p.id, p);
-    for (const p of places) map.set(p.id, p);
-
-    const merged = Array.from(map.values()).map((p) => {
-      const dist = haversineDistance(userLat, userLng, p.latitude, p.longitude);
-      return {
-        ...p,
-        distance: Number(dist.toFixed(1)),
-      };
-    });
-
-    // Sort strictly ascending by distance so closest monuments are always first
-    merged.sort((a, b) => (a.distance ?? 99999) - (b.distance ?? 99999));
-    return merged;
-  }, [places, location.latitude, location.longitude]);
-
   // Dynamically derive spotlight monuments from live/seed catalog with authentic data
   const spotlightMonuments = React.useMemo(() => {
     const matched: Place[] = [];
@@ -460,6 +455,7 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -561,12 +557,7 @@ export default function HomeScreen() {
                       activeOpacity={0.75}
                     >
                       <ExpoImage
-                        source={{
-                          uri: placeImg,
-                          headers: {
-                            'User-Agent': 'YatraHeritageCompanion/2.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
-                          },
-                        }}
+                        source={{ uri: placeImg }}
                         style={styles.searchResultThumb}
                         contentFit="cover"
                         transition={200}
@@ -663,6 +654,7 @@ export default function HomeScreen() {
               data={spotlightMonuments}
               horizontal
               showsHorizontalScrollIndicator={false}
+              nestedScrollEnabled={true}
               keyExtractor={(item) => item.id}
               contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: 14, paddingTop: 4, paddingBottom: 10 }}
               renderItem={({ item }) => {
@@ -754,6 +746,7 @@ export default function HomeScreen() {
               data={filteredPlaces.slice(0, 8)}
               horizontal
               showsHorizontalScrollIndicator={false}
+              nestedScrollEnabled={true}
               keyExtractor={(item) => item.id}
               contentContainerStyle={{ paddingHorizontal: 20 }}
               renderItem={({ item }) => (
