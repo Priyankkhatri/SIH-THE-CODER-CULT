@@ -276,21 +276,70 @@ async function fetchWithTimeout(
 
 /**
  * Returns true if a Wikimedia image filename looks like an actual photo
- * (not an icon, flag, SVG, map, logo, or tiny stub graphic).
+ * of the monument/site — not an icon, flag, SVG, map, logo, portrait of an
+ * unrelated person, location diagram, or administrative graphic.
  */
 function isUsableWikiImage(title: string, mime?: string): boolean {
-  const t = title.toLowerCase();
-  // Block SVG, GIF — we only want JPEG/PNG photos
+  const t = title.toLowerCase().replace(/^file:/i, '');
+
+  // ── MIME filtering ──────────────────────────────────────────────────────────
   if (mime && (mime === 'image/svg+xml' || mime === 'image/gif')) return false;
-  // Block common noise filenames
+  // Always block SVG / GIF by extension regardless of MIME
+  if (t.endsWith('.svg') || t.endsWith('.gif')) return false;
+
+  // ── Geographic / administrative noise ──────────────────────────────────────
   if (
-    t.includes('icon') || t.includes('flag_') || t.includes('_flag') ||
-    t.includes('logo') || t.includes('map_') || t.includes('_map') ||
-    t.includes('coat_of') || t.includes('stub') || t.includes('commons-logo') ||
-    t.includes('wikidata') || t.includes('wikisource') || t.endsWith('.svg') ||
-    t.endsWith('.gif') || t.includes('red_question') || t.includes('question_book') ||
-    t.includes('translation_arrow') || t.includes('disambig')
+    t.includes('location_map') || t.includes('locator_map') ||
+    t.includes('_in_india') || t.includes('india_') || t.includes('_india.') ||
+    t.includes('map_of_') || t.includes('_map.') || t.includes('_map_') ||
+    t.includes('india location') || t.includes('_locator') ||
+    t.includes('district_map') || t.includes('outline_map') ||
+    t.includes('india_locator') || t.includes('blank_map') ||
+    t.includes('political_map') || t.includes('relief_map') ||
+    t.includes('topographic') || t.includes('topographical') ||
+    t.includes('sat_map') || t.includes('satellite_map')
   ) return false;
+
+  // ── Flags / national symbols ────────────────────────────────────────────────
+  if (
+    t.includes('flag_') || t.includes('_flag') || t.includes('flag_of') ||
+    t.includes('coat_of') || t.includes('emblem_of') || t.includes('seal_of') ||
+    t.includes('national_symbol') || t.includes('_emblem')
+  ) return false;
+
+  // ── Logos / UI / navigation graphics ───────────────────────────────────────
+  if (
+    t.includes('logo') || t.includes('icon') || t.includes('stub') ||
+    t.includes('commons-logo') || t.includes('wikidata') || t.includes('wikisource') ||
+    t.includes('wikivoyage') || t.includes('wikimedia-logo') || t.includes('wikipedia-logo') ||
+    t.includes('disambig') || t.includes('red_question') || t.includes('question_book') ||
+    t.includes('translation_arrow') || t.includes('edit-clear') ||
+    t.includes('gnome-') || t.includes('crystal_') || t.includes('nuvola_') ||
+    t.includes('arrow') || t.includes('button') || t.includes('badge')
+  ) return false;
+
+  // ── Person portraits / biographical images ──────────────────────────────────
+  // Many Wikipedia articles embed portraits of founders, rulers, saints etc.
+  // that are completely unrelated to the monument's appearance.
+  if (
+    t.includes('portrait') || t.includes('_person') || t.includes('people') ||
+    t.includes('_hazrat') || t.includes('_miyan') || t.includes('_syed') ||
+    t.includes('_baba') || t.includes('_shah') || t.includes('dargah_of') ||
+    t.includes('_saint') || t.includes('mausoleum_of') ||
+    // Common Indian biographical naming patterns
+    t.includes('_rz.jpg') || t.includes('_ra.jpg') || t.includes('_ra.png') ||
+    t.includes('_dargah') || t.includes('tomb_of_') || t.includes('grave_of_') ||
+    t.includes('shrine_of_') || t.includes('mazaar') || t.includes('mazar_')
+  ) return false;
+
+  // ── Diagrams / plans / documents ───────────────────────────────────────────
+  if (
+    t.includes('plan_of_') || t.includes('_floor_plan') || t.includes('site_plan') ||
+    t.includes('diagram') || t.includes('schematic') || t.includes('blueprint') ||
+    t.includes('inscription') || t.includes('_script.') || t.includes('_coins') ||
+    t.includes('_coin.') || t.includes('_coin_') || t.includes('_seal.')
+  ) return false;
+
   return true;
 }
 
@@ -632,6 +681,10 @@ async function fetchWikiHeroImage(wikiTitle: string): Promise<string | null> {
  * Fetches a multi-image gallery for a Wikipedia article.
  * Uses prop=images (get image file titles) then prop=imageinfo to get CDN URLs.
  * Returns up to `maxImages` usable JPG/PNG photo URLs with captions.
+ *
+ * Relevance scoring: images whose filename has zero token overlap with the
+ * monument name are skipped (e.g. a photo of a person named in the article).
+ * Images that do contain monument name tokens are kept regardless of order.
  */
 async function fetchWikiGallery(
   wikiTitle: string,
@@ -640,6 +693,26 @@ async function fetchWikiGallery(
   maxImages: number = 6
 ): Promise<GalleryImage[]> {
   const gallery: GalleryImage[] = [];
+
+  // Build a set of tokens from the monument name for relevance checking.
+  // We split on spaces/underscores and keep tokens ≥ 4 chars to avoid
+  // matching noise like "of", "the", "in" which appear in unrelated filenames.
+  const nameTokens: string[] = (placeName + ' ' + wikiTitle)
+    .toLowerCase()
+    .split(/[\s_\-,()]+/)
+    .map((s) => s.replace(/[^a-z0-9]/g, ''))
+    .filter((s) => s.length >= 4);
+
+  /**
+   * Returns true if the filename has at least one token that matches
+   * one of the monument name tokens, OR if we have no tokens at all
+   * (fail-open: better than blocking everything).
+   */
+  function isRelevantFilename(filename: string): boolean {
+    if (nameTokens.length === 0) return true;
+    const f = filename.toLowerCase().replace(/^file:/i, '').replace(/[^a-z0-9]/g, '');
+    return nameTokens.some((tok) => f.includes(tok));
+  }
 
   // Add hero as first item
   if (heroUrl) {
@@ -655,7 +728,7 @@ async function fetchWikiGallery(
     const listUrl =
       'https://en.wikipedia.org/w/api.php?action=query&titles=' +
       encodeURIComponent(wikiTitle) +
-      '&prop=images&imlimit=30&format=json&origin=*';
+      '&prop=images&imlimit=50&format=json&origin=*';
     const listRes = await fetchWithTimeout(listUrl, 5000);
     if (!listRes.ok) return gallery;
     const listData = await listRes.json();
@@ -668,7 +741,7 @@ async function fetchWikiGallery(
         if (isUsableWikiImage(img.title)) {
           imageTitles.push(img.title);
         }
-        if (imageTitles.length >= 20) break;
+        if (imageTitles.length >= 30) break;
       }
     }
 
@@ -677,15 +750,19 @@ async function fetchWikiGallery(
     // Step 2: Batch-fetch image info (CDN URLs) for those titles
     const infoUrl =
       'https://en.wikipedia.org/w/api.php?action=query&titles=' +
-      encodeURIComponent(imageTitles.slice(0, 20).join('|')) +
+      encodeURIComponent(imageTitles.slice(0, 30).join('|')) +
       '&prop=imageinfo&iiprop=url|mime|size&iiurlwidth=1200&format=json&origin=*';
     const infoRes = await fetchWithTimeout(infoUrl, 5000);
     if (!infoRes.ok) return gallery;
     const infoData = await infoRes.json();
 
+    // Score each candidate: 2 pts if filename contains monument token,
+    // 1 pt for jpg/jpeg, 0 pts otherwise.
+    type Candidate = { url: string; caption: string; score: number };
+    const candidates: Candidate[] = [];
+
     const infoPages = infoData?.query?.pages || {};
     for (const pid in infoPages) {
-      if (gallery.length >= maxImages) break;
       const page = infoPages[pid];
       const info = page?.imageinfo?.[0];
       if (!info) continue;
@@ -695,29 +772,39 @@ async function fetchWikiGallery(
       const imgUrl: string = info.thumburl || info.url;
       if (!imgUrl) continue;
       // Skip if it's the same as hero
-      if (heroUrl && imgUrl === heroUrl) continue;
+      if (heroUrl && (imgUrl === heroUrl || imgUrl.includes(encodeURIComponent(heroUrl)))) continue;
       // Skip if already in gallery
       if (gallery.some((g) => g.url === imgUrl)) continue;
-      // Skip very small images (likely icons < 10KB)
-      if (info.size && info.size < 8000) continue;
+      // Skip small images — monuments are usually > 30 KB; icons/maps are small
+      if (info.size && info.size < 30000) continue;
 
       const cleanName = page.title
         .replace(/^File:/i, '')
         .replace(/\.[^/.]+$/, '')
         .replace(/_/g, ' ');
 
-      gallery.push({
-        url: imgUrl,
-        caption: `${cleanName}`,
-        source: 'Wikimedia Commons',
-      });
+      // Relevance score: prefer files that mention the monument by name
+      let score = 0;
+      if (isRelevantFilename(page.title)) score += 2;
+      if (info.mime === 'image/jpeg') score += 1;
+
+      candidates.push({ url: imgUrl, caption: cleanName, score });
+    }
+
+    // Sort by score descending: relevant monument photos first
+    candidates.sort((a, b) => b.score - a.score);
+
+    for (const c of candidates) {
+      if (gallery.length >= maxImages) break;
+      gallery.push({ url: c.url, caption: c.caption, source: 'Wikimedia Commons' });
     }
   } catch {
-    // Return whatever we have
+    // Return whatever we have (hero at minimum)
   }
 
   return gallery;
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Public Service API

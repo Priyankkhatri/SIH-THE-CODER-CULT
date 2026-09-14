@@ -367,7 +367,7 @@ export default function PlaceDetailScreen() {
             style={styles.heroScrollView}
           >
             {displayGallery.map((img, idx) => (
-              <View key={idx} style={{ width, height: 500 }}>
+              <View key={`hero-${img.url}`} style={{ width, height: 500 }}>
                 <Image
                   source={{ uri: img.url }}
                   style={styles.heroImage}
@@ -620,7 +620,7 @@ export default function PlaceDetailScreen() {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 nestedScrollEnabled={true}
-                keyExtractor={(_, idx) => `gallery-${idx}`}
+                keyExtractor={(item, idx) => `gthumb-${item.url}-${idx}`}
                 decelerationRate="fast"
                 snapToInterval={196}
                 snapToAlignment="start"
