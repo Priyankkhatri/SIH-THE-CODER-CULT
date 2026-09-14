@@ -111,6 +111,16 @@ export default function HomeScreen() {
       if (mounted) {
         setInitialLoading(false);
       }
+      // Background: warm image cache for top-20 places so subsequent renders are instant
+      const namesToWarm = [...new Set(
+        [...(places.length > 0 ? places : []), ...allCatalogPlaces.slice(0, 20)]
+          .slice(0, 20)
+          .map((p) => p.name)
+          .filter(Boolean)
+      )];
+      if (namesToWarm.length > 0) {
+        dynamicImageService.warmCache(namesToWarm).catch(() => {});
+      }
     };
     run();
     return () => {
@@ -285,10 +295,10 @@ export default function HomeScreen() {
   };
 
   const quickActionsList = [
-    { key: 'explore', label: t('home.exploreMap'), icon: 'map', color: Colors.accent },
-    { key: 'ai', label: t('home.askAiGuide'), icon: 'auto-awesome', color: Colors.primary },
-    { key: 'camera', label: t('home.identifyArtifact'), icon: 'camera-alt', color: Colors.secondary },
-    { key: 'plan', label: t('home.planHeritageTour'), icon: 'route', color: Colors.success },
+    { key: 'explore', label: t('home.exploreMap'), icon: 'map' },
+    { key: 'ai', label: t('home.askAiGuide'), icon: 'auto-awesome' },
+    { key: 'camera', label: t('home.identifyArtifact'), icon: 'camera-alt' },
+    { key: 'plan', label: t('home.planHeritageTour'), icon: 'route' },
   ];
 
   return (
@@ -308,7 +318,8 @@ export default function HomeScreen() {
               resizeMode="cover"
             />
             <View>
-              <Text style={styles.greeting}>{greeting()} 👋</Text>
+              <Text style={styles.eyebrowLabel}>YATRA · EXPLORE — UNDERSTAND — BELONG</Text>
+              <Text style={styles.greeting}>{greeting()},</Text>
               <Text style={styles.userName}>{name}</Text>
             </View>
           </View>
@@ -463,8 +474,8 @@ export default function HomeScreen() {
                 onPress={() => handleQuickAction(action.key)}
                 activeOpacity={0.7}
               >
-                <View style={[styles.quickActionIcon, { backgroundColor: action.color + '20' }]}>
-                  <MaterialIcons name={action.icon as any} size={24} color={action.color} />
+                <View style={styles.quickActionIcon}>
+                  <MaterialIcons name={action.icon as any} size={22} color={Colors.text} />
                 </View>
                 <Text style={styles.quickActionLabel}>{action.label}</Text>
               </TouchableOpacity>
@@ -476,13 +487,14 @@ export default function HomeScreen() {
         {!searchQuery && (
           <View style={styles.spotlightSection}>
             <View style={styles.sectionHeader}>
-              <View>
-                <Text style={styles.sectionTitle}>🌟 Must-Visit Wonders</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.sectionEyebrow}>CURATED · ICONIC</Text>
+                <Text style={styles.sectionTitle}>Must-Visit Wonders</Text>
                 <Text style={styles.sectionSubtitle}>Iconic civilisations with AI voice narration</Text>
               </View>
               <View style={styles.audioHintPill}>
                 <MaterialIcons name="volume-up" size={14} color={Colors.primary} />
-                <Text style={styles.audioHintText}>Audio Guide</Text>
+                <Text style={styles.audioHintText}>Audio</Text>
               </View>
             </View>
 
@@ -777,7 +789,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: Spacing.xl,
+    paddingHorizontal: 20,
     paddingTop: 56,
     paddingBottom: Spacing.md,
   },
@@ -787,21 +799,28 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   headerLogo: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    borderColor: Colors.primary,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+  },
+  eyebrowLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1.6,
+    color: Colors.primary,
+    marginBottom: 4,
   },
   greeting: {
     fontSize: Typography.sizes.sm,
     color: Colors.textSecondary,
-    marginBottom: 2,
   },
   userName: {
-    fontSize: Typography.sizes.xl,
-    fontWeight: '800',
+    fontFamily: Typography.fontFamily.serif,
+    fontSize: 28,
+    fontWeight: '700',
     color: Colors.text,
+    letterSpacing: 0.2,
+    marginTop: 1,
   },
   headerRight: {
     flexDirection: 'row',
@@ -842,7 +861,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   searchSection: {
-    paddingHorizontal: Spacing.xl,
+    paddingHorizontal: 20,
     marginBottom: Spacing.sm,
   },
   searchBar: {
@@ -850,12 +869,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     backgroundColor: Colors.surface,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: BorderRadius.xl,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    borderRadius: BorderRadius.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    ...Shadows.sm,
   },
   searchInput: {
     flex: 1,
@@ -991,51 +1009,59 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   quickActionsSection: {
-    paddingHorizontal: Spacing.xl,
-    marginBottom: Spacing.xl,
+    paddingHorizontal: 20,
+    marginBottom: 28,
     marginTop: Spacing.sm,
   },
   quickActionsGrid: {
     flexDirection: 'row',
-    gap: 10,
     marginTop: Spacing.md,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
   },
   quickActionCard: {
     flex: 1,
     alignItems: 'center',
-    gap: 8,
+    gap: 7,
+    paddingVertical: 16,
+    borderRightWidth: 1,
+    borderRightColor: Colors.divider,
   },
   quickActionIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: BorderRadius.lg,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   quickActionLabel: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 11,
     fontWeight: '600',
     color: Colors.textSecondary,
     textAlign: 'center',
+    lineHeight: 14,
   },
   spotlightSection: {
-    marginBottom: Spacing['2xl'],
+    marginBottom: 32,
   },
   spotlightCard: {
     width: SPOTLIGHT_CARD_WIDTH,
-    height: 250,
-    borderRadius: BorderRadius['2xl'],
+    height: 340,
+    borderRadius: BorderRadius.lg,
     overflow: 'hidden',
-    backgroundColor: '#1E1E2E',
+    backgroundColor: '#141414',
     position: 'relative',
-    ...Shadows.md,
   },
   spotlightImage: {
     ...StyleSheet.absoluteFill,
   },
   spotlightScrim: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(15, 10, 5, 0.55)',
+    backgroundColor: 'rgba(8, 8, 10, 0.38)',
   },
   spotlightTopRow: {
     position: 'absolute',
@@ -1051,29 +1077,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(23, 23, 23, 0.88)',
+    backgroundColor: 'rgba(10, 10, 12, 0.62)',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.35)',
   },
   spotlightBadgeText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
-    color: Colors.primary,
-    letterSpacing: 0.3,
+    color: '#F5F1E8',
+    letterSpacing: 0.8,
   },
   audioPlayBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(23, 23, 23, 0.88)',
+    backgroundColor: 'rgba(10, 10, 12, 0.62)',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.35)',
   },
   audioPlayBtnActive: {
     backgroundColor: '#E53935',
@@ -1105,12 +1127,11 @@ const styles = StyleSheet.create({
   },
   spotlightTitle: {
     fontFamily: Typography.fontFamily.serif,
-    fontSize: Typography.sizes.xl,
-    fontWeight: '800',
+    fontSize: 27,
+    lineHeight: 32,
+    fontWeight: '700',
     color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    letterSpacing: 0.2,
   },
   spotlightLocRow: {
     flexDirection: 'row',
@@ -1139,28 +1160,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: Colors.primary,
-    paddingVertical: 8,
-    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.text,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.md,
   },
   spotlightAiBtnText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#0F0F0F',
   },
   spotlightViewBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: BorderRadius.lg,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.14)',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   spotlightViewBtnText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#FFFFFF',
   },
   audioHintPill: {
@@ -1178,16 +1197,17 @@ const styles = StyleSheet.create({
     color: Colors.primary,
   },
   triviaCardContainer: {
-    paddingHorizontal: Spacing.xl,
-    marginBottom: Spacing['2xl'],
+    paddingHorizontal: 20,
+    marginBottom: 32,
   },
   triviaCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius['2xl'],
-    padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.25)',
-    ...Shadows.sm,
+    backgroundColor: 'transparent',
+    borderRadius: 0,
+    padding: 0,
+    borderWidth: 0,
+    borderLeftWidth: 2,
+    borderLeftColor: Colors.primary,
+    paddingLeft: 16,
   },
   triviaHeader: {
     flexDirection: 'row',
@@ -1196,57 +1216,51 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   triviaIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(212, 175, 124, 0.12)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    display: 'none',
   },
   triviaBadge: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: Colors.primary,
-    letterSpacing: 1,
+    letterSpacing: 1.6,
   },
   triviaTitle: {
     fontFamily: Typography.fontFamily.serif,
-    fontSize: Typography.sizes.base,
+    fontSize: 19,
     fontWeight: '700',
     color: Colors.text,
-    marginTop: 2,
+    marginTop: 4,
   },
   triviaBody: {
-    fontSize: Typography.sizes.sm,
+    fontSize: 14,
     color: Colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: 14,
+    lineHeight: 22,
+    marginBottom: 12,
+    marginTop: 8,
   },
   triviaActionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(212, 175, 124, 0.12)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: BorderRadius.lg,
+    paddingVertical: 6,
   },
   triviaActionText: {
-    fontSize: Typography.sizes.xs,
-    fontWeight: '700',
+    fontSize: Typography.sizes.sm,
+    fontWeight: '600',
     color: Colors.primary,
   },
   craftsBannerContainer: {
-    paddingHorizontal: Spacing.xl,
-    marginBottom: Spacing['2xl'],
+    paddingHorizontal: 20,
+    marginBottom: 32,
   },
   craftsBanner: {
-    borderRadius: BorderRadius['2xl'],
+    borderRadius: BorderRadius.lg,
     overflow: 'hidden',
-    backgroundColor: Colors.surfaceElevated, borderWidth: 1, borderColor: Colors.borderLight,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
     padding: Spacing.lg,
-    ...Shadows.sm,
   },
   craftsContent: {
     gap: 6,
@@ -1293,25 +1307,26 @@ const styles = StyleSheet.create({
     color: Colors.textInverse,
   },
   section: {
-    marginBottom: Spacing['2xl'],
+    marginBottom: 32,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.xl,
-    marginBottom: Spacing.sm,
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
+    marginBottom: 14,
   },
   sectionTitle: {
     fontFamily: Typography.fontFamily.serif,
-    fontSize: Typography.sizes.lg,
+    fontSize: 21,
     fontWeight: '700',
     color: Colors.text,
+    letterSpacing: 0.2,
   },
   sectionSubtitle: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 12,
     color: Colors.textMuted,
-    marginTop: 2,
+    marginTop: 3,
   },
   sectionCount: {
     fontSize: Typography.sizes.sm,
@@ -1338,10 +1353,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.primary,
   },
+  sectionEyebrow: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1.6,
+    color: Colors.primary,
+    marginBottom: 3,
+  },
   seeAllText: {
     fontSize: Typography.sizes.sm,
     color: Colors.primary,
-    fontWeight: '700',
+    fontWeight: '600',
   },
   exploreMoreBtn: {
     flexDirection: 'row',

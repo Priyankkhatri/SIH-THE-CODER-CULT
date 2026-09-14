@@ -558,7 +558,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sectionTitle: {
-    fontSize: Typography.sizes.lg,
+    fontFamily: Typography.fontFamily.serif,
+    fontSize: 21,
     fontWeight: '700',
     color: Colors.text,
   },
@@ -593,16 +594,13 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
 
-  // Overview Card
+  // Overview — quiet editorial split, no heavy card
   overviewCard: {
     flexDirection: 'row',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    backgroundColor: 'transparent',
+    paddingVertical: 6,
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: 12,
   },
   scoreContainer: {
     alignItems: 'center',
@@ -722,11 +720,10 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
   },
   reviewCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    backgroundColor: 'transparent',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.divider,
     gap: 8,
   },
   cardHeader: {

@@ -1,5 +1,5 @@
-// Design System: YATRA — AI Tourist Companion
-// Luxury Dark Heritage Editorial Theme (Reference Design System)
+// Design System: YATRA — Premium Luxury Heritage Editorial
+// Luxury = restraint. Gold is an accent, never a fill-everywhere decoration.
 
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
@@ -12,7 +12,7 @@ export const Colors = {
   surfaceElevated: '#1D1D1D',
   surfaceHighlight: '#242424',
 
-  // Heritage accents (restrained gold)
+  // Heritage accents (restrained gold — use sparingly)
   primary: '#D4AF7C',       // Heritage accent gold
   primaryDark: '#A8864F',   // Dark gold
   primaryLight: '#E5C9A4',  // Light gold
@@ -21,11 +21,11 @@ export const Colors = {
   accent: '#5B8FB9',        // Sky blue (maps)
   accentLight: '#7BADD4',
 
-  // Status colors
-  success: '#4CAF50',
-  warning: '#FFA726',
-  error: '#EF5350',
-  info: '#42A5F5',
+  // Status colors (muted, non-neon)
+  success: '#7FB685',
+  warning: '#D9A45B',
+  error: '#D97B77',
+  info: '#7BAFD4',
 
   // Text
   text: '#F5F1E8',           // Warm ivory
@@ -33,10 +33,12 @@ export const Colors = {
   textMuted: '#777777',      // Subtle muted
   textInverse: '#0F0F0F',    // Deep charcoal for text over gold
 
-  // Borders & dividers
-  border: 'rgba(255, 255, 255, 0.10)',
-  borderLight: 'rgba(255, 255, 255, 0.14)',
-  divider: 'rgba(255, 255, 255, 0.08)',
+  // Borders & dividers — hairlines, never heavy gold boxes
+  border: 'rgba(255, 255, 255, 0.08)',
+  borderLight: 'rgba(255, 255, 255, 0.12)',
+  divider: 'rgba(255, 255, 255, 0.07)',
+  goldSoft: 'rgba(212, 175, 124, 0.14)',
+  goldHairline: 'rgba(212, 175, 124, 0.22)',
 
   // Category colors
   heritage: '#D4AF7C',
@@ -75,6 +77,14 @@ export const Typography = {
     normal: 1.5,
     relaxed: 1.7,
   },
+  // Editorial hierarchy — serif only for storytelling headings
+  editorial: {
+    eyebrow: { size: 11, letterSpacing: 1.4, weight: '700' as const },
+    display: { size: 32, lineHeight: 38 },
+    title: { size: 24, lineHeight: 30 },
+    quote: { size: 17, lineHeight: 26 },
+    body: { size: 15, lineHeight: 24 },
+  },
 };
 
 export const Spacing = {
@@ -94,9 +104,17 @@ export const BorderRadius = {
   sm: 6,
   md: 10,
   lg: 14,
-  xl: 20,
-  '2xl': 28,
+  xl: 18,
+  '2xl': 24,
   full: 999,
+};
+
+// Consistent 4pt rhythm. Sections breathe: 24–32 between sections, 16 page margin.
+export const Rhythm = {
+  pageMargin: 20,
+  sectionGap: 32,
+  cardGap: 12,
+  hairline: 1,
 };
 
 export const Shadows = {

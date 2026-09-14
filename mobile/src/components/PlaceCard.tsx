@@ -184,15 +184,14 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
 }
 
 const styles = StyleSheet.create({
-  // Horizontal card (for carousel)
+  // Horizontal card — cinematic image-led, minimal chrome
   horizontalCard: {
-    width: width * 0.65,
-    height: 190,
-    borderRadius: BorderRadius.xl,
+    width: width * 0.68,
+    height: 230,
+    borderRadius: BorderRadius.lg,
     overflow: 'hidden',
     marginRight: Spacing.md,
-    backgroundColor: Colors.surface,
-    ...Shadows.md,
+    backgroundColor: '#151515',
   },
   horizontalImage: {
     width: '100%',
@@ -204,34 +203,35 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: Spacing.md,
-    backgroundColor: 'rgba(10, 10, 15, 0.75)',
+    paddingTop: 32,
+    backgroundColor: 'rgba(8, 8, 10, 0.55)',
   },
   horizontalName: {
     fontSize: Typography.sizes.md,
     fontWeight: '700',
-    color: Colors.text,
-    marginTop: 4,
+    color: '#FFFFFF',
+    marginTop: 5,
     fontFamily: Typography.fontFamily.serif,
+    letterSpacing: 0.2,
   },
   horizontalMeta: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 4,
+    marginTop: 5,
   },
 
-  // Vertical card (for lists)
+  // Vertical card — editorial: image, then quiet text block on background
   verticalCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.xl,
-    marginBottom: Spacing.md,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadows.sm,
+    backgroundColor: 'transparent',
+    borderRadius: 0,
+    marginBottom: Spacing.xl,
+    overflow: 'visible',
   },
   verticalImage: {
     width: '100%',
-    height: 160,
+    height: 190,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: '#151515',
   },
   favoriteButton: {
     position: 'absolute',
@@ -246,7 +246,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   verticalContent: {
-    padding: Spacing.base,
+    paddingTop: 10,
+    paddingHorizontal: 2,
   },
   categoryBadge: {
     alignSelf: 'flex-start',

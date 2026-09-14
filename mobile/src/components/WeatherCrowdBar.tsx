@@ -87,15 +87,14 @@ export function WeatherCrowdBar({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.surfaceElevated,
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    paddingVertical: 12,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.25)',
-    marginHorizontal: Spacing.xl,
+    borderColor: Colors.border,
+    marginHorizontal: 20,
     marginBottom: Spacing.md,
-    ...Shadows.sm,
   },
   containerFull: {
     marginHorizontal: 0,

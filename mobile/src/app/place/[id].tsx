@@ -10,6 +10,7 @@ import {
   Platform,
   Dimensions,
   RefreshControl,
+  FlatList,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -282,7 +283,7 @@ export default function PlaceDetailScreen() {
             style={styles.heroScrollView}
           >
             {displayGallery.map((img, idx) => (
-              <View key={idx} style={{ width, height: 350 }}>
+              <View key={idx} style={{ width, height: 500 }}>
                 <Image
                   source={{
                     uri: img.url,
@@ -340,14 +341,10 @@ export default function PlaceDetailScreen() {
             </View>
           )}
 
-          {/* Hero title & badges */}
+          {/* Hero title & badges — editorial, image-led */}
           <View style={styles.heroContent}>
+            <Text style={styles.heroEyebrow}>{getCategoryName(category).toUpperCase()} · INDIA</Text>
             <View style={styles.heroBadgeRow}>
-              <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30', marginBottom: 0 }]}>
-                <Text style={[styles.categoryText, { color: categoryColor }]}>
-                  {getCategoryName(category).toUpperCase()}
-                </Text>
-              </View>
 
               {/* Pagination Dots */}
               {displayGallery.length > 1 && (
@@ -409,22 +406,22 @@ export default function PlaceDetailScreen() {
 
         {/* Content */}
         <View style={styles.content}>
-          {/* Action buttons */}
+          {/* Premium actions — quiet hierarchy: Ask AI primary, rest ghost */}
           <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.actionBtn} onPress={handleAskAI}>
-              <MaterialIcons name="auto-awesome" size={20} color={Colors.primary} />
-              <Text style={styles.actionLabel}>{t('common.askAi')}</Text>
+            <TouchableOpacity style={[styles.actionBtn, styles.actionPrimary]} onPress={handleAskAI}>
+              <MaterialIcons name="auto-awesome" size={19} color="#0F0F0F" />
+              <Text style={[styles.actionLabel, styles.actionLabelPrimary]}>{t('common.askAi')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionBtn} onPress={handleListen}>
-              <MaterialIcons name={isSpeaking ? 'stop' : 'headphones'} size={20} color={Colors.accent} />
+              <MaterialIcons name={isSpeaking ? 'stop' : 'headphones'} size={19} color={Colors.text} />
               <Text style={styles.actionLabel}>{isSpeaking ? t('common.stop') : t('common.listen')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/camera')}>
-              <MaterialIcons name="camera-alt" size={20} color={Colors.secondary} />
+              <MaterialIcons name="camera-alt" size={19} color={Colors.text} />
               <Text style={styles.actionLabel}>{t('common.identify')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionBtn} onPress={handleDirections}>
-              <MaterialIcons name="directions" size={20} color={Colors.success} />
+              <MaterialIcons name="directions" size={19} color={Colors.text} />
               <Text style={styles.actionLabel}>{t('common.directions')}</Text>
             </TouchableOpacity>
           </View>
@@ -456,43 +453,52 @@ export default function PlaceDetailScreen() {
             </View>
           </TouchableOpacity>
 
-          {/* 2-Minute Heritage Story */}
+          {/* 2-Minute Heritage Story — editorial storytelling */}
           {heritage.shortStory && (
-            <TouchableOpacity style={styles.storyCard} onPress={() => toggleSection('story')} activeOpacity={0.9}>
-              <View style={styles.storyHeader}>
-                <Text style={styles.storyBadge}>{t('place.minuteStoryBadge')}</Text>
-                <MaterialIcons
-                  name={expandedSection === 'story' ? 'expand-less' : 'expand-more'}
-                  size={24}
-                  color={Colors.textSecondary}
-                />
-              </View>
-              {expandedSection === 'story' && (
-                <Text style={styles.storyText}>{heritage.shortStory}</Text>
-              )}
-            </TouchableOpacity>
+            <View style={styles.storyEditorial}>
+              <Text style={styles.storyEyebrow}>2-MINUTE HERITAGE STORY</Text>
+              <Text style={styles.storyQuote}>
+                Where marble tells a story of faith, art and timeless beauty.
+              </Text>
+              <Text style={styles.storyText} numberOfLines={expandedSection === 'story' ? undefined : 4}>
+                {heritage.shortStory}
+              </Text>
+              <TouchableOpacity onPress={() => toggleSection('story')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Text style={styles.readMore}>{expandedSection === 'story' ? 'Show less' : 'Read more'}</Text>
+              </TouchableOpacity>
+            </View>
           )}
 
           {/* Visual Architecture & Photo Perspectives Gallery */}
           {displayGallery.length > 1 && (
             <View style={styles.perspectivesSection}>
               <View style={styles.perspectivesHeader}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <MaterialIcons name="photo-library" size={18} color={Colors.primary} />
-                  <Text style={styles.perspectivesSectionTitle}>Visual Architecture Gallery</Text>
+                <View>
+                  <Text style={styles.galleryEyebrow}>ARCHITECTURE · {displayGallery.length} VIEWS</Text>
+                  <Text style={styles.perspectivesSectionTitle}>Visual Gallery</Text>
                 </View>
                 <Text style={styles.perspectivesCountBadge}>
-                  {displayGallery.length} Perspectives
+                  {activeSlide + 1} / {displayGallery.length}
                 </Text>
               </View>
-              <ScrollView
+              <FlatList
+                data={displayGallery}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 12, paddingVertical: 6 }}
-              >
-                {displayGallery.map((item, idx) => (
+                keyExtractor={(_, idx) => `gallery-${idx}`}
+                decelerationRate="fast"
+                snapToInterval={196}
+                snapToAlignment="start"
+                disableIntervalMomentum
+                scrollEventThrottle={16}
+                contentContainerStyle={{ paddingVertical: 6, paddingRight: 20 }}
+                ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+                onMomentumScrollEnd={(e) => {
+                  const idx = Math.round(e.nativeEvent.contentOffset.x / 196);
+                  if (idx >= 0 && idx < displayGallery.length) setActiveSlide(idx);
+                }}
+                renderItem={({ item, index: idx }) => (
                   <TouchableOpacity
-                    key={idx}
                     style={[
                       styles.galleryCard,
                       activeSlide === idx && styles.galleryCardActive,
@@ -501,7 +507,7 @@ export default function PlaceDetailScreen() {
                       setActiveSlide(idx);
                       heroScrollRef.current?.scrollTo({ x: idx * width, animated: true });
                     }}
-                    activeOpacity={0.85}
+                    activeOpacity={0.9}
                   >
                     <Image
                       source={{
@@ -516,24 +522,13 @@ export default function PlaceDetailScreen() {
                       transition={200}
                     />
                     <View style={styles.galleryCardOverlay}>
-                      <Text style={styles.galleryCardCaption} numberOfLines={2}>
+                      <Text style={styles.galleryCardCaption} numberOfLines={1}>
                         {item.caption}
                       </Text>
-                      {item.source && (
-                        <Text style={styles.galleryCardSource} numberOfLines={1}>
-                          {item.source}
-                        </Text>
-                      )}
                     </View>
-                    {activeSlide === idx && (
-                      <View style={styles.activeViewBadge}>
-                        <MaterialIcons name="visibility" size={11} color="#FFFFFF" />
-                        <Text style={styles.activeViewText}>Viewing</Text>
-                      </View>
-                    )}
                   </TouchableOpacity>
-                ))}
-              </ScrollView>
+                )}
+              />
             </View>
           )}
 
@@ -723,119 +718,121 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   heroSection: {
-    height: 350,
+    height: 500,
     position: 'relative',
+    backgroundColor: '#0A0A0A',
   },
   heroScrollView: {
     width: '100%',
-    height: 350,
+    height: 500,
   },
   heroImage: {
     width: '100%',
     height: '100%',
   },
+  heroEyebrow: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1.6,
+    color: Colors.primary,
+    marginBottom: 6,
+  },
   photoCountBadge: {
     position: 'absolute',
     top: 104,
-    right: Spacing.base,
+    right: 16,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(10, 10, 15, 0.72)',
+    backgroundColor: 'rgba(8, 8, 10, 0.55)',
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   photoCountText: {
-    fontSize: Typography.sizes.xs,
-    fontWeight: '700',
+    fontSize: 11,
+    fontWeight: '600',
     color: '#FFFFFF',
     letterSpacing: 0.5,
   },
   heroBadgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
+    justifyContent: 'flex-end',
+    marginBottom: 10,
   },
   paginationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(10, 10, 15, 0.55)',
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
     paddingVertical: 4,
-    borderRadius: BorderRadius.full,
   },
   dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
   },
   activeDot: {
-    width: 18,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: Colors.primary,
+    width: 16,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: '#F5F1E8',
   },
   perspectiveCaptionPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(10, 10, 15, 0.75)',
-    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: BorderRadius.md,
     alignSelf: 'flex-start',
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.25)',
+    marginBottom: 8,
     maxWidth: '92%',
   },
   perspectiveCaptionText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#E8E8E8',
+    fontSize: 12,
+    fontWeight: '500',
+    color: 'rgba(255,255,255,0.75)',
   },
   perspectivesSection: {
-    marginBottom: Spacing.xl,
+    marginBottom: 28,
+    marginTop: 4,
   },
   perspectivesHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
-    marginBottom: Spacing.sm,
+    marginBottom: 12,
+  },
+  galleryEyebrow: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1.6,
+    color: Colors.primary,
+    marginBottom: 4,
   },
   perspectivesSectionTitle: {
-    fontSize: Typography.sizes.base,
+    fontFamily: Typography.fontFamily.serif,
+    fontSize: 21,
     fontWeight: '700',
     color: Colors.text,
   },
   perspectivesCountBadge: {
-    fontSize: Typography.sizes.xs,
-    color: Colors.primary,
-    fontWeight: '600',
-    backgroundColor: 'rgba(212, 175, 124, 0.12)',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.sm,
+    fontSize: 12,
+    color: Colors.textMuted,
+    fontWeight: '500',
   },
   galleryCard: {
-    width: 180,
-    height: 125,
-    borderRadius: BorderRadius.lg,
+    width: 184,
+    height: 240,
+    borderRadius: BorderRadius.md,
     overflow: 'hidden',
     position: 'relative',
-    backgroundColor: Colors.surface,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
+    backgroundColor: '#151515',
+    opacity: 0.72,
   },
   galleryCardActive: {
-    borderColor: Colors.primary,
-    borderWidth: 2,
+    opacity: 1,
   },
   galleryCardImg: {
     width: '100%',
@@ -846,54 +843,33 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(10, 10, 15, 0.8)',
-    paddingHorizontal: 8,
-    paddingVertical: 5,
+    backgroundColor: 'rgba(5, 5, 8, 0.55)',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
   galleryCardCaption: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  galleryCardSource: {
-    fontSize: 9,
-    color: Colors.textMuted,
-    marginTop: 2,
-  },
-  activeViewBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.sm,
-  },
-  activeViewText: {
-    fontSize: 9,
-    fontWeight: '700',
     color: '#FFFFFF',
   },
   heroOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(10, 10, 15, 0.4)',
+    backgroundColor: 'rgba(5, 5, 8, 0.32)',
   },
   topBar: {
     position: 'absolute',
-    top: 50,
-    left: Spacing.base,
-    right: Spacing.base,
+    top: 52,
+    left: 16,
+    right: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    zIndex: 5,
   },
   topBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: 'rgba(10, 10, 15, 0.6)',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(8, 8, 10, 0.55)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -902,8 +878,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    padding: Spacing.xl,
-    paddingBottom: Spacing['2xl'],
+    padding: 20,
+    paddingBottom: 22,
+    backgroundColor: 'rgba(5,5,8,0.45)',
   },
   categoryBadge: {
     alignSelf: 'flex-start',
@@ -919,69 +896,83 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     fontFamily: Typography.fontFamily.serif,
-    fontSize: Typography.sizes['2xl'],
-    fontWeight: '800',
-    color: Colors.text,
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '700',
+    color: '#FFFFFF',
     marginBottom: 8,
+    letterSpacing: 0.2,
   },
   heroMeta: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 14,
     flexWrap: 'wrap',
+    alignItems: 'center',
   },
   metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
   },
   metaText: {
-    fontSize: Typography.sizes.sm,
-    color: Colors.textSecondary,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.82)',
+    fontWeight: '500',
   },
   content: {
-    padding: Spacing.xl,
+    paddingHorizontal: 20,
+    paddingTop: 20,
     paddingBottom: 100,
   },
   actionsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: Spacing['2xl'],
-    paddingVertical: Spacing.base,
+    gap: 10,
+    marginBottom: 24,
+  },
+  actionBtn: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 7,
+    paddingVertical: 14,
     backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.xl,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  actionBtn: {
-    alignItems: 'center',
-    gap: 6,
+  actionPrimary: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   actionLabel: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 11,
     fontWeight: '600',
     color: Colors.textSecondary,
+  },
+  actionLabelPrimary: {
+    color: '#0F0F0F',
+    fontWeight: '700',
   },
   ticketCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: 'rgba(212, 175, 124, 0.12)',
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
-    marginBottom: Spacing.lg,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: 24,
   },
   ticketIconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: Colors.primary,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
   },
   ticketTitle: {
-    fontSize: Typography.sizes.sm,
+    fontSize: 14,
     fontWeight: '700',
     color: Colors.text,
   },
@@ -993,154 +984,164 @@ const styles = StyleSheet.create({
   ticketActionBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
-    backgroundColor: 'rgba(212, 175, 124, 0.18)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.sm,
+    gap: 4,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: BorderRadius.md,
   },
   ticketActionText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: Colors.primary,
-    textTransform: 'uppercase',
-  },
-  storyCard: {
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
-    marginBottom: Spacing.base,
-    borderWidth: 1,
-    borderColor: Colors.primary + '30',
-  },
-  storyHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  storyBadge: {
-    fontSize: Typography.sizes.md,
+    fontSize: 11,
     fontWeight: '700',
+    color: '#0F0F0F',
+  },
+  storyEditorial: {
+    marginBottom: 28,
+    paddingBottom: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.divider,
+  },
+  storyEyebrow: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1.6,
     color: Colors.primary,
+    marginBottom: 10,
+  },
+  storyQuote: {
+    fontFamily: Typography.fontFamily.serif,
+    fontStyle: 'italic',
+    fontSize: 18,
+    lineHeight: 27,
+    color: Colors.primaryLight,
+    marginBottom: 12,
   },
   storyText: {
-    fontSize: Typography.sizes.base,
-    color: Colors.text,
+    fontSize: 15,
+    color: Colors.textSecondary,
     lineHeight: 24,
-    marginTop: Spacing.md,
+  },
+  readMore: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.primary,
+    marginTop: 10,
   },
   expandSection: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.base,
-    marginBottom: Spacing.sm,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    backgroundColor: 'transparent',
+    borderRadius: 0,
+    paddingVertical: 4,
+    marginBottom: 0,
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.divider,
   },
   expandHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    paddingVertical: 15,
   },
   expandTitle: {
     flex: 1,
-    fontSize: Typography.sizes.md,
+    fontSize: 16,
     fontWeight: '600',
     color: Colors.text,
   },
   expandContent: {
-    fontSize: Typography.sizes.base,
+    fontSize: 15,
     color: Colors.textSecondary,
-    lineHeight: 22,
-    marginTop: Spacing.md,
-    paddingTop: Spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: Colors.divider,
+    lineHeight: 24,
+    paddingBottom: 16,
   },
   factsSection: {
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.lg,
+    marginTop: 28,
+    marginBottom: 28,
   },
   sectionTitle: {
     fontFamily: Typography.fontFamily.serif,
-    fontSize: Typography.sizes.md,
+    fontSize: 21,
     fontWeight: '700',
     color: Colors.text,
-    marginBottom: Spacing.md,
+    marginBottom: 6,
   },
   factItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 10,
-    marginBottom: 8,
+    gap: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.divider,
   },
   factDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
     backgroundColor: Colors.primary,
-    marginTop: 7,
+    marginTop: 8,
+    opacity: 0.9,
   },
   factText: {
     flex: 1,
-    fontSize: Typography.sizes.base,
+    fontSize: 14,
     color: Colors.textSecondary,
-    lineHeight: 20,
+    lineHeight: 21,
   },
   sourcesSection: {
-    marginTop: Spacing.base,
+    marginTop: 8,
+    marginBottom: 8,
   },
   sourceCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 10,
-    padding: Spacing.md,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginBottom: 8,
+    paddingVertical: 12,
+    backgroundColor: 'transparent',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.divider,
+    marginBottom: 0,
   },
   sourceName: {
-    fontSize: Typography.sizes.sm,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '600',
     color: Colors.text,
     marginBottom: 2,
   },
   sourceRef: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 12,
     color: Colors.textMuted,
-    lineHeight: 16,
+    lineHeight: 17,
   },
   deepHeritageBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.base,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.25)',
-    gap: Spacing.md,
-    marginTop: Spacing.base,
-    marginBottom: Spacing.xl,
+    borderColor: Colors.border,
+    gap: 12,
+    marginTop: 20,
+    marginBottom: 24,
   },
   deepHeritageIconWrap: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    backgroundColor: Colors.goldSoft,
     justifyContent: 'center',
     alignItems: 'center',
   },
   deepHeritageTitle: {
-    fontSize: Typography.sizes.sm,
+    fontSize: 14,
     fontWeight: '700',
     color: Colors.text,
+    fontFamily: Typography.fontFamily.serif,
   },
   deepHeritageSubtitle: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 12,
     color: Colors.textSecondary,
-    lineHeight: 16,
+    lineHeight: 17,
     marginTop: 2,
   },
 });

@@ -71,16 +71,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: 9,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: Colors.border,
     gap: 6,
   },
   chipActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.text,
+    borderColor: Colors.text,
   },
   chipText: {
     fontSize: Typography.sizes.sm,
@@ -88,6 +88,6 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   chipTextActive: {
-    color: Colors.textInverse,
+    color: '#0F0F0F',
   },
 });
