@@ -83,13 +83,13 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
         <View style={styles.horizontalOverlay}>
           <View style={styles.cardHeaderRow}>
             <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30', marginBottom: 0 }]}>
-              <Text style={[styles.categoryText, { color: categoryColor }]}>
+              <Text style={[styles.categoryText, { color: categoryColor }]} numberOfLines={1}>
                 {categoryLabel}
               </Text>
             </View>
             <View style={[styles.crowdBadge, { backgroundColor: crowd.color + '25', borderColor: crowd.color + '55' }]}>
               <View style={[styles.crowdDot, { backgroundColor: crowd.color }]} />
-              <Text style={[styles.crowdBadgeText, { color: crowd.color }]}>
+              <Text style={[styles.crowdBadgeText, { color: crowd.color }]} numberOfLines={1}>
                 {crowd.level}
               </Text>
             </View>
@@ -150,13 +150,13 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
       <View style={styles.verticalContent}>
         <View style={styles.cardHeaderRow}>
           <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30', marginBottom: 0 }]}>
-            <Text style={[styles.categoryText, { color: categoryColor }]}>
+            <Text style={[styles.categoryText, { color: categoryColor }]} numberOfLines={1}>
               {categoryLabel}
             </Text>
           </View>
           <View style={[styles.crowdBadge, { backgroundColor: crowd.color + '20', borderColor: crowd.color + '55' }]}>
             <View style={[styles.crowdDot, { backgroundColor: crowd.color }]} />
-            <Text style={[styles.crowdBadgeText, { color: crowd.color }]}>
+            <Text style={[styles.crowdBadgeText, { color: crowd.color }]} numberOfLines={1}>
               {crowd.badge}
             </Text>
           </View>
@@ -262,11 +262,14 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: BorderRadius.sm,
     marginBottom: 6,
+    flexShrink: 1,
+    maxWidth: '58%',
   },
   categoryText: {
     fontSize: Typography.sizes.xs,
     fontWeight: '700',
     letterSpacing: 0.5,
+    flexShrink: 1,
   },
   verticalName: {
     fontSize: Typography.sizes.lg,
@@ -284,7 +287,9 @@ const styles = StyleSheet.create({
   verticalFooter: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: 14,
+    rowGap: 6,
     paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: Colors.divider,
@@ -293,6 +298,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    flexShrink: 1,
+    minWidth: 0,
   },
   metaText: {
     fontSize: Typography.sizes.xs,
@@ -305,6 +312,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     marginBottom: 6,
+    gap: 8,
   },
   crowdBadge: {
     flexDirection: 'row',
@@ -314,6 +322,8 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     gap: 5,
+    flexShrink: 1,
+    maxWidth: '42%',
   },
   crowdDot: {
     width: 6,

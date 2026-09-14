@@ -64,6 +64,7 @@ export default function PlaceDetailScreen() {
   const [gallery, setGallery] = useState<GalleryImage[]>([]);
   const [activeSlide, setActiveSlide] = useState(0);
   const heroScrollRef = React.useRef<ScrollView>(null);
+  const galleryRequestRef = React.useRef(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>('story');
@@ -80,6 +81,13 @@ export default function PlaceDetailScreen() {
       loadHeritage(true);
     }
   }, [id]);
+
+  // Stop TTS when leaving the screen so audio never leaks into other tabs
+  useEffect(() => {
+    return () => {
+      stop();
+    };
+  }, []);
 
   const loadHeritage = async (showSkeleton = true) => {
     if (showSkeleton) setIsLoading(true);
@@ -150,14 +158,23 @@ export default function PlaceDetailScreen() {
     setIsLoading(false);
     setIsRefreshing(false);
 
-    // Dynamically fetch authentic multi-image gallery from internet / curated catalog
+    // Dynamically fetch authentic multi-image gallery from internet / curated catalog.
+    // Use canonical English place name for cache/gallery keys (translated names
+    // miss verified keys and force Unsplash fallbacks). Guard against stale
+    // resolves when the user navigates quickly between places.
     if (resultHeritage) {
-      const pName = resultHeritage.placeName || (resultHeritage.place ? getPlaceName(resultHeritage.place) : '');
+      const requestSeq = ++galleryRequestRef.current;
+      const canonicalName =
+        resultHeritage.place?.name ||
+        (resultHeritage.place ? getPlaceName(resultHeritage.place) : '') ||
+        resultHeritage.placeName ||
+        '';
       const rawImage = resultHeritage.place?.imageUrl;
       const cat = resultHeritage.place?.category || 'heritage';
       dynamicImageService
-        .getPlaceGallery(pName, id, rawImage, cat)
+        .getPlaceGallery(canonicalName, id, rawImage, cat)
         .then((fetchedGallery) => {
+          if (requestSeq !== galleryRequestRef.current) return;
           if (fetchedGallery && fetchedGallery.length >= 4) {
             setGallery(fetchedGallery);
           }
@@ -268,6 +285,10 @@ export default function PlaceDetailScreen() {
       ...displayGallery.filter((g) => g.url !== verifiedPrimary),
     ];
   }
+  // displayGallery[0] may be the prepended verified hero (not part of `gallery`
+  // state), so carousel index → gallery index needs this offset when patching.
+  const galleryOffset =
+    gallery.length > 0 && verifiedPrimary && gallery[0]?.url !== verifiedPrimary ? 1 : 0;
 
   return (
     <View style={styles.container}>
@@ -316,11 +337,18 @@ export default function PlaceDetailScreen() {
                   placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
                   transition={300}
                   onError={() => {
+                    // Index 0 with offset is the prepended verified hero — fall
+                    // back the hero instead of corrupting gallery[0].
+                    if (idx === 0 && galleryOffset === 1) {
+                      setImageError(true);
+                      return;
+                    }
+                    const galleryIdx = idx - galleryOffset;
                     const fallback = dynamicImageService.getArchitecturalFallback(displayName, category, idx + 1);
                     setGallery((prev) => {
                       if (!prev || prev.length === 0) return prev;
                       const next = [...prev];
-                      if (next[idx]) next[idx] = { ...next[idx], url: fallback };
+                      if (next[galleryIdx]) next[galleryIdx] = { ...next[galleryIdx], url: fallback };
                       return next;
                     });
                   }}

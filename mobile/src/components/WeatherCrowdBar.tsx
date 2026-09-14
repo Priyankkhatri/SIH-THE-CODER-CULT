@@ -97,14 +97,13 @@ export function WeatherCrowdBar({
       activeOpacity={0.88}
     >
       <View style={styles.row}>
-        {/* Weather Chip */}
         <View style={styles.metricItem}>
           <View style={styles.iconCircle}>
             <MaterialIcons name={weather.icon as any} size={16} color={Colors.primary} />
           </View>
-          <View>
-            <Text style={styles.metricValue}>{weather.temp}°C</Text>
-            <Text style={styles.metricLabel}>{weather.condition}</Text>
+          <View style={styles.metricTextWrap}>
+            <Text style={styles.metricValue} numberOfLines={1}>{weather.temp}°C</Text>
+            <Text style={styles.metricLabel} numberOfLines={1}>{weather.condition}</Text>
           </View>
         </View>
 
@@ -113,13 +112,13 @@ export function WeatherCrowdBar({
         {/* Crowd Level Chip */}
         <View style={styles.metricItem}>
           <View style={[styles.crowdDot, { backgroundColor: crowd.color }]} />
-          <View>
+          <View style={styles.metricTextWrap}>
             <View style={styles.crowdHeader}>
-              <Text style={styles.metricValue}>
+              <Text style={styles.metricValue} numberOfLines={1}>
                 {isMonumentView ? `${crowd.level} Crowd` : 'Tourism Radar'}
               </Text>
             </View>
-            <Text style={styles.metricLabel}>
+            <Text style={styles.metricLabel} numberOfLines={1}>
               {isMonumentView ? `~${crowd.waitTimeMins}m wait time` : `${crowd.level} Flow · Open`}
             </Text>
           </View>
@@ -173,11 +172,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 8,
   },
   metricItem: {
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  metricTextWrap: {
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
   },
   iconCircle: {
     width: 28,
@@ -200,6 +208,7 @@ const styles = StyleSheet.create({
     width: 1,
     height: 24,
     backgroundColor: Colors.border,
+    flexShrink: 0,
   },
   crowdDot: {
     width: 10,
@@ -212,6 +221,7 @@ const styles = StyleSheet.create({
   },
   infoIcon: {
     marginLeft: 4,
+    flexShrink: 0,
   },
   advisoryBox: {
     marginTop: Spacing.sm,

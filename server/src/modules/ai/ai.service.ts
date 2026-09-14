@@ -26,11 +26,8 @@ interface AIResponse {
 }
 
 const ID_ALIASES: Record<string, string> = {
-  'IND-GJ-01': 'IND-HER-11', // Rani ki Vav
-  'IND-GJ-02': 'IND-HER-31', // Modhera Sun Temple
-  'IND-HER-05': 'IND-HER-03', // Red Fort
-  'IND-GJ-07': 'IND-GJ-08', // Somnath Temple
-  'IND-HER-09': 'IND-HER-10', // Hampi
+  'IND-GJ-01': 'IND-HER-11', // Rani ki Vav (legacy mobile id)
+  'IND-GJ-02': 'IND-HER-31', // Modhera Sun Temple (legacy mobile id)
 };
 
 interface StaticMonument {
@@ -274,8 +271,6 @@ try {
       }
 
       const allIds = [p.id];
-      if (p.id?.startsWith('IND-HER-')) allIds.push(p.id.replace('IND-HER-', 'IND-GJ-'));
-      if (p.id?.startsWith('IND-GJ-')) allIds.push(p.id.replace('IND-GJ-', 'IND-HER-'));
 
       STATIC_MONUMENTS[key] = {
         name: `${p.name} (${p.district || p.city || p.state || 'India'})`,

@@ -63,7 +63,7 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: Spacing.base,
+    paddingHorizontal: 20,
     gap: 8,
     paddingVertical: Spacing.sm,
   },
@@ -77,6 +77,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     gap: 6,
+    flexShrink: 0,
   },
   chipActive: {
     backgroundColor: Colors.text,

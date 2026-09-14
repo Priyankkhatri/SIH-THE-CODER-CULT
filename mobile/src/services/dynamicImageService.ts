@@ -815,7 +815,14 @@ export const dynamicImageService = {
       return url;
     }
     for (const [key, url] of Object.entries(VERIFIED_MONUMENT_IMAGES)) {
-      if (cleanedNorm.includes(key) || key.includes(cleanedNorm)) {
+      // Tight match only: exact key, or cleaned name contains a long specific key.
+      // Never match reverse (key contains cleaned) — that hijacks short names
+      // e.g. any "...somnath artefact" would steal the Somnath temple photo.
+      if (cleanedNorm === key || normalized === key) {
+        imageCache.set(normalized, url);
+        return url;
+      }
+      if (key.length >= 6 && cleanedNorm.includes(key)) {
         imageCache.set(normalized, url);
         return url;
       }
@@ -833,18 +840,18 @@ export const dynamicImageService = {
       return rawImageUrl;
     }
 
-    // 5. Curated monument catalog
+    // 5. Curated monument catalog (tight match only)
     for (const [key, gallery] of Object.entries(CURATED_MONUMENT_GALLERIES)) {
-      if (normalized.includes(key) || key.includes(normalized) || cleanedNorm.includes(key)) {
+      if (normalized === key || cleanedNorm === key || (key.length >= 6 && cleanedNorm.includes(key))) {
         const url = gallery[0].url;
         imageCache.set(normalized, url);
         return url;
       }
     }
 
-    // 6. Architectural fallback
+    // 6. Architectural fallback — do NOT poison imageCache so that
+    // fetchPlaceImageAsync() can still upgrade to live Wikipedia later.
     const fallback = dynamicImageService.getArchitecturalFallback(placeName, category, 0);
-    imageCache.set(normalized, fallback);
     return fallback;
   },
 
@@ -859,9 +866,12 @@ export const dynamicImageService = {
     const cleaned = cleanMonumentName(placeName);
     const cleanedNorm = normalizeKey(cleaned);
 
-    // 1. In-memory cache
-    if (imageCache.has(normalized)) return imageCache.get(normalized)!;
-    if (imageCache.has(cleanedNorm)) return imageCache.get(cleanedNorm)!;
+    // 1. In-memory cache — but ignore Unsplash fallbacks so live Wikipedia
+    // can still upgrade a previously returned generic photo.
+    const cached = imageCache.get(normalized) || imageCache.get(cleanedNorm);
+    if (cached && !cached.includes('images.unsplash.com') && !cached.includes('unsplash.com')) {
+      return cached;
+    }
 
     // 2. Check verified monument catalog first (instant, 200 OK guaranteed)
     if (VERIFIED_MONUMENT_IMAGES[cleanedNorm]) {
@@ -884,9 +894,9 @@ export const dynamicImageService = {
       return diskHit;
     }
 
-    // 4. Curated catalog
+    // 4. Curated catalog (tight match only)
     for (const [key, gallery] of Object.entries(CURATED_MONUMENT_GALLERIES)) {
-      if (normalized.includes(key) || key.includes(normalized) || cleanedNorm.includes(key)) {
+      if (normalized === key || cleanedNorm === key || (key.length >= 6 && cleanedNorm.includes(key))) {
         const url = gallery[0].url;
         imageCache.set(normalized, url);
         writeDiskImageCache(normalized, url);
@@ -946,9 +956,9 @@ export const dynamicImageService = {
       return diskGallery;
     }
 
-    // 3. Curated catalog
+    // 3. Curated catalog (tight match only)
     for (const [key, gallery] of Object.entries(CURATED_MONUMENT_GALLERIES)) {
-      if (normalized.includes(key) || key.includes(normalized)) {
+      if (normalized === key || (key.length >= 6 && normalized.includes(key))) {
         galleryCache.set(normalized, gallery);
         writeDiskGalleryCache(normalized, gallery);
         // Warm the single-image cache too

@@ -202,11 +202,11 @@ const MONUMENT_CATALOG: Record<string, CatalogEntry> = {
     longitude: 86.0945,
     heritageContext: 'Conceived as a colossal celestial chariot with 12 pairs of wheels drawn by 7 horses, facing the Bay of Bengal.',
   },
-  'ind_gj_06_feature': {
+  'ind_gj_sou_feature': {
     name: 'Statue of Unity',
     description: 'World\'s tallest statue standing at 182 meters, dedicated to Sardar Vallabhbhai Patel on the Narmada river.',
     visionLabels: ['statue of unity', 'sardar patel', 'tallest statue', 'kevadia', 'ekta nagar', 'narmada'],
-    placeId: 'IND-GJ-06',
+    placeId: 'IND-GJ-SOU',
     placeName: 'Statue of Unity',
     latitude: 21.8380,
     longitude: 73.7191,

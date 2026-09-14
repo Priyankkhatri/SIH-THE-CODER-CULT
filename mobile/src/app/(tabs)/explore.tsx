@@ -125,9 +125,18 @@ export default function ExploreScreen() {
 
     if (!debouncedQuery.trim()) return true;
     const q = debouncedQuery.toLowerCase().trim();
-    const nameMatch = p.name.toLowerCase().includes(q) || (p.nameHi && p.nameHi.toLowerCase().includes(q));
+    const nameMatch =
+      p.name.toLowerCase().includes(q) ||
+      ((p as any).nameHi && (p as any).nameHi.toLowerCase().includes(q)) ||
+      ((p as any).nameGu && (p as any).nameGu.toLowerCase().includes(q));
     const descMatch = (p.shortDescription || '').toLowerCase().includes(q);
-    return nameMatch || descMatch;
+    const cityMatch =
+      ((p as any).city && (p as any).city.toLowerCase().includes(q)) ||
+      ((p as any).state && (p as any).state.toLowerCase().includes(q));
+    const tagsMatch =
+      Array.isArray((p as any).tags) &&
+      (p as any).tags.some((t: string) => t.toLowerCase().includes(q));
+    return nameMatch || descMatch || cityMatch || tagsMatch;
   });
 
   // Top suggestions for the search dropdown
@@ -136,9 +145,15 @@ export default function ExploreScreen() {
     const q = debouncedQuery.toLowerCase().trim();
     return allCatalogPlaces
       .filter((p) => {
-        const nameMatch = p.name.toLowerCase().includes(q) || (p.nameHi && p.nameHi.toLowerCase().includes(q));
+        const nameMatch =
+          p.name.toLowerCase().includes(q) ||
+          ((p as any).nameHi && (p as any).nameHi.toLowerCase().includes(q)) ||
+          ((p as any).nameGu && (p as any).nameGu.toLowerCase().includes(q));
         const descMatch = (p.shortDescription || '').toLowerCase().includes(q);
-        return nameMatch || descMatch;
+        const cityMatch =
+          ((p as any).city && (p as any).city.toLowerCase().includes(q)) ||
+          ((p as any).state && (p as any).state.toLowerCase().includes(q));
+        return nameMatch || descMatch || cityMatch;
       })
       .slice(0, 6);
   }, [debouncedQuery, allCatalogPlaces]);

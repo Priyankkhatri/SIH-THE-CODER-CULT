@@ -184,7 +184,7 @@ export default function ItineraryDetailScreen() {
           {itinerary.items && itinerary.items.map((item: any, index: number) => {
             const isLast = index === itinerary.items.length - 1;
             return (
-              <View key={item.id || index} style={styles.timelineItemWrap}>
+              <View key={`${item.placeId || 'stop'}-${item.order ?? index}`} style={styles.timelineItemWrap}>
                 {/* Timeline node & connector */}
                 <View style={styles.nodeColumn}>
                   <View style={styles.numberBadge}>

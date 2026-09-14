@@ -184,28 +184,36 @@ export const usePlacesStore = create<PlacesState>((set, get) => ({
     set({ favorites: updated });
 
     try {
+      const userId = useUserStore.getState().userId || undefined;
       if (isFav) {
-        await favoritesApi.removeFavorite(placeId);
+        await favoritesApi.removeFavorite(placeId, userId);
       } else {
-        await favoritesApi.addFavorite(placeId);
+        await favoritesApi.addFavorite(placeId, userId);
       }
       await safeStorage.setItem('user_favorites', JSON.stringify(updated));
     } catch (e) {
       // Keep local state on network error
+      console.warn('[placesStore] Favorite sync notice:', e);
     }
   },
 
   loadFavorites: async () => {
     try {
       const cached = await safeStorage.getItem('user_favorites');
-      if (cached) {
-        set({ favorites: JSON.parse(cached) });
+      const localIds: string[] = cached ? JSON.parse(cached) : [];
+      if (localIds.length > 0) {
+        set({ favorites: localIds });
       }
-      const res: any = await favoritesApi.getFavorites();
+      const userId = useUserStore.getState().userId || undefined;
+      const res: any = await favoritesApi.getFavorites(userId);
       if (res.success && Array.isArray(res.data)) {
-        const ids = res.data.map((p: any) => p.id || p.placeId);
-        set({ favorites: ids });
-        await safeStorage.setItem('user_favorites', JSON.stringify(ids));
+        const serverIds = res.data.map((p: any) => p.id || p.placeId).filter(Boolean);
+        // Union merge: never wipe local offline favorites on empty server
+        const merged = Array.from(new Set([...localIds, ...serverIds]));
+        if (merged.length > 0) {
+          set({ favorites: merged });
+          await safeStorage.setItem('user_favorites', JSON.stringify(merged));
+        }
       }
     } catch (e) {
       // Local cache used

@@ -53,6 +53,13 @@ export default function AIGuideScreen() {
     loadSuggestions();
   }, [contextPlaceId]);
 
+  // Stop TTS when leaving the chat tab so narration never bleeds into other tabs
+  useEffect(() => {
+    return () => {
+      stop();
+    };
+  }, []);
+
   // Handle auto-ask from Camera Presets / Monument scan / Place details
   useEffect(() => {
     if (params.autoAsk) {

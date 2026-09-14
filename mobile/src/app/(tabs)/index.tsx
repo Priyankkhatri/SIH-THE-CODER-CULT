@@ -168,11 +168,11 @@ function SpotlightCard({
 
       {/* Bottom Content */}
       <View style={styles.spotlightContent}>
-        <Text style={styles.spotlightEra}>{item.era}</Text>
-        <Text style={styles.spotlightTitle}>{item.title}</Text>
+        <Text style={styles.spotlightEra} numberOfLines={1}>{item.era}</Text>
+        <Text style={styles.spotlightTitle} numberOfLines={2} ellipsizeMode="tail">{item.title}</Text>
         <View style={styles.spotlightLocRow}>
           <MaterialIcons name="location-on" size={14} color="rgba(255,255,255,0.85)" />
-          <Text style={styles.spotlightLocText}>{item.location}</Text>
+          <Text style={styles.spotlightLocText} numberOfLines={1} ellipsizeMode="tail">{item.location}</Text>
         </View>
         <Text style={styles.spotlightSubtitle} numberOfLines={2}>{item.subtitle}</Text>
 
@@ -214,6 +214,13 @@ export default function HomeScreen() {
   const [activeAudioId, setActiveAudioId] = useState<string | null>(null);
 
   const { speak, stop, isSpeaking } = useSpeech();
+
+  // Clear the active card highlight when narration finishes naturally
+  useEffect(() => {
+    if (!isSpeaking) {
+      setActiveAudioId(null);
+    }
+  }, [isSpeaking]);
 
   // Instant render if places already present in store
   const isScreenLoading = (places.length === 0 && (initialLoading || isLoading)) || refreshing;
@@ -465,10 +472,10 @@ export default function HomeScreen() {
               style={styles.headerLogo}
               resizeMode="cover"
             />
-            <View>
-              <Text style={styles.eyebrowLabel}>YATRA · EXPLORE — UNDERSTAND — BELONG</Text>
-              <Text style={styles.greeting}>{greeting()},</Text>
-              <Text style={styles.userName}>{name}</Text>
+            <View style={styles.headerTextWrap}>
+              <Text style={styles.eyebrowLabel} numberOfLines={1} ellipsizeMode="tail">YATRA · EXPLORE — UNDERSTAND — BELONG</Text>
+              <Text style={styles.greeting} numberOfLines={1}>{greeting()},</Text>
+              <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">{name}</Text>
             </View>
           </View>
           <View style={styles.headerRight}>
@@ -477,8 +484,8 @@ export default function HomeScreen() {
             ) : (
               <TouchableOpacity style={styles.locationBadge} onPress={() => router.push('/(tabs)/explore')}>
                 <MaterialIcons name="place" size={16} color={Colors.primary} />
-                <Text style={styles.locationText} numberOfLines={1}>
-                  {`${location.city}, ${location.region}`}
+                <Text style={styles.locationText} numberOfLines={1} ellipsizeMode="tail">
+                  {`${location.city}`}
                 </Text>
               </TouchableOpacity>
             )}
@@ -554,10 +561,16 @@ export default function HomeScreen() {
                       activeOpacity={0.75}
                     >
                       <ExpoImage
-                        source={{ uri: placeImg }}
+                        source={{
+                          uri: placeImg,
+                          headers: {
+                            'User-Agent': 'YatraHeritageCompanion/2.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
+                          },
+                        }}
                         style={styles.searchResultThumb}
                         contentFit="cover"
                         transition={200}
+                        placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
                       />
                       <View style={styles.searchResultInfo}>
                         <View style={styles.searchResultHeaderRow}>
@@ -625,7 +638,7 @@ export default function HomeScreen() {
                 <View style={styles.quickActionIcon}>
                   <MaterialIcons name={action.icon as any} size={22} color={Colors.text} />
                 </View>
-                <Text style={styles.quickActionLabel}>{action.label}</Text>
+                <Text style={styles.quickActionLabel} numberOfLines={2}>{action.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -714,9 +727,9 @@ export default function HomeScreen() {
         {/* Nearby Heritage Sites */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <View>
-              <Text style={styles.sectionTitle}>{t('home.nearbyHeritageSites')}</Text>
-              <Text style={styles.sectionSubtitle}>Discover monuments near your GPS coordinates</Text>
+            <View style={styles.sectionHeaderLeft}>
+              <Text style={styles.sectionTitle} numberOfLines={1}>{t('home.nearbyHeritageSites')}</Text>
+              <Text style={styles.sectionSubtitle} numberOfLines={1}>Discover monuments near your GPS coordinates</Text>
             </View>
             <Text style={styles.sectionCount}>{filteredPlaces.length} {t('home.placesCount')}</Text>
           </View>
@@ -729,7 +742,7 @@ export default function HomeScreen() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: Spacing.base }}
+              contentContainerStyle={{ paddingHorizontal: 20 }}
             >
               <PlaceCardHorizontalSkeleton />
               <PlaceCardHorizontalSkeleton />
@@ -742,7 +755,7 @@ export default function HomeScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               keyExtractor={(item) => item.id}
-              contentContainerStyle={{ paddingHorizontal: Spacing.base }}
+              contentContainerStyle={{ paddingHorizontal: 20 }}
               renderItem={({ item }) => (
                 <PlaceCard place={item} onPress={handlePlacePress} variant="horizontal" />
               )}
@@ -796,42 +809,44 @@ export default function HomeScreen() {
         {/* Curated Heritage Showcase */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <View>
-              <Text style={styles.sectionTitle}>{t('home.allNearbyPlaces')}</Text>
-              <Text style={styles.sectionSubtitle}>Curated monuments, palaces & sacred sites</Text>
+            <View style={styles.sectionHeaderLeft}>
+              <Text style={styles.sectionTitle} numberOfLines={1}>{t('home.allNearbyPlaces')}</Text>
+              <Text style={styles.sectionSubtitle} numberOfLines={1}>Curated monuments, palaces & sacred sites</Text>
             </View>
-            <TouchableOpacity onPress={() => router.push('/(tabs)/explore')}>
+            <TouchableOpacity style={styles.seeAllBtn} onPress={() => router.push('/(tabs)/explore')}>
               <Text style={styles.seeAllText}>View Map →</Text>
             </TouchableOpacity>
           </View>
           {isScreenLoading ? (
-            <View style={{ paddingHorizontal: Spacing.base }}>
+            <View style={{ paddingHorizontal: 20 }}>
               <PlaceCardVerticalSkeleton />
               <PlaceCardVerticalSkeleton />
               <PlaceCardVerticalSkeleton />
               <PlaceCardVerticalSkeleton />
             </View>
           ) : (
-            filteredPlaces.slice(0, 15).map((place) => (
-              <PlaceCard
-                key={place.id}
-                place={place}
-                onPress={handlePlacePress}
-                variant="vertical"
-                isFavorite={favorites.includes(place.id)}
-                onFavoriteToggle={toggleFavorite}
-              />
-            ))
+            <View style={styles.curatedList}>
+              {filteredPlaces.slice(0, 6).map((place) => (
+                <PlaceCard
+                  key={place.id}
+                  place={place}
+                  onPress={handlePlacePress}
+                  variant="vertical"
+                  isFavorite={favorites.includes(place.id)}
+                  onFavoriteToggle={toggleFavorite}
+                />
+              ))}
+            </View>
           )}
 
-          {filteredPlaces.length > 15 && (
+          {filteredPlaces.length > 6 && (
             <TouchableOpacity
               style={styles.exploreMoreBtn}
               onPress={() => router.push('/(tabs)/explore')}
               activeOpacity={0.8}
             >
               <MaterialIcons name="explore" size={20} color={Colors.primary} />
-              <Text style={styles.exploreMoreText}>
+              <Text style={styles.exploreMoreText} numberOfLines={2}>
                 Explore All {filteredPlaces.length} Heritage Sites on Live Radar Map →
               </Text>
             </TouchableOpacity>
@@ -864,13 +879,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 56,
+    paddingTop: 48,
     paddingBottom: Spacing.md,
+    gap: 12,
   },
   headerLeft: {
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
+  },
+  headerTextWrap: {
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
   },
   headerLogo: {
     width: 42,
@@ -880,7 +904,7 @@ const styles = StyleSheet.create({
   eyebrowLabel: {
     fontSize: 10,
     fontWeight: '700',
-    letterSpacing: 1.6,
+    letterSpacing: 1.2,
     color: Colors.primary,
     marginBottom: 4,
   },
@@ -890,13 +914,14 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontFamily: Typography.fontFamily.serif,
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '700',
     color: Colors.text,
     letterSpacing: 0.2,
     marginTop: 1,
   },
   headerRight: {
+    flexShrink: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -906,26 +931,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     backgroundColor: Colors.surface,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 7,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: Colors.border,
-    maxWidth: 140,
+    maxWidth: 110,
+    flexShrink: 1,
+    minWidth: 0,
   },
   locationText: {
     fontSize: Typography.sizes.xs,
     color: Colors.text,
     fontWeight: '600',
+    flexShrink: 1,
+    minWidth: 0,
   },
   sosBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     backgroundColor: '#EF5350',
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 7,
     borderRadius: BorderRadius.full,
+    flexShrink: 0,
     ...Shadows.sm,
   },
   sosBadgeText: {
@@ -1098,9 +1128,12 @@ const styles = StyleSheet.create({
   },
   quickActionCard: {
     flex: 1,
+    minWidth: 0,
+    flexShrink: 1,
     alignItems: 'center',
     gap: 7,
     paddingVertical: 16,
+    paddingHorizontal: 4,
     borderRightWidth: 1,
     borderRightColor: Colors.divider,
   },
@@ -1118,6 +1151,7 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 14,
+    minWidth: 0,
   },
   spotlightSection: {
     marginBottom: 32,
@@ -1146,6 +1180,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     zIndex: 2,
+    gap: 8,
   },
   spotlightBadge: {
     flexDirection: 'row',
@@ -1155,12 +1190,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: BorderRadius.full,
+    flexShrink: 1,
+    maxWidth: '60%',
   },
   spotlightBadgeText: {
     fontSize: 10,
     fontWeight: '700',
     color: '#F5F1E8',
     letterSpacing: 0.8,
+    flexShrink: 1,
   },
   audioPlayBtn: {
     flexDirection: 'row',
@@ -1170,6 +1208,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: BorderRadius.full,
+    flexShrink: 0,
   },
   audioPlayBtnActive: {
     backgroundColor: '#E53935',
@@ -1212,11 +1251,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     marginTop: 2,
+    minWidth: 0,
   },
   spotlightLocText: {
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.85)',
     fontWeight: '500',
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
   },
   spotlightSubtitle: {
     fontSize: 12,
@@ -1389,6 +1432,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     paddingHorizontal: 20,
     marginBottom: 14,
+    gap: 12,
+  },
+  sectionHeaderLeft: {
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
+  },
+  curatedList: {
+    paddingHorizontal: 20,
   },
   sectionTitle: {
     fontFamily: Typography.fontFamily.serif,
@@ -1405,6 +1457,7 @@ const styles = StyleSheet.create({
   sectionCount: {
     fontSize: Typography.sizes.sm,
     color: Colors.textMuted,
+    flexShrink: 0,
   },
   emptyWrap: {
     padding: Spacing['3xl'],
@@ -1434,6 +1487,11 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     marginBottom: 3,
   },
+  seeAllBtn: {
+    flexShrink: 0,
+    paddingVertical: 4,
+    paddingLeft: 8,
+  },
   seeAllText: {
     fontSize: Typography.sizes.sm,
     color: Colors.primary,
@@ -1459,5 +1517,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.primary,
     textAlign: 'center',
+    flexShrink: 1,
   },
 });
