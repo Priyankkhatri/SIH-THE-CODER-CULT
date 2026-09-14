@@ -21,13 +21,74 @@ export function WeatherCrowdBar({
   isLoading = false,
 }: WeatherCrowdBarProps) {
   const [expanded, setExpanded] = useState(false);
+  const fallbackWeather: WeatherInfo = getLiveWeather(latitude, longitude);
+  const [weather, setWeather] = useState<WeatherInfo>(fallbackWeather);
+
+  // Live real-time weather from Open-Meteo (free, zero API key, exact coordinates)
+  React.useEffect(() => {
+    let isMounted = true;
+    async function fetchLiveWeather() {
+      try {
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), 3500);
+        const res = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude.toFixed(4)}&longitude=${longitude.toFixed(4)}&current_weather=true`,
+          { signal: controller.signal }
+        );
+        clearTimeout(tid);
+        if (!res.ok) return;
+        const data = await res.json();
+        const cur = data?.current_weather;
+        if (!cur || !isMounted) return;
+
+        const temp = Math.round(cur.temperature);
+        const code = Number(cur.weathercode);
+        let condition = 'Clear Sky';
+        let icon = 'wb-sunny';
+
+        if (code === 0) {
+          condition = cur.is_day ? 'Clear & Sunny' : 'Clear Night';
+          icon = cur.is_day ? 'wb-sunny' : 'nights-stay';
+        } else if (code <= 3) {
+          condition = 'Partly Cloudy';
+          icon = 'cloud-queue';
+        } else if (code <= 48) {
+          condition = 'Misty / Fog';
+          icon = 'cloud';
+        } else if (code <= 67 || (code >= 80 && code <= 82)) {
+          condition = 'Rain Showers';
+          icon = 'grain';
+        } else if (code >= 95) {
+          condition = 'Thunderstorm';
+          icon = 'thunderstorm';
+        } else {
+          condition = 'Pleasant';
+          icon = 'wb-sunny';
+        }
+
+        setWeather({
+          temp,
+          condition,
+          icon,
+          humidity: fallbackWeather.humidity,
+          advisory: fallbackWeather.advisory,
+        });
+      } catch {
+        // Retain calculated fallback weather
+      }
+    }
+    fetchLiveWeather();
+    return () => {
+      isMounted = false;
+    };
+  }, [latitude, longitude]);
 
   if (isLoading) {
     return <WeatherCrowdBarSkeleton variant={variant} />;
   }
 
-  const weather: WeatherInfo = getLiveWeather(latitude, longitude);
   const crowd: CrowdInfo = getLiveCrowd(placeName);
+  const isMonumentView = Boolean(placeName);
 
   return (
     <TouchableOpacity
@@ -54,9 +115,13 @@ export function WeatherCrowdBar({
           <View style={[styles.crowdDot, { backgroundColor: crowd.color }]} />
           <View>
             <View style={styles.crowdHeader}>
-              <Text style={styles.metricValue}>{crowd.level} Crowd</Text>
+              <Text style={styles.metricValue}>
+                {isMonumentView ? `${crowd.level} Crowd` : 'Tourism Radar'}
+              </Text>
             </View>
-            <Text style={styles.metricLabel}>~{crowd.waitTimeMins}m wait time</Text>
+            <Text style={styles.metricLabel}>
+              {isMonumentView ? `~${crowd.waitTimeMins}m wait time` : `${crowd.level} Flow · Open`}
+            </Text>
           </View>
         </View>
 
@@ -77,7 +142,11 @@ export function WeatherCrowdBar({
           </View>
           <View style={styles.advisoryRow}>
             <MaterialIcons name="groups" size={15} color={crowd.color} />
-            <Text style={styles.advisoryText}>{crowd.description}</Text>
+            <Text style={styles.advisoryText}>
+              {isMonumentView
+                ? crowd.description
+                : `Current visitor flow across regional monuments is ${crowd.level.toLowerCase()}. Recommended visiting window: 8:00 AM – 11:30 AM and 4:30 PM – 6:30 PM.`}
+            </Text>
           </View>
         </View>
       )}

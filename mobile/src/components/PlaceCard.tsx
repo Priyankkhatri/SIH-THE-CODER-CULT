@@ -35,7 +35,14 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
     const resolved = dynamicImageService.getPlaceImage(place.name, place.category, place.imageUrl);
     setCurrentImg(resolved);
 
-    // If initial image is fallback, attempt background dynamic fetch from internet
+    // If initial image is already a verified Wikimedia/Wikipedia photo, never overwrite
+    if (resolved && (resolved.includes('wikimedia.org') || resolved.includes('wikipedia.org'))) {
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    // Only if image is a generic fallback, attempt background dynamic fetch from internet
     if (resolved === defaultFallback) {
       dynamicImageService
         .fetchPlaceImageAsync(place.name)

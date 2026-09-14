@@ -88,23 +88,34 @@ function SpotlightCard({
   cardWidth,
   styles,
 }: SpotlightCardProps) {
-  const [imgUrl, setImgUrl] = useState<string>(item.imageUrl);
+  const resolvedInitial = dynamicImageService.getPlaceImage(
+    item.place?.name || item.title,
+    item.place?.category,
+    item.place?.imageUrl || item.imageUrl
+  );
+  const [imgUrl, setImgUrl] = useState<string>(resolvedInitial);
 
   useEffect(() => {
     let cancelled = false;
-    // Only fire the async Wikipedia fetch if the current image is the architectural fallback
-    // (i.e. it's an Unsplash URL — not already a real Wikimedia image)
-    if (!item.imageUrl.includes('wikimedia.org') && !item.imageUrl.includes('wikipedia.org')) {
-      dynamicImageService.fetchPlaceImageAsync(item.title).then((wikiUrl) => {
-        if (!cancelled && wikiUrl) {
-          setImgUrl(wikiUrl);
-        }
-      }).catch(() => {});
-    } else {
-      setImgUrl(item.imageUrl);
+    const resolved = dynamicImageService.getPlaceImage(
+      item.place?.name || item.title,
+      item.place?.category,
+      item.place?.imageUrl || item.imageUrl
+    );
+    setImgUrl(resolved);
+
+    // If already verified Wikimedia/Wikipedia, never overwrite
+    if (resolved && (resolved.includes('wikimedia.org') || resolved.includes('wikipedia.org'))) {
+      return;
     }
+
+    const searchName = item.place?.name || item.title;
+    dynamicImageService.fetchPlaceImageAsync(searchName).then((wikiUrl) => {
+      if (!cancelled && wikiUrl) setImgUrl(wikiUrl);
+    }).catch(() => {});
+
     return () => { cancelled = true; };
-  }, [item.id, item.title, item.imageUrl]);
+  }, [item.id, item.imageUrl, item.place?.name, item.place?.imageUrl]);
 
   return (
     <TouchableOpacity
@@ -123,9 +134,12 @@ function SpotlightCard({
         contentFit="cover"
         transition={400}
         onError={() => {
-          // If the Wikipedia image fails, fall back to architectural pool
-          const fallback = dynamicImageService.getArchitecturalFallback(item.title, item.place.category, 1);
-          setImgUrl(fallback);
+          if (item.place?.imageUrl && item.place.imageUrl !== imgUrl) {
+            setImgUrl(item.place.imageUrl);
+          } else {
+            const fallback = dynamicImageService.getArchitecturalFallback(item.place?.name || item.title, item.place?.category, 0);
+            setImgUrl(fallback);
+          }
         }}
       />
       <View style={styles.spotlightScrim} />

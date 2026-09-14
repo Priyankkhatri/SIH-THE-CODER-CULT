@@ -17,10 +17,28 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { VERIFIED_MONUMENT_IMAGES } from './verifiedMonumentImages';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Types
+// Monument Name Sanitization
 // ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Strips secondary descriptors, parenthetical titles, and marketing phrases
+ * from a monument name to produce the authentic core article title for search.
+ * e.g. "Rani ki Vav (The Queen's Stepwell)" -> "Rani ki Vav"
+ * e.g. "Kumbhalgarh Fort & The Great Wall of India" -> "Kumbhalgarh Fort"
+ * e.g. "Sidi Saiyyed Mosque (The Tree of Life Jali)" -> "Sidi Saiyyed Mosque"
+ */
+export function cleanMonumentName(name: string): string {
+  if (!name) return '';
+  return name
+    .replace(/\s*\([^)]*\)/g, '')
+    .replace(/\s*&.*$/, '')
+    .replace(/\s*:\s*.*$/, '')
+    .replace(/\s*-\s*.*$/, '')
+    .trim();
+}
 
 export interface GalleryImage {
   url: string;
@@ -62,8 +80,7 @@ export const ARCHITECTURAL_IMAGE_POOLS = {
     'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=1200&q=80',
     'https://images.unsplash.com/photo-1548013146-72479768bada?w=1200&q=80',
     'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1200&q=80',
-    'https://images.unsplash.com/photo-1506461883276-594a12b11cf3?w=1200&q=80',
-    'https://images.unsplash.com/photo-1509718443690-d8e2fb3474b7?w=1200&q=80',
+    'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=80',
     'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200&q=80',
   ],
   temples: [
@@ -80,9 +97,8 @@ export const ARCHITECTURAL_IMAGE_POOLS = {
   forts: [
     'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80',
     'https://images.unsplash.com/photo-1608958435020-e8a7109ba809?w=1200&q=80',
-    'https://images.unsplash.com/photo-1597074866923-dc0589150358?w=1200&q=80',
-    'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=1200&q=80',
     'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1200&q=80',
+    'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=1200&q=80',
     'https://images.unsplash.com/photo-1566837945700-30057527ade0?w=1200&q=80',
   ],
   palaces: [
@@ -130,7 +146,6 @@ export const ARCHITECTURAL_IMAGE_POOLS = {
     'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1200&q=80',
     'https://images.unsplash.com/photo-1548013146-72479768bada?w=1200&q=80',
     'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=1200&q=80',
-    'https://images.unsplash.com/photo-1597074866923-dc0589150358?w=1200&q=80',
     'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1200&q=80',
   ],
 };
@@ -568,25 +583,23 @@ const CAPTION_TEMPLATES: Record<ArchitecturalType, string[]> = {
 // Wikipedia API helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Resolves the best matching Wikipedia article title for a place name.
- * Uses Wikipedia's OpenSearch API.
- * Returns null if no result or times out.
- */
 async function resolveWikiTitle(placeName: string): Promise<string | null> {
   try {
+    const cleaned = cleanMonumentName(placeName);
     const url =
       'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' +
-      encodeURIComponent(placeName + ' India heritage monument') +
+      encodeURIComponent(cleaned) +
       '&srlimit=3&utf8=&format=json&origin=*';
     const res = await fetchWithTimeout(url, 5000);
     if (!res.ok) return null;
     const data = await res.json();
     const hits: Array<{ title: string }> = data?.query?.search || [];
-    // Prefer a hit that contains the place name words
-    const nameLower = placeName.toLowerCase();
+    if (hits.length === 0) return null;
+
+    const lower = cleaned.toLowerCase();
     for (const hit of hits) {
-      if (hit.title.toLowerCase().includes(nameLower.split(' ')[0])) {
+      const hitLower = hit.title.toLowerCase();
+      if (hitLower.includes(lower) || lower.includes(hitLower)) {
         return hit.title;
       }
     }
@@ -771,22 +784,14 @@ export const dynamicImageService = {
       return dynamicImageService.getArchitecturalFallback('Heritage Monument', category, 0);
     }
     const normalized = normalizeKey(placeName);
+    const cleaned = cleanMonumentName(placeName);
+    const cleanedNorm = normalizeKey(cleaned);
 
     // 1. In-memory runtime cache
-    if (imageCache.has(normalized)) {
-      return imageCache.get(normalized)!;
-    }
+    if (imageCache.has(normalized)) return imageCache.get(normalized)!;
+    if (imageCache.has(cleanedNorm)) return imageCache.get(cleanedNorm)!;
 
-    // 2. Curated monument catalog (Wikimedia, highest quality)
-    for (const [key, gallery] of Object.entries(CURATED_MONUMENT_GALLERIES)) {
-      if (normalized.includes(key) || key.includes(normalized)) {
-        const url = gallery[0].url;
-        imageCache.set(normalized, url);
-        return url;
-      }
-    }
-
-    // 3. Wikimedia/Wikipedia URL in rawImageUrl — use directly (free & licensed)
+    // 2. Direct verified Wikimedia/Wikipedia URL passed in rawImageUrl (from database or seed)
     if (
       rawImageUrl &&
       (rawImageUrl.includes('wikimedia.org') ||
@@ -794,10 +799,29 @@ export const dynamicImageService = {
         rawImageUrl.includes('upload.wikimedia.org'))
     ) {
       imageCache.set(normalized, rawImageUrl);
+      imageCache.set(cleanedNorm, rawImageUrl);
       return rawImageUrl;
     }
 
-    // 4. Other trusted CDN URLs
+    // 3. Look up in verified monument catalog (100% authentic 200 OK Wikimedia URLs)
+    if (VERIFIED_MONUMENT_IMAGES[cleanedNorm]) {
+      const url = VERIFIED_MONUMENT_IMAGES[cleanedNorm];
+      imageCache.set(normalized, url);
+      return url;
+    }
+    if (VERIFIED_MONUMENT_IMAGES[normalized]) {
+      const url = VERIFIED_MONUMENT_IMAGES[normalized];
+      imageCache.set(normalized, url);
+      return url;
+    }
+    for (const [key, url] of Object.entries(VERIFIED_MONUMENT_IMAGES)) {
+      if (cleanedNorm.includes(key) || key.includes(cleanedNorm)) {
+        imageCache.set(normalized, url);
+        return url;
+      }
+    }
+
+    // 4. Other trusted CDN URLs (Unsplash, Pexels, Cloudinary)
     if (
       rawImageUrl &&
       (rawImageUrl.includes('images.unsplash.com') ||
@@ -809,7 +833,16 @@ export const dynamicImageService = {
       return rawImageUrl;
     }
 
-    // 5. Architectural fallback
+    // 5. Curated monument catalog
+    for (const [key, gallery] of Object.entries(CURATED_MONUMENT_GALLERIES)) {
+      if (normalized.includes(key) || key.includes(normalized) || cleanedNorm.includes(key)) {
+        const url = gallery[0].url;
+        imageCache.set(normalized, url);
+        return url;
+      }
+    }
+
+    // 6. Architectural fallback
     const fallback = dynamicImageService.getArchitecturalFallback(placeName, category, 0);
     imageCache.set(normalized, fallback);
     return fallback;
@@ -823,20 +856,37 @@ export const dynamicImageService = {
   fetchPlaceImageAsync: async (placeName: string): Promise<string | null> => {
     if (!placeName) return null;
     const normalized = normalizeKey(placeName);
+    const cleaned = cleanMonumentName(placeName);
+    const cleanedNorm = normalizeKey(cleaned);
 
     // 1. In-memory cache
     if (imageCache.has(normalized)) return imageCache.get(normalized)!;
+    if (imageCache.has(cleanedNorm)) return imageCache.get(cleanedNorm)!;
 
-    // 2. Disk cache
-    const diskHit = await readDiskImageCache(normalized);
+    // 2. Check verified monument catalog first (instant, 200 OK guaranteed)
+    if (VERIFIED_MONUMENT_IMAGES[cleanedNorm]) {
+      const url = VERIFIED_MONUMENT_IMAGES[cleanedNorm];
+      imageCache.set(normalized, url);
+      writeDiskImageCache(normalized, url);
+      return url;
+    }
+    if (VERIFIED_MONUMENT_IMAGES[normalized]) {
+      const url = VERIFIED_MONUMENT_IMAGES[normalized];
+      imageCache.set(normalized, url);
+      writeDiskImageCache(normalized, url);
+      return url;
+    }
+
+    // 3. Disk cache
+    const diskHit = (await readDiskImageCache(normalized)) || (await readDiskImageCache(cleanedNorm));
     if (diskHit) {
       imageCache.set(normalized, diskHit);
       return diskHit;
     }
 
-    // 3. Curated catalog
+    // 4. Curated catalog
     for (const [key, gallery] of Object.entries(CURATED_MONUMENT_GALLERIES)) {
-      if (normalized.includes(key) || key.includes(normalized)) {
+      if (normalized.includes(key) || key.includes(normalized) || cleanedNorm.includes(key)) {
         const url = gallery[0].url;
         imageCache.set(normalized, url);
         writeDiskImageCache(normalized, url);
@@ -844,9 +894,9 @@ export const dynamicImageService = {
       }
     }
 
-    // 4. Wikipedia REST API
+    // 5. Wikipedia REST API using cleaned title (no 'India heritage monument' poison keywords)
     try {
-      const title = await resolveWikiTitle(placeName);
+      const title = await resolveWikiTitle(cleaned);
       if (title) {
         const heroUrl = await fetchWikiHeroImage(title);
         if (heroUrl) {

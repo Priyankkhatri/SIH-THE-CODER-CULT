@@ -89,18 +89,18 @@ export function getLiveWeather(lat: number = 22.3, lon: number = 73.2): WeatherI
   let condition = 'Clear Sky';
   let icon = 'wb-sunny';
   let advisory = 'Pleasant sightseeing weather. Carry water and walking footwear.';
-  
+
   if (hour >= 11 && hour <= 15) {
     condition = 'Warm & Sunny';
-    icon = 'brightness-5';
+    icon = 'wb-sunny';
     advisory = 'Sun protection advised. Consider exploring shaded indoor galleries or stepwells.';
   } else if (hour >= 16 && hour <= 19) {
     condition = 'Golden Hour';
-    icon = 'wb-twilight';
+    icon = 'flare';
     advisory = 'Best lighting for heritage photography and exterior monument walks.';
   } else if (hour >= 19 || hour < 6) {
     condition = 'Pleasant Evening';
-    icon = 'nightlight-round';
+    icon = 'nights-stay';
     advisory = 'Check evening illumination timings and light & sound show schedules.';
   }
 
