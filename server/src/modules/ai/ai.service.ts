@@ -5,6 +5,7 @@ import fs from 'fs';
 import prisma from '../../config/database';
 import { config } from '../../config';
 import { getSystemPrompt } from './ai.prompts';
+import { detectConversationalIntent, getConversationalReply } from './conversational.knowledge';
 
 const openai = new OpenAI({
   apiKey: config.openaiApiKey || 'mock-key',
@@ -336,10 +337,12 @@ class AIService {
   async askQuestion(params: AskQuestionParams): Promise<AIResponse> {
     const { question, placeId, mode, language } = params;
 
-    // Step 0: Greeting-only messages get a warm dynamic greeting — never a monument dump.
-    if (isGreetingOnly(question) && !placeId) {
-      const g = greetingReply(language);
-      return { answer: g.answer, sources: g.sources, confidence: 0.99, mode, language };
+    // Step 0: Conversational & Heritage Guide inquiries (greetings, identity, capabilities, trip planning, etc.)
+    if (!placeId) {
+      const intent = detectConversationalIntent(question);
+      if (intent) {
+        return getConversationalReply(intent, mode, language);
+      }
     }
 
     // Step 1: Retrieve relevant heritage context
@@ -531,25 +534,36 @@ class AIService {
           const hist = (r.history || '').toLowerCase();
           const arch = (r.architecture || '').toLowerCase();
 
-          // Full-name mention (token-boundary, not substring)
+          // 1. Full monument name mentioned in the query
           if (pName && pName.length > 4 && questionLower.includes(pName)) {
             score += 120;
           }
 
+          // 2. Individual distinctive name tokens
+          let nameMatched = false;
           for (const word of questionTokens) {
-            if (pTokens.has(word)) score += 35;
-            if (new RegExp(`\\b${word}\\b`).test(story)) score += 10;
-            if (new RegExp(`\\b${word}\\b`).test(hist)) score += 8;
-            if (new RegExp(`\\b${word}\\b`).test(arch)) score += 6;
+            if (pTokens.has(word)) {
+              score += 45;
+              nameMatched = true;
+            }
+          }
+
+          // Body text matches ONLY count if there is an explicit monument name correlation,
+          // to prevent false matches on generic words like 'temple', 'stone', 'water'
+          if (nameMatched || score >= 120) {
+            for (const word of questionTokens) {
+              if (new RegExp(`\\b${word}\\b`).test(story)) score += 10;
+              if (new RegExp(`\\b${word}\\b`).test(hist)) score += 8;
+              if (new RegExp(`\\b${word}\\b`).test(arch)) score += 6;
+            }
           }
 
           return { record: r, score };
         });
 
         scoredRecords.sort((a: any, b: any) => b.score - a.score);
-        // Threshold 40: a single shared content word (10) can never match;
-        // needs a name-token hit (35+) or full-name mention (120).
-        const bestMatch = scoredRecords.find((s: any) => s.score >= 40)?.record;
+        // Requires at least 45 (a distinctive name-token hit)
+        const bestMatch = scoredRecords.find((s: any) => s.score >= 45)?.record;
 
         if (bestMatch) {
           placeName = bestMatch.place?.name || 'Heritage Monument';
@@ -600,27 +614,31 @@ class AIService {
 
       for (const [key, monument] of Object.entries(STATIC_MONUMENTS)) {
         let score = 0;
+        let nameMatched = false;
         if (targetPlaceId && monument.ids.some((id) => id.toLowerCase() === targetPlaceId.toLowerCase())) {
           score += 500;
+          nameMatched = true;
         }
         const keyTokens = tokenize(key);
-        let overlap = 0;
-        for (const kw of keyTokens) {
-          if (qTokens.has(kw)) overlap++;
-        }
         if (key.length > 4 && question.toLowerCase().includes(key.toLowerCase())) {
           score += 200;
+          nameMatched = true;
         } else {
-          score += overlap * 40;
+          for (const kw of keyTokens) {
+            if (qTokens.has(kw)) {
+              score += 45;
+              nameMatched = true;
+            }
+          }
         }
 
-        if (score > bestScore) {
+        if (score > bestScore && nameMatched) {
           bestScore = score;
           matchedMonument = monument;
         }
       }
 
-      if (matchedMonument && bestScore >= 40) {
+      if (matchedMonument && bestScore >= 45) {
         placeName = matchedMonument.name;
         passages = [...matchedMonument.passages];
       }
@@ -692,13 +710,12 @@ class AIService {
         }
       }
     } else {
-      // Honest zero-context reply in the user's language — never a fake dump.
       if (language === 'hi') {
-        answer = `🏛️ **मुझे इस बारे में पक्की जानकारी नहीं मिली।**\n\nकृपया स्मारक का नाम सही लिखकर पूछिए — जैसे रानी की वाव, मोढेरा सूर्य मंदिर, सोमनाथ, या लक्ष्मी विलास पैलेस।`;
+        answer = `🏛️ **नमस्ते! मैं आपका AI Heritage Guide हूँ।**\n\nमुझे आपके सवाल में किसी ख़ास स्मारक का नाम नहीं मिला। आप मुझसे यह सब पूछ सकते हैं:\n\n• **स्मारकों का इतिहास**: *'रानी की वाव का इतिहास'*, *'मोढेरा सूर्य मंदिर का समय'*, या *'ताजमहल किसने बनवाया?'*\n• **यात्रा सुझाव**: *'गुजरात में घूमने की बेहतरीन जगहें'*, या *'3 दिन का हेरिटेज टूर'*\n• **वास्तुकला ज्ञान**: *'बावड़ी क्या होती है?'*, या *'नागर और द्रविड़ शैली में क्या अंतर है?'*\n\nया नीचे दिए गए सुझावों पर टैप करके तुरंत एक्सप्लोर करें!`;
       } else if (language === 'gu') {
-        answer = `🏛️ **મને આ વિશે પાક્કી માહિતી મળી નથી.**\n\nકૃપા કરીને સ્મારકનું નામ લખીને પૂછો — જેમ કે રાણીની વાવ, મોઢેરા સૂર્ય મંદિર, સોમનાથ કે લક્ષ્મી વિલાસ પેલેસ.`;
+        answer = `🏛️ **નમસ્તે! હું તમારો AI Heritage Guide છું.**\n\nમને તમારા પ્રશ્નમાં કોઈ ચોક્કસ સ્મારકનું નામ મળ્યું નથી. હું તમારી આ રીતે મદદ કરી શકું:\n\n• **ઐતિહાસિક માહિતી**: *'રાણીની વાવનો ઇતિહાસ'*, *'મોઢેરા સૂર્ય મંદિર'*, કે *'સોમનાથ મંદિર'*\n• **પ્રવાસ આયોજન**: *'ગુજરાતમાં ફરવા લાયક સ્થળો'* કે *'3 દિવસની ટૂરનું પ્લાનિંગ'*\n• **સ્થાપત્ય કળા**: *'વાવ એટલે શું?'* કે *'મંદિર સ્થાપત્ય શૈલીઓ'*\n\nઅથવા નીચે આપેલા સૂચનો પર ક્લિક કરીને આગળ વધો!`;
       } else {
-        answer = `🏛️ **I couldn't find verified records for that.**\n\nPlease ask with a monument's name — for example Rani ki Vav, Modhera Sun Temple, Somnath, or Laxmi Vilas Palace — and I'll share its verified history and architecture.`;
+        answer = `🏛️ **Hello! I'm your AI Heritage Guide.**\n\nI couldn't detect a specific monument in your message. Here is how I can assist you:\n\n• **Explore Monuments**: Ask about *Rani ki Vav*, *Modhera Sun Temple*, *Somnath*, *Laxmi Vilas Palace*, or *Statue of Unity*.\n• **Plan a Journey**: Ask *'Recommend places to visit in Gujarat'* or *'Help me plan a 3-day heritage tour'*.\n• **Discover Architecture**: Ask *'What is a stepwell?'* or *'Tell me a fascinating heritage fact'*!\n\nOr select any monument from the Explore tab to chat about it directly!`;
       }
     }
 

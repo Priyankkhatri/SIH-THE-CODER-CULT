@@ -20,6 +20,7 @@ import { aiApi } from '../../services/api';
 import { ChatBubble, TypingIndicator } from '../../components/ChatBubble';
 import { useSpeech } from '../../hooks/useSpeech';
 import { useTranslation } from '../../hooks/useTranslation';
+import { detectConversationalIntent, getConversationalReply } from '../../services/conversationalKnowledge';
 
 const RESPONSE_MODES: Array<{ key: 'short' | 'detailed' | 'child' | 'narrative'; label: string; description: string }> = [
   { key: 'short', label: '⚡ Short', description: '1-2 min' },
@@ -379,22 +380,20 @@ const ID_ALIASES: Record<string, string> = {
   'IND-GJ-02': 'IND-HER-31', // Modhera Sun Temple (legacy mobile id)
 };
 
-const GREETING_RE = /^(hi+|hey+|hello+|hii+|heyy+|yo|namaste+|namaskar|salaam|satsriakal|kem\s*cho|kemcho|jai\s*shree\s*krishna|good\s*(morning|afternoon|evening|day)|sup|hola)[\s?.!,~]*$/i;
-
-function getGreetingResponse(language: string = 'en'): string {
-  if (language === 'hi') {
-    return `🙏 **नमस्ते! मैं आपका AI Heritage Guide हूँ।**\n\nभारत के मंदिरों, किलों, बावड़ियों और संग्रहालयों के बारे में कुछ भी पूछिए — इतिहास, वास्तुकला, कहानियाँ, या घूमने की सलाह।\n\n• किसी स्मारक का इतिहास जानना हो तो उसका नाम लिखिए\n• बच्चों के लिए मज़ेदार अंदाज़ चाहिए तो Kids mode चुनिए`;
-  }
-  if (language === 'gu') {
-    return `🙏 **નમસ્તે! હું તમારો AI Heritage Guide છું.**\n\nભારતના મંદિરો, કિલ્લાઓ, વાવ અને સંગ્રહાલયો વિશે કંઈ પણ પૂછો — ઇતિહાસ, સ્થાપત્ય, વાર્તાઓ કે મુલાકાતની સલાહ.\n\n• કોઈ સ્મારકનો ઇતિહાસ જાણવો હોય તો તેનું નામ લખો\n• બાળકો માટે મજેદાર શૈલી જોઈતી હોય તો Kids mode પસંદ કરો`;
-  }
-  return `🙏 **Hello! I'm your AI Heritage Guide.**\n\nAsk me anything about India's temples, forts, stepwells, palaces, and museums — history, architecture, stories, or visit tips.\n\n• Just type a monument's name to explore its story\n• Pick **Kids mode** for a fun family version`;
-}
+const STOP_WORDS_SET = new Set([
+  'visit', 'want', 'travel', 'trip', 'place', 'places', 'monument', 'monuments',
+  'india', 'gujarat', 'built', 'history', 'temple', 'stone', 'water', 'king',
+  'queen', 'tour', 'what', 'when', 'where', 'which', 'who', 'how', 'tell', 'know',
+  'more', 'about', 'like', 'with', 'from', 'they', 'them', 'this', 'that', 'there',
+]);
 
 function getOfflineResponse(question: string, placeName: string | null, placeId?: string, language: string = 'en'): string {
-  // Greeting-only messages get a warm greeting — never a random monument dump.
-  if (GREETING_RE.test(question.trim()) && !placeId && !placeName) {
-    return getGreetingResponse(language);
+  // Conversational / guide inquiries (greetings, identity, capabilities, trip planning, etc.)
+  if (!placeId && !placeName) {
+    const intent = detectConversationalIntent(question);
+    if (intent) {
+      return getConversationalReply(intent, 'short', language).answer;
+    }
   }
   const q = question.toLowerCase();
   const resolvedId = placeId ? (ID_ALIASES[placeId] || placeId) : undefined;
@@ -432,10 +431,12 @@ function getOfflineResponse(question: string, placeName: string | null, placeId?
   }
 
   if (!matched) {
-    // Search by question keywords against place names
+    // Search by question keywords against place names (exact name or distinctive tokens only)
     matched = pool.find((p) => {
       const cp = clean(p.name);
-      return cp.length > 3 && (q.includes(cp) || cp.includes(q));
+      if (cp.length > 4 && q.includes(cp)) return true;
+      const tokens = cp.split(/\s+/).filter((w) => w.length > 3 && !STOP_WORDS_SET.has(w));
+      return tokens.some((w) => new RegExp(`\\b${w}\\b`, 'i').test(q));
     });
   }
 
@@ -505,12 +506,12 @@ function getOfflineResponse(question: string, placeName: string | null, placeId?
   }
 
   if (language === 'hi') {
-    return `🏛️ **मुझे इस बारे में पक्की जानकारी नहीं मिली।**\n\nकृपया स्मारक का नाम सही लिखकर पूछिए — जैसे रानी की वाव, मोढेरा सूर्य मंदिर, सोमनाथ, या लक्ष्मी विलास पैलेस।`;
+    return `🏛️ **नमस्ते! मैं आपका AI Heritage Guide हूँ।**\n\nमुझे आपके सवाल में किसी ख़ास स्मारक का नाम नहीं मिला। आप मुझसे यह सब पूछ सकते हैं:\n\n• **स्मारकों का इतिहास**: *'रानी की वाव का इतिहास'*, *'मोढेरा सूर्य मंदिर का समय'*, या *'ताजमहल किसने बनवाया?'*\n• **यात्रा सुझाव**: *'गुजरात में घूमने की बेहतरीन जगहें'*, या *'3 दिन का हेरिटेज टूर'*\n• **वास्तुकला ज्ञान**: *'बावड़ी क्या होती है?'*, या *'नागर और द्रविड़ शैली में क्या अंतर है?'*\n\nया नीचे दिए गए सुझावों पर टैप करके तुरंत एक्सप्लोर करें!`;
   }
   if (language === 'gu') {
-    return `🏛️ **મને આ વિશે પાક્કી માહિતી મળી નથી.**\n\nકૃપા કરીને સ્મારકનું નામ લખીને પૂછો — જેમ કે રાણીની વાવ, મોઢેરા સૂર્ય મંદિર, સોમનાથ કે લક્ષ્મી વિલાસ પેલેસ.`;
+    return `🏛️ **નમસ્તે! હું તમારો AI Heritage Guide છું.**\n\nમને તમારા પ્રશ્નમાં કોઈ ચોક્કસ સ્મારકનું નામ મળ્યું નથી. હું તમારી આ રીતે મદદ કરી શકું:\n\n• **ઐતિહાસિક માહિતી**: *'રાણીની વાવનો ઇતિહાસ'*, *'મોઢેરા સૂર્ય મંદિર'*, કે *'સોમનાથ મંદિર'*\n• **પ્રવાસ આયોજન**: *'ગુજરાતમાં ફરવા લાયક સ્થળો'* કે *'3 દિવસની ટૂરનું પ્લાનિંગ'*\n• **સ્થાપત્ય કળા**: *'વાવ એટલે શું?'* કે *'મંદિર સ્થાપત્ય શૈલીઓ'*\n\nઅથવા નીચે આપેલા સૂચનો પર ક્લિક કરીને આગળ વધો!`;
   }
-  return `🏛️ **Heritage Knowledge Base**\n\nI have comprehensive historical, architectural, and cultural archives on ${placeName || 'heritage landmarks across Gujarat and India'}.\n\nYou can ask about:\n• Dynasty origins and royal patronage\n• Architectural styles and intricate stone carvings\n• Historical timelines and conservation by ASI\n• Cultural legends, festivals, and visitor guidelines`;
+  return `🏛️ **Hello! I'm your AI Heritage Guide.**\n\nI couldn't detect a specific monument in your message. Here is how I can assist you:\n\n• **Explore Monuments**: Ask about *Rani ki Vav*, *Modhera Sun Temple*, *Somnath*, *Laxmi Vilas Palace*, or *Statue of Unity*.\n• **Plan a Journey**: Ask *'Recommend places to visit in Gujarat'* or *'Help me plan a 3-day heritage tour'*.\n• **Discover Architecture**: Ask *'What is a stepwell?'* or *'Tell me a fascinating heritage fact'*!\n\nOr select any monument from the Explore tab to chat about it directly!`;
 }
 
 const styles = StyleSheet.create({
