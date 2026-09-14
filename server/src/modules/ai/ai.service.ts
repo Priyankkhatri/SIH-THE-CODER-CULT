@@ -332,18 +332,28 @@ try {
   console.warn('[AIService] Failed to load master_unified_places.json:', loadErr);
 }
 
+let lmsStarting = false;
+function ensureLocalLLMServer(): void {
+  if (lmsStarting) return;
+  axios.get('http://127.0.0.1:1234/v1/models', { timeout: 1000 }).catch(() => {
+    lmsStarting = true;
+    try {
+      require('child_process').exec('lms server start', () => {
+        lmsStarting = false;
+      });
+    } catch {
+      lmsStarting = false;
+    }
+  });
+}
+
 class AIService {
   // Main RAG pipeline: retrieve relevant context → generate answer
   async askQuestion(params: AskQuestionParams): Promise<AIResponse> {
     const { question, placeId, mode, language } = params;
 
-    // Step 0: Conversational & Heritage Guide inquiries (greetings, identity, capabilities, trip planning, etc.)
-    if (!placeId) {
-      const intent = detectConversationalIntent(question);
-      if (intent) {
-        return getConversationalReply(intent, mode, language);
-      }
-    }
+    // Ensure local LM Studio server is running if available
+    ensureLocalLLMServer();
 
     // Step 1: Retrieve relevant heritage context
     const context = await this.retrieveContext(question, placeId);
@@ -710,6 +720,10 @@ class AIService {
         }
       }
     } else {
+      const intent = detectConversationalIntent(question);
+      if (intent) {
+        return getConversationalReply(intent, mode, language);
+      }
       if (language === 'hi') {
         answer = `🏛️ **नमस्ते! मैं आपका AI Heritage Guide हूँ।**\n\nमुझे आपके सवाल में किसी ख़ास स्मारक का नाम नहीं मिला। आप मुझसे यह सब पूछ सकते हैं:\n\n• **स्मारकों का इतिहास**: *'रानी की वाव का इतिहास'*, *'मोढेरा सूर्य मंदिर का समय'*, या *'ताजमहल किसने बनवाया?'*\n• **यात्रा सुझाव**: *'गुजरात में घूमने की बेहतरीन जगहें'*, या *'3 दिन का हेरिटेज टूर'*\n• **वास्तुकला ज्ञान**: *'बावड़ी क्या होती है?'*, या *'नागर और द्रविड़ शैली में क्या अंतर है?'*\n\nया नीचे दिए गए सुझावों पर टैप करके तुरंत एक्सप्लोर करें!`;
       } else if (language === 'gu') {
