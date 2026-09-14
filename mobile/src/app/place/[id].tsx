@@ -250,26 +250,24 @@ export default function PlaceDetailScreen() {
 
   const verifiedPrimary = dynamicImageService.getPlaceImage(displayName, category, placeObj.imageUrl);
   const heroUri = !imageError ? verifiedPrimary : dynamicImageService.getArchitecturalFallback(displayName, category, 1);
-  const displayGallery: GalleryImage[] = React.useMemo(() => {
-    let list: GalleryImage[] = [];
-    if (gallery.length > 0) {
-      list = [...gallery];
-    } else {
-      list = dynamicImageService.getArchitecturalFallbackGallery(displayName, category);
-    }
-    // Ensure the authentic verified Wikipedia photo is ALWAYS first in the gallery
-    if (verifiedPrimary && (!list[0] || list[0].url !== verifiedPrimary)) {
-      list = [
-        {
-          url: verifiedPrimary,
-          caption: `${displayName} — Primary Heritage Perspective`,
-          source: 'Archaeological Survey of India / Wikipedia',
-        },
-        ...list.filter((g) => g.url !== verifiedPrimary),
-      ];
-    }
-    return list;
-  }, [gallery, verifiedPrimary, displayName, category]);
+  
+  let displayGallery: GalleryImage[] = [];
+  if (gallery.length > 0) {
+    displayGallery = [...gallery];
+  } else {
+    displayGallery = dynamicImageService.getArchitecturalFallbackGallery(displayName, category);
+  }
+  // Ensure the authentic verified Wikipedia photo is ALWAYS first in the gallery
+  if (verifiedPrimary && (!displayGallery[0] || displayGallery[0].url !== verifiedPrimary)) {
+    displayGallery = [
+      {
+        url: verifiedPrimary,
+        caption: `${displayName} — Primary Heritage Perspective`,
+        source: 'Archaeological Survey of India / Wikipedia',
+      },
+      ...displayGallery.filter((g) => g.url !== verifiedPrimary),
+    ];
+  }
 
   return (
     <View style={styles.container}>
