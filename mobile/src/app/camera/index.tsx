@@ -136,7 +136,7 @@ export default function CameraScreen() {
             confidence: String(item.artifact?.confidence || 98),
             description: item.artifact?.description || 'Heritage landmark identified by Yatra Heritage Vision Model.',
             heritageContext: item.heritageContext || 'Protected monument under Archaeological Survey of India (ASI) records.',
-            placeId: item.placeId || 'IND-HER-26',
+            placeId: item.placeId || item.artifact?.placeId || '',
             placeName: item.placeName || item.artifact?.name || 'Heritage Landmark',
             imageUri: photoUri || '',
             t: String(Date.now()),

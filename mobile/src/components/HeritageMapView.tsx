@@ -360,7 +360,7 @@ export function HeritageMapView({
                     {place.shortDescription || 'Historical monument cataloged in heritage registry.'}
                   </Text>
                   <View style={styles.calloutFooter}>
-                    <Text style={styles.calloutCategory}>{place.category.toUpperCase()}</Text>
+                    <Text style={styles.calloutCategory}>{(place.category || 'heritage').toUpperCase()}</Text>
                     <Text style={styles.calloutTap}>View Details →</Text>
                   </View>
                 </View>

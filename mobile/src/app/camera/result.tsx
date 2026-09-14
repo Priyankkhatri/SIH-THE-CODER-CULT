@@ -29,7 +29,8 @@ export default function CameraResultScreen() {
   }>();
 
   const artifactName = params.artifactName || 'Identified Monument';
-  const confidence = parseInt(params.confidence || '98', 10);
+  const parsedConfidence = parseInt(params.confidence || '98', 10);
+  const confidence = isNaN(parsedConfidence) ? 95 : Math.min(100, Math.max(1, parsedConfidence));
   const description = params.description || 'Verified heritage architecture cataloged under Archaeological Survey of India (ASI) records.';
   const heritageContext = params.heritageContext || 'Historical information cataloged by Archaeological Survey of India.';
   const placeId = params.placeId || '';

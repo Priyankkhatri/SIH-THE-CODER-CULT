@@ -387,8 +387,10 @@ export default function PlanScreen() {
     if (!itinerary || itinerary.items.length === 0) return;
     const target = item || itinerary.items[0];
     const allPlaces = usePlacesStore.getState().places;
-    const matched = allPlaces.find((p) => p.id === target.placeId);
-    const lat = matched?.latitude || target.latitude || location.latitude || 27.1750;
+    const matched =
+      allPlaces.find((p) => p.id === target.placeId) ||
+      ALL_SEED_PLACES.find((p) => p.id === target.placeId);
+    const lat = matched?.latitude || target.latitude || location.latitude || 27.175;
     const lng = matched?.longitude || target.longitude || location.longitude || 78.0422;
 
     const url = Platform.select({

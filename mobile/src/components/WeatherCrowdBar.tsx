@@ -145,7 +145,7 @@ export function WeatherCrowdBar({
             <Text style={styles.advisoryText}>
               {isMonumentView
                 ? crowd.description
-                : `Current visitor flow across regional monuments is ${crowd.level.toLowerCase()}. Recommended visiting window: 8:00 AM – 11:30 AM and 4:30 PM – 6:30 PM.`}
+                : `Current visitor flow across regional monuments is ${(crowd.level || 'moderate').toLowerCase()}. Recommended visiting window: 8:00 AM – 11:30 AM and 4:30 PM – 6:30 PM.`}
             </Text>
           </View>
         </View>

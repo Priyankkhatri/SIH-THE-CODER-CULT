@@ -1,20 +1,11 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../../config/database';
-import path from 'path';
-import fs from 'fs';
+import { loadMasterUnifiedPlaces } from '../../utils/masterDataLoader';
 
 const router = Router();
 
 // Load master catalog of all 148 Indian national monuments
-let masterUnifiedPlaces: any[] = [];
-try {
-  const masterPath = path.resolve(__dirname, '../../seed/master_unified_places.json');
-  if (fs.existsSync(masterPath)) {
-    masterUnifiedPlaces = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
-  }
-} catch (e) {
-  console.warn('[FavoritesRoutes] Could not load master_unified_places.json:', e);
-}
+const masterUnifiedPlaces = loadMasterUnifiedPlaces();
 
 // In-memory fallback store for user favorites
 const userFavorites = new Map<string, Set<string>>();

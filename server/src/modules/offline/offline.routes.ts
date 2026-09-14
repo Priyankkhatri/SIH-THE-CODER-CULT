@@ -1,20 +1,11 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../../config/database';
-import path from 'path';
-import fs from 'fs';
+import { loadMasterUnifiedPlaces } from '../../utils/masterDataLoader';
 
 const router = Router();
 
 // Load master catalog of all 148 Indian national monuments
-let masterUnifiedPlaces: any[] = [];
-try {
-  const masterPath = path.resolve(__dirname, '../../seed/master_unified_places.json');
-  if (fs.existsSync(masterPath)) {
-    masterUnifiedPlaces = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
-  }
-} catch (e) {
-  console.warn('[OfflineRoutes] Could not load master_unified_places.json:', e);
-}
+const masterUnifiedPlaces = loadMasterUnifiedPlaces();
 
 // GET /offline/:placeId - Downloadable offline pack for places
 router.get('/:placeId', async (req: Request, res: Response) => {

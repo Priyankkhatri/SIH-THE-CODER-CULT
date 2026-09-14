@@ -160,13 +160,14 @@ router.post('/register', async (req: Request, res: Response) => {
 // POST /auth/preferences - Save user preferences
 router.post('/preferences', async (req: Request, res: Response) => {
   try {
-    const { userId, interests, travelStyle, duration, accessibility, language } = req.body;
+    const { userId, interests, travelStyle, duration, accessibility, language } = req.body || {};
+    const targetUserId = userId || 'default-user';
 
     const preferences = await prisma.preference.upsert({
-      where: { userId },
+      where: { userId: targetUserId },
       update: { interests, travelStyle, duration, accessibility },
       create: {
-        userId,
+        userId: targetUserId,
         interests: interests || ['heritage'],
         travelStyle: travelStyle || 'moderate',
         duration: duration || '90min',

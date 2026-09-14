@@ -16,6 +16,9 @@ import { itineraryApi } from '../../services/api';
 import { TimelineItem } from '../../components/TimelineItem';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
 import { usePlacesStore } from '../../stores';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const SAVED_ITINERARIES_STORAGE_KEY = '@yatra_saved_itineraries_v1';
 
 export default function ItineraryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -33,54 +36,53 @@ export default function ItineraryDetailScreen() {
 
   const loadItinerary = async () => {
     setIsLoading(true);
+
+    // 1. Try local storage first
+    try {
+      const raw = await AsyncStorage.getItem(SAVED_ITINERARIES_STORAGE_KEY);
+      if (raw) {
+        const savedList = JSON.parse(raw);
+        const match = savedList.find((t: any) => t.id === id);
+        if (match) {
+          setItinerary(match);
+          setIsLoading(false);
+          return;
+        }
+      }
+    } catch (_) {}
+
+    // 2. Try backend API
     try {
       const res: any = await itineraryApi.getById(id as string);
       if (res.success && res.data) {
         setItinerary(res.data);
-      } else {
-        const pool = usePlacesStore.getState().places.length > 0
-          ? usePlacesStore.getState().places
-          : ALL_SEED_PLACES;
-        const topStops = pool.slice(0, 3);
-        setItinerary({
-          id,
-          title: 'Curated Heritage Tour',
-          duration: '90min',
-          totalTime: 85,
-          items: topStops.map((p, idx) => ({
-            order: idx + 1,
-            placeId: p.id,
-            placeName: p.name,
-            visitDuration: 30,
-            travelTime: idx === 0 ? 5 : 12,
-            travelMode: 'walk',
-            reason: `Iconic ${p.category} landmark (${p.rating || 4.8}★)`,
-          })),
-        });
+        setIsLoading(false);
+        return;
       }
-    } catch (e) {
-      const pool = usePlacesStore.getState().places.length > 0
+    } catch (_) {}
+
+    // 3. Fallback: create meaningful trail from verified monuments
+    const pool =
+      usePlacesStore.getState().places.length > 0
         ? usePlacesStore.getState().places
         : ALL_SEED_PLACES;
-      const topStops = pool.slice(0, 3);
-      setItinerary({
-        id,
-        title: 'Curated Heritage Tour',
-        duration: '90min',
-        totalTime: 85,
-        items: topStops.map((p, idx) => ({
-          order: idx + 1,
-          placeId: p.id,
-          placeName: p.name,
-          visitDuration: 30,
-          travelTime: idx === 0 ? 5 : 12,
-          travelMode: 'walk',
-          reason: `Iconic ${p.category} landmark (${p.rating || 4.8}★)`,
-        })),
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    const topStops = pool.slice(0, 3);
+    setItinerary({
+      id,
+      title: 'Curated Heritage Tour',
+      duration: '90min',
+      totalTime: 85,
+      items: topStops.map((p, idx) => ({
+        order: idx + 1,
+        placeId: p.id,
+        placeName: p.name,
+        visitDuration: 30,
+        travelTime: idx === 0 ? 5 : 12,
+        travelMode: 'walk',
+        reason: `Iconic ${p.category} landmark (${p.rating || 4.8}★)`,
+      })),
+    });
+    setIsLoading(false);
   };
 
   const handleDelete = async () => {
@@ -94,11 +96,17 @@ export default function ItineraryDetailScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              if (id) await itineraryApi.delete(id);
-              router.replace('/(tabs)/plan');
-            } catch (e) {
-              router.replace('/(tabs)/plan');
-            }
+              if (id) {
+                await itineraryApi.delete(id).catch(() => {});
+                const raw = await AsyncStorage.getItem(SAVED_ITINERARIES_STORAGE_KEY);
+                if (raw) {
+                  const savedList = JSON.parse(raw);
+                  const updated = savedList.filter((t: any) => t.id !== id);
+                  await AsyncStorage.setItem(SAVED_ITINERARIES_STORAGE_KEY, JSON.stringify(updated));
+                }
+              }
+            } catch (_) {}
+            router.replace('/(tabs)/plan');
           },
         },
       ]

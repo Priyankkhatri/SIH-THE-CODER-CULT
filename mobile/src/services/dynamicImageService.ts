@@ -598,8 +598,8 @@ async function resolveWikiTitle(placeName: string): Promise<string | null> {
 
     const lower = cleaned.toLowerCase();
     for (const hit of hits) {
-      const hitLower = hit.title.toLowerCase();
-      if (hitLower.includes(lower) || lower.includes(hitLower)) {
+      const hitLower = (hit?.title || '').toLowerCase();
+      if (hitLower && (hitLower.includes(lower) || lower.includes(hitLower))) {
         return hit.title;
       }
     }

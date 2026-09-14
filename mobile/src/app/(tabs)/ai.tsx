@@ -268,9 +268,9 @@ function getOfflineResponse(question: string, placeName: string | null, placeId?
   const cPlaceName = placeName ? clean(placeName) : '';
 
   // 1. Check client store places first, fall back to ALL_SEED_PLACES
-  let pool = usePlacesStore.getState().places;
-  if (!pool || pool.length === 0) {
-    pool = ALL_SEED_PLACES;
+  let pool = [...(usePlacesStore.getState().places || [])];
+  if (pool.length === 0) {
+    pool = [...ALL_SEED_PLACES];
   } else {
     // Combine pool with seed places so all 155+ are searchable
     const seen = new Set(pool.map((p) => p.id));

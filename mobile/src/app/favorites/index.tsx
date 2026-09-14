@@ -55,7 +55,7 @@ function FavoriteCard({ item, onPress, onToggle }: { item: any; onPress: () => v
 
       <View style={styles.cardBody}>
         <View style={[styles.categoryBadge, { backgroundColor: categoryColor }]}>
-          <Text style={styles.categoryText}>{item.category.toUpperCase()}</Text>
+          <Text style={styles.categoryText}>{(item.category || 'heritage').toUpperCase()}</Text>
         </View>
         <Text style={styles.cardTitle}>{item.name}</Text>
         {item.shortDescription && (
