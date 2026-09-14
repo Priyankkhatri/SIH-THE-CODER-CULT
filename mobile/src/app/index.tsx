@@ -135,7 +135,13 @@ export default function LoadingScreen() {
       duration: 350,
       useNativeDriver: true,
     }).start(() => {
-      router.replace('/auth/login' as any);
+      const userState = useUserStore.getState();
+      const hasActiveSession = !!(userState.token || userState.isGuest || userState.isOnboarded);
+      if (hasActiveSession) {
+        router.replace('/(tabs)' as any);
+      } else {
+        router.replace('/auth/login' as any);
+      }
     });
   };
 

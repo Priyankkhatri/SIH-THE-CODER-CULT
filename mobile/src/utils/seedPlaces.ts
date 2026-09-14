@@ -1,4 +1,4 @@
-import { Place } from '../stores';
+import type { Place } from '../stores';
 
 export const ALL_SEED_PLACES: Place[] = [
   {

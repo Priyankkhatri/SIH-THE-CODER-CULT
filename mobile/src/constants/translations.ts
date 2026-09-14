@@ -52,8 +52,8 @@ export const TRANSLATIONS = {
 
     // Home
     home: {
-      headerTitle: 'Vadodara Heritage',
-      headerSubtitle: 'Cultural Capital of Gujarat',
+      headerTitle: 'Yatra Heritage',
+      headerSubtitle: 'Discover India\'s Timeless Wonders',
       quickActions: 'Quick Actions',
       exploreMap: 'Explore Map',
       askAiGuide: 'Ask AI',
@@ -253,8 +253,8 @@ export const TRANSLATIONS = {
 
     // Home
     home: {
-      headerTitle: 'वडोदरा विरासत',
-      headerSubtitle: 'गुजरात की सांस्कृतिक राजधानी',
+      headerTitle: 'यात्रा हेरिटेज',
+      headerSubtitle: 'भारत के सांस्कृतिक गौरव की खोज करें',
       quickActions: 'त्वरित क्रियाएं',
       exploreMap: 'मानचित्र खोजें',
       askAiGuide: 'एआई से पूछें',
@@ -454,8 +454,8 @@ export const TRANSLATIONS = {
 
     // Home
     home: {
-      headerTitle: 'વડોદરા વારસો',
-      headerSubtitle: 'ગુજરાતની સાંસ્કૃતિક રાજધાની',
+      headerTitle: 'યાત્રા વારસો',
+      headerSubtitle: 'ભારતના સાંસ્કૃતિક ગૌરવની શોધ કરો',
       quickActions: 'ઝડપી ક્રિયાઓ',
       exploreMap: 'નકશો શોધો',
       askAiGuide: 'AI ને પૂછો',

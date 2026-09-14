@@ -18,7 +18,7 @@ export default function NotFoundScreen() {
 
         <Text style={styles.title}>Heritage Path Not Found</Text>
         <Text style={styles.message}>
-          The requested monument, tour, or screen does not exist or may have moved. Let's get you back on track to explore Vadodara.
+          The requested monument, tour, or screen does not exist or may have moved. Let's get you back on track to explore India's cultural heritage.
         </Text>
 
         <TouchableOpacity

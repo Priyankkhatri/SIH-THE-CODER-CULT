@@ -1,8 +1,21 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../../config/database';
 import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import fs from 'fs';
 
 const router = Router();
+
+// Load master unified places catalog for offline/fallback resilience
+let masterUnifiedPlaces: any[] = [];
+try {
+  const masterPath = path.resolve(__dirname, '../../seed/master_unified_places.json');
+  if (fs.existsSync(masterPath)) {
+    masterUnifiedPlaces = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
+  }
+} catch (e) {
+  console.warn('[ItineraryRoutes] Could not load master_unified_places.json:', e);
+}
 
 function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
@@ -45,17 +58,33 @@ router.post('/generate', async (req: Request, res: Response) => {
     const lng = longitude || 73.1812;
     const maxMinutes = DURATION_MAP[duration] || 90;
 
-    const places = await prisma.place.findMany({
-      include: {
-        heritageRecord: {
-          select: {
-            shortStory: true,
-            significance: true,
-            period: true,
+    let places: any[] = [];
+    try {
+      places = await prisma.place.findMany({
+        include: {
+          heritageRecord: {
+            select: {
+              shortStory: true,
+              significance: true,
+              period: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (dbErr) {
+      console.warn('[Itinerary] Prisma query failed, using master places:', dbErr);
+    }
+
+    if (!places || places.length === 0) {
+      places = masterUnifiedPlaces.map((p) => ({
+        ...p,
+        heritageRecord: {
+          shortStory: p.description || p.shortDescription,
+          significance: p.significance || p.period,
+          period: p.period,
+        },
+      }));
+    }
 
     const scoredPlaces = places.map((place: any) => {
       const distance = haversineDistance(lat, lng, place.latitude, place.longitude);

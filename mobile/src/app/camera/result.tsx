@@ -32,24 +32,30 @@ export default function CameraResultScreen() {
   const confidence = parseInt(params.confidence || '98', 10);
   const description = params.description || 'Verified heritage architecture cataloged under Archaeological Survey of India (ASI) records.';
   const heritageContext = params.heritageContext || 'Historical information cataloged by Archaeological Survey of India.';
-  const placeId = params.placeId || 'IND-HER-26';
-  const placeName = params.placeName || 'Kumbhalgarh Fort & The Great Wall of India';
+  const placeId = params.placeId || '';
+  const placeName = params.placeName || artifactName || 'Heritage Monument';
 
   const handleAskAI = () => {
-    setContext(placeId, placeName);
+    if (placeId) {
+      setContext(placeId, placeName);
+    }
     router.push({
       pathname: '/(tabs)/ai',
       params: {
-        autoAsk: `Tell me the architectural marvels, historical significance, and legends of ${artifactName} at ${placeName}.`,
-        placeId,
-        placeName,
+        autoAsk: `Tell me the architectural marvels, historical significance, and legends of ${artifactName}${placeName && placeName !== artifactName ? ` at ${placeName}` : ''}.`,
+        placeId: placeId || undefined,
+        placeName: placeName || undefined,
         t: String(Date.now()),
       },
     });
   };
 
   const handleViewPlace = () => {
-    router.push(`/place/${placeId}`);
+    if (placeId) {
+      router.push(`/place/${placeId}`);
+    } else {
+      router.push('/(tabs)/explore');
+    }
   };
 
   return (

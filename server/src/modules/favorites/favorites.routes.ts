@@ -1,7 +1,20 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../../config/database';
+import path from 'path';
+import fs from 'fs';
 
 const router = Router();
+
+// Load master catalog of all 148 Indian national monuments
+let masterUnifiedPlaces: any[] = [];
+try {
+  const masterPath = path.resolve(__dirname, '../../seed/master_unified_places.json');
+  if (fs.existsSync(masterPath)) {
+    masterUnifiedPlaces = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
+  }
+} catch (e) {
+  console.warn('[FavoritesRoutes] Could not load master_unified_places.json:', e);
+}
 
 // In-memory fallback store for user favorites
 const userFavorites = new Map<string, Set<string>>();
@@ -12,20 +25,41 @@ router.get('/', async (req: Request, res: Response) => {
     const userId = (req.query.userId as string) || 'default-user';
     const favoriteIds = Array.from(userFavorites.get(userId) || []);
 
-    const places = await prisma.place.findMany({
-      where: favoriteIds.length > 0 ? { id: { in: favoriteIds } } : undefined,
-      include: {
-        heritageRecord: {
-          select: { shortStory: true, period: true },
-        },
-      },
-    });
+    let places: any[] = [];
+    if (favoriteIds.length > 0) {
+      try {
+        places = await prisma.place.findMany({
+          where: { id: { in: favoriteIds } },
+          include: {
+            heritageRecord: {
+              select: { shortStory: true, period: true },
+            },
+          },
+        });
+      } catch (dbErr) {
+        console.warn('[Favorites] Prisma query failed, resolving from master places:', dbErr);
+      }
 
-    const result = favoriteIds.length > 0 ? places.filter((p: any) => favoriteIds.includes(p.id)) : [];
+      const existingIds = new Set(places.map((p: any) => p.id));
+      const missingIds = favoriteIds.filter((id) => !existingIds.has(id));
+
+      if (missingIds.length > 0) {
+        const fallbackPlaces = masterUnifiedPlaces
+          .filter((p: any) => missingIds.includes(p.id) || missingIds.includes(p.slug))
+          .map((p: any) => ({
+            ...p,
+            heritageRecord: {
+              shortStory: p.description || p.shortDescription,
+              period: p.period,
+            },
+          }));
+        places = [...places, ...fallbackPlaces];
+      }
+    }
 
     res.json({
       success: true,
-      data: result,
+      data: places,
     });
   } catch (error) {
     console.error('Error fetching favorites:', error);
