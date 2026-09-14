@@ -1,20 +1,12 @@
 import { Router, Request, Response } from 'express';
-import path from 'path';
-import fs from 'fs';
 import prisma from '../../config/database';
+import { cacheMiddleware } from '../../utils/cacheManager';
+import { loadMasterUnifiedPlaces } from '../../utils/masterDataLoader';
 
 const router = Router();
 
 // Load verified master catalog of all 148 Indian national monuments
-let masterUnifiedPlaces: any[] = [];
-try {
-  const masterPath = path.resolve(__dirname, '../../seed/master_unified_places.json');
-  if (fs.existsSync(masterPath)) {
-    masterUnifiedPlaces = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
-  }
-} catch (e) {
-  console.warn('[HeritageRoutes] Could not load master_unified_places.json:', e);
-}
+const masterUnifiedPlaces = loadMasterUnifiedPlaces();
 
 function findInMasterCatalog(placeId: string) {
   const q = placeId.toLowerCase().trim();
@@ -24,7 +16,7 @@ function findInMasterCatalog(placeId: string) {
 }
 
 // GET /heritage/:placeId - Full heritage record for a place
-router.get('/:placeId', async (req: Request, res: Response) => {
+router.get('/:placeId', cacheMiddleware(600), async (req: Request, res: Response) => {
   const placeId = req.params.placeId as string;
   const lang = (req.query.lang as string) || 'en';
 
@@ -183,7 +175,7 @@ router.get('/:placeId', async (req: Request, res: Response) => {
 });
 
 // GET /heritage/:placeId/sources - Get source references
-router.get('/:placeId/sources', async (req: Request, res: Response) => {
+router.get('/:placeId/sources', cacheMiddleware(600), async (req: Request, res: Response) => {
   try {
     const record = await prisma.heritageRecord.findUnique({
       where: { placeId: req.params.placeId as string },

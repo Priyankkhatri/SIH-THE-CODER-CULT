@@ -3,19 +3,13 @@ import prisma from '../../config/database';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
+import { cacheMiddleware, cacheManager } from '../../utils/cacheManager';
+import { loadMasterUnifiedPlaces } from '../../utils/masterDataLoader';
 
 const router = Router();
 
 // Load master unified places catalog for offline/fallback resilience
-let masterUnifiedPlaces: any[] = [];
-try {
-  const masterPath = path.resolve(__dirname, '../../seed/master_unified_places.json');
-  if (fs.existsSync(masterPath)) {
-    masterUnifiedPlaces = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
-  }
-} catch (e) {
-  console.warn('[ItineraryRoutes] Could not load master_unified_places.json:', e);
-}
+const masterUnifiedPlaces = loadMasterUnifiedPlaces();
 
 function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
@@ -42,6 +36,145 @@ const DURATION_MAP: Record<string, number> = {
   'half-day': 240,
   'full-day': 480,
 };
+
+const MASTER_CURATED_CIRCUITS = [
+  {
+    id: 'golden_triangle',
+    title: 'Mughal Architectural Axis',
+    tag: 'ICONIC TRAIL',
+    duration: 'full-day',
+    timeEstimate: '6.5 Hours',
+    description: 'Taj Mahal, Agra Red Fort, and Fatehpur Sikri Imperial Citadel.',
+    centerLat: 27.175,
+    centerLng: 78.0422,
+    placeIds: ['IND-HER-01', 'IND-HER-03', 'IND-HER-05'],
+  },
+  {
+    id: 'solanki_marvels',
+    title: 'Solanki Stepwells & Solar Sanctuaries',
+    tag: 'UNESCO TRAIL',
+    duration: 'half-day',
+    timeEstimate: '4.5 Hours',
+    description: 'Rani Ki Vav subterranean stepwell, Modhera Sun Temple, and Adalaj Vav.',
+    centerLat: 23.8585,
+    centerLng: 72.1015,
+    placeIds: ['IND-HER-11', 'IND-HER-31', 'IND-GJ-06'],
+  },
+  {
+    id: 'mewar_citadels',
+    title: 'Mewar Royal Fortresses of India',
+    tag: 'ROYAL CITADELS',
+    duration: 'full-day',
+    timeEstimate: '7 Hours',
+    description: 'Kumbhalgarh 36-km Great Wall, Chittorgarh Fortress, and City Palace.',
+    centerLat: 25.1478,
+    centerLng: 73.5878,
+    placeIds: ['IND-HER-26', 'IND-HER-27', 'IND-HER-28'],
+  },
+  {
+    id: 'rock_cut_caves',
+    title: 'Monolithic Rock-Cut Marvels',
+    tag: 'ANCIENT CAVE WONDERS',
+    duration: 'full-day',
+    timeEstimate: '6 Hours',
+    description: 'Ajanta Frescoed Caves, Ellora Kailasa Temple, and Daulatabad Fort.',
+    centerLat: 20.5519,
+    centerLng: 75.7033,
+    placeIds: ['IND-HER-06', 'IND-HER-07', 'IND-MH-05'],
+  },
+  {
+    id: 'deccan_empire',
+    title: 'Vijayanagara Imperial Ruins & Boulders',
+    tag: 'DECCAN HERITAGE',
+    duration: 'full-day',
+    timeEstimate: '6.5 Hours',
+    description: 'Hampi Virupaksha Temple, Monolithic Stone Chariot, and Vittala Temple.',
+    centerLat: 15.335,
+    centerLng: 76.46,
+    placeIds: ['IND-HER-10', 'IND-ART-19', 'IND-HER-12'],
+  },
+  {
+    id: 'delhi_sultanate',
+    title: 'Delhi Sultanate & Imperial Citadels',
+    tag: 'CAPITAL HERITAGE',
+    duration: 'full-day',
+    timeEstimate: '5.5 Hours',
+    description: 'Qutub Minar Complex, Humayun Tomb, and Red Fort.',
+    centerLat: 28.5245,
+    centerLng: 77.1855,
+    placeIds: ['IND-HER-02', 'IND-HER-04', 'IND-HER-03'],
+  },
+];
+
+// GET /itinerary/circuits - Get all verified national curated trails
+router.get('/circuits', cacheMiddleware(600), (_req: Request, res: Response) => {
+  const enrichedCircuits = MASTER_CURATED_CIRCUITS.map((circuit) => {
+    const stops = circuit.placeIds
+      .map((id) => {
+        const found = masterUnifiedPlaces.find((p) => p.id === id);
+        if (!found) return null;
+        return {
+          id: found.id,
+          name: found.name,
+          nameHi: found.nameHi,
+          nameGu: found.nameGu,
+          imageUrl: found.imageUrl,
+          latitude: found.latitude,
+          longitude: found.longitude,
+          category: found.category,
+          rating: found.rating || 4.7,
+        };
+      })
+      .filter(Boolean);
+
+    return {
+      ...circuit,
+      stopsCount: stops.length,
+      stops,
+    };
+  });
+
+  res.json({
+    success: true,
+    data: enrichedCircuits,
+  });
+});
+
+// GET /itinerary/circuits/:id - Get single verified curated trail
+router.get('/circuits/:id', cacheMiddleware(600), (req: Request, res: Response) => {
+  const circuit = MASTER_CURATED_CIRCUITS.find((c) => c.id === req.params.id);
+  if (!circuit) {
+    return res.status(404).json({ success: false, error: 'Circuit not found' });
+  }
+
+  const stops = circuit.placeIds
+    .map((id) => {
+      const found = masterUnifiedPlaces.find((p) => p.id === id);
+      if (!found) return null;
+      return {
+        id: found.id,
+        name: found.name,
+        nameHi: found.nameHi,
+        nameGu: found.nameGu,
+        imageUrl: found.imageUrl,
+        latitude: found.latitude,
+        longitude: found.longitude,
+        category: found.category,
+        rating: found.rating || 4.7,
+        shortStory: found.shortDescription || found.heritageRecord?.shortStory,
+      };
+    })
+    .filter(Boolean);
+
+  res.json({
+    success: true,
+    data: {
+      ...circuit,
+      stopsCount: stops.length,
+      stops,
+    },
+  });
+});
 
 // 1. POST /itinerary/generate or /itineraries/generate
 router.post('/generate', async (req: Request, res: Response) => {
@@ -211,6 +344,12 @@ const saveHandler = async (req: Request, res: Response) => {
       include: { items: true },
     });
 
+    // Invalidate itinerary caches
+    cacheManager.deleteByPrefix('http:/itinerary');
+    cacheManager.deleteByPrefix('http:/api/v1/itinerary');
+    cacheManager.deleteByPrefix('http:/itineraries');
+    cacheManager.deleteByPrefix('http:/api/v1/itineraries');
+
     res.status(201).json({ success: true, data: itinerary });
   } catch (error) {
     console.error('Error saving itinerary:', error);
@@ -221,7 +360,7 @@ router.post('/', saveHandler);
 router.post('/save', saveHandler);
 
 // 3. GET / (Get itineraries by query userId)
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', cacheMiddleware(60), async (req: Request, res: Response) => {
   try {
     const userId = (req.query.userId as string) || 'default-user';
     const itineraries = await prisma.itinerary.findMany({
@@ -238,7 +377,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // 4. GET /user/:userId
-router.get('/user/:userId', async (req: Request, res: Response) => {
+router.get('/user/:userId', cacheMiddleware(60), async (req: Request, res: Response) => {
   try {
     const itineraries = await prisma.itinerary.findMany({
       where: { userId: req.params.userId as string },
@@ -254,7 +393,7 @@ router.get('/user/:userId', async (req: Request, res: Response) => {
 });
 
 // 5. GET /:id (Single itinerary by ID)
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', cacheMiddleware(60), async (req: Request, res: Response) => {
   try {
     const itinerary = await prisma.itinerary.findUnique({
       where: { id: req.params.id as string },
@@ -278,6 +417,11 @@ router.delete('/:id', async (req: Request, res: Response) => {
     await prisma.itinerary.delete({
       where: { id: req.params.id as string },
     }).catch(() => {});
+
+    cacheManager.deleteByPrefix('http:/itinerary');
+    cacheManager.deleteByPrefix('http:/api/v1/itinerary');
+    cacheManager.deleteByPrefix('http:/itineraries');
+    cacheManager.deleteByPrefix('http:/api/v1/itineraries');
 
     res.json({ success: true, message: 'Itinerary deleted' });
   } catch (error) {

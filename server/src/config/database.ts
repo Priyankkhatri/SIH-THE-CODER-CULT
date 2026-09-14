@@ -60,6 +60,7 @@ export const prisma: any = new Proxy({}, {
                 return await fn.apply(subTarget, args);
               } catch (error) {
                 isPostgresAvailable = false;
+                checkedConnection = true;
                 const fallbackSub = (inMemoryDb as any)[prop];
                 if (fallbackSub && typeof fallbackSub[subProp] === 'function') {
                   return fallbackSub[subProp](...args);

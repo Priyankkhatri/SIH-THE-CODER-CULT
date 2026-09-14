@@ -1,5 +1,8 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../../config/database';
+import { cacheMiddleware, cacheManager } from '../../utils/cacheManager';
+import { searchEngine } from './searchService';
+import { loadMasterUnifiedPlaces } from '../../utils/masterDataLoader';
 
 const router = Router();
 
@@ -92,15 +95,7 @@ function fetchRemoteImage(
 }
 
 // Load verified master catalog of all 148 Indian national monuments
-let masterUnifiedPlaces: any[] = [];
-try {
-  const masterPath = path.resolve(__dirname, '../../seed/master_unified_places.json');
-  if (fs.existsSync(masterPath)) {
-    masterUnifiedPlaces = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
-  }
-} catch (e) {
-  console.warn('[PlacesRoutes] Could not load master_unified_places.json:', e);
-}
+const masterUnifiedPlaces = loadMasterUnifiedPlaces();
 
 // 1. GET /places/image-proxy?url=...
 router.get('/image-proxy', async (req: Request, res: Response) => {
@@ -152,7 +147,7 @@ router.get('/image-proxy', async (req: Request, res: Response) => {
 });
 
 // 1. GET /places - All places with optional category & language filter
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', cacheMiddleware(300), async (req: Request, res: Response) => {
   try {
     const category = req.query.category as string | undefined;
     const lang = (req.query.lang as string) || 'en';
@@ -208,7 +203,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // 2. GET /places/categories/list (Declared BEFORE /:id so it does not get captured as an ID)
-router.get('/categories/list', async (_req: Request, res: Response) => {
+router.get('/categories/list', cacheMiddleware(600), async (_req: Request, res: Response) => {
   try {
     const categories = await prisma.place.findMany({
       select: { category: true },
@@ -226,7 +221,7 @@ router.get('/categories/list', async (_req: Request, res: Response) => {
 });
 
 // 3. GET /places/nearby?lat=X&lng=Y&radius=10&category=heritage
-router.get('/nearby', async (req: Request, res: Response) => {
+router.get('/nearby', cacheMiddleware(120), async (req: Request, res: Response) => {
   try {
     const lat = parseFloat(req.query.lat as string) || 22.3072; // Default: Vadodara
     const lng = parseFloat(req.query.lng as string) || 73.1812;
@@ -297,29 +292,48 @@ router.get('/nearby', async (req: Request, res: Response) => {
   }
 });
 
-// 4. GET /places/search?q=palace
-router.get('/search', async (req: Request, res: Response) => {
+// 4. GET /places/search?q=palace&category=temple&state=Gujarat&lang=en
+router.get('/search', cacheMiddleware(120), async (req: Request, res: Response) => {
   try {
     const query = (req.query.q as string) || '';
+    const category = req.query.category as string | undefined;
+    const state = req.query.state as string | undefined;
+    const lang = (req.query.lang as string) || 'en';
+    const limit = parseInt(req.query.limit as string, 10) || 50;
 
-    const places = await prisma.place.findMany({
-      where: {
-        OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { shortDescription: { contains: query, mode: 'insensitive' } },
-        ],
-      },
-      include: {
-        heritageRecord: {
-          select: {
-            shortStory: true,
-            period: true,
-          },
-        },
-      },
+    const searchResults = await searchEngine.search({
+      query,
+      category,
+      state,
+      lang,
+      limit,
     });
 
-    res.json({ success: true, data: places });
+    const localizedData = searchResults.map((resItem) => {
+      const place = resItem.place;
+      return {
+        ...place,
+        name:
+          lang === 'hi' && place.nameHi
+            ? place.nameHi
+            : lang === 'gu' && place.nameGu
+            ? place.nameGu
+            : place.name,
+        _searchRelevance: resItem.score,
+        _matchedFields: resItem.matchedFields,
+      };
+    });
+
+    res.json({
+      success: true,
+      data: localizedData,
+      meta: {
+        total: localizedData.length,
+        query,
+        category: category || 'all',
+        state: state || 'all',
+      },
+    });
   } catch (error) {
     console.error('Error searching places:', error);
     res.status(500).json({ success: false, error: 'Failed to search places' });
@@ -327,25 +341,21 @@ router.get('/search', async (req: Request, res: Response) => {
 });
 
 // 5. GET /places/:id/recommendations
-router.get('/:id/recommendations', async (req: Request, res: Response) => {
+router.get('/:id/recommendations', cacheMiddleware(300), async (req: Request, res: Response) => {
   try {
-    const currentPlace = await prisma.place.findUnique({
-      where: { id: req.params.id as string },
-    });
+    const placeId = req.params.id as string;
+    const allPlaces = await searchEngine.getAllPlacesUnified();
+    const currentPlace = allPlaces.find(
+      (p) => p.id?.toLowerCase() === placeId.toLowerCase() || p.name?.toLowerCase() === placeId.toLowerCase()
+    );
 
     if (!currentPlace) {
       return res.status(404).json({ success: false, error: 'Place not found' });
     }
 
-    const allPlaces = await prisma.place.findMany({
-      where: { id: { not: currentPlace.id } },
-      include: {
-        heritageRecord: { select: { shortStory: true, period: true } },
-      },
-    });
-
     // Score by same category and distance
     const recommended = allPlaces
+      .filter((p: any) => p.id !== currentPlace.id)
       .map((p: any) => ({
         ...p,
         distance: haversineDistance(currentPlace.latitude, currentPlace.longitude, p.latitude, p.longitude),
@@ -356,7 +366,7 @@ router.get('/:id/recommendations', async (req: Request, res: Response) => {
         if (!a.isSameCategory && b.isSameCategory) return 1;
         return a.distance - b.distance;
       })
-      .slice(0, 4);
+      .slice(0, 6);
 
     res.json({ success: true, data: recommended });
   } catch (error) {
@@ -366,7 +376,7 @@ router.get('/:id/recommendations', async (req: Request, res: Response) => {
 });
 
 // 6. GET /places/:id/reviews - Fetch visitor reviews and rating breakdown
-router.get('/:id/reviews', async (req: Request, res: Response) => {
+router.get('/:id/reviews', cacheMiddleware(60), async (req: Request, res: Response) => {
   try {
     const placeId = req.params.id as string;
     const reviews = await prisma.review.findMany({
@@ -439,6 +449,10 @@ router.post('/:id/reviews', async (req: Request, res: Response) => {
       },
     });
 
+    // Invalidate review cache for this place
+    cacheManager.deleteByPrefix(`http:/places/${placeId}/reviews`);
+    cacheManager.deleteByPrefix(`http:/api/v1/places/${placeId}/reviews`);
+
     res.status(201).json({
       success: true,
       message: 'Review submitted successfully',
@@ -451,7 +465,7 @@ router.post('/:id/reviews', async (req: Request, res: Response) => {
 });
 
 // 8. GET /places/:id (Parametric route at the bottom)
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', cacheMiddleware(300), async (req: Request, res: Response) => {
   try {
     let place: any = null;
     try {

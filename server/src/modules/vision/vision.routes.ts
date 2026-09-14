@@ -2,10 +2,15 @@ import { Router, Request, Response } from 'express';
 import axios from 'axios';
 import { spawn } from 'child_process';
 import path from 'path';
+import fs from 'fs';
 import prisma from '../../config/database';
 import { ARTIFACTS_DATA, PLACES_DATA } from '../../seed/data';
 
+import { loadMasterUnifiedPlaces } from '../../utils/masterDataLoader';
+
 const router = Router();
+
+const masterUnifiedPlaces = loadMasterUnifiedPlaces();
 
 interface CustomVisionResult {
   class: string;
@@ -334,12 +339,33 @@ router.post('/identify', async (req: Request, res: Response) => {
               }
             }
 
-            let resolvedName = matchedCatalog?.placeName || customPred.name;
-            let resolvedPlaceId = customPred.placeId || matchedCatalog?.placeId || 'IND-HER-26';
-            let resolvedDesc = matchedCatalog?.description;
-            let resolvedContext = matchedCatalog?.heritageContext;
+            // Also check masterUnifiedPlaces (148 national monuments) for match
+            let matchedMaster: any = undefined;
+            if (!matchedCatalog) {
+              matchedMaster = masterUnifiedPlaces.find(
+                (p) =>
+                  p.id === customPred.placeId ||
+                  p.name.toLowerCase().includes(predNameLower) ||
+                  predNameLower.includes(p.name.toLowerCase()) ||
+                  p.name.toLowerCase().includes(predClassLower)
+              );
+            }
 
-            // If not found in static MONUMENT_CATALOG, enrich from Prisma DB
+            let resolvedName = matchedCatalog?.placeName || matchedMaster?.name || customPred.name;
+            let resolvedPlaceId =
+              customPred.placeId ||
+              matchedCatalog?.placeId ||
+              matchedMaster?.id ||
+              `p-${customPred.class.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+            let resolvedDesc =
+              matchedCatalog?.description ||
+              matchedMaster?.shortDescription ||
+              matchedMaster?.description;
+            let resolvedContext =
+              matchedCatalog?.heritageContext ||
+              matchedMaster?.heritageRecord?.shortStory;
+
+            // If not found in static catalog, enrich from Prisma DB
             if (!resolvedDesc && resolvedPlaceId) {
               try {
                 const dbRecord = await prisma.place.findFirst({
