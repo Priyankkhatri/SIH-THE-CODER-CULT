@@ -51,6 +51,140 @@ const ICONIC_SPOTLIGHT_IDS = [
   'IND-HER-02', // Qutub Minar
 ];
 
+// Spotlight card with self-contained async Wikipedia image state.
+// The sync getPlaceImage() provides the instant fallback; fetchPlaceImageAsync()
+// then resolves the real Wikipedia/Wikimedia image and updates the displayed photo.
+interface SpotlightItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  location: string;
+  era: string;
+  imageUrl: string;
+  audioNarration: string;
+  aiPrompt: string;
+  badge: string;
+  place: Place;
+}
+
+interface SpotlightCardProps {
+  item: SpotlightItem;
+  isPlayingThis: boolean;
+  onPress: () => void;
+  onAudioToggle: () => void;
+  onAskAi: () => void;
+  onExplore: () => void;
+  cardWidth: number;
+  styles: any;
+}
+
+function SpotlightCard({
+  item,
+  isPlayingThis,
+  onPress,
+  onAudioToggle,
+  onAskAi,
+  onExplore,
+  cardWidth,
+  styles,
+}: SpotlightCardProps) {
+  const [imgUrl, setImgUrl] = useState<string>(item.imageUrl);
+
+  useEffect(() => {
+    let cancelled = false;
+    // Only fire the async Wikipedia fetch if the current image is the architectural fallback
+    // (i.e. it's an Unsplash URL — not already a real Wikimedia image)
+    if (!item.imageUrl.includes('wikimedia.org') && !item.imageUrl.includes('wikipedia.org')) {
+      dynamicImageService.fetchPlaceImageAsync(item.title).then((wikiUrl) => {
+        if (!cancelled && wikiUrl) {
+          setImgUrl(wikiUrl);
+        }
+      }).catch(() => {});
+    } else {
+      setImgUrl(item.imageUrl);
+    }
+    return () => { cancelled = true; };
+  }, [item.id, item.title, item.imageUrl]);
+
+  return (
+    <TouchableOpacity
+      style={[styles.spotlightCard, { width: cardWidth }]}
+      activeOpacity={0.95}
+      onPress={onPress}
+    >
+      <ExpoImage
+        source={{
+          uri: imgUrl,
+          headers: {
+            'User-Agent': 'YatraHeritageCompanion/2.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
+          },
+        }}
+        style={styles.spotlightImage}
+        contentFit="cover"
+        transition={400}
+        onError={() => {
+          // If the Wikipedia image fails, fall back to architectural pool
+          const fallback = dynamicImageService.getArchitecturalFallback(item.title, item.place.category, 1);
+          setImgUrl(fallback);
+        }}
+      />
+      <View style={styles.spotlightScrim} />
+
+      {/* Top Badges */}
+      <View style={styles.spotlightTopRow}>
+        <View style={styles.spotlightBadge}>
+          <MaterialIcons name="verified" size={12} color={Colors.primary} />
+          <Text style={styles.spotlightBadgeText}>{item.badge}</Text>
+        </View>
+        <TouchableOpacity
+          style={[styles.audioPlayBtn, isPlayingThis && styles.audioPlayBtnActive]}
+          onPress={(e) => { e.stopPropagation?.(); onAudioToggle(); }}
+          activeOpacity={0.8}
+        >
+          <MaterialIcons
+            name={isPlayingThis ? 'stop' : 'volume-up'}
+            size={16}
+            color={isPlayingThis ? '#FFFFFF' : Colors.primary}
+          />
+          <Text style={[styles.audioPlayBtnText, isPlayingThis && styles.audioPlayBtnTextActive]}>
+            {isPlayingThis ? 'Stop' : 'Audio'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Bottom Content */}
+      <View style={styles.spotlightContent}>
+        <Text style={styles.spotlightEra}>{item.era}</Text>
+        <Text style={styles.spotlightTitle}>{item.title}</Text>
+        <View style={styles.spotlightLocRow}>
+          <MaterialIcons name="location-on" size={14} color="rgba(255,255,255,0.85)" />
+          <Text style={styles.spotlightLocText}>{item.location}</Text>
+        </View>
+        <Text style={styles.spotlightSubtitle} numberOfLines={2}>{item.subtitle}</Text>
+
+        <View style={styles.spotlightActions}>
+          <TouchableOpacity
+            style={styles.spotlightAiBtn}
+            onPress={(e) => { e.stopPropagation?.(); onAskAi(); }}
+            activeOpacity={0.85}
+          >
+            <MaterialIcons name="auto-awesome" size={14} color="#FFFFFF" />
+            <Text style={styles.spotlightAiBtnText}>Ask AI Guide</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.spotlightViewBtn}
+            onPress={(e) => { e.stopPropagation?.(); onExplore(); }}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.spotlightViewBtnText}>Explore →</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
 export default function HomeScreen() {
   const router = useRouter();
   const { name, language } = useUserStore();
@@ -507,94 +641,20 @@ export default function HomeScreen() {
               renderItem={({ item }) => {
                 const isPlayingThis = isSpeaking && activeAudioId === item.id;
                 return (
-                  <TouchableOpacity
-                    style={styles.spotlightCard}
-                    activeOpacity={0.95}
+                  <SpotlightCard
+                    key={item.id}
+                    item={item}
+                    isPlayingThis={isPlayingThis}
+                    cardWidth={SPOTLIGHT_CARD_WIDTH}
+                    styles={styles}
                     onPress={() => router.push(`/place/${item.id}`)}
-                  >
-                    <ExpoImage
-                      source={{
-                        uri: item.imageUrl,
-                        headers: {
-                          'User-Agent': 'YatraHeritageCompanion/1.0 (https://github.com/Priyankkhatri/SIH-THE-CODER-CULT; contact@yatra.in)',
-                        },
-                      }}
-                      style={styles.spotlightImage}
-                      contentFit="cover"
-                      transition={300}
-                    />
-                    <View style={styles.spotlightScrim} />
-
-                    {/* Top Badges */}
-                    <View style={styles.spotlightTopRow}>
-                      <View style={styles.spotlightBadge}>
-                        <MaterialIcons name="verified" size={12} color={Colors.primary} />
-                        <Text style={styles.spotlightBadgeText}>{item.badge}</Text>
-                      </View>
-                      <TouchableOpacity
-                        style={[styles.audioPlayBtn, isPlayingThis && styles.audioPlayBtnActive]}
-                        onPress={(e) => {
-                          e.stopPropagation?.();
-                          handleToggleAudio(item.id, item.audioNarration);
-                        }}
-                        activeOpacity={0.8}
-                      >
-                        <MaterialIcons
-                          name={isPlayingThis ? 'stop' : 'volume-up'}
-                          size={16}
-                          color={isPlayingThis ? '#FFFFFF' : Colors.primary}
-                        />
-                        <Text style={[styles.audioPlayBtnText, isPlayingThis && styles.audioPlayBtnTextActive]}>
-                          {isPlayingThis ? 'Stop' : 'Audio'}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-
-                    {/* Bottom Content */}
-                    <View style={styles.spotlightContent}>
-                      <Text style={styles.spotlightEra}>{item.era}</Text>
-                      <Text style={styles.spotlightTitle}>{item.title}</Text>
-                      <View style={styles.spotlightLocRow}>
-                        <MaterialIcons name="location-on" size={14} color="rgba(255,255,255,0.85)" />
-                        <Text style={styles.spotlightLocText}>{item.location}</Text>
-                      </View>
-                      <Text style={styles.spotlightSubtitle} numberOfLines={2}>
-                        {item.subtitle}
-                      </Text>
-
-                      <View style={styles.spotlightActions}>
-                        <TouchableOpacity
-                          style={styles.spotlightAiBtn}
-                          onPress={(e) => {
-                            e.stopPropagation?.();
-                            handleSpotlightAskAi(item);
-                          }}
-                          activeOpacity={0.85}
-                        >
-                          <MaterialIcons name="auto-awesome" size={14} color="#FFFFFF" />
-                          <Text style={styles.spotlightAiBtnText}>Ask AI Guide</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          style={styles.spotlightViewBtn}
-                          onPress={(e) => {
-                            e.stopPropagation?.();
-                            router.push({
-                              pathname: '/(tabs)/explore',
-                              params: {
-                                destinationId: item.id,
-                                destinationName: item.title,
-                                routeTo: 'true',
-                              },
-                            });
-                          }}
-                          activeOpacity={0.85}
-                        >
-                          <Text style={styles.spotlightViewBtnText}>Explore →</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
+                    onAudioToggle={() => handleToggleAudio(item.id, item.audioNarration)}
+                    onAskAi={() => handleSpotlightAskAi(item)}
+                    onExplore={() => router.push({
+                      pathname: '/(tabs)/explore',
+                      params: { destinationId: item.id, destinationName: item.title, routeTo: 'true' },
+                    })}
+                  />
                 );
               }}
             />

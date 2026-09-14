@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 1,
     height: 24,
-    backgroundColor: Colors.divider,
+    backgroundColor: Colors.border,
   },
   crowdDot: {
     width: 10,
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     paddingTop: Spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: Colors.divider,
+    borderTopColor: Colors.border,
     gap: 6,
   },
   advisoryRow: {
