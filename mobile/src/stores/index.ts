@@ -4,6 +4,9 @@ import { favoritesApi } from '../services/api/favorites.api';
 import { offlineApi } from '../services/api/offline.api';
 import { ALL_SEED_PLACES } from '../utils/seedPlaces';
 
+const CHAT_STORAGE_KEY = 'ai_chat_v1';
+const CHAT_MAX_MESSAGES = 50;
+
 // ============ USER STORE ============
 interface UserState {
   userId: string | null;
@@ -243,7 +246,17 @@ interface ChatState {
   setMode: (mode: 'short' | 'detailed' | 'child' | 'narrative') => void;
   setTyping: (typing: boolean) => void;
   clearChat: () => void;
+  loadChat: () => Promise<void>;
 }
+
+const persistChat = (messages: ChatMessage[], contextPlaceId: string | null, contextPlaceName: string | null) => {
+  safeStorage
+    .setItem(
+      CHAT_STORAGE_KEY,
+      JSON.stringify({ messages: messages.slice(-CHAT_MAX_MESSAGES), contextPlaceId, contextPlaceName })
+    )
+    .catch(() => {});
+};
 
 export const useChatStore = create<ChatState>((set) => ({
   messages: [],
@@ -253,17 +266,42 @@ export const useChatStore = create<ChatState>((set) => ({
   isTyping: false,
 
   addMessage: (msg) =>
-    set((state) => ({
-      messages: [
+    set((state) => {
+      const messages = [
         ...state.messages,
         { ...msg, id: `msg-${Date.now()}-${Math.random()}`, timestamp: Date.now() },
-      ],
-    })),
+      ].slice(-CHAT_MAX_MESSAGES);
+      persistChat(messages, state.contextPlaceId, state.contextPlaceName);
+      return { messages };
+    }),
 
-  setContext: (contextPlaceId, contextPlaceName) => set({ contextPlaceId, contextPlaceName }),
+  setContext: (contextPlaceId, contextPlaceName) =>
+    set((state) => {
+      persistChat(state.messages, contextPlaceId, contextPlaceName);
+      return { contextPlaceId, contextPlaceName };
+    }),
   setMode: (mode) => set({ mode }),
   setTyping: (isTyping) => set({ isTyping }),
-  clearChat: () => set({ messages: [], contextPlaceId: null, contextPlaceName: null }),
+  clearChat: () => {
+    safeStorage.removeItem(CHAT_STORAGE_KEY).catch(() => {});
+    set({ messages: [], contextPlaceId: null, contextPlaceName: null });
+  },
+  loadChat: async () => {
+    try {
+      const raw = await safeStorage.getItem(CHAT_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed.messages)) {
+        set({
+          messages: parsed.messages.slice(-CHAT_MAX_MESSAGES),
+          contextPlaceId: parsed.contextPlaceId || null,
+          contextPlaceName: parsed.contextPlaceName || null,
+        });
+      }
+    } catch {
+      // Start fresh on corrupt cache
+    }
+  },
 }));
 
 // ============ OFFLINE STORE ============

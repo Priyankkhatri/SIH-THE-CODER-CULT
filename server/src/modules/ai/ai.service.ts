@@ -17,6 +17,54 @@ interface AskQuestionParams {
   language: string;
 }
 
+// Greeting-only messages (en/hi/gu) — answered warmly, never matched to monuments.
+const GREETING_PATTERNS = [
+  /^(hi+|hey+|hello+|hii+|heyy+|yo|namaste+|namaskar|salaam|satsriakal|kem\s*cho|kemcho|jai\s*shree\s*krishna|good\s*(morning|afternoon|evening|day)|sup|hola)[\s?.!,~]*$/i,
+];
+
+// High-frequency words that must never score monument matches on their own
+// (e.g. "hey" is a substring of "they" — the Ramappa-on-"Hey" bug).
+const STOP_WORDS = new Set([
+  'hey', 'the', 'and', 'for', 'with', 'from', 'that', 'this', 'what', 'when',
+  'where', 'which', 'who', 'whom', 'whose', 'how', 'why', 'are', 'was', 'were',
+  'been', 'have', 'has', 'had', 'will', 'would', 'could', 'should', 'about',
+  'into', 'over', 'under', 'between', 'through', 'kya', 'hai', 'hain', 'ka',
+  'ki', 'ke', 'ko', 'mein', 'me', 'aur', 'nahi', 'karo', 'batao', 'kaun',
+  'kab', 'kahan', 'kaise', 'kaisa', 'kya', 'che', 'shu', 'tame', 'ane',
+  'tell', 'know', 'more', 'much', 'very', 'just', 'like', 'such',
+]);
+
+function tokenize(text: string): string[] {
+  return text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{M}\p{N}\s]/gu, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length > 2 && !STOP_WORDS.has(w));
+}
+
+export function isGreetingOnly(question: string): boolean {
+  return GREETING_PATTERNS.some((re) => re.test(question.trim()));
+}
+
+function greetingReply(language: string): { answer: string; sources: AIResponse['sources'] } {
+  if (language === 'hi') {
+    return {
+      answer: `🙏 **नमस्ते! मैं आपका AI Heritage Guide हूँ।**\n\nभारत के मंदिरों, किलों, बावड़ियों और संग्रहालयों के बारे में कुछ भी पूछिए — इतिहास, वास्तुकला, कहानियाँ, या घूमने की सलाह।\n\n• किसी स्मारक का इतिहास जानना हो तो उसका नाम लिखिए\n• बच्चों के लिए मज़ेदार अंदाज़ चाहिए तो Kids mode चुनिए\n• किसी जगह पर हैं तो नीचे context में जगह चुनिए`,
+      sources: [{ name: 'AI Heritage Guide', text: 'Greeting' }],
+    };
+  }
+  if (language === 'gu') {
+    return {
+      answer: `🙏 **નમસ્તે! હું તમારો AI Heritage Guide છું.**\n\nભારતના મંદિરો, કિલ્લાઓ, વાવ અને સંગ્રહાલયો વિશે કંઈ પણ પૂછો — ઇતિહાસ, સ્થાપત્ય, વાર્તાઓ કે મુલાકાતની સલાહ.\n\n• કોઈ સ્મારકનો ઇતિહાસ જાણવો હોય તો તેનું નામ લખો\n• બાળકો માટે મજેદાર શૈલી જોઈતી હોય તો Kids mode પસંદ કરો\n• કોઈ સ્થળે હોવ તો context માં જગ્યા પસંદ કરો`,
+      sources: [{ name: 'AI Heritage Guide', text: 'Greeting' }],
+    };
+  }
+  return {
+    answer: `🙏 **Hello! I'm your AI Heritage Guide.**\n\nAsk me anything about India's temples, forts, stepwells, palaces, and museums — history, architecture, stories, or visit tips.\n\n• Just type a monument's name to explore its story\n• Pick **Kids mode** for a fun family version\n• Pick a place context below for site-specific answers`,
+    sources: [{ name: 'AI Heritage Guide', text: 'Greeting' }],
+  };
+}
+
 interface AIResponse {
   answer: string;
   sources: Array<{ name: string; url?: string; text: string }>;
@@ -288,6 +336,12 @@ class AIService {
   async askQuestion(params: AskQuestionParams): Promise<AIResponse> {
     const { question, placeId, mode, language } = params;
 
+    // Step 0: Greeting-only messages get a warm dynamic greeting — never a monument dump.
+    if (isGreetingOnly(question) && !placeId) {
+      const g = greetingReply(language);
+      return { answer: g.answer, sources: g.sources, confidence: 0.99, mode, language };
+    }
+
     // Step 1: Retrieve relevant heritage context
     const context = await this.retrieveContext(question, placeId);
 
@@ -467,34 +521,35 @@ class AIService {
         });
 
         const questionLower = question.toLowerCase();
-        const questionWords = questionLower
-          .replace(/[^\w\s]/g, '')
-          .split(/\s+/)
-          .filter((w: string) => w.length > 2);
+        const questionTokens = new Set(tokenize(questionLower));
 
         const scoredRecords = allRecords.map((r: any) => {
           let score = 0;
           const pName = (r.place?.name || '').toLowerCase();
+          const pTokens = new Set(tokenize(pName));
           const story = (r.shortStory || '').toLowerCase();
           const hist = (r.history || '').toLowerCase();
           const arch = (r.architecture || '').toLowerCase();
 
-          if (pName && (questionLower.includes(pName) || pName.includes(questionLower))) {
+          // Full-name mention (token-boundary, not substring)
+          if (pName && pName.length > 4 && questionLower.includes(pName)) {
             score += 120;
           }
 
-          for (const word of questionWords) {
-            if (pName.includes(word)) score += 35;
-            if (story.includes(word)) score += 10;
-            if (hist.includes(word)) score += 8;
-            if (arch.includes(word)) score += 6;
+          for (const word of questionTokens) {
+            if (pTokens.has(word)) score += 35;
+            if (new RegExp(`\\b${word}\\b`).test(story)) score += 10;
+            if (new RegExp(`\\b${word}\\b`).test(hist)) score += 8;
+            if (new RegExp(`\\b${word}\\b`).test(arch)) score += 6;
           }
 
           return { record: r, score };
         });
 
         scoredRecords.sort((a: any, b: any) => b.score - a.score);
-        const bestMatch = scoredRecords.find((s: any) => s.score > 0)?.record;
+        // Threshold 40: a single shared content word (10) can never match;
+        // needs a name-token hit (35+) or full-name mention (120).
+        const bestMatch = scoredRecords.find((s: any) => s.score >= 40)?.record;
 
         if (bestMatch) {
           placeName = bestMatch.place?.name || 'Heritage Monument';
@@ -539,7 +594,7 @@ class AIService {
 
     // Step 3: Check verified catalog of all 148 national monuments if passages still empty
     if (passages.length === 0) {
-      const qLower = question.toLowerCase();
+      const qTokens = new Set(tokenize(question));
       let bestScore = 0;
       let matchedMonument: StaticMonument | null = null;
 
@@ -548,13 +603,15 @@ class AIService {
         if (targetPlaceId && monument.ids.some((id) => id.toLowerCase() === targetPlaceId.toLowerCase())) {
           score += 500;
         }
-        if (qLower.includes(key) || key.includes(qLower)) {
+        const keyTokens = tokenize(key);
+        let overlap = 0;
+        for (const kw of keyTokens) {
+          if (qTokens.has(kw)) overlap++;
+        }
+        if (key.length > 4 && question.toLowerCase().includes(key.toLowerCase())) {
           score += 200;
         } else {
-          const keyWords = key.split(/[\s,()]+/).filter((w) => w.length > 3);
-          for (const kw of keyWords) {
-            if (qLower.includes(kw)) score += 40;
-          }
+          score += overlap * 40;
         }
 
         if (score > bestScore) {
@@ -563,7 +620,7 @@ class AIService {
         }
       }
 
-      if (matchedMonument && bestScore > 0) {
+      if (matchedMonument && bestScore >= 40) {
         placeName = matchedMonument.name;
         passages = [...matchedMonument.passages];
       }
@@ -572,16 +629,27 @@ class AIService {
     return { passages: passages.slice(0, 6), placeName };
   }
 
-  // Fallback when LLM is unavailable
+  // Fallback when LLM is unavailable — question-aware, never mid-word cut.
   private fallbackResponse(
     context: { passages: Array<{ content: string; sourceName: string; sourceUrl?: string }>; placeName: string },
-    _question: string,
+    question: string,
     mode: string,
     language: string
   ): AIResponse {
-    let answer = '';
     const pName = context.placeName;
+    const q = question.toLowerCase();
+    const wantsHistory = /histor|chronic|built|dynasty|king|queen|year|century|itihas|इतिहास|ઇતિહાસ/.test(q);
+    const wantsArch = /archit|struct|carv|design|style|material|stone|vastu|स्थापत्य|સ્થાપત્ય/.test(q);
+    const wantsVisit = /visit|time|hour|ticket|open|reach|how to|jaana|जाना|સમય/.test(q);
+    const wantsSignificance = /signific|cultur|unesco|why|importan|महत्व|મહત્વ/.test(q);
 
+    const snippet = (content: string, max: number): string => {
+      if (content.length <= max) return content;
+      const cut = content.lastIndexOf(' ', max);
+      return content.slice(0, cut > 0 ? cut : max);
+    };
+
+    let answer = '';
     if (context.passages.length > 0) {
       const storyPassage = context.passages.find((p) => p.sourceName.includes('Story')) || context.passages[0];
       const historyPassage = context.passages.find((p) => p.sourceName.includes('History'));
@@ -591,25 +659,47 @@ class AIService {
       if (mode === 'child') {
         answer = `🌟 **Welcome to ${pName}!**\n\nDid you know? ${storyPassage.content}\n\n👑 Long ago, royal architects and artisans carved this incredible monument entirely out of stone with tall pillars, secret underground chambers, and divine guardians!\n\n✨ When you look closely at the walls, you can discover hidden stories of kings, celestial dancers, and mystical legends carved thousands of years ago!`;
       } else if (mode === 'short') {
-        answer = `🏛️ **${pName}**\n\n${storyPassage.content}`;
-        if (archPassage) {
-          answer += `\n\n**Architectural Highlight:**\n${archPassage.content.slice(0, 260)}...`;
+        // Answer the asked aspect first, then the headline highlight — full sentences only.
+        if (wantsHistory && historyPassage) {
+          answer = `🏛️ **${pName}**\n\n${historyPassage.content}`;
+        } else if (wantsArch && archPassage) {
+          answer = `🏛️ **${pName}**\n\n${archPassage.content}`;
+        } else if (wantsSignificance && sigPassage) {
+          answer = `🏛️ **${pName}**\n\n${sigPassage.content}`;
+        } else {
+          answer = `🏛️ **${pName}**\n\n${storyPassage.content}`;
+          if (archPassage && !wantsVisit) {
+            answer += `\n\n**Architectural Highlight:**\n${snippet(archPassage.content, 260)}`;
+          }
         }
       } else {
-        // Detailed or narrative
+        // Detailed or narrative — full passages, complete sentences only.
         answer = `🏛️ **${pName}**\n\n${storyPassage.content}`;
-        if (historyPassage && historyPassage.content !== storyPassage.content) {
-          answer += `\n\n**Historical Chronicle:**\n${historyPassage.content}`;
+        if ((!wantsArch && !wantsSignificance && !wantsVisit) || wantsHistory) {
+          if (historyPassage && historyPassage.content !== storyPassage.content) {
+            answer += `\n\n**Historical Chronicle:**\n${historyPassage.content}`;
+          }
         }
-        if (archPassage) {
-          answer += `\n\n**Architectural & Structural Splendor:**\n${archPassage.content}`;
+        if ((!wantsHistory && !wantsSignificance && !wantsVisit) || wantsArch) {
+          if (archPassage) {
+            answer += `\n\n**Architectural & Structural Splendor:**\n${archPassage.content}`;
+          }
         }
-        if (sigPassage) {
-          answer += `\n\n**Cultural & Heritage Significance:**\n${sigPassage.content}`;
+        if ((!wantsHistory && !wantsArch && !wantsVisit) || wantsSignificance) {
+          if (sigPassage) {
+            answer += `\n\n**Cultural & Heritage Significance:**\n${sigPassage.content}`;
+          }
         }
       }
     } else {
-      answer = `🏛️ **Heritage Knowledge Base**\n\nI have verified historical and architectural records on ${pName || 'heritage monuments across Gujarat and India'}.\n\nYou can ask about royal dynasties, architectural carvings, Solanki stepwells, UNESCO world heritage conservation, or visitor guidelines!`;
+      // Honest zero-context reply in the user's language — never a fake dump.
+      if (language === 'hi') {
+        answer = `🏛️ **मुझे इस बारे में पक्की जानकारी नहीं मिली।**\n\nकृपया स्मारक का नाम सही लिखकर पूछिए — जैसे रानी की वाव, मोढेरा सूर्य मंदिर, सोमनाथ, या लक्ष्मी विलास पैलेस।`;
+      } else if (language === 'gu') {
+        answer = `🏛️ **મને આ વિશે પાક્કી માહિતી મળી નથી.**\n\nકૃપા કરીને સ્મારકનું નામ લખીને પૂછો — જેમ કે રાણીની વાવ, મોઢેરા સૂર્ય મંદિર, સોમનાથ કે લક્ષ્મી વિલાસ પેલેસ.`;
+      } else {
+        answer = `🏛️ **I couldn't find verified records for that.**\n\nPlease ask with a monument's name — for example Rani ki Vav, Modhera Sun Temple, Somnath, or Laxmi Vilas Palace — and I'll share its verified history and architecture.`;
+      }
     }
 
     return {
@@ -617,7 +707,7 @@ class AIService {
       sources: context.passages.map((p) => ({
         name: p.sourceName,
         url: p.sourceUrl,
-        text: p.content.substring(0, 150) + '...',
+        text: snippet(p.content, 150),
       })),
       confidence: context.passages.length > 0 ? 0.96 : 0.92,
       mode,

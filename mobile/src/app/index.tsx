@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
-import { useUserStore, usePlacesStore } from '../stores';
+import { useUserStore, usePlacesStore, useChatStore } from '../stores';
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,6 +28,7 @@ export default function LoadingScreen() {
   const router = useRouter();
   const { isOnboarded, loadFromStorage } = useUserStore();
   const { loadFavorites } = usePlacesStore();
+  const { loadChat } = useChatStore();
 
   const [progress, setProgress] = useState(0);
   const [messageIndex, setMessageIndex] = useState(0);
@@ -94,6 +95,7 @@ export default function LoadingScreen() {
     // 4. Background preloading of stores
     loadFromStorage().catch(() => {});
     loadFavorites().catch(() => {});
+    loadChat().catch(() => {});
 
     // 5. Simulated progress bar & message cycling
     const startTime = Date.now();
