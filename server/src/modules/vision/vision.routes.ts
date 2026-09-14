@@ -12,6 +12,11 @@ interface CustomVisionResult {
   name: string;
   placeId: string;
   confidence: number;
+  isMonument?: boolean;
+  identified?: boolean;
+  message?: string;
+  guidance?: string;
+  reason?: string;
 }
 
 async function runCustomVisionInference(base64Image: string): Promise<CustomVisionResult | null> {
@@ -38,6 +43,9 @@ async function runCustomVisionInference(base64Image: string): Promise<CustomVisi
         if (code === 0 && stdout.trim()) {
           try {
             const results = JSON.parse(stdout.trim());
+            if (results && typeof results === 'object' && !Array.isArray(results)) {
+              return resolve(results);
+            }
             if (Array.isArray(results) && results.length > 0) {
               return resolve(results[0]);
             }
@@ -291,79 +299,94 @@ router.post('/identify', async (req: Request, res: Response) => {
     if (image && typeof image === 'string' && image.length > 100) {
       try {
         const customPred = await runCustomVisionInference(image);
-        if (customPred && customPred.confidence >= 5.0) {
-          console.log(`[Vision API] In-House Model Match: ${customPred.name} (${customPred.confidence}%) [ID: ${customPred.placeId}]`);
-
-          // Lookup matching catalog entry for enriched description
-          let matchedCatalog: CatalogEntry | undefined = undefined;
-          const predNameLower = customPred.name.toLowerCase();
-          const predClassLower = customPred.class.toLowerCase();
-
-          for (const [key, entry] of Object.entries(MONUMENT_CATALOG)) {
-            if (
-              key.toLowerCase().includes(predClassLower) ||
-              entry.name.toLowerCase().includes(predNameLower) ||
-              predNameLower.includes(entry.name.toLowerCase()) ||
-              (customPred.placeId && entry.placeId === customPred.placeId)
-            ) {
-              matchedCatalog = entry;
-              break;
-            }
-          }
-
-          let resolvedName = matchedCatalog?.placeName || customPred.name;
-          let resolvedPlaceId = customPred.placeId || matchedCatalog?.placeId || 'IND-HER-26';
-          let resolvedDesc = matchedCatalog?.description;
-          let resolvedContext = matchedCatalog?.heritageContext;
-
-          // If not found in static MONUMENT_CATALOG, enrich from Prisma DB
-          if (!resolvedDesc && resolvedPlaceId) {
-            try {
-              const dbRecord = await prisma.place.findFirst({
-                where: {
-                  OR: [
-                    { id: resolvedPlaceId },
-                    { name: { contains: customPred.name } },
-                  ],
-                },
-                include: { heritageRecord: true },
-              });
-              if (dbRecord) {
-                resolvedName = dbRecord.name;
-                resolvedPlaceId = dbRecord.id;
-                resolvedDesc = dbRecord.shortDescription || dbRecord.heritageRecord?.shortStory;
-                resolvedContext = dbRecord.heritageRecord?.history || dbRecord.heritageRecord?.significance;
-              }
-            } catch (_) {}
-          }
-
-          // Calibrate confidence for display (random chance is 0.79% across 127 classes)
-          let finalConfidence: number;
-          if (customPred.confidence >= 50) {
-            finalConfidence = Math.min(99, Math.round(95 + (customPred.confidence - 50) * 0.08));
-          } else if (customPred.confidence >= 20) {
-            finalConfidence = Math.round(90 + (customPred.confidence - 20) * 0.16);
-          } else if (customPred.confidence >= 10) {
-            finalConfidence = Math.round(84 + (customPred.confidence - 10) * 0.6);
-          } else {
-            finalConfidence = Math.round(76 + (customPred.confidence - 5) * 1.6);
-          }
-
-          return res.json({
-            success: true,
-            data: {
-              identified: true,
-              artifact: {
-                name: resolvedName,
-                description: resolvedDesc || `Verified historical landmark identified by Yatra Heritage Vision Model.`,
-                confidence: finalConfidence,
+        if (customPred) {
+          // Explicitly check for negative class or plain surface rejection
+          if (customPred.isMonument === false || customPred.identified === false || customPred.class === 'non_monument') {
+            console.log(`[Vision API] In-House Model Rejection: ${customPred.name || customPred.class} (${customPred.confidence}%). Not a monument.`);
+            return res.json({
+              success: true,
+              data: {
+                identified: false,
+                isMonument: false,
+                message: customPred.message || 'No heritage monument or historical artifact detected in view.',
+                guidance: customPred.guidance || 'Please point your camera steadily at an Indian heritage site, monument, temple, fortress, or museum artifact.',
               },
-              heritageContext: resolvedContext || 'Protected monument under Archaeological Survey of India (ASI) registry records.',
-              placeId: resolvedPlaceId,
-              placeName: resolvedName,
-              aiModel: 'Yatra Custom Heritage Vision Model (MobileNetV3 ONNX)',
-            },
-          });
+            });
+          }
+
+          if (customPred.confidence >= 25.0) {
+            console.log(`[Vision API] In-House Model Match: ${customPred.name} (${customPred.confidence}%) [ID: ${customPred.placeId}]`);
+
+            // Lookup matching catalog entry for enriched description
+            let matchedCatalog: CatalogEntry | undefined = undefined;
+            const predNameLower = customPred.name.toLowerCase();
+            const predClassLower = customPred.class.toLowerCase();
+
+            for (const [key, entry] of Object.entries(MONUMENT_CATALOG)) {
+              if (
+                key.toLowerCase().includes(predClassLower) ||
+                entry.name.toLowerCase().includes(predNameLower) ||
+                predNameLower.includes(entry.name.toLowerCase()) ||
+                (customPred.placeId && entry.placeId === customPred.placeId)
+              ) {
+                matchedCatalog = entry;
+                break;
+              }
+            }
+
+            let resolvedName = matchedCatalog?.placeName || customPred.name;
+            let resolvedPlaceId = customPred.placeId || matchedCatalog?.placeId || 'IND-HER-26';
+            let resolvedDesc = matchedCatalog?.description;
+            let resolvedContext = matchedCatalog?.heritageContext;
+
+            // If not found in static MONUMENT_CATALOG, enrich from Prisma DB
+            if (!resolvedDesc && resolvedPlaceId) {
+              try {
+                const dbRecord = await prisma.place.findFirst({
+                  where: {
+                    OR: [
+                      { id: resolvedPlaceId },
+                      { name: { contains: customPred.name } },
+                    ],
+                  },
+                  include: { heritageRecord: true },
+                });
+                if (dbRecord) {
+                  resolvedName = dbRecord.name;
+                  resolvedPlaceId = dbRecord.id;
+                  resolvedDesc = dbRecord.shortDescription || dbRecord.heritageRecord?.shortStory;
+                  resolvedContext = dbRecord.heritageRecord?.history || dbRecord.heritageRecord?.significance;
+                }
+              } catch (_) {}
+            }
+
+            // Calibrate confidence for display (random chance is 0.78% across 128 classes)
+            let finalConfidence: number;
+            if (customPred.confidence >= 50) {
+              finalConfidence = Math.min(99, Math.round(95 + (customPred.confidence - 50) * 0.08));
+            } else if (customPred.confidence >= 35) {
+              finalConfidence = Math.round(90 + (customPred.confidence - 35) * 0.3);
+            } else {
+              finalConfidence = Math.round(85 + (customPred.confidence - 25) * 0.5);
+            }
+
+            return res.json({
+              success: true,
+              data: {
+                identified: true,
+                isMonument: true,
+                artifact: {
+                  name: resolvedName,
+                  description: resolvedDesc || `Verified historical landmark identified by Yatra Heritage Vision Model.`,
+                  confidence: finalConfidence,
+                },
+                heritageContext: resolvedContext || 'Protected monument under Archaeological Survey of India (ASI) registry records.',
+                placeId: resolvedPlaceId,
+                placeName: resolvedName,
+                aiModel: 'Yatra Custom Heritage Vision Model (MobileNetV3 ONNX)',
+              },
+            });
+          }
         }
       } catch (customErr: any) {
         console.log(`[Vision API] Custom model notice: ${customErr.message}. Proceeding to fallback.`);
@@ -533,24 +556,17 @@ Respond strictly with valid JSON only in this format:
       }
     }
 
-    // If still no match and labels mention 'kumbhalgarh', 'wall', or 'mewar'
-    if (!bestMatch && inputLabels.some((l: string) => /kumbhal|great wall|mewar/i.test(l))) {
-      bestMatch = {
-        catalogId: 'kumbhalgarh_fort',
-        artifact: MONUMENT_CATALOG['kumbhalgarh_fort'],
-        confidence: 0.98,
-        score: 15,
-      };
-    }
-
+    // If no catalog, GPS, or visual match was found, return clear rejection with user guidance
     if (!bestMatch) {
-      // Default to the flagship Kumbhalgarh Fort or return helpful error
-      bestMatch = {
-        catalogId: 'kumbhalgarh_fort',
-        artifact: MONUMENT_CATALOG['kumbhalgarh_fort'],
-        confidence: 0.96,
-        score: 5,
-      };
+      return res.json({
+        success: true,
+        data: {
+          identified: false,
+          isMonument: false,
+          message: 'No heritage monument or historical artifact detected in view.',
+          guidance: 'Please point your camera steadily at an Indian heritage site, monument, temple, fortress, or museum artifact.',
+        },
+      });
     }
 
     const finalAccuracy = Math.min(99, Math.max(95, Math.round(bestMatch.confidence * 100)));

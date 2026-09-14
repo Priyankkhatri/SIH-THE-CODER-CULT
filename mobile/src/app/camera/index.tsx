@@ -61,6 +61,11 @@ export default function CameraScreen() {
   const [isIdentifying, setIsIdentifying] = useState(false);
   const [scanStatus, setScanStatus] = useState('Point camera at monument or fortress');
   const [showCatalog, setShowCatalog] = useState(false);
+  const [noticeModal, setNoticeModal] = useState<{
+    visible: boolean;
+    message: string;
+    guidance: string;
+  } | null>(null);
   const scanAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -122,7 +127,7 @@ export default function CameraScreen() {
 
       setScanStatus('🏛️ Verifying with Archaeological Survey of India (ASI)...');
 
-      if (response?.data?.identified) {
+      if (response?.data?.identified && response?.data?.isMonument !== false) {
         const item = response.data;
         router.push({
           pathname: '/camera/result' as any,
@@ -138,7 +143,14 @@ export default function CameraScreen() {
           },
         });
       } else {
-        setScanStatus('Could not identify monument. Hold steady or pick from Presets.');
+        const message = response?.data?.message || 'No Heritage Monument Detected';
+        const guidance = response?.data?.guidance || 'Please point your camera steadily at an Indian heritage monument, temple, fortress, or museum artifact.';
+        setNoticeModal({
+          visible: true,
+          message,
+          guidance,
+        });
+        setScanStatus('⚠️ No monument detected. Align camera with heritage site.');
       }
     } catch (error) {
       console.warn('[Camera] Identification error:', error);
@@ -307,6 +319,28 @@ export default function CameraScreen() {
           )}
         </View>
       </View>
+
+      {/* Rejection / Guidance Notice Modal */}
+      {noticeModal?.visible && (
+        <View style={styles.noticeModalContainer}>
+          <View style={styles.noticeCard}>
+            <View style={styles.noticeIconCircle}>
+              <MaterialIcons name="photo-camera" size={32} color={Colors.primary} />
+            </View>
+            <Text style={styles.noticeTitle}>{noticeModal.message}</Text>
+            <Text style={styles.noticeGuidance}>{noticeModal.guidance}</Text>
+            <TouchableOpacity
+              style={styles.noticeButton}
+              onPress={() => {
+                setNoticeModal(null);
+                setScanStatus('Point camera at monument or fortress');
+              }}
+            >
+              <Text style={styles.noticeButtonText}>Got It, Retake Photo</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -547,5 +581,64 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontSize: Typography.sizes.xs,
     fontWeight: '600',
+  },
+  noticeModalContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.78)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.xl,
+    zIndex: 999,
+  },
+  noticeCard: {
+    backgroundColor: '#1E1E20',
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.35)',
+    padding: Spacing.xl,
+    alignItems: 'center',
+    maxWidth: 360,
+    width: '100%',
+    ...Shadows.lg,
+  },
+  noticeIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(212, 169, 71, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  noticeTitle: {
+    fontSize: Typography.sizes.lg,
+    fontWeight: '700',
+    color: Colors.text,
+    textAlign: 'center',
+    marginBottom: Spacing.xs,
+  },
+  noticeGuidance: {
+    fontSize: Typography.sizes.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: Spacing.lg,
+  },
+  noticeButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.sm + 4,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: BorderRadius.lg,
+    width: '100%',
+    alignItems: 'center',
+  },
+  noticeButtonText: {
+    color: Colors.background,
+    fontSize: Typography.sizes.base,
+    fontWeight: '700',
   },
 });
