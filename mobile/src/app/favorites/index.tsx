@@ -96,21 +96,23 @@ export default function FavoritesScreen() {
     try {
       const res: any = await placesApi.getAll();
       const list = (res?.success && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
-      if (list.length > 0) {
-        const favList = list.filter((p: any) => favorites.includes(p.id));
-        setPlaces(favList);
-      } else {
-        const storePlaces = usePlacesStore.getState().places.length > 0
-          ? usePlacesStore.getState().places
-          : ALL_SEED_PLACES;
-        const favList = storePlaces.filter((p: any) => favorites.includes(p.id));
-        setPlaces(favList);
-      }
+      const allPool = new Map<string, any>();
+      ALL_SEED_PLACES.forEach((p) => allPool.set(p.id, p));
+      usePlacesStore.getState().places.forEach((p) => allPool.set(p.id, p));
+      list.forEach((p: any) => allPool.set(p.id, p));
+
+      const favList = favorites
+        .map((id) => allPool.get(id))
+        .filter((p): p is any => !!p);
+      setPlaces(favList);
     } catch (e) {
-      const storePlaces = usePlacesStore.getState().places.length > 0
-        ? usePlacesStore.getState().places
-        : ALL_SEED_PLACES;
-      const favList = storePlaces.filter((p: any) => favorites.includes(p.id));
+      const allPool = new Map<string, any>();
+      ALL_SEED_PLACES.forEach((p) => allPool.set(p.id, p));
+      usePlacesStore.getState().places.forEach((p) => allPool.set(p.id, p));
+
+      const favList = favorites
+        .map((id) => allPool.get(id))
+        .filter((p): p is any => !!p);
       setPlaces(favList);
     } finally {
       setIsLoading(false);

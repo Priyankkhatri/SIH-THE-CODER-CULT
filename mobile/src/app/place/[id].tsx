@@ -248,9 +248,28 @@ export default function PlaceDetailScreen() {
   const safeKeyFacts = Array.isArray(heritage.keyFacts) ? heritage.keyFacts : [];
   const safeSources = Array.isArray(heritage.sources) ? heritage.sources : [];
 
-  const defaultHeroFallback = dynamicImageService.getPlaceImage(displayName, category, placeObj.imageUrl);
-  const heroUri = !imageError ? defaultHeroFallback : dynamicImageService.getArchitecturalFallback(displayName, category, 1);
-  const displayGallery: GalleryImage[] = gallery.length >= 4 ? gallery : dynamicImageService.getArchitecturalFallbackGallery(displayName, category);
+  const verifiedPrimary = dynamicImageService.getPlaceImage(displayName, category, placeObj.imageUrl);
+  const heroUri = !imageError ? verifiedPrimary : dynamicImageService.getArchitecturalFallback(displayName, category, 1);
+  const displayGallery: GalleryImage[] = React.useMemo(() => {
+    let list: GalleryImage[] = [];
+    if (gallery.length > 0) {
+      list = [...gallery];
+    } else {
+      list = dynamicImageService.getArchitecturalFallbackGallery(displayName, category);
+    }
+    // Ensure the authentic verified Wikipedia photo is ALWAYS first in the gallery
+    if (verifiedPrimary && (!list[0] || list[0].url !== verifiedPrimary)) {
+      list = [
+        {
+          url: verifiedPrimary,
+          caption: `${displayName} — Primary Heritage Perspective`,
+          source: 'Archaeological Survey of India / Wikipedia',
+        },
+        ...list.filter((g) => g.url !== verifiedPrimary),
+      ];
+    }
+    return list;
+  }, [gallery, verifiedPrimary, displayName, category]);
 
   return (
     <View style={styles.container}>
@@ -272,6 +291,8 @@ export default function PlaceDetailScreen() {
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
+            nestedScrollEnabled={true}
+            directionalLockEnabled={true}
             decelerationRate="fast"
             scrollEventThrottle={16}
             onMomentumScrollEnd={(e) => {
@@ -296,11 +317,51 @@ export default function PlaceDetailScreen() {
                   contentFit="cover"
                   placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
                   transition={300}
+                  onError={() => {
+                    const fallback = dynamicImageService.getArchitecturalFallback(displayName, category, idx + 1);
+                    setGallery((prev) => {
+                      if (!prev || prev.length === 0) return prev;
+                      const next = [...prev];
+                      if (next[idx]) next[idx] = { ...next[idx], url: fallback };
+                      return next;
+                    });
+                  }}
                 />
               </View>
             ))}
           </ScrollView>
-          <View style={styles.heroOverlay} />
+          <View style={styles.heroOverlay} pointerEvents="none" />
+
+          {/* Left / Right Quick Slide Chevrons for Easy Browsing */}
+          {displayGallery.length > 1 && activeSlide > 0 && (
+            <TouchableOpacity
+              style={styles.slideChevronLeft}
+              onPress={() => {
+                const nextIdx = Math.max(0, activeSlide - 1);
+                setActiveSlide(nextIdx);
+                heroScrollRef.current?.scrollTo({ x: nextIdx * width, animated: true });
+              }}
+              activeOpacity={0.85}
+              hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+            >
+              <MaterialIcons name="chevron-left" size={26} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
+
+          {displayGallery.length > 1 && activeSlide < displayGallery.length - 1 && (
+            <TouchableOpacity
+              style={styles.slideChevronRight}
+              onPress={() => {
+                const nextIdx = Math.min(displayGallery.length - 1, activeSlide + 1);
+                setActiveSlide(nextIdx);
+                heroScrollRef.current?.scrollTo({ x: nextIdx * width, animated: true });
+              }}
+              activeOpacity={0.85}
+              hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+            >
+              <MaterialIcons name="chevron-right" size={26} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
 
           {/* Top buttons */}
           <View style={styles.topBar}>
@@ -341,8 +402,8 @@ export default function PlaceDetailScreen() {
             </View>
           )}
 
-          {/* Hero title & badges — editorial, image-led */}
-          <View style={styles.heroContent}>
+          {/* Hero title & badges — box-none so horizontal swipes pass through */}
+          <View style={styles.heroContent} pointerEvents="box-none">
             <Text style={styles.heroEyebrow}>{getCategoryName(category).toUpperCase()} · INDIA</Text>
             <View style={styles.heroBadgeRow}>
 
@@ -855,6 +916,34 @@ const styles = StyleSheet.create({
   heroOverlay: {
     ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(5, 5, 8, 0.32)',
+  },
+  slideChevronLeft: {
+    position: 'absolute',
+    left: 14,
+    top: 240,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(8, 8, 10, 0.70)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  slideChevronRight: {
+    position: 'absolute',
+    right: 14,
+    top: 240,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(8, 8, 10, 0.70)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   topBar: {
     position: 'absolute',

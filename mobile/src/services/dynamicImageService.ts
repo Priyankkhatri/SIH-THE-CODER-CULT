@@ -960,11 +960,24 @@ export const dynamicImageService = {
       }
     }
 
+    const cleaned = cleanMonumentName(placeName);
+    const cleanedNorm = normalizeKey(cleaned);
+
+    // Check verified image URL from passed fallbackUrl, seed catalog, or VERIFIED_MONUMENT_IMAGES
+    let verifiedHero: string | null = null;
+    if (fallbackUrl && (fallbackUrl.includes('wikimedia.org') || fallbackUrl.includes('wikipedia.org') || fallbackUrl.includes('upload.wikimedia.org'))) {
+      verifiedHero = fallbackUrl;
+    } else if (VERIFIED_MONUMENT_IMAGES[cleanedNorm]) {
+      verifiedHero = VERIFIED_MONUMENT_IMAGES[cleanedNorm];
+    } else if (VERIFIED_MONUMENT_IMAGES[normalized]) {
+      verifiedHero = VERIFIED_MONUMENT_IMAGES[normalized];
+    }
+
     // 4. Wikipedia dynamic fetch
     try {
-      const title = await resolveWikiTitle(placeName);
+      const title = await resolveWikiTitle(cleaned || placeName);
       if (title) {
-        const heroUrl = await fetchWikiHeroImage(title);
+        const heroUrl = (await fetchWikiHeroImage(title)) || verifiedHero;
         const wikiGallery = await fetchWikiGallery(title, heroUrl, placeName, 6);
 
         if (wikiGallery.length >= 4) {
@@ -1000,15 +1013,16 @@ export const dynamicImageService = {
       console.warn('[dynamicImageService] Wikipedia fetch notice:', (err as Error).message);
     }
 
-    // 5. Architectural fallback gallery — always works, zero network
+    // 5. Authentic Verified Hero + Architectural fallback gallery — always works, zero network
     const archFallback = dynamicImageService.getArchitecturalFallbackGallery(placeName, category);
+    const heroToUse = verifiedHero || fallbackUrl;
 
-    // Prepend a passed-in fallbackUrl if it's distinct and valid
-    if (fallbackUrl && !archFallback.some((g) => g.url === fallbackUrl)) {
+    // Prepend authentic hero if available
+    if (heroToUse && !archFallback.some((g) => g.url === heroToUse)) {
       archFallback.unshift({
-        url: fallbackUrl,
-        caption: `${placeName} — Verified Historical Landmark`,
-        source: 'Archaeological Survey of India',
+        url: heroToUse,
+        caption: `${placeName} — Authentic Historical Monument`,
+        source: 'Archaeological Survey of India / Wikimedia Commons',
       });
       if (archFallback.length > 5) archFallback.pop();
     }
