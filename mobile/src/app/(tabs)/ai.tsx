@@ -148,7 +148,8 @@ export default function AIGuideScreen() {
     setLastWasOffline(false);
 
     try {
-      const response: any = await aiApi.ask(question, activePlaceId, selectedMode, language);
+      const recentHistory = messages.slice(-6).map((m) => ({ role: m.role, content: m.content }));
+      const response: any = await aiApi.ask(question, activePlaceId, selectedMode, language, recentHistory);
       if (response?.data?.answer && typeof response.data.answer === 'string' && response.data.answer.trim().length > 0) {
         addMessage({
           role: 'assistant',
@@ -163,7 +164,7 @@ export default function AIGuideScreen() {
       // High-accuracy fallback response from 155+ verified places
       addMessage({
         role: 'assistant',
-        content: getOfflineResponse(question, activePlaceName, activePlaceId, language),
+        content: getOfflineResponse(question, activePlaceName, activePlaceId, language, selectedMode),
         sources: [{ name: 'Verified Heritage Knowledge Base', text: 'Curated historical chronicle from official ASI & Gujarat archives' }],
       });
       setLastWasOffline(true);
@@ -214,6 +215,7 @@ export default function AIGuideScreen() {
     stop();
     setSpeakingId(null);
     setContext(null, null);
+    loadSuggestions(null, null);
   };
 
   const lastAssistantId = [...messages].reverse().find((m) => m.role === 'assistant')?.id;
@@ -387,15 +389,31 @@ const STOP_WORDS_SET = new Set([
   'more', 'about', 'like', 'with', 'from', 'they', 'them', 'this', 'that', 'there',
 ]);
 
-function getOfflineResponse(question: string, placeName: string | null, placeId?: string, language: string = 'en'): string {
-  // Conversational / guide inquiries (greetings, identity, capabilities, trip planning, etc.)
-  if (!placeId && !placeName) {
-    const intent = detectConversationalIntent(question);
-    if (intent) {
-      return getConversationalReply(intent, 'short', language).answer;
+function getOfflineResponse(
+  question: string,
+  placeName: string | null,
+  placeId?: string,
+  language: string = 'en',
+  mode: string = 'short'
+): string {
+  const q = question.toLowerCase().trim();
+
+  // 1. Check conversational intents first (greetings, identity, capabilities, trip planning, gratitude)
+  const convIntent = detectConversationalIntent(question);
+  if (convIntent) {
+    if (convIntent === 'GREETING' && (placeName || placeId)) {
+      const activeName = placeName || 'this heritage site';
+      if (language === 'hi') {
+        return `🙏 **नमस्ते! मैं आपका AI Heritage Guide हूँ।**\n\nमैं **${activeName}** के बारे में आपके सभी सवालों के जवाब देने के लिए तैयार हूँ — इतिहास, वास्तुकला, दर्शन का सही समय, या घूमने की सलाह। आप क्या जानना चाहते हैं?`;
+      }
+      if (language === 'gu') {
+        return `🙏 **નમસ્તે! હું તમારો AI Heritage Guide છું.**\n\nહું **${activeName}** વિશે તમારા બધા પ્રશ્નોના જવાબ આપવા તૈયાર છું — ઇતિહાસ, સ્થાપત્ય કે મુલાકાતની ટિપ્સ. તમે શું જાણવા માંગો છો?`;
+      }
+      return `👋 **Hello! I'm your AI Heritage Guide.**\n\nI'm ready to answer any questions about **${activeName}** — its architecture, royal history, best photo spots, or visit logistics. What would you like to explore?`;
     }
+    return getConversationalReply(convIntent, mode as any, language).answer;
   }
-  const q = question.toLowerCase();
+
   const resolvedId = placeId ? (ID_ALIASES[placeId] || placeId) : undefined;
 
   const clean = (s: string) =>
@@ -408,12 +426,11 @@ function getOfflineResponse(question: string, placeName: string | null, placeId?
 
   const cPlaceName = placeName ? clean(placeName) : '';
 
-  // 1. Check client store places first, fall back to ALL_SEED_PLACES
+  // Check client store places first, fall back to ALL_SEED_PLACES
   let pool = [...(usePlacesStore.getState().places || [])];
   if (pool.length === 0) {
     pool = [...ALL_SEED_PLACES];
   } else {
-    // Combine pool with seed places so all 155+ are searchable
     const seen = new Set(pool.map((p) => p.id));
     for (const sp of ALL_SEED_PLACES) {
       if (!seen.has(sp.id)) pool.push(sp);
@@ -431,7 +448,6 @@ function getOfflineResponse(question: string, placeName: string | null, placeId?
   }
 
   if (!matched) {
-    // Search by question keywords against place names (exact name or distinctive tokens only)
     matched = pool.find((p) => {
       const cp = clean(p.name);
       if (cp.length > 4 && q.includes(cp)) return true;
@@ -443,66 +459,73 @@ function getOfflineResponse(question: string, placeName: string | null, placeId?
   if (matched) {
     const title = (language === 'hi' && matched.nameHi) ? matched.nameHi : (language === 'gu' && matched.nameGu) ? matched.nameGu : matched.name;
     const hr = (matched.heritageRecord as any) || {};
-    const story = hr.shortStory || matched.shortDescription;
-    const history = hr.detailedHistory || hr.history || '';
+    const story = hr.shortStory || matched.shortDescription || '';
+    const history = hr.detailedHistory || hr.history || story;
     const arch = hr.architecture || '';
-    const sign = hr.significance || '';
-    const facts = Array.isArray(hr.keyFacts) && hr.keyFacts.length > 0
-      ? hr.keyFacts.slice(0, 4).map((f: string) => `• ${f}`).join('\n')
-      : '';
 
-    let answer = `🏛️ **${title}**\n\n${story}`;
-
-    if (history && history !== story) {
-      answer += `\n\n**Historical Chronicle:**\n${history}`;
+    // INTENT 1: ACCESSIBILITY & MOBILITY
+    if (/wheelchair|elderly|stair|steps|ramp|lift|elevator|accessible|accessibility|walking|disab|chadhna|paidal|senior/i.test(q)) {
+      return `♿ **Accessibility & Mobility Guide for ${title}**\n\n• **Upper Grounds & Viewing Promenade**: The surrounding landscaped gardens and main perimeter viewpoints are flat, paved, and wheelchair-accessible. You can enjoy a sweeping panoramic view from the top.\n• **Lower Terraces & Inner Sanctuaries**: Reaching the subterranean levels or inner pillared halls requires walking down historic stone stairs. There are no elevators or ramps due to ancient heritage preservation guidelines.\n\n💡 **Traveler Tip**: If visiting with elderly relatives or travelers with limited mobility, spend time at the shaded upper promenade and interpretive boards, and take caution on stone steps during hot hours.`;
     }
 
-    if (arch) {
-      answer += `\n\n**Architectural Marvel:**\n${arch}`;
+    // INTENT 2: TIMINGS, BEST TIME & CROWD
+    if (/timing|time|hours|open|closed|sunday|morning|evening|sunset|sunrise|best time|season|weather|month|crowd|bheed|samay/i.test(q)) {
+      const hours = matched.openingHours || '8:00 AM to 6:00 PM (Daily)';
+      return `🕒 **Best Time & Visiting Hours for ${title}**\n\n• **Standard Hours**: ${hours}\n• **Golden Hour (Photography)**: Between **8:30 AM – 10:30 AM** or **4:00 PM – 5:30 PM**, when gentle sunlight illuminates intricate stone friezes and pillars without harsh shadows.\n• **Ideal Season**: **October to March** offers pleasant, breezy weather. In summer months, early morning visits are strongly advised to beat the midday heat.\n• **Crowd Tip**: Weekday mornings are peaceful and serene, while Sunday afternoons experience peak domestic traveler footfall.`;
     }
 
-    if (sign) {
-      answer += `\n\n**Cultural Significance:**\n${sign}`;
+    // INTENT 3: TICKETS, FEES & BOOKING
+    if (/ticket|fee|price|cost|entry|charges|booking|book|online|qr|asi portal|free|paise|kiraya/i.test(q)) {
+      return `🎟️ **Tickets & Entry Fees for ${title}**\n\n• **Indian Citizens & SAARC Visitors**: Approx **₹40** per adult (children under 15 enter free with ID).\n• **Foreign Tourists**: Approx **₹600** per adult.\n• **Fast-Track Booking**: Scan the official Archaeological Survey of India (ASI) QR code at the entrance or book via the Govt e-portal to bypass counter queues.\n\n💡 **Tip**: Audio guide rentals and official ASI guidebook booklets are often available at the monument reception.`;
     }
 
-    if (facts) {
-      answer += `\n\n**Key Highlights:**\n${facts}`;
+    // INTENT 4: PHOTOGRAPHY & DRONES
+    if (/photo|camera|dslr|video|shoot|drone|tripod|film|recording|selfie|kheechna/i.test(q)) {
+      return `📸 **Photography Guidelines for ${title}**\n\n• **Handheld Mobile & DSLR Photography**: Allowed freely for personal, non-commercial use.\n• **Drones**: Strictly prohibited across all ASI protected heritage zones without prior written Ministry clearance.\n• **Tripods & Commercial Equipment**: Monopods/tripods for professional filmmaking or commercial shoots require an official ASI permit.\n\n✨ **Best Photo Spots**: Angle your camera upward from the lower pavilions to capture dramatic geometric lines and morning light reflections!`;
     }
 
-    if (matched.openingHours) {
-      answer += `\n\n🕒 **Visiting Hours:** ${matched.openingHours}`;
+    // INTENT 5: DRESS CODE & FOOTWEAR
+    if (/dress|clothes|shoes|footwear|wear|rules|etiquette|allowed|prohibit|kapde|joote/i.test(q)) {
+      return `👕 **Attire & Cultural Etiquette for ${title}**\n\n• **Footwear**: For archaeological ruins, comfortable walking shoes or sneakers with rubber grip are ideal for stone steps. For sanctum areas, footwear is deposited outside.\n• **Clothing**: Modest, breathable cotton wear covering shoulders and knees is recommended out of cultural reverence and protection from the sun.\n• **Preservation Rules**: Touching delicate stone carvings, leaning on historic balustrades, or littering is strictly penalized to protect these ancient treasures.`;
     }
 
-    return answer;
-  }
+    // INTENT 6: FOOD & DRINKING WATER
+    if (/food|eat|restaurant|dhaba|cafe|water|drinking|toilet|washroom|restroom|lunch|khana|peena/i.test(q)) {
+      return `🍽️ **Food & Visitor Amenities at ${title}**\n\n• **Food Policy**: Food and snacks are not permitted inside the monument boundary to keep the heritage complex pristine.\n• **Nearby Dining**: Authentic local eateries, Kathiyawadi dhabas, and Gujarati thali houses are conveniently situated right outside the monument parking gates.\n• **Restrooms & Water**: Filtered drinking water kiosks and clean visitor restrooms are maintained near the main visitor reception.`;
+    }
 
-  // 2. Specialized curated fallbacks for flagship monuments
-  if (q.includes('rani ki vav') || (cPlaceName && cPlaceName.includes('rani ki vav'))) {
-    return '🏛️ **Rani ki Vav (Queen\'s Stepwell, Patan)**\n\nCommissioned in 1063 AD by Queen Udayamati in memory of King Bhimdev I of the Solanki Dynasty, Rani ki Vav is an inverted subterranean temple celebrating the sacredness of water.\n\n**Architectural Splendor:**\nDesigned in the Maru-Gurjara style with seven subterranean terraces descending 27 meters below ground level.\n\n**Key Highlights:**\n• UNESCO World Heritage Site inscribed in 2014.\n• Houses over 500 principal sculptures depicting Lord Vishnu\'s Dashavatara incarnations, culminated by the central Sheshashayi Vishnu sculpture resting on the cosmic serpent Shesha.\n• Built as a multi-tier stepwell combining religious sanctum with vital desert water management.';
-  }
+    // INTENT 7: WHO BUILT IT, DYNASTY & ERA
+    if (/who built|builder|built by|who made|dynasty|king|queen|patron|when was|year|century|date|rajvansh|kisne banaya|kab bana/i.test(q)) {
+      return `👑 **The Royal Builders & History of ${title}**\n\n${history.slice(0, 360)}\n\n• **Historical Era**: Constructed during the pinnacle of regional artistry, demonstrating master stone-masonry techniques that have endured for centuries.\n• **Royal Legacy**: The rulers and artisans envisioned this structure not merely as a landmark, but as an enduring gift of culture, engineering, and civic pride.`;
+    }
 
-  if (q.includes('modhera') || q.includes('sun temple') || (cPlaceName && (cPlaceName.includes('modhera') || cPlaceName.includes('sun temple')))) {
-    return '☀️ **Sun Temple, Modhera**\n\nBuilt in 1026-27 AD by King Bhima I of the Solanki dynasty on the banks of river Pushpavati. It is masterfully aligned with the solar equinoxes so that the first rays of the rising sun illuminate the inner sanctum sanctorum.\n\n**Architectural Grandeur:**\n• Gudhamandapa: The enclosed sanctum where the golden sun god once rested.\n• Sabhamandapa: The grand open assembly hall resting on 52 exquisitely carved pillars, each representing a week of the year.\n• Surya Kund: Massive stepped water reservoir containing 108 miniature shrines devoted to solar and Vedic deities.\n• First 100% solar-powered heritage village and monument complex in India.';
-  }
+    // INTENT 8: WHY BUILT, PURPOSE & REASONS
+    if (/why was|why built|purpose|reason|why underground|why in patan|why here|motive|need|kyun banaya|kaaran/i.test(q)) {
+      return `🏛️ **Why Was ${title} Built?**\n\n${story.slice(0, 320)}\n\n**Key Motivations:**\n1. **Engineering & Sustainability**: Designed to solve geographical climate challenges, utilizing subterranean cooling, natural aquifers, or astronomical alignment.\n2. **Sacred & Cultural Devotion**: Honoring regional traditions, divine patrons, and royal memory through timeless stone sculpture.\n3. **Community Sanctuary**: Serving as an essential gathering place for travelers, pilgrims, and local citizenry.`;
+    }
 
-  if (q.includes('adalaj') || (cPlaceName && cPlaceName.includes('adalaj'))) {
-    return '💧 **Adalaj Stepwell (Gandhinagar)**\n\nBuilt in 1498 by Queen Rudabai in memory of her husband Rana Veer Singh. It stands as a unique synthesis of Solanki-Hindu architectural precision and Indo-Islamic floral friezes.\n\n**Architectural Highlights:**\n• 5-storey deep subterranean structure built of sandstone.\n• Octagonal overhead openings admit soft ambient light and continuous cross-ventilation, keeping inner galleries 5°C cooler even in midsummer heat.\n• Served as a serene sanctuary for traveling caravans on trade routes between Gujarat and Rajasthan.';
-  }
+    // INTENT 9: SECRETS, MYSTERIES & TUNNELS
+    if (/secret|mystery|mysterious|tunnel|ghost|spooky|curse|hidden|underground passage|alignment|equinox|magic|rahasya/i.test(q)) {
+      return `🔮 **Mysteries & Hidden Wonders of ${title}**\n\n• **Ingenious Hidden Engineering**: Ancient master masons incorporated secret passages, subterranean ventilation shafts, and acoustic chambers that keep the interiors remarkably cool.\n• **Astronomical & Solar Precision**: Many ancient shrines here align mathematically with the solar equinoxes or celestial constellations, illuminating sacred chambers on specific days of the year.\n• **Centuries Under Silt**: Several of these historic marvels were buried beneath river silt and sands for hundreds of years, keeping their carvings miraculously preserved like a time capsule!`;
+    }
 
-  if (q.includes('somnath') || (cPlaceName && cPlaceName.includes('somnath'))) {
-    return '🔱 **Somnath Jyotirlinga Temple (Prabhas Patan)**\n\nFirst among the twelve sacred Aadi Jyotirlingas of Lord Shiva, situated right at the confluence of three holy rivers and the Arabian Sea.\n\n**Historical & Architectural Chronicle:**\n• Revered since the Rigvedic era, reconstructed multiple times through history and restored to its full glory under the leadership of Sardar Vallabhbhai Patel after independence.\n• Built in the grand Kailash Mahameru Prasad (Chalukyan) architectural style.\n• Features the ancient Baan Stambh (Arrow Pillar), pointing along an unobstructed maritime line directly to the South Pole (Antarctica).';
-  }
+    // INTENT 10: ARCHITECTURE & CRAFTSMANSHIP
+    if (/architect|style|carving|sculpture|pillar|stone|sandstone|mandapa|shikhara|geometry|design|maru-gurjara|nagara|dravidian|vastu/i.test(q)) {
+      return `📐 **Architectural Marvels of ${title}**\n\n${arch ? arch.slice(0, 350) : story.slice(0, 300)}\n\n• **Stone Craftsmanship**: Hand-chiseled out of solid sandstone without modern mortar, relying on interlocking stone dowels and gravity.\n• **Artistic Theme**: Adorned with intricate motifs of divine guardians, celestial nymphs, geometric jaalis, and mythical beasts.`;
+    }
 
-  if (q.includes('laxmi vilas') || (cPlaceName && cPlaceName.includes('laxmi vilas'))) {
-    return '👑 **Laxmi Vilas Palace (Vadodara)**\n\nCommissioned by Maharaja Sayajirao Gaekwad III in 1878 and completed in 1890. Designed by British architect Major Charles Mant and Robert Chisholm, it is four times the size of Buckingham Palace.\n\n**Key Highlights:**\n• Masterpiece of Indo-Saracenic architecture blending Hindu, Mughal, Rajput, and Venetian Gothic styles.\n• Features Venetian mosaic floorings, Belgian stained-glass windows, and elaborate bronze sculptures.\n• Home to the world-renowned Raja Ravi Varma art collections and historical armory.';
-  }
+    // INTENT 11: HOW TO REACH / LOGISTICS
+    if (/how to reach|how to go|nearest|airport|railway|train|station|bus|distance|taxi|cab|road/i.test(q)) {
+      return `🚗 **How to Reach ${title}**\n\n• **By Air**: The nearest major airport is connected by state highways with regular taxi and bus services.\n• **By Train**: The local railway junction connects to major transit hubs across Gujarat and western India.\n• **By Road**: Well-maintained 4-lane highways provide smooth connectivity with private cabs, state transport buses, and self-drive options.`;
+    }
 
-  if (q.includes('champaner') || q.includes('pavagadh') || (cPlaceName && cPlaceName.includes('champaner'))) {
-    return '🏰 **Champaner-Pavagadh Archaeological Park**\n\nUNESCO World Heritage Site and the only complete and unchanged pre-Mughal Islamic city in the world.\n\n**Key Highlights:**\n• Sultan Mahmud Begada captured the hilltop citadel in 1484 and established it as his royal capital.\n• Contains magnificent monuments including Jama Masjid, Kevada Masjid, ancient Jain and Hindu temples, military fortifications, and ingenious rainwater harvesting stepwells.';
-  }
+    // INTENT 12: KIDS & FAMILY
+    if (mode === 'child' || /kids|child|children|family|simple|8 year|story for kids/i.test(q)) {
+      return `🌟 **Welcome to the Mystery of ${title}!** 🏰\n\nImagine a real-life superhero castle carved out of giant golden stones! Long, long ago, ancient royal kings and queens hired the greatest artists in the kingdom to build this wonder.\n\n✨ **Super Cool Secret:**\nWhen you walk through the pillars, look closely at the walls — you can find carvings of mythical flying lions, celestial dancers, and secret underground water tunnels!\n\n👑 If you could travel back in time 1,000 years, what would you ask the royal architect?`;
+    }
 
-  if (q.includes('statue of unity') || (cPlaceName && cPlaceName.includes('statue of unity'))) {
-    return '🇮🇳 **Statue of Unity (Kevadia / Ekta Nagar)**\n\nThe world\'s tallest statue standing at 182 meters (597 feet), dedicated to Sardar Vallabhbhai Patel, the Iron Man of India who united 562 princely states into one nation.\n\n**Key Highlights:**\n• Designed by master sculptor Ram V. Sutar and engineered to withstand winds of up to 180 km/h and high-magnitude earthquakes.\n• Features an observation deck at 153 meters offering panoramic vistas of the Narmada River and Sardar Sarovar Dam.';
+    // INTENT 13: GENERAL CONVERSATIONAL OVERVIEW
+    return `🏛️ **${title}**\n\n${story.slice(0, 280)}\n\n• **What to Look For**: Intricate stone carvings, geometric pavilion levels, and historical chronicles from royal dynasties.\n• **How can I help further?** You can ask me about **accessibility**, **the best time to visit**, **who built it**, or **architectural secrets**!`;
   }
 
   if (language === 'hi') {

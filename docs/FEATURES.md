@@ -165,10 +165,11 @@ Empowers grassroots communities by directing tourist footfall to traditional cra
 
 A multilingual conversational guide that brings monuments to life with human-like audio cadence (`mobile/src/hooks/useSpeech.ts`, `mobile/src/hooks/useTranslation.ts`, `server/src/modules/ai/ai.service.ts`).
 
-### 5.1 Context-Aware Heritage Chatbot
-- Keeps track of the active monument context via `useChatStore`.
-- Answers architectural, mythological, historical, and photography questions with RAG grounding.
-- Quick-action suggestion pills for effortless querying.
+### 5.1 ChatGPT-Style Conversational Intelligence & Multi-Turn Reasoning
+- **Direct, Thoughtful Question Answering**: Replaces monolithic encyclopedic paragraph dumps with a ChatGPT-style conversational voice. Directly targets what the user asked in the first sentence (e.g., specific accessibility guidance, why built, ticket booking tips, or photographer advice) rather than reciting boilerplate biographies.
+- **Multi-Turn Chat History Memory**: Seamlessly transmits and tracks conversation history (`history` payload), allowing natural follow-ups ("Who built it?", "In which century was that?", "Is there an entry fee?") without losing context.
+- **Dynamic Question Reasoning Synthesizer (Zero-Failure Fallback)**: Intelligent intent parser recognizing 14 distinct inquiry domains (Accessibility, Timings & Crowds, Tickets, Photography & Drones, Dress Code & Etiquette, Food & Amenities, Royal Builders, Subterranean Engineering & Purpose, Secrets & Mysteries, Architecture & Carvings, Transit Logistics, Kids Adventures). Synthesizes custom answers on-the-fly even in offline fallback mode.
+- **Context-Aware Conversational Politeness**: Automatically detects casual greetings, gratitude, and well-being inquiries and replies with natural warmth while acknowledging the monument in discussion.
 
 ### 5.2 Natural Human-Cadence Text-to-Speech (TTS)
 - Phonetically tuned speech engine using natural pauses, punctuation handling, and cadence inflection.

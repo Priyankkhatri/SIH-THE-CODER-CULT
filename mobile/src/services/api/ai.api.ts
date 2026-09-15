@@ -1,8 +1,8 @@
 import apiClient from './client';
 
 export const aiApi = {
-  ask: (question: string, placeId?: string, mode = 'short', language = 'en') =>
-    apiClient.post('/ai/ask', { question, placeId, mode, language }, { timeout: 45000 }),
+  ask: (question: string, placeId?: string, mode = 'short', language = 'en', history?: Array<{ role: string; content: string }>) =>
+    apiClient.post('/ai/ask', { question, placeId, mode, language, history }, { timeout: 45000 }),
   explain: (placeId: string, aspect?: string, language = 'en') =>
     apiClient.post('/ai/explain', { placeId, aspect, language }, { timeout: 45000 }),
   story: (placeId: string, language = 'en') =>

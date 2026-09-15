@@ -39,8 +39,11 @@ export function detectConversationalIntent(text: string): ConversationalIntent |
     return 'WELL_BEING';
   }
 
-  // 3. Creator / Who made you
-  if (/(who\s+(made|created|built|developed|designed|coded)\s+(you|this(\s+app)?)|coder\s*cult|kisne\s+(banaya|develop\s+kiya)|kone\s+banavyu)/i.test(q)) {
+  // 3. Creator / Who made you (must explicitly refer to the app/bot, never monuments)
+  if (
+    !/(temple|monument|fort|palace|stepwell|vav|structure|building|mandir|kila|qila|mahal|place)/i.test(q) &&
+    (/(who\s+(made|created|developed|designed|coded)\s+(you|this\s+app|this\s+bot|the\s+app))|coder\s*cult|(ye\s+app|yeh\s+app|ye\s+system)\s+kisne\s+banaya|aa\s+app\s+kone\s+banavi/i.test(q))
+  ) {
     return 'CREATOR';
   }
 
