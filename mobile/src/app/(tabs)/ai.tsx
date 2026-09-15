@@ -544,7 +544,7 @@ function getOfflineResponse(
     }
 
     // INTENT 13: GENERAL CONVERSATIONAL OVERVIEW
-    return `🏛️ **${title}**\n\n${story.slice(0, 280)}\n\n• **What to Look For**: Intricate stone carvings, geometric pavilion levels, and historical chronicles from royal dynasties.\n• **How can I help further?** You can ask me about **accessibility**, **the best time to visit**, **who built it**, or **architectural secrets**!`;
+    return `🏛️ **${title}**\n\n${story ? story.slice(0, 300) : 'An extraordinary Indian heritage monument celebrated for its timeless craftsmanship and cultural prestige.'}\n\n• **How can I help further?** You can ask me about **accessibility**, **the best time to visit**, **who built it**, or **architectural secrets**!`;
   }
 
   if (language === 'hi') {

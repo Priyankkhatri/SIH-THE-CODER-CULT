@@ -30,12 +30,12 @@ export function detectConversationalIntent(text: string): ConversationalIntent |
   const q = text.toLowerCase().trim();
 
   // 1. Quick Greetings
-  if (/^(hi+|hey+|hello+|hii+|heyy+|yo|namaste+|namaskar|salaam|satsriakal|kem\s*cho|kemcho|jai\s*shree\s*krishna|good\s*(morning|afternoon|evening|day)|sup|hola)[\s?.!,~]*$/i.test(q)) {
+  if (/^(hi+|hey+|heyo+|heya+|hello+|hii+|heyy+|yo+|namaste+|namaskar|salaam|satsriakal|kem\s*cho|kemcho|jai\s*shree\s*krishna|good\s*(morning|afternoon|evening|day)|sup|hola|what'?s\s*up|wassup|watsup)[\s?.!,~]*$/i.test(q)) {
     return 'GREETING';
   }
 
-  // 2. Well-being
-  if (/(how\s+are\s+you|how\s+r\s+u|how\s+do\s+you\s+do|how\s+is\s+it\s+going|how's\s+it\s+going|how\s+are\s+things|kaisa\s+hai|kaise\s+ho|sab\s+theek|kem\s+cho\s+tabyat)/i.test(q)) {
+  // 2. Well-being & casual check-in
+  if (/(how\s*(are|r|'s|s)?\s*(yo?u|ya|things|it|life)|how\s+do\s+(you|u)\s+do|how\s+u\s+doin|hru|kaisa\s+hai|kaise\s+ho|sab\s+theek|kem\s+cho\s+tabyat|what'?s\s+new|how's\s+everything|how\s+have\s+you\s+been|wbu)/i.test(q)) {
     return 'WELL_BEING';
   }
 

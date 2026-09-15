@@ -791,7 +791,17 @@ Answer conversationally and helpfully like ChatGPT. If this is a travel inquiry,
     }
     // INTENT 13: GENERAL CONVERSATIONAL OVERVIEW
     else {
-      answer = `🏛️ **${pName}**\n\n${storyPassage.slice(0, 280)}\n\n• **What to Look For**: Intricate stone carvings, geometric pavilion levels, and historical chronicles from royal dynasties.\n• **How can I help further?** You can ask me about **accessibility**, **the best time to visit**, **who built it**, or **architectural secrets**!`;
+      if (!pName || pName === 'Indian Heritage Landmark' || !storyPassage) {
+        if (language === 'hi') {
+          answer = `🏛️ **नमस्ते! मैं आपका AI Heritage Guide हूँ।**\n\nमैं भारत के ऐतिहासिक स्मारकों, प्राचीन मंदिरों, वास्तुकला और संस्कृति की कहानियों का साथी हूँ।\n\n✨ **आप मुझसे क्या पूछ सकते हैं:**\n• किसी भी स्मारक का इतिहास, किसने बनवाया और रहस्य\n• वास्तुकला शैली (नागर, द्रविड़, मारू-गुर्जर)\n• घूमने का सही समय, टिकट और यात्रा सलाह\n\nआप किसी भी स्मारक का नाम लिखकर शुरुआत कर सकते हैं, जैसे *'रानी की वाव'*, *'मोढेरा सूर्य मंदिर'*, या *'हम्पी'*!`;
+        } else if (language === 'gu') {
+          answer = `🏛️ **નમસ્તે! હું તમારો AI Heritage Guide છું.**\n\nહું ભારતના ભવ્ય વારસા, સ્થાપત્ય અને ઐતિહાસિક સ્થળો વિશે તમારી સાથે વાત કરવા તૈયાર છું.\n\n✨ **તમે મને પૂછી શકો છો:**\n• કોઈપણ સ્મારકનો ઇતિહાસ અને વાર્તાઓ\n• મુલાકાતનો શ્રેષ્ઠ સમય અને ટિકિટ માહિતી\n\nકોઈપણ સ્મારકનું નામ લખીને વાતચીત શરૂ કરો!`;
+        } else {
+          answer = `🏛️ **Hello! I'm your AI Heritage Guide.**\n\nI'm here to guide you through India's rich history, architectural wonders, and cultural heritage.\n\n✨ **Things you can ask me:**\n• **Monument History**: *"Who built the Sun Temple and why?"*\n• **Travel Logistics**: *"Best time to visit Rani ki Vav"* or *"Ticket prices & guidelines"*\n• **Architecture & Secrets**: *"What makes ancient stepwells so cool?"*\n\nFeel free to ask any travel question, or select a monument to explore!`;
+        }
+      } else {
+        answer = `🏛️ **${pName}**\n\n${storyPassage.slice(0, 300)}\n\n• **Key Highlights**: Remarkable architectural heritage with deep historical significance.\n• **How can I help further?** You can ask me about **accessibility**, **the best time to visit**, **who built it**, or **architectural secrets**!`;
+      }
     }
 
     return {
