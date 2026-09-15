@@ -47,7 +47,7 @@ export async function checkAllServicesHealth(): Promise<ServiceHealth[]> {
 
     (async (): Promise<ServiceHealth> => {
       const key = config.openaiApiKey?.trim();
-      if (!key) return { name: 'openai', status: 'offline', message: 'OPENAI_API_KEY not set', checkedAt: new Date().toISOString() };
+      if (!key || key.includes('your-openai')) return { name: 'openai', status: 'offline', message: 'OPENAI_API_KEY not configured in .env', checkedAt: new Date().toISOString() };
       try {
         const start = performance.now();
         await axios.post(

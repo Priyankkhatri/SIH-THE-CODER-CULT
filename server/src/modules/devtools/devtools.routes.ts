@@ -97,7 +97,7 @@ router.post('/ai/playground', async (req: Request, res: Response) => {
           };
         } else if (tier === 'openai') {
           if (!config.openaiApiKey || config.openaiApiKey.includes('your-openai')) {
-            results.openai = { ok: false, latencyMs: Math.round(performance.now() - t0), error: 'No API key' };
+            results.openai = { ok: false, latencyMs: Math.round(performance.now() - t0), error: 'OPENAI_API_KEY not configured in server/.env' };
             continue;
           }
           const openai = new OpenAI({ apiKey: config.openaiApiKey });
