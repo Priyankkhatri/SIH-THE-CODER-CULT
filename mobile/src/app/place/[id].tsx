@@ -261,14 +261,28 @@ export default function PlaceDetailScreen() {
     let list: GalleryImage[] = [];
     if (gallery.length > 0) {
       list = [...gallery];
+    } else if (effectivePrimary) {
+      // While multi-photo gallery is loading, show ONLY the verified authentic hero
+      // Never show generic/fallback photos of other sites to the user!
+      return [
+        {
+          url: effectivePrimary,
+          caption: `${displayName} — Primary Heritage Perspective`,
+          source: 'Archaeological Survey of India / Wikimedia Commons',
+        },
+      ];
     } else {
       list = dynamicImageService.getArchitecturalFallbackGallery(displayName, category);
     }
-    // Ensure the primary photo is always first in the gallery
+    // Ensure the primary photo is always first in the gallery without duplicates
     if (effectivePrimary) {
-      const filtered = list.filter(
-        (g) => g.url !== effectivePrimary && (!imageError || g.url !== verifiedPrimary)
-      );
+      const primaryFile = effectivePrimary.split('/').pop()?.split('?')[0].replace(/^\d+px-/, '') || '';
+      const filtered = list.filter((g) => {
+        if (g.url === effectivePrimary) return false;
+        if (primaryFile && g.url.includes(primaryFile)) return false;
+        if (imageError && g.url === verifiedPrimary) return false;
+        return true;
+      });
       list = [
         {
           url: effectivePrimary,
@@ -382,23 +396,9 @@ export default function PlaceDetailScreen() {
                     if (idx === 0) {
                       setImageError(true);
                     } else {
-                      const fallback = dynamicImageService.getArchitecturalFallback(
-                        displayName,
-                        category,
-                        idx + 1
-                      );
-                      setGallery((prev) => {
-                        const base =
-                          prev.length > 0
-                            ? [...prev]
-                            : dynamicImageService.getArchitecturalFallbackGallery(
-                                displayName,
-                                category
-                              );
-                        const next = [...base];
-                        if (next[idx]) next[idx] = { ...next[idx], url: fallback };
-                        return next;
-                      });
+                      // Filter out the failed image so the user only sees verified, authentic photos
+                      const brokenUrl = img.url;
+                      setGallery((prev) => prev.filter((item) => item.url !== brokenUrl));
                     }
                   }}
                 />
@@ -654,23 +654,8 @@ export default function PlaceDetailScreen() {
                       contentFit="cover"
                       transition={200}
                       onError={() => {
-                        const fallback = dynamicImageService.getArchitecturalFallback(
-                          displayName,
-                          category,
-                          idx + 1
-                        );
-                        setGallery((prev) => {
-                          const base =
-                            prev.length > 0
-                              ? [...prev]
-                              : dynamicImageService.getArchitecturalFallbackGallery(
-                                  displayName,
-                                  category
-                                );
-                          const next = [...base];
-                          if (next[idx]) next[idx] = { ...next[idx], url: fallback };
-                          return next;
-                        });
+                        const brokenUrl = item.url;
+                        setGallery((prev) => prev.filter((i) => i.url !== brokenUrl));
                       }}
                     />
                     <View style={styles.galleryCardOverlay}>

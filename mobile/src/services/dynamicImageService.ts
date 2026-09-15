@@ -54,8 +54,8 @@ const galleryCache = new Map<string, GalleryImage[]>();
 const imageCache = new Map<string, string>();
 
 // AsyncStorage key prefixes
-const DISK_IMG_PREFIX = '@yatra_img_v2_';
-const DISK_GALLERY_PREFIX = '@yatra_gallery_v2_';
+const DISK_IMG_PREFIX = '@yatra_img_v3_';
+const DISK_GALLERY_PREFIX = '@yatra_gallery_v3_';
 
 // Wikipedia User-Agent (required by Wikimedia API policy)
 const WIKI_UA =
@@ -76,12 +76,11 @@ export const ARCHITECTURAL_IMAGE_POOLS = {
     'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200&q=80',
   ],
   stepwells: [
-    'https://images.unsplash.com/photo-1605640840605-14ac1855827b?w=1200&q=80',
-    'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=1200&q=80',
-    'https://images.unsplash.com/photo-1548013146-72479768bada?w=1200&q=80',
-    'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1200&q=80',
-    'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=80',
-    'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200&q=80',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Adalaj_ki_Vav_Gujarat_240A1370_72.jpg/1280px-Adalaj_ki_Vav_Gujarat_240A1370_72.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Rani_ki_vav_-_Patan_-_Gujarat_-_Wall_Decorations.jpg/1280px-Rani_ki_vav_-_Patan_-_Gujarat_-_Wall_Decorations.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Dada_Harir_Stepwell_-_6.jpg/1280px-Dada_Harir_Stepwell_-_6.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Dada_Harir_Stepwell_-_top_view.JPG/1280px-Dada_Harir_Stepwell_-_top_view.JPG',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Adalaj_Stepwell_-_Upper_Level_-_2.jpg/1280px-Adalaj_Stepwell_-_Upper_Level_-_2.jpg',
   ],
   temples: [
     'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1200&q=80',
@@ -382,172 +381,164 @@ function writeDiskGalleryCache(key: string, gallery: GalleryImage[]): void {
 
 export const CURATED_MONUMENT_GALLERIES: Record<string, GalleryImage[]> = {
   'statue of unity': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Statue_of_Unity.jpg/960px-Statue_of_Unity.jpg', caption: '182-Meter Colossal Bronze Monument Honoring Sardar Vallabhbhai Patel', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Statue_of_Unity_-_Close_Shot_from_the_other_bank_of_Narmada.jpg/960px-Statue_of_Unity_-_Close_Shot_from_the_other_bank_of_Narmada.jpg', caption: 'Detailed Bronze Cladding & Facial Sculpture by Ram V. Sutar', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Statue_of_Unity_-_View_from_the_other_bank_of_Narmada.jpg/960px-Statue_of_Unity_-_View_from_the_other_bank_of_Narmada.jpg', caption: 'Panoramic Vista Across the Sacred Narmada River & Sadhu Bet', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Statue_lawns.jpg', caption: 'Landscaped Promenades, Valley of Flowers & Viewing Grounds', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Statue_from_highway.jpg', caption: 'Monumental Approach Highway Showing Sardar Sarovar Catchment', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/88/%22STATUE_OF_UNITY%22-_Kevadia_%28Gujarat%29_becomes_a_%22Land_of_Billion_Lights%22_at_night..webm/1280px--%22STATUE_OF_UNITY%22-_Kevadia_%28Gujarat%29_becomes_a_%22Land_of_Billion_Lights%22_at_night..webm.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo', caption: '"STATUE OF UNITY" Kevadia (Gujarat) becomes a "Land of Billion Lights" at night.', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Narendra_Modi_visiting_the_Museum%2C_Exhibition_and_the_Viewers%E2%80%99_Gallery%2C_during_the_dedication_of_the_%E2%80%98Statue_of_Unity%E2%80%99_to_the_Nation%2C_on_the_occasion_of_the_Rashtriya_Ekta_Diwas%2C_at_Kevadiya%2C_in_Narmada_District_of_Gujarat_%283%29.JPG/1280px-thumbnail.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Narendra Modi visiting the Museum, Exhibition and the Viewers’ Gallery, during the dedication of the ‘Statue of Unity’ to the Nation, on the occasion of the Rashtriya Ekta Diwas, at Kevadiya, in Narmada District of Gujarat (3)', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Praful_Patel%2C_the_Minister_of_State_%28Independent_Charge%29_for_Micro%2C_Small_and_Medium_Enterprises%2C_Shri_Dinsha_J._Patel_and_other_dignitaries_at_the_unveiling_ceremony_of_the_statue_of_Sardar_Vallabh_Bhai_Patel.jpg/1280px-thumbnail.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Praful Patel, the Minister of State (Independent Charge) for Micro, Small and Medium Enterprises, Shri Dinsha J', source: 'Wikimedia Commons' },
   ],
   'hutheesing': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sheth_Hutheesinh_Temple.jpg', caption: 'Pure White Makrana Marble Facade & Intricately Sculpted Mandapa', source: 'Wikimedia Commons / ASI' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/0/09/Huttising%27s_Jain_Temple%2C_Camp_Road%2C_Ahmedabad_%28c._1880%29.jpg', caption: 'Historic 1880 Mandapa & Colonnaded Gallery', source: 'British Library / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/0/06/Carved_Exterior_Wall.jpg', caption: 'Intricately Carved Exterior Marble Wall', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Hutheesing_Jain_Derasar_Entrance_Gate.jpg', caption: 'Ornate Entrance Torana Gate & Kirti Stambha', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Hathi_Singh_Jain_Temple_82.jpg', caption: 'Māru-Gurjara Sculpted Marble Pillars & 52 Subordinate Shrines', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Carved_Exterior_Wall.jpg/1280px-Carved_Exterior_Wall.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Carved Exterior Wall', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Gezicht_op_een_doorgang_in_de_Hathi_Singh_tempel_in_Ahmedabad_Huthi_Singh%27s_Tomb._Ahmedabad_2236_%28titel_op_object%29%2C_RP-F-F02448.jpg/1280px-Gezicht_op_een_doorgang_in_de_Hathi_Singh_tempel_in_Ahmedabad_Huthi_Singh%27s_Tomb._Ahmedabad_2236_%28titel_op_object%29%2C_RP-F-F02448.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Gezicht op een doorgang in de Hathi Singh tempel in Ahmedabad Huthi Singh\'s Tomb', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Hatheesing_Temple%281%29.JPG/1280px-Hatheesing_Temple%281%29.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Hatheesing Temple(1)', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Hatheesing_jain_temple.3.JPG/1280px-Hatheesing_jain_temple.3.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Hatheesing jain temple', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Hatheesing_jain_temple.JPG/1280px-Hatheesing_jain_temple.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Hatheesing jain temple', source: 'Wikimedia Commons' },
   ],
   'dada harir': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Stepwell_staircase.JPG', caption: 'Subterranean Five-Tier Stepped Sandstone Well Built in 1499 CE', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Dada_Harir_Stepwell_-_top_view.JPG', caption: 'Octagonal Subterranean Light Shaft Providing 5°C Cooling Microclimate', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/0/04/Bai_Harir_Sultani_Stepwell_%28-1%29_Sanskrit_inscription-a.jpg', caption: '1499 CE Sanskrit Inscription of Royal Superintendent Bai Harir Sultani', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/d/d1/Upper_Gallery_Dada_Hari_Stepwell_Ahmedabad_1866.jpg', caption: 'Upper Gallery Archival Photograph by Lyon (1866 CE)', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/5/56/Dada_Harir_Stepwell_-_6.jpg', caption: 'Carved Trabeated Pillars & Deep Symmetrical Descent to the Aquifer', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Bai_Harir_Sultani_Stepwell_%28-1%29_Sanskrit_inscription-a.jpg/1280px-Bai_Harir_Sultani_Stepwell_%28-1%29_Sanskrit_inscription-a.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Bai Harir Sultani Stepwell ( 1) Sanskrit inscription a', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Dada_Harir_Stepwell_-_6.jpg/1280px-Dada_Harir_Stepwell_-_6.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Dada Harir Stepwell 6', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Dada_Harir_Stepwell_-_8.jpg/1280px-Dada_Harir_Stepwell_-_8.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Dada Harir Stepwell 8', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Dada_Harir_Stepwell_-_top_view.JPG/1280px-Dada_Harir_Stepwell_-_top_view.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Dada Harir Stepwell top view', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/Dada_Harir_Stepwell_Ahmedabad_1866.jpg/1280px-Dada_Harir_Stepwell_Ahmedabad_1866.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Dada Harir Stepwell Ahmedabad 1866', source: 'Wikimedia Commons' },
   ],
   'adalaj': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Adalaj_ki_Vav_Gujarat_240A1370_72.jpg', caption: 'Five-Storey Octagonal Subterranean Stepwell Built in 1498 CE', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/8/85/Pillars_at_Adalaj_Stepwell.jpg', caption: 'Intricately Carved Trabeated Solanki-Islamic Sandstone Pillars', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Carvings_in_Adalaj_Stepwell.jpg', caption: 'Carved Reliefs of Navagraha and Kalpavriksha Sacred Tree', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/9/90/Adalaj_Stepwell_corridor.jpg', caption: 'Multi-Tiered Subterranean Corridor with Cooling Air Shafts', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Adalaj_ki_Vav_02.jpg', caption: 'Ami Khumbh Sculpted Floral Medallions', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/2T1A1747.jpg/1280px-2T1A1747.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '2T1A1747', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/ADALAJ_STEP_WELL.JPG/1280px-ADALAJ_STEP_WELL.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'ADALAJ STEP WELL', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/Adalaj_Stepwell_-_1.jpg/1280px-Adalaj_Stepwell_-_1.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Adalaj Stepwell 1', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Adalaj_Stepwell_-_Upper_Level_-_2.jpg/1280px-Adalaj_Stepwell_-_Upper_Level_-_2.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Adalaj Stepwell Upper Level 2', source: 'Wikimedia Commons' },
   ],
   'rani ki vav': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/d/dc/Rani_ki_vav_02.jpg', caption: 'Seven-Tier Subterranean Stepped Corridor — UNESCO World Heritage', source: 'UNESCO / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Rani_ki_Vav_Patan_Gujarat_India.jpg', caption: 'Over 500 High-Relief Sculptures of Vishnu Dashavatara Incarnations', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/4/41/Vishnu_sleeping_on_Shesha_Rani_ki_vav.jpg', caption: 'Masterwork High-Relief Carving of Sheshashayi Vishnu', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/3/36/Rani_ki_Vav_sculptures_02.jpg', caption: 'Deep Circular Well Shaft with Intricate Filigree Stone Masonry', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Rani_ki_Vav_01.jpg', caption: 'Inverted Temple Commemorating King Bhima I', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Rani_ki_vav_-_Patan_-_Gujarat_-_Wall_Decorations.jpg/1280px-Rani_ki_vav_-_Patan_-_Gujarat_-_Wall_Decorations.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Rani ki vav Patan Gujarat Wall Decorations', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Inside_rani_ki_vav_another_wall_structure.jpg/1280px-Inside_rani_ki_vav_another_wall_structure.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Inside rani ki vav another wall structure', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Kalki_on_Stone_Panel.JPG/1280px-Kalki_on_Stone_Panel.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Kalki on Stone Panel', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Maa_Durga_idol_in_rani_ki_vav.jpg/1280px-Maa_Durga_idol_in_rani_ki_vav.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Maa Durga idol in rani ki vav', source: 'Wikimedia Commons' },
   ],
   'modhera': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/d/dc/Surya_mandhir.jpg', caption: 'Sabha Mandapa Assembly Hall with 52 Intricately Sculpted Pillars', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Modhera_Sun_temple_kund.JPG', caption: 'Surya Kund Stepped Reservoir with 108 Miniature Shrines', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/8/88/Sun_temple_modhera_gujarat.JPG', caption: 'Guda Mandapa Solar Sanctum Aligned to Solar Equinox', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/b/b3/Sun_Temple%2C_Modhera_%28Sabha_Mandapa%29.jpg', caption: 'Equinox Astronomical Alignment Axis and Sculpted Kirti Torana', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/1/13/Sun_Temple%2C_Modhera_-_Carvings.jpg', caption: 'Solanki Era Stone Friezes Depicting Ramayana & Mahabharata', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Indian_Classical_Dancer_at_Sun_Temple%2C_Modhera_DSCN4459_1.jpg/1280px-Indian_Classical_Dancer_at_Sun_Temple%2C_Modhera_DSCN4459_1.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Indian Classical Dancer at Sun Temple, Modhera DSCN4459 1', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/Kathak_Danseuse_Namrta_Rai_at_Modhera_Dance_Festival.jpg/1280px-Kathak_Danseuse_Namrta_Rai_at_Modhera_Dance_Festival.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Kathak Danseuse Namrta Rai at Modhera Dance Festival', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Massive_Pillors.JPG/1280px-Massive_Pillors.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Massive Pillors', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Modhera%2C_Sun_Temple_and_Reservoir%2C_Gujarat_%281967%29.jpg/1280px-Modhera%2C_Sun_Temple_and_Reservoir%2C_Gujarat_%281967%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Modhera, Sun Temple and Reservoir, Gujarat (1967)', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Modhera_SunTemple.JPG/1280px-Modhera_SunTemple.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Modhera SunTemple', source: 'Wikimedia Commons' },
   ],
   'somnath': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Somanath_mandir_%28cropped%29.jpg', caption: 'Grand Kailash Mahameru Prasad Architecture on Arabian Sea Shores', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/a/af/Somnath_temple.jpg', caption: 'Intricate Sandstone Mandapa Pillars and Sacred Jyotirlinga Sanctum', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/Baan_Stambh_Somnath.jpg', caption: 'Ancient Baan Stambh Marking Ocean Path to Antarctica', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/4/4b/Somnath_Temple_Gujarat.jpg', caption: 'Prabhas Patan Sacred Triveni Sangam Coastal Meridian', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Somnath_Temple_Night_View.jpg', caption: 'Sunset Illumination of the 155-Foot Soaring Shikhara Spire', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/19th_century_archive_photos_of_Somanatha_temple%2C_Veraval_Prabhas_Patan%2C_Gujarat.jpg/1280px-19th_century_archive_photos_of_Somanatha_temple%2C_Veraval_Prabhas_Patan%2C_Gujarat.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '19th century archive photos of Somanatha temple, Veraval Prabhas Patan, Gujarat', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Ancient_Somnath_temple%2C_Veraval_Gujarat.jpg/1280px-Ancient_Somnath_temple%2C_Veraval_Gujarat.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Ancient Somnath temple, Veraval Gujarat', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/India_statue_of_nataraja.jpg/1280px-India_statue_of_nataraja.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'India statue of nataraja', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/K_M_Munshi_at_Somnath_in_July_1950.jpg/1280px-K_M_Munshi_at_Somnath_in_July_1950.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'K M Munshi at Somnath in July 1950', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/Red_Fort%2C_Ghazni_gate_%28photographic_restoration%29.jpg/1280px-Red_Fort%2C_Ghazni_gate_%28photographic_restoration%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Red Fort, Ghazni gate (photographic restoration)', source: 'Wikimedia Commons' },
   ],
   'dwarka': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Dwarakadheesh_Temple%2C_2014.jpg', caption: '72-Pillar Five-Storey Jagat Mandir Spire Rising 78 Meters High', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/7/77/Dwarkadhish_Temple%2C_Dwarka.jpg', caption: 'Moksha Dvara Entry and Intricate Māru-Gurjara Sandstone Colonnades', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/d/dd/Gomti_Ghat_Dwarka.jpg', caption: 'Gomti Ghat Holy Confluence and Sacred Pilgrimage Steps', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Dwarka_Temple_View.jpg', caption: 'Carved Sandstone Shrines Dedicated to Lord Krishna', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Dwarkadhish_Dhwaja.jpg', caption: '52-Yard Sacred Dhwaja Flag Flying Atop the Grand Sanctum Spire', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/ABX_SHRI_PURUSHOTTAMA_KSHETRA_PURI.jpg/1280px-ABX_SHRI_PURUSHOTTAMA_KSHETRA_PURI.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'ABX SHRI PURUSHOTTAMA KSHETRA PURI', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Badrinath_Temple_-_OCT_2014.jpg/1280px-Badrinath_Temple_-_OCT_2014.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Badrinath Temple OCT 2014', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Dwarakadheesh_temple%2C_Dwaraka.jpg/1280px-Dwarakadheesh_temple%2C_Dwaraka.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Dwarakadheesh temple, Dwaraka', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Dwarakadheesh_temple_in_Dwarka_-_Gujarat%2C_India_%285933598087%29.jpg/1280px-Dwarakadheesh_temple_in_Dwarka_-_Gujarat%2C_India_%285933598087%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Dwarakadheesh temple in Dwarka Gujarat, India (5933598087)', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Dwarkadhish_Temple_20.jpg/1280px-Dwarkadhish_Temple_20.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Dwarkadhish Temple 20', source: 'Wikimedia Commons' },
   ],
   'sidi saiyyed': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/6/64/Sidi_Saiyyed_Mosque%2C_Ahmedabad.jpg', caption: 'Gujarat Sultanate 1573 CE Yellow Sandstone Mosque Facade', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/c/ce/Tree_of_Life_Jali%2C_Sidi_Saiyyed_Mosque.jpg', caption: 'World-Famous Tree of Life Carved Stone Jali Window — 1573 CE', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/9/90/Sidi_Saiyed_Mosque_Window_Jali.jpg', caption: 'Intertwined Palm and Banyan Tree Stone Tracery Inspiring IIMA Emblem', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Interior_of_Sidi_Saiyyed_Mosque.jpg', caption: 'Peaceful Trabeated Prayer Hall with Ten Semi-Circular Stone Jalis', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Sidi_Saiyyed_Mosque_Ahmedabad_Jali.jpg', caption: 'Historic Western Wall Facade Built by Abyssinian General Sidi Saiyyed', source: 'Wikimedia Commons' },
-  ],
-  'sarkhej': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/2/22/Sarkhej.JPG', caption: 'The Acropolis of Ahmedabad — Trabeated Post-and-Beam Royal Pavilions', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/e/ec/Sarkhej_Roza_Ahmedabad_Gujarat_India.jpg', caption: 'Sultan Mahmud Begada Royal Palace & Tomb Overlooking Great Tank', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/c/c5/Sarkhej_Roza_Ahmedabad_2.jpg', caption: 'Brass Jali Screens and Open Trabeated Courtyards Praised by Le Corbusier', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Sarkhej_Roza_Pavilion.jpg', caption: 'Sufi Saint Sheikh Ahmed Khattu Ganj Baksh Sacred Dargah', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/f/fb/Sarkhej_Roza_Water_Palace.jpg', caption: 'Symmetrical Water Pavilion Steps and Sunset Reflection Terraces', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Carved_Mesh_of_Sidi_Saiyyed_Mosque_Ahmedabad_Gujarat_DSC001.jpg/1280px-Carved_Mesh_of_Sidi_Saiyyed_Mosque_Ahmedabad_Gujarat_DSC001.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Carved Mesh of Sidi Saiyyed Mosque Ahmedabad Gujarat DSC001', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/Front_view_of_Sidi_Saiyyed_Mosque%2C_Ahmedabad.jpg/1280px-Front_view_of_Sidi_Saiyyed_Mosque%2C_Ahmedabad.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Front view of Sidi Saiyyed Mosque, Ahmedabad', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/81/Plaque_at_Sidi_Saiyyed_Mosque%2C_Ahmedabad.jpg/1280px-Plaque_at_Sidi_Saiyyed_Mosque%2C_Ahmedabad.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Plaque at Sidi Saiyyed Mosque, Ahmedabad', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Sidi_Saiyyed_Mosque%2C_Ahmedabad.jpg/1280px-Sidi_Saiyyed_Mosque%2C_Ahmedabad.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Sidi Saiyyed Mosque, Ahmedabad', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Sidi_Saiyyed_Mosque_-_Marble_Screen.jpg/1280px-Sidi_Saiyyed_Mosque_-_Marble_Screen.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Sidi Saiyyed Mosque Marble Screen', source: 'Wikimedia Commons' },
   ],
   'laxmi vilas': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Lakshmi_Vilas_Palace%2C_Vadodara.jpg', caption: 'Indo-Saracenic Royal Residence of Gaekwad Dynasty', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Laxmi_Vilas_Palace_Vadodara_India.jpg', caption: 'Coronation Darbar Hall with Venetian Mosaics & Belgian Stained Glass', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/0/07/Lukshmi_Vilas_Palace_front.jpg', caption: 'Ornate Clock Tower & Charles Mant Indo-Saracenic Architecture', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/Laxmi_Vilas_Palace_Baroda.jpg', caption: 'Royal Armory & Collection of Raja Ravi Varma Masterpieces', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/9/97/Laxmi_Vilas_Palace_Side_View.jpg', caption: '500-Acre Royal Parkland Estate with Sunken Italianate Courtyards', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/Lakshmi_Vilas_Palace%2C_Vadodara.jpg/1280px-Lakshmi_Vilas_Palace%2C_Vadodara.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Lakshmi Vilas Palace, Vadodara', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Laxmi_Vilas_Palace_Darbar_Hall.jpg/1280px-Laxmi_Vilas_Palace_Darbar_Hall.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Laxmi Vilas Palace Darbar Hall', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/Laxmi_Vilas_Palace_Gate.jpg/1280px-Laxmi_Vilas_Palace_Gate.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Laxmi Vilas Palace Gate', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Laxmi_vilas_Palace_Vadodara_Baroda.jpg/1280px-Laxmi_vilas_Palace_Vadodara_Baroda.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Laxmi vilas Palace Vadodara Baroda', source: 'Wikimedia Commons' },
   ],
   'mahabat': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Tomb_of_Mahabat_Khan.jpg', caption: 'Baha-ud-din Maqbara with Four Standalone Spiral Minarets', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/2/29/Bahauddin_Maqbara%2C_Junagadh.jpg', caption: 'Surreal Fusion of Indo-Islamic, French Gothic, and Baroque Architecture', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Mahabat_Maqbara_Junagadh.jpg', caption: 'Intricate Carved Sandstone Jalis and Onion-Shaped Fluted Domes', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Mahabat_Maqbara_Spiral_Staircase.jpg', caption: 'Open Exterior Spiral Stone Staircases Encircling Each Tower', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/5/54/Mahabat_Maqbara_Front.jpg', caption: '1892 CE Royal Mausoleum Complex of the Nawabs of Junagadh', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Mahabat_ka_Maqbara.jpg/1280px-Mahabat_ka_Maqbara.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Mahabat ka Maqbara', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Tomb_of_Bahar-ud-din_Bhar_05.jpg/1280px-Tomb_of_Bahar-ud-din_Bhar_05.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Tomb of Bahar ud din Bhar 05', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Tomb_of_Mahabat_Khan.jpg/1280px-Tomb_of_Mahabat_Khan.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Tomb of Mahabat Khan', source: 'Wikimedia Commons' },
   ],
   'kumbhalgarh': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/3/33/Kumbhalgarh_055.jpg', caption: 'The Great Wall of India — 36 km Continuous Mountain Ramparts', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Ram_Pol_Kumbhalgarh.jpg', caption: 'Ram Pol — Imposing Main Fort Entrance Gate with Defensive Bastions', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/2/29/Badal_Mahal_Kumbhalgarh.jpg', caption: 'Badal Mahal (Cloud Palace) Perched at 3,600 ft Elevation', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/5/52/Kumbhalgarh_Temples.jpg', caption: 'Aravalli Mountain Crest Bastions and 300+ Ancient Temples Within', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Kumbhalgarh_Fort_Night.jpg', caption: 'Birthplace Citadel of Maharana Pratap', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/Aerial_view_of_Kumbhalgarh.jpg/1280px-Aerial_view_of_Kumbhalgarh.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Aerial view of Kumbhalgarh', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Gate_of_kumbhalgarh_fort.jpg/1280px-Gate_of_kumbhalgarh_fort.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Gate of kumbhalgarh fort', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Kumbhalgarh_008.jpg/1280px-Kumbhalgarh_008.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Kumbhalgarh 008', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Kumbhalgarh_055.jpg/1280px-Kumbhalgarh_055.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Kumbhalgarh 055', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/Kumbhalgarh_11.jpg/1280px-Kumbhalgarh_11.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Kumbhalgarh 11', source: 'Wikimedia Commons' },
   ],
   'chittorgarh': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/2/22/Chittorgarh_fort.JPG', caption: 'Vijay Stambha (Tower of Victory) — 9-Storey Architectural Wonder', source: 'UNESCO / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/9/90/Padmini_Palace_Chittorgarh.jpg', caption: '700-Acre Rock Fortress and Rani Padmini Palace Water Pavilion', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Kirti_Stambha_Chittorgarh.jpg', caption: 'Kirti Stambha (Tower of Fame) Dedicated to Jain Tirthankara Adinatha', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Gaumukh_Reservoir_Chittorgarh.jpg', caption: 'Gaumukh Reservoir and Sacred Spring', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/4/4e/Chittorgarh_Fort_Mewar.jpg', caption: 'Monumental Seven Gates of Chittorgarh', source: 'ASI / Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/A_Painting_of_the_Fort_1857.jpg/1280px-A_Painting_of_the_Fort_1857.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'A Painting of the Fort 1857', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/ChittorgarhFortWaterReflection.JPG/1280px-ChittorgarhFortWaterReflection.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'ChittorgarhFortWaterReflection', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Chittorgarh_fort.JPG/1280px-Chittorgarh_fort.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Chittorgarh fort', source: 'Wikimedia Commons' },
   ],
   'taj mahal': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/6/67/Taj_Mahal_%28Edited%29.jpeg', caption: 'Ivory-White Makrana Marble Mausoleum & Reflection Pool at Sunrise', source: 'UNESCO / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Taj_Mahal_%28UNESCO_World_Heritage_Site%29.jpg', caption: 'Grand Darwaza-i-Rauza Monumental Red Sandstone Gateway Entrance', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/c/c8/Taj_Mahal_in_March_2004.jpg', caption: 'Intricate Parchin Kari Pietra Dura Gemstone Inlay on White Marble', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/d/da/Taj-Mahal.jpg', caption: 'Octagonal Perforated Marble Screen Enclosing Royal Cenotaphs', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg', caption: 'Yamuna Riverfront Perspective and Four 40-Meter Leaning Minarets', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/1280px-Taj_Mahal_%28Edited%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Taj Mahal (Edited)', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Agra-Taj_Mahal-38-Inkrustation-2018-gje.jpg/1280px-Agra-Taj_Mahal-38-Inkrustation-2018-gje.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Agra Taj Mahal 38 Inkrustation 2018 gje', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Detail_of_plant_motifs_on_Taj_Mahal_wall.jpg/1280px-Detail_of_plant_motifs_on_Taj_Mahal_wall.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Detail of plant motifs on Taj Mahal wall', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Dome_Chhatris_Spires_-_Taj_Mahal_-_Agra_2014-05-14_3805.JPG/1280px-Dome_Chhatris_Spires_-_Taj_Mahal_-_Agra_2014-05-14_3805.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Dome Chhatris Spires Taj Mahal Agra 2014 05 14 3805', source: 'Wikimedia Commons' },
   ],
   'red fort': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Delhi_fort.jpg', caption: 'Iconic Lahori Gate & Octagonal Red Sandstone Ramparts', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Diwan-i-Aam%2C_Red_Fort%2C_Delhi.jpg', caption: 'Diwan-i-Aam (Hall of Public Audience) with Cusped Sandstone Arches', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/a/af/Diwan-i-Khas%2C_Red_Fort.jpg', caption: 'Diwan-i-Khas Pure White Marble Pavilion and Peacock Throne Pedestal', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/1/16/Moti_Masjid_in_Red_Fort_complex.jpg', caption: 'Moti Masjid (Pearl Mosque) and Hayat Bakhsh Mughal Royal Gardens', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/f/f4/Red_Fort_Delhi.jpg', caption: 'Ramparts and Deep Moat Encircling the 254-Acre Mughal Imperial Citadel', source: 'Wikimedia Commons' },
-  ],
-  'qutub': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Qutb_Minar_2022.jpg', caption: '73-Meter Fluted Red Sandstone Tower Commenced in 1192 CE', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Quwwat-ul-Islam_Mosque_-_courtyard.jpg', caption: 'Quwwat-ul-Islam Mosque Cloistered Courtyards and Carved Pillars', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Iron_Pillar_of_Delhi.jpg', caption: '4th-Century Rust-Resistant Gupta Iron Pillar with Brahmi Inscriptions', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Alai_Darwaza_at_Qutb_complex.jpg', caption: 'Alai Darwaza Monumental Gateway Built by Sultan Alauddin Khalji in 1311', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/0/0a/Qutub_Minar_Balconies.jpg', caption: 'Calligraphic Quranic Bands and Honeycomb Stalactite Balcony Brackets', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/20191203_Naubat_Khana%2C_Red_Fort%2C_Delhi_0453_6340_DxO.jpg/1280px-20191203_Naubat_Khana%2C_Red_Fort%2C_Delhi_0453_6340_DxO.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '20191203 Naubat Khana, Red Fort, Delhi 0453 6340 DxO', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Covered_market_past_the_Lahore_gate_entrance_in_Red_Fort.jpg/1280px-Covered_market_past_the_Lahore_gate_entrance_in_Red_Fort.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Covered market past the Lahore gate entrance in Red Fort', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2a/Delhi_fort.jpg/1280px-Delhi_fort.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Delhi fort', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Diwan-e-Khas-2022.jpg/1280px-Diwan-e-Khas-2022.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Diwan e Khas 2022', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Diwan-i-Aam_across_lawn.jpg/1280px-Diwan-i-Aam_across_lawn.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Diwan i Aam across lawn', source: 'Wikimedia Commons' },
   ],
   'hampi': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Wide_angle_of_Galigopuram_of_Virupaksha_Temple%2C_Hampi.jpg', caption: '50-Meter Soaring Galigopuram of Virupaksha Temple in Vijayanagara', source: 'UNESCO / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/b/b8/Stone_Chariot_at_Vijaya_Vittala_Temple%2C_Hampi.jpg', caption: 'Monolithic Stone Chariot Dedicated to Garuda at Vittala Temple', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Vittala_Temple_Musical_Pillars_Hampi.jpg', caption: 'Vittala Temple Musical Pillars Producing Acoustic Musical Notes', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Elephant_Stables_Hampi.jpg', caption: 'Lotus Mahal Indo-Islamic Royal Pavilion & Elephant Stables', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Hampi_Virupaksha_Boulders.jpg', caption: 'Granite Boulder Landscapes of Matanga Hill and Tungabhadra River', source: 'Wikimedia Commons' },
-  ],
-  'mysore': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Mysore_Palace_Morning.jpg', caption: 'Amba Vilas Palace Grand Facade Illuminated by 97,000 Electric Bulbs', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/3/32/Mysore_Palace_Illumination.jpg', caption: 'Public Durbar Hall with Turquoise Cast-Iron Pillars and Marble Floors', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Durbar_Hall_Mysore_Palace.jpg', caption: 'Kalyana Mantapa (Marriage Pavilion) with Belgian Stained Glass Peacock Ceiling', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/6/67/Gombe_Thotti_Mysore_Palace.jpg', caption: 'Gombe Thotti (Doll Pavilion) & Historic 750 kg Golden Ambari Howdah', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Mysore_Palace_Gate.jpg', caption: 'Wodeyar Dynasty Royal Heritage and Dasara Golden Throne Collection', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/15th-16th_century_ruins_of_market_and_Vaishnavism_Achyutaraya_Tiruvengalanatha_temple%2C_Hampi_Hindu_monuments_Karnataka_3.jpg/1280px-15th-16th_century_ruins_of_market_and_Vaishnavism_Achyutaraya_Tiruvengalanatha_temple%2C_Hampi_Hindu_monuments_Karnataka_3.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '15th 16th century ruins of market and Vaishnavism Achyutaraya Tiruvengalanatha temple, Hampi Hindu monuments Karnataka 3', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/15th-16th_century_ruins_of_market_and_Vaishnavism_Vitthala_temple%2C_Hampi_Hindu_monuments_Karnataka.jpg/1280px-15th-16th_century_ruins_of_market_and_Vaishnavism_Vitthala_temple%2C_Hampi_Hindu_monuments_Karnataka.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '15th 16th century ruins of market and Vaishnavism Vitthala temple, Hampi Hindu monuments Karnataka', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3d/15th_century_aqua_duct_to_Mahanavami_platform_Pushkarani_step_well%2C_Hampi_Hindu_monuments_Karnataka_3.jpg/1280px-15th_century_aqua_duct_to_Mahanavami_platform_Pushkarani_step_well%2C_Hampi_Hindu_monuments_Karnataka_3.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '15th century aqua duct to Mahanavami platform Pushkarani step well, Hampi Hindu monuments Karnataka 3', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/1_Frescoe_at_Virupaksha_temple%2C_Hampi%2C_Karnataka%2C.jpg/1280px-1_Frescoe_at_Virupaksha_temple%2C_Hampi%2C_Karnataka%2C.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '1 Frescoe at Virupaksha temple, Hampi, Karnataka,', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/2_Frescoe_at_Virupaksha_temple%2C_Hampi%2C_Karnataka%2C.jpg/1280px-2_Frescoe_at_Virupaksha_temple%2C_Hampi%2C_Karnataka%2C.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '2 Frescoe at Virupaksha temple, Hampi, Karnataka,', source: 'Wikimedia Commons' },
   ],
   'ajanta': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/2/25/Ajanta_Caves_View.jpg', caption: 'Panoramic 30 Rock-Cut Buddhist Cave Monuments in Waghur River Gorge', source: 'UNESCO / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/4/4f/Padmapani_Ajanta_Cave_1.jpg', caption: 'Masterpiece Bodhisattva Padmapani Fresco with Lotus Flower in Cave 1', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/0/0a/Ajanta_Cave_26_Chaitya.jpg', caption: 'Cave 26 Chaitya Hall & Giant Reclining Parinirvana Buddha Sculpture', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Ajanta_Cave_19_Facade.jpg', caption: 'Cave 19 Horseshoe Chaitya Arch and Monolithic Vihara Cells', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/b/b3/Ajanta_Cave_Pillars.jpg', caption: 'Intricately Carved Basalt Columns and Jataka Tale Wall Paintings', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/003_Cave_16%2C_Main_Shrine_%2834298723855%29.jpg/1280px-003_Cave_16%2C_Main_Shrine_%2834298723855%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '003 Cave 16, Main Shrine (34298723855)', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/008_Cave_1%2C_In_the_Forest_%2834239644366%29.jpg/1280px-008_Cave_1%2C_In_the_Forest_%2834239644366%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '008 Cave 1, In the Forest (34239644366)', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/013_Cave_19%2C_Buddha_Meditating_%2833535639164%29.jpg/1280px-013_Cave_19%2C_Buddha_Meditating_%2833535639164%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '013 Cave 19, Buddha Meditating (33535639164)', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/015_Cave_1%2C_Main_Shrine_and_Paintings_%2833470082003%29.jpg/1280px-015_Cave_1%2C_Main_Shrine_and_Paintings_%2833470082003%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '015 Cave 1, Main Shrine and Paintings (33470082003)', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/017_Cave_16%2C_Colonnaned_Hall_%2834141160892%29.jpg/1280px-017_Cave_16%2C_Colonnaned_Hall_%2834141160892%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '017 Cave 16, Colonnaned Hall (34141160892)', source: 'Wikimedia Commons' },
   ],
   'ellora': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/c/c8/Kailasa_temple_at_Ellora_caves.jpg', caption: 'Monolithic Kailasa Temple Cave 16 Carved Top-Down from a Single Basalt Cliff', source: 'UNESCO / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Kailasa_Temple_Elephant_Pillar.jpg', caption: 'Monolithic Elephant Statues & Two 15-Meter High Dhwaja Stambha Victory Pillars', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Ellora_Cave_10_Chaitya.jpg', caption: 'Cave 10 Vishvakarma Carpenter\'s Cave Ribbed Barrel Vault Rock Ceiling', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Ellora_Cave_32_Indra_Sabha.jpg', caption: 'Cave 32 Indra Sabha Two-Tiered Jain Assembly Hall & Ambika Sculpture', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Ellora_Caves_Escarpment.jpg', caption: 'Charanandri Hills Basalt Cliff Panorama — Buddhist, Hindu & Jain Caves', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/1_Dancing_Shiva%2C_Cave_21_at_Ellora.jpg/1280px-1_Dancing_Shiva%2C_Cave_21_at_Ellora.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '1 Dancing Shiva, Cave 21 at Ellora', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/4_Painting_Jain_Ellora_Caves.jpg/1280px-4_Painting_Jain_Ellora_Caves.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '4 Painting Jain Ellora Caves', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Amriteshwar_temple.jpg/1280px-Amriteshwar_temple.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Amriteshwar temple', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Brahma_at_Kailasha_temple_of_Ellora.jpg/1280px-Brahma_at_Kailasha_temple_of_Ellora.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Brahma at Kailasha temple of Ellora', source: 'Wikimedia Commons' },
   ],
   'konark': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/8/8b/Konark_Sun_Temple.jpg', caption: '13th-Century Kalinga Architecture Colossal Sun Chariot with 24 Carved Wheels', source: 'UNESCO / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/4/4d/Konark_Wheel.jpg', caption: 'Astronomical Sundial Chariot Wheel Calculating Precise Time from Sun Rays', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Nata_Mandir_Konark.jpg', caption: 'Nata Mandir Dancing Hall with Intricately Carved Odissi Dancer Sculptures', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Konark_War_Horse.jpg', caption: 'Colossal War Horse and Rampant Lion Guardian Statues', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/5/52/Konark_Sanctum_Friezes.jpg', caption: 'Chlorite Stone Intricate Relief Friezes', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/13th_Century_Elephant_sculpture_at_Konark_Sun_Temple_Puri_district%2C_Odisha%2C_India.jpg/1280px-13th_Century_Elephant_sculpture_at_Konark_Sun_Temple_Puri_district%2C_Odisha%2C_India.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '13th Century Elephant sculpture at Konark Sun Temple Puri district, Odisha, India', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/24_Chariot_Wheels%2C_illustrative_intricate_carving_in_one_at_the_Konarka_Sun_Temple.jpg/1280px-24_Chariot_Wheels%2C_illustrative_intricate_carving_in_one_at_the_Konarka_Sun_Temple.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '24 Chariot Wheels, illustrative intricate carving in one at the Konarka Sun Temple', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/2_musicians_a_bansuri_player_and_ghana_player_at_Konark_Sun_Temple_India.jpg/1280px-2_musicians_a_bansuri_player_and_ghana_player_at_Konark_Sun_Temple_India.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '2 musicians a bansuri player and ghana player at Konark Sun Temple India', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Back_Side_View_of_Konark_Sun_Temple.jpg/1280px-Back_Side_View_of_Konark_Sun_Temple.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Back Side View of Konark Sun Temple', source: 'Wikimedia Commons' },
   ],
   'khajuraho': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/5/52/Kandariya_Mahadeva_Temple.jpg', caption: 'Kandariya Mahadeva Temple Soaring 31-Meter Shikhara with 84 Miniature Spires', source: 'UNESCO / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Lakshmana_Temple_Khajuraho.jpg', caption: 'Lakshmana Temple Panchayatana Layout & Vaikuntha Vishnu Sanctum', source: 'ASI / Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Khajuraho_Sculptures_01.jpg', caption: 'Intricate Nagara Sandstone Relief Sculptures & Celestial Apsaras', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Parsvanatha_Temple_Khajuraho.jpg', caption: 'Parsvanatha Eastern Group Jain Temple with Delicate Celestial Maiden Carvings', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/f/fb/Khajuraho_Western_Group.jpg', caption: 'Western Group of Chandela Dynasty Temples in Symmetrical Harmony', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/1_Khajuraho.jpg/1280px-1_Khajuraho.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '1 Khajuraho', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/A_ruin%2C_pillars_at_Khajuraho%2C_India.jpg/1280px-A_ruin%2C_pillars_at_Khajuraho%2C_India.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'A ruin, pillars at Khajuraho, India', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Brown_bodies.JPG/1280px-Brown_bodies.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Brown bodies', source: 'Wikimedia Commons' },
   ],
-  'rangpur': [
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/d/d4/Harappan_terracotta_bullock_cart.jpg', caption: 'Late Harappan Terracotta Toy Cart & Painted Red Ware (c. 1900–1400 BCE)', source: 'ASI / National Museum' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Indus_Valley_Pottery.jpg', caption: 'Terracotta Baked Vessels with Geometric Indus Valley Motifs', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Harappan_pottery_vessels.jpg', caption: 'Burnished Iron Oxide Slip with Black Geometric Harappan Designs', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Harappa_toys_and_artefacts.jpg', caption: 'Excavated 3,500-Year-Old Domestic Artifacts from Rangpur Type-Site', source: 'Wikimedia Commons' },
-    { url: 'https://upload.wikimedia.org/wikipedia/commons/a/a4/Indus_Valley_figurines.jpg', caption: 'Evidence of Continuous Civilizational Transition in Saurashtra Gujarat', source: 'Wikimedia Commons' },
+  'amer fort': [
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/20191219_Fort_Amber%2C_Amer%2C_Jaipur_0955_9481.jpg/1280px-20191219_Fort_Amber%2C_Amer%2C_Jaipur_0955_9481.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '20191219 Fort Amber, Amer, Jaipur 0955 9481', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Amber_Fort%2C_Baradhari_Pavilion_at_Man_Singh_Palace_Square%2C_2010.jpg/1280px-Amber_Fort%2C_Baradhari_Pavilion_at_Man_Singh_Palace_Square%2C_2010.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Amber Fort, Baradhari Pavilion at Man Singh Palace Square, 2010', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Amber_Fort-Jaipur-India0007.JPG/1280px-Amber_Fort-Jaipur-India0007.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Amber Fort Jaipur India0007', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Amber_Fort_-_Sheesh_Mahal_Interior.jpg/1280px-Amber_Fort_-_Sheesh_Mahal_Interior.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Amber Fort Sheesh Mahal Interior', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Amber_Fort_Second_Courtyard_Mirror_Palace_view.jpg/1280px-Amber_Fort_Second_Courtyard_Mirror_Palace_view.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Amber Fort Second Courtyard Mirror Palace view', source: 'Wikimedia Commons' },
+  ],
+  'hawa mahal': [
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_01.jpg/1280px-East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_01.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'East facade Hawa Mahal Jaipur from ground level (July 2022) img 01', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ac/East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_03.jpg/1280px-East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_03.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'East facade Hawa Mahal Jaipur from ground level (July 2022) img 03', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Hawa-mahal-from-window.JPG/1280px-Hawa-mahal-from-window.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Hawa mahal from window', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Hawa_Mahal%2C_Jaipur%2C_Rajasthan%2C_India_in_2026.jpg/1280px-Hawa_Mahal%2C_Jaipur%2C_Rajasthan%2C_India_in_2026.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Hawa Mahal, Jaipur, Rajasthan, India in 2026', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6f/Hawa_Mahal.JPG/1280px-Hawa_Mahal.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Hawa Mahal', source: 'Wikimedia Commons' },
+  ],
+  'meenakshi': [
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/01MaduraiMeenakshiAmmanTemple%26IndoorCorridorView.jpg/1280px-01MaduraiMeenakshiAmmanTemple%26IndoorCorridorView.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '01MaduraiMeenakshiAmmanTemple&IndoorCorridorView', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e9/An_aerial_view_of_Madurai_city_from_atop_of_Meenakshi_Amman_temple.jpg/1280px-An_aerial_view_of_Madurai_city_from_atop_of_Meenakshi_Amman_temple.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'An aerial view of Madurai city from atop of Meenakshi Amman temple', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Figures_with_Pigeons_-_Ivory_Sculpture_-_Sri_Meenakshi-Sundareshwarar_Temple_-_Madurai_-_India.JPG/1280px-Figures_with_Pigeons_-_Ivory_Sculpture_-_Sri_Meenakshi-Sundareshwarar_Temple_-_Madurai_-_India.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Figures with Pigeons Ivory Sculpture Sri Meenakshi Sundareshwarar Temple Madurai India', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/India_Meenakshi_Temple.jpg/1280px-India_Meenakshi_Temple.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'India Meenakshi Temple', source: 'Wikimedia Commons' },
+  ],
+  'brihadisvara': [
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/aa/1000_years_Old_Thanjavur_Brihadeeshwara_Temple_View_at_Sunrise.jpg/1280px-1000_years_Old_Thanjavur_Brihadeeshwara_Temple_View_at_Sunrise.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '1000 years Old Thanjavur Brihadeeshwara Temple View at Sunrise', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/1010_CE_Brihadishwara_Shiva_Temple%2C_inscription%2C_built_by_Rajaraja_I%2C_Thanjavur_Tamil_Nadu_India.jpg/1280px-1010_CE_Brihadishwara_Shiva_Temple%2C_inscription%2C_built_by_Rajaraja_I%2C_Thanjavur_Tamil_Nadu_India.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '1010 CE Brihadishwara Shiva Temple, inscription, built by Rajaraja I, Thanjavur Tamil Nadu India', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/1010_CE_Brihadishwara_Shiva_Temple%2C_wall_relief%2C_built_by_Rajaraja_I%2C_Thanjavur_Tamil_Nadu_India.jpg/1280px-1010_CE_Brihadishwara_Shiva_Temple%2C_wall_relief%2C_built_by_Rajaraja_I%2C_Thanjavur_Tamil_Nadu_India.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '1010 CE Brihadishwara Shiva Temple, wall relief, built by Rajaraja I, Thanjavur Tamil Nadu India', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/1010_CE_Brihadishwara_Shiva_Temple%2C_yogini%2C_built_by_Rajaraja_I%2C_Thanjavur_Tamil_Nadu_India.jpg/1280px-1010_CE_Brihadishwara_Shiva_Temple%2C_yogini%2C_built_by_Rajaraja_I%2C_Thanjavur_Tamil_Nadu_India.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '1010 CE Brihadishwara Shiva Temple, yogini, built by Rajaraja I, Thanjavur Tamil Nadu India', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/1010_CE_Brihadishwara_Temple%2C_Hindu_god_Shiva%2C_built_by_Rajaraja_I%2C_Thanjavur_Tamil_Nadu_India_%288%29.jpg/1280px-1010_CE_Brihadishwara_Temple%2C_Hindu_god_Shiva%2C_built_by_Rajaraja_I%2C_Thanjavur_Tamil_Nadu_India_%288%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: '1010 CE Brihadishwara Temple, Hindu god Shiva, built by Rajaraja I, Thanjavur Tamil Nadu India (8)', source: 'Wikimedia Commons' },
+  ],
+  'victoria memorial': [
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Angel_of_Kolkata_Victoria_Memorial.jpg/1280px-Angel_of_Kolkata_Victoria_Memorial.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Angel of Kolkata Victoria Memorial', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/India_-_Kolkata_Victorian_museum_-_4258.jpg/1280px-India_-_Kolkata_Victorian_museum_-_4258.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'India Kolkata Victorian museum 4258', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Ketan_donate5.jpg/1280px-Ketan_donate5.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Ketan donate5', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Kolkata3.JPG/1280px-Kolkata3.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Kolkata3', source: 'Wikimedia Commons' },
+    { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/Kolkata_Victoria_Memorial_South_side.JPG/1280px-Kolkata_Victoria_Memorial_South_side.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail', caption: 'Kolkata Victoria Memorial South side', source: 'Wikimedia Commons' },
   ],
 };
 
@@ -635,24 +626,66 @@ const CAPTION_TEMPLATES: Record<ArchitecturalType, string[]> = {
 async function resolveWikiTitle(placeName: string): Promise<string | null> {
   try {
     const cleaned = cleanMonumentName(placeName);
+    if (!cleaned) return null;
+
+    // Build tokens from the place name for strict validation
+    const queryTokens = cleaned
+      .toLowerCase()
+      .split(/[\s_\-,()/]+/)
+      .map((s) => s.replace(/[^a-z0-9]/g, ''))
+      .filter((s) => s.length >= 4);
+
+    // Helper: does a Wikipedia title "seem like" this monument?
+    // At least one token from the query must appear in the title,
+    // OR the title must appear in (or equal) the query.
+    function isTitleRelevant(title: string): boolean {
+      const tLow = title.toLowerCase().replace(/[^a-z0-9 ]/g, '');
+      const pLow = cleaned.toLowerCase().replace(/[^a-z0-9 ]/g, '');
+      // Exact or contains check
+      if (tLow === pLow || tLow.includes(pLow) || pLow.includes(tLow)) return true;
+      // Token overlap
+      if (queryTokens.length === 0) return false; // no tokens → be strict, never trust
+      const titleTokens = tLow.split(' ').filter((s) => s.length >= 4);
+      return queryTokens.some((qt) => titleTokens.some((tt) => tt.includes(qt) || qt.includes(tt)));
+    }
+
     const url =
       'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' +
       encodeURIComponent(cleaned) +
-      '&srlimit=3&utf8=&format=json&origin=*';
+      '&srlimit=5&utf8=&format=json&origin=*';
     const res = await fetchWithTimeout(url, 5000);
     if (!res.ok) return null;
     const data = await res.json();
     const hits: Array<{ title: string }> = data?.query?.search || [];
     if (hits.length === 0) return null;
 
-    const lower = cleaned.toLowerCase();
+    // Pass 1: strict match — title must contain or overlap the query
     for (const hit of hits) {
-      const hitLower = (hit?.title || '').toLowerCase();
-      if (hitLower && (hitLower.includes(lower) || lower.includes(hitLower))) {
+      if (hit?.title && isTitleRelevant(hit.title)) {
         return hit.title;
       }
     }
-    return hits[0]?.title ?? null;
+
+    // Pass 2: no hit matched — attempt disambiguation page lookup
+    // e.g. search "Adalaj Stepwell" directly as a page
+    try {
+      const directUrl =
+        'https://en.wikipedia.org/api/rest_v1/page/summary/' +
+        encodeURIComponent(cleaned.replace(/\s+/g, '_'));
+      const directRes = await fetchWithTimeout(directUrl, 4000);
+      if (directRes.ok) {
+        const directData = await directRes.json();
+        const directTitle: string = directData?.title || '';
+        if (directTitle && isTitleRelevant(directTitle)) {
+          return directTitle;
+        }
+      }
+    } catch {
+      // ignore direct lookup failure
+    }
+
+    // No valid match found — return null rather than a random unrelated article
+    return null;
   } catch {
     return null;
   }
