@@ -1243,9 +1243,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   content: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 100,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 120,
   },
   actionsRow: {
     flexDirection: 'row',
@@ -1417,13 +1417,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 6,
   },
   tabContentTitle: {
     fontFamily: Typography.fontFamily.serif,
     fontSize: 16,
     fontWeight: '700',
     color: Colors.text,
+    flexShrink: 1,
   },
   periodChip: {
     flexDirection: 'row',
@@ -1433,6 +1436,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
+    alignSelf: 'flex-start',
   },
   periodChipText: {
     fontSize: 10,

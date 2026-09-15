@@ -136,12 +136,16 @@ Designed to eliminate endless vertical scrolling and provide an engaging, swipea
 
 Empowers grassroots communities by directing tourist footfall to traditional craftspeople and authentic eateries (`mobile/src/components/LocalArtisansSection.tsx`).
 
-### 4.1 Verified Local Artisans (Horizontal Scroll)
-- Compact cards for local handloom weavers, stone sculptors, and wood carving artisans.
+### 4.1 Segmented Community Showcase Navigation
+- Smooth segmented pill switcher: `Traditional Crafts` & `Culinary Heritage` to prevent screen overcrowding.
+- Responsive, screen-width adapted cards with high-density editorial layout.
+
+### 4.2 Verified Local Artisans & Handlooms
+- Cards for local handloom weavers, stone sculptors, and wood carving artisans.
 - **GI-Tag Badging**: Highlights Geographical Indication certified crafts (e.g. *Patan Patola*, *Kutch Embroidery*).
 - Direct market/bazaar location guidance.
 
-### 4.2 Regional Culinary Heritage (Horizontal Scroll)
+### 4.3 Regional Culinary Heritage
 - Highlights traditional heritage dishes and historical thali houses.
 - "Must Try" specialty badges for signature local delicacies.
 

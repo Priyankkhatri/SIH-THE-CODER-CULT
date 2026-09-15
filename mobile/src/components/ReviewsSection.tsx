@@ -232,25 +232,25 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
       {/* Section Title & Header */}
       <View style={styles.sectionHeader}>
         <View style={styles.headerLeft}>
-          <MaterialIcons name="rate-review" size={22} color={Colors.primary} />
-          <Text style={styles.sectionTitle}>Visitor Reviews & Ratings</Text>
+          <MaterialIcons name="rate-review" size={20} color={Colors.primary} />
+          <Text style={styles.sectionTitle} numberOfLines={1}>Reviews & Ratings</Text>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <View style={styles.headerActions}>
           <TouchableOpacity
             style={styles.reloadBtn}
             onPress={() => loadReviews(true)}
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <MaterialIcons name="refresh" size={17} color={Colors.primary} />
+            <MaterialIcons name="refresh" size={16} color={Colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.writeBtn}
             onPress={() => setIsModalOpen(true)}
             activeOpacity={0.85}
           >
-            <MaterialIcons name="edit" size={15} color={Colors.textInverse} />
-            <Text style={styles.writeBtnText}>Write Review</Text>
+            <MaterialIcons name="edit" size={13} color={Colors.textInverse} />
+            <Text style={styles.writeBtnText}>+ Review</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -693,36 +693,48 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: Spacing.xs,
+    gap: 8,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    flex: 1,
+    flexShrink: 1,
   },
   sectionTitle: {
     fontFamily: Typography.fontFamily.serif,
-    fontSize: 21,
+    fontSize: 19,
     fontWeight: '700',
     color: Colors.text,
+    flexShrink: 1,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexShrink: 0,
   },
   writeBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
     backgroundColor: Colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: BorderRadius.full,
+    flexShrink: 0,
   },
   reloadBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: Colors.surfaceElevated,
     borderWidth: 1,
     borderColor: Colors.border,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   writeBtnText: {
     fontSize: Typography.sizes.xs,
@@ -747,7 +759,7 @@ const styles = StyleSheet.create({
   scoreContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 110,
+    width: 96,
   },
   bigScore: {
     fontSize: 34,
