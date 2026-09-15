@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   },
   assistantContainer: {
     justifyContent: 'flex-start',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
   },
   avatarWrap: {
     width: 32,
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceHighlight,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 4,
+    marginTop: 2,
     flexShrink: 0,
   },
   bubble: {

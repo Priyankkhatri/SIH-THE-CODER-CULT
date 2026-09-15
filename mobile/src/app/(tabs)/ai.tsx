@@ -13,6 +13,7 @@ import {
 import * as Clipboard from 'expo-clipboard';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { useChatStore, useUserStore, usePlacesStore } from '../../stores';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
@@ -40,6 +41,7 @@ const DEFAULT_SUGGESTIONS = [
 const INPUT_MAX = 500;
 
 export default function AIGuideScreen() {
+  const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ autoAsk?: string; placeId?: string; placeName?: string; t?: string }>();
   const autoAskedRef = useRef<string | null>(null);
 
@@ -117,20 +119,28 @@ export default function AIGuideScreen() {
   const loadSuggestions = async (placeId?: string | null, placeName?: string | null) => {
     try {
       const response: any = await aiApi.getSuggestions(placeId || undefined);
-      if (response?.data) {
-        setSuggestions(response.data);
+      const rawList = Array.isArray(response?.data) ? response.data : Array.isArray(response) ? response : [];
+      const clean = rawList
+        .map((item: any) => (typeof item === 'string' ? item : item?.question || item?.title || ''))
+        .filter((s: string) => typeof s === 'string' && s.trim().length > 0);
+      if (clean.length > 0) {
+        setSuggestions(clean);
+        return;
       }
     } catch {
       // Use context-aware defaults
-      if (placeName) {
-        setSuggestions([
-          `Why was ${placeName} built?`,
-          `Who built ${placeName} and when?`,
-          `Tell me the history in 2 minutes`,
-          `What is the architectural style?`,
-          `Explain like I'm 8 years old`,
-        ]);
-      }
+    }
+
+    if (placeName) {
+      setSuggestions([
+        `Why was ${placeName} built?`,
+        `Who built ${placeName} and when?`,
+        `Tell me the history in 2 minutes`,
+        `What is the architectural style?`,
+        `Explain like I'm 8 years old`,
+      ]);
+    } else {
+      setSuggestions(DEFAULT_SUGGESTIONS);
     }
   };
 
@@ -146,6 +156,11 @@ export default function AIGuideScreen() {
     addMessage({ role: 'user', content: question });
     setTyping(true);
     setLastWasOffline(false);
+
+    // Scroll smoothly to show the user question and the upcoming response
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 60);
 
     try {
       const recentHistory = messages.slice(-6).map((m) => ({ role: m.role, content: m.content }));
@@ -172,10 +187,6 @@ export default function AIGuideScreen() {
       setTyping(false);
       loadSuggestions(activePlaceId, activePlaceName);
     }
-
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
   };
 
   const handleRetry = () => {
@@ -219,6 +230,7 @@ export default function AIGuideScreen() {
   };
 
   const lastAssistantId = [...messages].reverse().find((m) => m.role === 'assistant')?.id;
+  const validSuggestions = suggestions.filter((q): q is string => typeof q === 'string' && q.trim().length > 0);
 
   return (
     <KeyboardAvoidingView
@@ -226,8 +238,8 @@ export default function AIGuideScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
-      {/* Header */}
-      <View style={styles.header}>
+      {/* Header with Safe Area Insets */}
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) + 6 }]}>
         <View style={styles.headerLeft}>
           <MaterialIcons name="auto-awesome" size={24} color={Colors.primary} />
           <View style={styles.headerTextWrap}>
@@ -242,7 +254,7 @@ export default function AIGuideScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Active place context chip (X clears context only, trash clears all) */}
+      {/* Active place context chip */}
       {contextPlaceName && (
         <View style={styles.contextBar}>
           <View style={styles.contextChip}>
@@ -295,7 +307,7 @@ export default function AIGuideScreen() {
                 : 'I answer using verified historical sources — never making up facts.'}
             </Text>
             <View style={styles.suggestionsGrid}>
-              {suggestions.map((q, i) => (
+              {validSuggestions.map((q, i) => (
                 <TouchableOpacity
                   key={i}
                   style={styles.suggestionChip}
@@ -326,21 +338,28 @@ export default function AIGuideScreen() {
             />
           )}
           ListFooterComponent={isTyping ? <TypingIndicator /> : null}
+          style={styles.chatList}
           contentContainerStyle={styles.messagesList}
-          onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
+          showsVerticalScrollIndicator={true}
         />
       )}
 
       {/* Follow-up suggestions after an answer */}
-      {messages.length > 0 && !isTyping && (
+      {messages.length > 0 && !isTyping && validSuggestions.length > 0 && (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.followContent}
           style={styles.followScroll}
         >
-          {suggestions.slice(0, 3).map((q, i) => (
-            <TouchableOpacity key={i} style={styles.followChip} onPress={() => handleSend(q)}>
+          {validSuggestions.slice(0, 4).map((q, i) => (
+            <TouchableOpacity
+              key={i}
+              style={styles.followChip}
+              onPress={() => handleSend(q)}
+              activeOpacity={0.7}
+            >
+              <MaterialIcons name="auto-awesome" size={12} color={Colors.primary} />
               <Text style={styles.followText} numberOfLines={1}>{q}</Text>
             </TouchableOpacity>
           ))}
@@ -348,7 +367,7 @@ export default function AIGuideScreen() {
       )}
 
       {/* Input bar */}
-      <View style={styles.inputBar}>
+      <View style={[styles.inputBar, { paddingBottom: Platform.OS === 'ios' ? Math.max(insets.bottom, 16) : Math.max(insets.bottom, 10) }]}>
         <View style={styles.inputWrap}>
           <TextInput
             style={styles.input}
@@ -546,12 +565,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 48,
+    backgroundColor: Colors.surface,
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.divider,
     gap: 12,
+    zIndex: 10,
   },
   headerLeft: {
     flex: 1,
@@ -586,6 +606,8 @@ const styles = StyleSheet.create({
   contextBar: {
     paddingHorizontal: Spacing.base,
     paddingTop: Spacing.sm,
+    backgroundColor: Colors.background,
+    zIndex: 9,
   },
   contextChip: {
     flexDirection: 'row',
@@ -610,7 +632,9 @@ const styles = StyleSheet.create({
   modeScroll: {
     borderBottomWidth: 1,
     borderBottomColor: Colors.divider,
+    backgroundColor: Colors.background,
     flexGrow: 0,
+    zIndex: 8,
   },
   modeContent: {
     flexDirection: 'row',
@@ -647,9 +671,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: Colors.textMuted,
   },
+  chatList: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
   messagesList: {
-    paddingVertical: Spacing.base,
-    paddingBottom: Spacing.sm,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.lg,
   },
   emptyScroll: {
     flexGrow: 1,
@@ -705,6 +733,7 @@ const styles = StyleSheet.create({
   followScroll: {
     borderTopWidth: 1,
     borderTopColor: Colors.divider,
+    backgroundColor: Colors.surface,
     flexGrow: 0,
   },
   followContent: {
@@ -712,28 +741,32 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: Spacing.base,
     paddingVertical: 8,
+    alignItems: 'center',
   },
   followChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.surfaceHighlight,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.3)',
-    maxWidth: 240,
+    borderColor: 'rgba(212, 175, 124, 0.35)',
+    maxWidth: 260,
     flexShrink: 0,
   },
   followText: {
     fontSize: Typography.sizes.xs,
     color: Colors.primary,
     fontWeight: '600',
+    flexShrink: 1,
   },
   inputBar: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.sm,
-    paddingBottom: Platform.OS === 'ios' ? 30 : Spacing.sm,
+    paddingTop: Spacing.sm,
     borderTopWidth: 1,
     borderTopColor: Colors.divider,
     backgroundColor: Colors.surface,
