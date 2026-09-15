@@ -6,6 +6,7 @@ import prisma from '../../config/database';
 import { config } from '../../config';
 import { getSystemPrompt } from './ai.prompts';
 import { detectConversationalIntent, getConversationalReply } from './conversational.knowledge';
+import { traceStage, finalizeStage } from '../../middleware/devtoolsTracer';
 
 const openai = new OpenAI({
   apiKey: config.openaiApiKey || 'mock-key',
@@ -348,17 +349,15 @@ function ensureLocalLLMServer(): void {
 }
 
 class AIService {
-  // Main RAG pipeline: retrieve relevant context → generate answer
   async askQuestion(params: AskQuestionParams): Promise<AIResponse> {
     const { question, placeId, mode, language } = params;
 
-    // Ensure local LM Studio server is running if available
     ensureLocalLLMServer();
 
-    // Step 1: Retrieve relevant heritage context
+    traceStage('rag', { mode, language, hasPlaceId: !!placeId });
     const context = await this.retrieveContext(question, placeId);
+    finalizeStage({ passages: context.passages.length, matched: context.placeName });
 
-    // Step 2: Build the prompt with retrieved context (allowing up to 5 rich verified passages)
     const systemPrompt = getSystemPrompt(mode, language);
     const contextText = context.passages
       .slice(0, 5)
@@ -369,7 +368,7 @@ class AIService {
       ? `Context:\n${contextText}\n\nPlace: ${context.placeName}\n\nQuestion: ${question}`
       : `Context:\n${contextText}\n\nQuestion: ${question}`;
 
-    // Step 3: Try Local LM Studio (any loaded model on port 1234)
+    traceStage('llm_local', { endpoint: 'http://127.0.0.1:1234/v1', timeoutMs: 25000 });
     try {
       const temperature = mode === 'narrative' ? 0.65 : mode === 'child' ? 0.5 : 0.35;
       const maxTokens = mode === 'short' ? 250 : mode === 'detailed' ? 600 : 350;
@@ -397,12 +396,13 @@ class AIService {
           temperature,
           max_tokens: maxTokens,
         },
-        { timeout: 25000 } // Give local Llama 3.2 3B plenty of time for rich responses
+        { timeout: 25000 }
       );
 
       let qwenAnswer = localResponse.data?.choices?.[0]?.message?.content;
       if (qwenAnswer && qwenAnswer.trim().length > 10) {
         qwenAnswer = qwenAnswer.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+        finalizeStage({ model: modelName, tokens: localResponse.data?.usage, success: true });
 
         return {
           answer: qwenAnswer,
@@ -416,11 +416,12 @@ class AIService {
           language,
         };
       }
+      finalizeStage({ model: modelName, success: false, reason: 'empty_answer' });
     } catch (err: any) {
-      // Local LM Studio offline or timed out, smoothly proceed to cloud / fallback
+      finalizeStage({ success: false, error: err.message?.slice(0, 80) });
     }
 
-    // Step 4: If OpenAI API Key is provided, try OpenAI
+    traceStage('llm_openai', { model: 'gpt-4o-mini', timeoutMs: 8000 });
     if (config.openaiApiKey && !config.openaiApiKey.includes('your-openai')) {
       try {
         const completion = await Promise.race([
@@ -440,6 +441,7 @@ class AIService {
 
         const answer = (completion as any).choices?.[0]?.message?.content;
         if (answer && answer.trim().length > 10) {
+          finalizeStage({ tokens: (completion as any).usage, success: true });
           return {
             answer: answer.trim(),
             sources: context.passages.map((p) => ({
@@ -452,16 +454,21 @@ class AIService {
             language,
           };
         }
+        finalizeStage({ success: false, reason: 'empty_answer' });
       } catch (error: any) {
         console.warn(`[AIService] Cloud LLM skipped (${error.message || 'offline'}). Using verified ASI knowledge base.`);
+        finalizeStage({ success: false, error: error.message?.slice(0, 80) });
       }
+    } else {
+      finalizeStage({ success: false, reason: 'no_api_key' });
     }
 
-    // Step 5: High-quality curated database fallback
-    return this.fallbackResponse(context, question, mode, language);
+    traceStage('fallback', { type: 'static_rag_catalog' });
+    const fb = this.fallbackResponse(context, question, mode, language);
+    finalizeStage({ success: true, answerLen: fb.answer.length, sources: fb.sources.length });
+    return fb;
   }
 
-  // Retrieve relevant passages from the database or static catalog
   private async retrieveContext(question: string, placeId?: string) {
     const targetPlaceId = placeId ? (ID_ALIASES[placeId] || placeId) : undefined;
     let passages: Array<{

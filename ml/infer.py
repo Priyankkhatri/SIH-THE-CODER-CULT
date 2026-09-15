@@ -82,24 +82,47 @@ class HeritageVisionPredictor:
         with open(classes_path, 'r', encoding='utf-8') as f:
             self.classes = json.load(f)
 
-    def preprocess(self, pil_image: Image.Image) -> np.ndarray:
+    def preprocess_multiscale(self, pil_image: Image.Image) -> np.ndarray:
+        """
+        Creates a multi-scale batch of 3 perspectives for test-time augmentation (TTA):
+        1. Center Crop: Standard 256 -> 224 center crop
+        2. Global Scale: Full aspect ratio scaled to 224x224 (captures wide monument silhouette)
+        3. Zoomed Detail: Center 70% detail crop resized to 224x224 (captures pillars, carvings, arches, and jali)
+        """
         img = pil_image.convert('RGB')
-        # Resize to 256 then center crop 224
-        img = img.resize((256, 256), Image.Resampling.BILINEAR)
-        left = (256 - 224) / 2
-        top = (256 - 224) / 2
-        img = img.crop((left, top, left + 224, top + 224))
-
-        arr = np.array(img).astype(np.float32) / 255.0
-        # Normalize with ImageNet mean and std
         mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
         std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
-        arr = (arr - mean) / std
 
-        # HWC to CHW and add batch dimension
-        arr = np.transpose(arr, (2, 0, 1))
-        arr = np.expand_dims(arr, axis=0)
-        return arr
+        crops = []
+
+        # 1. Standard Center Crop
+        img1 = img.resize((256, 256), Image.Resampling.BILINEAR)
+        left = (256 - 224) // 2
+        top = (256 - 224) // 2
+        crop1 = img1.crop((left, top, left + 224, top + 224))
+        crops.append(crop1)
+
+        # 2. Global Perspective (direct 224x224)
+        crop2 = img.resize((224, 224), Image.Resampling.BILINEAR)
+        crops.append(crop2)
+
+        # 3. Zoomed Detail Perspective (70% center crop for close-up stone details/carvings)
+        w, h = img.size
+        min_dim = min(w, h)
+        zoom_size = max(64, int(min_dim * 0.70))
+        z_left = (w - zoom_size) // 2
+        z_top = (h - zoom_size) // 2
+        crop3 = img.crop((z_left, z_top, z_left + zoom_size, z_top + zoom_size)).resize((224, 224), Image.Resampling.BILINEAR)
+        crops.append(crop3)
+
+        tensors = []
+        for c in crops:
+            arr = np.array(c).astype(np.float32) / 255.0
+            arr = (arr - mean) / std
+            arr = np.transpose(arr, (2, 0, 1))
+            tensors.append(arr)
+
+        return np.stack(tensors, axis=0)  # Shape: [3, 3, 224, 224]
 
     def softmax(self, x: np.ndarray) -> np.ndarray:
         e_x = np.exp(x - np.max(x))
@@ -131,11 +154,12 @@ class HeritageVisionPredictor:
         # 1. Structural surface analysis (Physics-based wall / plain surface filter)
         surface = analyze_surface_complexity(pil_image)
 
-        # 2. Deep Neural Vision Model (MobileNetV3 ONNX)
-        input_tensor = self.preprocess(pil_image)
-        outputs = self.session.run(None, {self.input_name: input_tensor})[0]
-        logits = outputs[0]
-        probs = self.softmax(logits)
+        # 2. Deep Neural Vision Model with Multi-Scale TTA (MobileNetV3 ONNX)
+        input_batch = self.preprocess_multiscale(pil_image)
+        outputs = self.session.run(None, {self.input_name: input_batch})[0]
+        # outputs shape: [3, num_classes]. Softmax each crop and ensemble (average)
+        crop_probs = np.array([self.softmax(crop_logits) for crop_logits in outputs])
+        probs = np.mean(crop_probs, axis=0)
 
         top_indices = np.argsort(probs)[::-1][:top_k]
         results = []

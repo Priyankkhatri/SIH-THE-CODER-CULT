@@ -14,11 +14,13 @@ import favoritesRoutes from './modules/favorites/favorites.routes';
 import profileRoutes from './modules/profile/profile.routes';
 import offlineRoutes from './modules/offline/offline.routes';
 import healthRoutes from './modules/health/health.routes';
+import devtoolsRoutes from './modules/devtools/devtools.routes';
 
 // Import middlewares
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/logger';
 import { generalRateLimiter, aiRateLimiter } from './middleware/rateLimiter';
+import { devtoolsTracer } from './middleware/devtoolsTracer';
 
 const app = express();
 
@@ -30,6 +32,9 @@ app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
 // High-performance Telemetry & Request Logging with X-Response-Time
 app.use(requestLogger);
+
+// Devtools tracing middleware (before routes, after body parsing)
+app.use(devtoolsTracer);
 
 // Global Sliding Window Rate Limiting (300 requests/minute per IP)
 app.use(generalRateLimiter.middleware());
@@ -51,6 +56,9 @@ app.get('/api/v1/languages', languagesHandler);
 // Mount health and diagnostics module
 app.use('/health', healthRoutes);
 app.use('/api/v1/health', healthRoutes);
+
+// Mount Dev Console module (no version prefix, short path)
+app.use('/devtools', devtoolsRoutes);
 
 // Helper function to mount routes with both /api/v1 and root prefixes
 const mountRoutes = (prefix: string) => {

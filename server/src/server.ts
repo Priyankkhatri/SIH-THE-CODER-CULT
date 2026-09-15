@@ -1,21 +1,27 @@
+import http from 'http';
 import app from './app';
 import { config } from './config';
 import prisma from './config/database';
+import { attachDevWebSocket } from './modules/devtools/wsBroadcast';
 
 const PORT = config.port;
 
 async function main() {
   try {
-    // Verify database connection
     await prisma.$connect();
     console.log('✅ Database engine initialized');
 
-    app.listen(PORT, () => {
+    const server = http.createServer(app);
+
+    attachDevWebSocket(server, '/ws/devtools');
+
+    server.listen(PORT, () => {
       console.log(`
 🏛️  AI Tourist Companion Server
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🌐 Server:    http://localhost:${PORT}
 📡 Health:    http://localhost:${PORT}/health
+🔌 Dev WS:    ws://localhost:${PORT}/ws/devtools
 🔧 Mode:      ${config.nodeEnv}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 API Endpoints:
@@ -27,6 +33,11 @@ API Endpoints:
   POST /vision/identify
   POST /itinerary/generate
   POST /translate
+
+🧰 Dev Endpoints:
+  GET  /devtools/services      — Service health snapshot
+  POST /devtools/ai/playground — Force-tier LLM playground
+  GET  /devtools/vision/catalog— Vision catalog with labels
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       `);
     });
