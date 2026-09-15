@@ -69,6 +69,7 @@ export default function PlaceDetailScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>('story');
+  const [activeHeritageTab, setActiveHeritageTab] = useState<'chronicle' | 'architecture' | 'facts' | 'sources'>('chronicle');
   const [sosVisible, setSosVisible] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -594,9 +595,16 @@ export default function PlaceDetailScreen() {
           {/* 2-Minute Heritage Story — editorial storytelling */}
           {heritage.shortStory && (
             <View style={styles.storyEditorial}>
-              <Text style={styles.storyEyebrow}>2-MINUTE HERITAGE STORY</Text>
+              <View style={styles.storyHeaderRow}>
+                <MaterialIcons name="auto-stories" size={14} color={Colors.primary} />
+                <Text style={styles.storyEyebrow}>2-MINUTE HERITAGE STORY</Text>
+              </View>
               <Text style={styles.storyQuote}>
-                Where marble tells a story of faith, art and timeless beauty.
+                {heritage.significance && heritage.significance.length > 20
+                  ? (heritage.significance.length > 95
+                      ? `"${heritage.significance.slice(0, 95)}..."`
+                      : `"${heritage.significance}"`)
+                  : `"${displayName} — Where sacred stone and master craftsmanship tell the timeless story of India."`}
               </Text>
               <Text style={styles.storyText} numberOfLines={expandedSection === 'story' ? undefined : 4}>
                 {heritage.shortStory}
@@ -669,46 +677,190 @@ export default function PlaceDetailScreen() {
             </View>
           )}
 
-          {/* Expandable sections */}
-          {heritage.history && renderSection(t('place.completeHistory'), 'history', heritage.history, 'menu-book')}
-          {heritage.significance && renderSection(t('place.historicalSignificance'), 'significance', heritage.significance, 'stars')}
-          {heritage.architecture && renderSection(t('place.architecturalDetails'), 'architecture', heritage.architecture, 'apartment')}
-
-          {/* Key Facts */}
-          {safeKeyFacts.length > 0 && (
-            <View style={styles.factsSection}>
-              <Text style={styles.sectionTitle}>{t('place.keyFacts')}</Text>
-              {safeKeyFacts.map((fact, idx) => (
-                <View key={idx} style={styles.factItem}>
-                  <View style={styles.factDot} />
-                  <Text style={styles.factText}>{fact}</Text>
-                </View>
-              ))}
+          {/* Heritage Knowledge Hub - Clean Interactive Tabbed Navigator */}
+          <View style={styles.heritageHubContainer}>
+            <View style={styles.hubHeaderRow}>
+              <MaterialIcons name="menu-book" size={20} color={Colors.primary} />
+              <Text style={styles.hubTitle}>Heritage Knowledge Hub</Text>
             </View>
-          )}
 
-          {/* Sources */}
-          {safeSources.length > 0 && (
-            <View style={styles.sourcesSection}>
-              <Text style={styles.sectionTitle}>{t('place.verifiedSources')}</Text>
-              {safeSources.map((source, idx) => (
-                <TouchableOpacity
-                  key={idx}
-                  style={styles.sourceCard}
-                  onPress={() => source.sourceUrl && Linking.openURL(source.sourceUrl)}
+            {/* Segmented Tab Selector Bar */}
+            <View style={styles.tabSelectorBar}>
+              <TouchableOpacity
+                style={[styles.tabSelectorBtn, activeHeritageTab === 'chronicle' && styles.tabSelectorBtnActive]}
+                onPress={() => setActiveHeritageTab('chronicle')}
+                activeOpacity={0.8}
+              >
+                <MaterialIcons
+                  name="history-edu"
+                  size={14}
+                  color={activeHeritageTab === 'chronicle' ? '#0F0F0F' : Colors.textMuted}
+                />
+                <Text
+                  style={[
+                    styles.tabSelectorText,
+                    activeHeritageTab === 'chronicle' && styles.tabSelectorTextActive,
+                  ]}
                 >
-                  <MaterialIcons name="verified" size={16} color={Colors.success} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.sourceName}>{source.sourceName}</Text>
-                    <Text style={styles.sourceRef} numberOfLines={2}>{source.referenceText}</Text>
-                  </View>
-                  {source.sourceUrl && (
-                    <MaterialIcons name="open-in-new" size={14} color={Colors.accent} />
-                  )}
-                </TouchableOpacity>
-              ))}
+                  Chronicle
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.tabSelectorBtn, activeHeritageTab === 'architecture' && styles.tabSelectorBtnActive]}
+                onPress={() => setActiveHeritageTab('architecture')}
+                activeOpacity={0.8}
+              >
+                <MaterialIcons
+                  name="apartment"
+                  size={14}
+                  color={activeHeritageTab === 'architecture' ? '#0F0F0F' : Colors.textMuted}
+                />
+                <Text
+                  style={[
+                    styles.tabSelectorText,
+                    activeHeritageTab === 'architecture' && styles.tabSelectorTextActive,
+                  ]}
+                >
+                  Architecture
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.tabSelectorBtn, activeHeritageTab === 'facts' && styles.tabSelectorBtnActive]}
+                onPress={() => setActiveHeritageTab('facts')}
+                activeOpacity={0.8}
+              >
+                <MaterialIcons
+                  name="lightbulb"
+                  size={14}
+                  color={activeHeritageTab === 'facts' ? '#0F0F0F' : Colors.textMuted}
+                />
+                <Text
+                  style={[
+                    styles.tabSelectorText,
+                    activeHeritageTab === 'facts' && styles.tabSelectorTextActive,
+                  ]}
+                >
+                  Key Facts
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.tabSelectorBtn, activeHeritageTab === 'sources' && styles.tabSelectorBtnActive]}
+                onPress={() => setActiveHeritageTab('sources')}
+                activeOpacity={0.8}
+              >
+                <MaterialIcons
+                  name="verified"
+                  size={14}
+                  color={activeHeritageTab === 'sources' ? '#0F0F0F' : Colors.textMuted}
+                />
+                <Text
+                  style={[
+                    styles.tabSelectorText,
+                    activeHeritageTab === 'sources' && styles.tabSelectorTextActive,
+                  ]}
+                >
+                  Sources
+                </Text>
+              </TouchableOpacity>
             </View>
-          )}
+
+            {/* Active Tab Content Card */}
+            <View style={styles.hubContentCard}>
+              {activeHeritageTab === 'chronicle' && (
+                <View style={styles.tabPane}>
+                  <View style={styles.tabContentHeader}>
+                    <Text style={styles.tabContentTitle}>Historical Legacy & Chronicles</Text>
+                    {heritage.period && (
+                      <View style={styles.periodChip}>
+                        <MaterialIcons name="schedule" size={12} color={Colors.primary} />
+                        <Text style={styles.periodChipText}>{heritage.period}</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={styles.tabContentBody}>
+                    {heritage.history || 'Archived historical records preserved by the Archaeological Survey of India.'}
+                  </Text>
+                  {heritage.significance ? (
+                    <View style={styles.significanceBox}>
+                      <View style={styles.significanceHeader}>
+                        <MaterialIcons name="stars" size={15} color={Colors.accent} />
+                        <Text style={styles.significanceTitle}>Historical Significance</Text>
+                      </View>
+                      <Text style={styles.significanceText}>{heritage.significance}</Text>
+                    </View>
+                  ) : null}
+                </View>
+              )}
+
+              {activeHeritageTab === 'architecture' && (
+                <View style={styles.tabPane}>
+                  <View style={styles.tabContentHeader}>
+                    <Text style={styles.tabContentTitle}>Architectural Marvel & Design</Text>
+                    <View style={styles.periodChip}>
+                      <MaterialIcons name="museum" size={12} color={Colors.primary} />
+                      <Text style={styles.periodChipText}>Protected Landmark</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.tabContentBody}>
+                    {heritage.architecture ||
+                      'Exquisite stone masonry, intricate sculptural reliefs, and traditional structural craftsmanship preserved under national conservation guidelines.'}
+                  </Text>
+                </View>
+              )}
+
+              {activeHeritageTab === 'facts' && (
+                <View style={styles.tabPane}>
+                  <Text style={styles.tabContentTitle}>Fast Monument Facts</Text>
+                  <View style={styles.factsGrid}>
+                    {safeKeyFacts.map((fact, idx) => {
+                      const parts = fact.split(':');
+                      const label = parts.length > 1 ? parts[0].trim() : `Fact ${idx + 1}`;
+                      const value = parts.length > 1 ? parts.slice(1).join(':').trim() : fact;
+                      return (
+                        <View key={idx} style={styles.factGridCard}>
+                          <View style={styles.factCardDot} />
+                          <View style={{ flex: 1 }}>
+                            <Text style={styles.factCardLabel}>{label}</Text>
+                            <Text style={styles.factCardValue}>{value}</Text>
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+              )}
+
+              {activeHeritageTab === 'sources' && (
+                <View style={styles.tabPane}>
+                  <Text style={styles.tabContentTitle}>Verified Govt & ASI Citations</Text>
+                  <View style={{ gap: 8, marginTop: 4 }}>
+                    {safeSources.map((source, idx) => (
+                      <TouchableOpacity
+                        key={idx}
+                        style={styles.hubSourceItem}
+                        onPress={() => source.sourceUrl && Linking.openURL(source.sourceUrl)}
+                        activeOpacity={0.8}
+                      >
+                        <MaterialIcons name="verified" size={18} color={Colors.success} />
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.sourceName}>{source.sourceName}</Text>
+                          <Text style={styles.sourceRef} numberOfLines={2}>
+                            {source.referenceText}
+                          </Text>
+                        </View>
+                        {source.sourceUrl && (
+                          <MaterialIcons name="open-in-new" size={14} color={Colors.primary} />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+            </View>
+          </View>
 
           {/* Local Artisans & Regional Gastronomy Showcase */}
           <LocalArtisansSection placeName={displayName} stateOrCity={displayName} />
@@ -748,29 +900,6 @@ export default function PlaceDetailScreen() {
       />
     </View>
   );
-
-  function renderSection(title: string, key: string, content: string, icon: string) {
-    return (
-      <TouchableOpacity
-        style={styles.expandSection}
-        onPress={() => toggleSection(key)}
-        activeOpacity={0.85}
-      >
-        <View style={styles.expandHeader}>
-          <MaterialIcons name={icon as any} size={20} color={Colors.primary} />
-          <Text style={styles.expandTitle}>{title}</Text>
-          <MaterialIcons
-            name={expandedSection === key ? 'expand-less' : 'expand-more'}
-            size={24}
-            color={Colors.textSecondary}
-          />
-        </View>
-        {expandedSection === key && (
-          <Text style={styles.expandContent}>{content}</Text>
-        )}
-      </TouchableOpacity>
-    );
-  }
 }
 
 function getDemoHeritage(placeId: string): HeritageDetail | null {
@@ -1192,79 +1321,167 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     marginTop: 10,
   },
-  expandSection: {
-    backgroundColor: 'transparent',
-    borderRadius: 0,
-    paddingVertical: 4,
-    marginBottom: 0,
-    borderWidth: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.divider,
+  storyHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
   },
-  expandHeader: {
+  heritageHubContainer: {
+    marginTop: 12,
+    marginBottom: 24,
+    gap: 12,
+  },
+  hubHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  hubTitle: {
+    fontFamily: Typography.fontFamily.serif,
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  tabSelectorBar: {
+    flexDirection: 'row',
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: BorderRadius.full,
+    padding: 4,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    gap: 4,
+  },
+  tabSelectorBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.full,
+  },
+  tabSelectorBtnActive: {
+    backgroundColor: Colors.primary,
+  },
+  tabSelectorText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.textMuted,
+  },
+  tabSelectorTextActive: {
+    color: '#0F0F0F',
+    fontWeight: '700',
+  },
+  hubContentCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.2)',
+    ...Shadows.sm,
+  },
+  tabPane: {
+    gap: 10,
+  },
+  tabContentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  tabContentTitle: {
+    fontFamily: Typography.fontFamily.serif,
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  periodChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
+  },
+  periodChipText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  tabContentBody: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    lineHeight: 22,
+  },
+  significanceBox: {
+    marginTop: 8,
+    padding: 12,
+    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(230, 126, 34, 0.08)',
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.accent,
+    gap: 4,
+  },
+  significanceHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  significanceTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.accent,
+  },
+  significanceText: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    lineHeight: 19,
+  },
+  factsGrid: {
+    gap: 8,
+    marginTop: 4,
+  },
+  factGridCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    backgroundColor: Colors.surfaceElevated,
+    padding: 10,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+  },
+  factCardDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.primary,
+    marginTop: 6,
+  },
+  factCardLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  factCardValue: {
+    fontSize: 13,
+    color: Colors.text,
+    marginTop: 1,
+    lineHeight: 18,
+  },
+  hubSourceItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    paddingVertical: 15,
-  },
-  expandTitle: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.text,
-  },
-  expandContent: {
-    fontSize: 15,
-    color: Colors.textSecondary,
-    lineHeight: 24,
-    paddingBottom: 16,
-  },
-  factsSection: {
-    marginTop: 28,
-    marginBottom: 28,
-  },
-  sectionTitle: {
-    fontFamily: Typography.fontFamily.serif,
-    fontSize: 21,
-    fontWeight: '700',
-    color: Colors.text,
-    marginBottom: 6,
-  },
-  factItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.divider,
-  },
-  factDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: Colors.primary,
-    marginTop: 8,
-    opacity: 0.9,
-  },
-  factText: {
-    flex: 1,
-    fontSize: 14,
-    color: Colors.textSecondary,
-    lineHeight: 21,
-  },
-  sourcesSection: {
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  sourceCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-    paddingVertical: 12,
-    backgroundColor: 'transparent',
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.divider,
-    marginBottom: 0,
+    backgroundColor: Colors.surfaceElevated,
+    padding: 12,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
   },
   sourceName: {
     fontSize: 14,

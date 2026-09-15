@@ -26,45 +26,67 @@ export function LocalArtisansSection({ placeName = '', stateOrCity = '' }: Local
         Diverting tourism footfall to verified local weavers, traditional craftspeople, and culinary masters.
       </Text>
 
-      {/* Artisans List */}
-      <View style={styles.list}>
+      {/* Artisans List - Horizontal Scroll */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.horizontalList}
+      >
         {artisans.map((art) => (
           <View key={art.id} style={styles.artisanCard}>
             <View style={styles.cardTopRow}>
-              <Text style={styles.artisanName}>{art.name}</Text>
+              <Text style={styles.artisanName} numberOfLines={1}>
+                {art.name}
+              </Text>
               {art.giTag && (
                 <View style={styles.giBadge}>
-                  <Text style={styles.giText}>GI TAG PROTECTED</Text>
+                  <Text style={styles.giText}>GI TAG</Text>
                 </View>
               )}
             </View>
             <Text style={styles.craftType}>{art.craftType}</Text>
-            <Text style={styles.artisanDesc}>{art.description}</Text>
+            <Text style={styles.artisanDesc} numberOfLines={3}>
+              {art.description}
+            </Text>
             <View style={styles.bazaarRow}>
-              <MaterialIcons name="place" size={13} color={Colors.textSecondary} />
-              <Text style={styles.bazaarText}>{art.bazaar}</Text>
+              <MaterialIcons name="place" size={13} color={Colors.primary} />
+              <Text style={styles.bazaarText} numberOfLines={1}>
+                {art.bazaar}
+              </Text>
             </View>
           </View>
         ))}
-      </View>
+      </ScrollView>
 
-      {/* Local Culinary Specialties */}
+      {/* Local Culinary Specialties - Horizontal Scroll */}
       <View style={styles.foodSection}>
         <View style={styles.headerTitleRow}>
-          <MaterialIcons name="restaurant" size={18} color={Colors.secondary} />
+          <MaterialIcons name="restaurant" size={17} color={Colors.accent} />
           <Text style={styles.subSectionTitle}>Regional Culinary Heritage</Text>
         </View>
-        {food.map((f) => (
-          <View key={f.id} style={styles.foodCard}>
-            <Text style={styles.foodName}>{f.name}</Text>
-            <Text style={styles.foodCuisine}>{f.cuisine}</Text>
-            <Text style={styles.foodDesc}>{f.description}</Text>
-            <View style={styles.specialtyBadge}>
-              <MaterialIcons name="star" size={12} color={Colors.primary} />
-              <Text style={styles.specialtyText}>Must Try: {f.popularDish}</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.horizontalList}
+        >
+          {food.map((f) => (
+            <View key={f.id} style={styles.foodCard}>
+              <Text style={styles.foodName} numberOfLines={1}>
+                {f.name}
+              </Text>
+              <Text style={styles.foodCuisine}>{f.cuisine}</Text>
+              <Text style={styles.foodDesc} numberOfLines={3}>
+                {f.description}
+              </Text>
+              <View style={styles.specialtyBadge}>
+                <MaterialIcons name="star" size={12} color={Colors.primary} />
+                <Text style={styles.specialtyText} numberOfLines={1}>
+                  Must Try: {f.popularDish}
+                </Text>
+              </View>
             </View>
-          </View>
-        ))}
+          ))}
+        </ScrollView>
       </View>
     </View>
   );
@@ -108,21 +130,27 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
     lineHeight: 16,
   },
-  list: {
-    gap: 10,
+  horizontalList: {
+    gap: 12,
+    paddingVertical: 4,
+    paddingRight: 16,
   },
   artisanCard: {
+    width: 250,
     backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     padding: 14,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(212, 175, 124, 0.2)',
+    justifyContent: 'space-between',
+    gap: 6,
   },
   cardTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 2,
+    gap: 6,
   },
   artisanName: {
     fontSize: Typography.sizes.sm,
@@ -147,18 +175,18 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.xs,
     color: Colors.primary,
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   artisanDesc: {
     fontSize: Typography.sizes.xs,
     color: Colors.textSecondary,
     lineHeight: 16,
-    marginBottom: 6,
   },
   bazaarRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    marginTop: 4,
   },
   bazaarText: {
     fontSize: 11,
@@ -175,11 +203,14 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
   foodCard: {
-    backgroundColor: 'transparent',
-    borderRadius: 0,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.divider,
+    width: 250,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    justifyContent: 'space-between',
+    gap: 6,
   },
   foodName: {
     fontSize: Typography.sizes.sm,
@@ -190,13 +221,11 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.xs,
     color: Colors.secondary,
     fontWeight: '600',
-    marginBottom: 4,
   },
   foodDesc: {
     fontSize: Typography.sizes.xs,
     color: Colors.textSecondary,
     lineHeight: 16,
-    marginBottom: 6,
   },
   specialtyBadge: {
     flexDirection: 'row',
@@ -207,6 +236,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: BorderRadius.sm,
+    marginTop: 2,
   },
   specialtyText: {
     fontSize: 11,
