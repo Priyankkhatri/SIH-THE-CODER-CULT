@@ -94,7 +94,14 @@ export default function Overview() {
                 }`} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-200 capitalize">{s.name}</span>
+                    <span className="font-medium text-slate-200">
+                      {s.name === 'googlePlaces' ? 'Google Places' :
+                       s.name === 'lmStudio' ? 'LM Studio' :
+                       s.name === 'onnxVision' ? 'ONNX Vision' :
+                       s.name === 'mobileNetV3' ? 'MobileNetV3' :
+                       s.name === 'masterData' ? 'Master Data' :
+                       s.name.charAt(0).toUpperCase() + s.name.slice(1)}
+                    </span>
                     <span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded ${
                       s.status === 'healthy' ? 'bg-emerald-400/10 text-emerald-300' :
                       s.status === 'degraded' ? 'bg-amber-400/10 text-amber-300' :

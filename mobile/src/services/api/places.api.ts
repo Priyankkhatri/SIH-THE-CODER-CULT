@@ -12,4 +12,7 @@ export const placesApi = {
   getReviews: (id: string) => apiClient.get(`/places/${id}/reviews`),
   addReview: (id: string, data: { userName?: string; rating: number; title?: string; comment: string; visitType?: string; badge?: string }) =>
     apiClient.post(`/places/${id}/reviews`, data),
+  getGoogleDetails: (id: string) => apiClient.get(`/places/${id}/google-details`),
+  getNearbyAmenities: (id: string, type = 'food') =>
+    apiClient.get(`/places/${id}/nearby-amenities`, { params: { type } }),
 };

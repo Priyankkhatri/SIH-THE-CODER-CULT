@@ -5,7 +5,8 @@ export type ServiceName =
   | 'onnxVision'
   | 'database'
   | 'mobileNetV3'
-  | 'masterData';
+  | 'masterData'
+  | 'googlePlaces';
 
 export type ServiceStatus = 'healthy' | 'degraded' | 'offline' | 'unknown';
 

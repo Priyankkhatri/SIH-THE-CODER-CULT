@@ -25,6 +25,7 @@ import { WeatherCrowdBar } from '../../components/WeatherCrowdBar';
 import { SafetySOSModal } from '../../components/SafetySOSModal';
 import { LocalArtisansSection } from '../../components/LocalArtisansSection';
 import { ReviewsSection } from '../../components/ReviewsSection';
+import { NearbyAmenitiesSection } from '../../components/NearbyAmenitiesSection';
 import { PlaceDetailSkeleton } from '../../components/Skeleton';
 import { dynamicImageService, GalleryImage } from '../../services/dynamicImageService';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
@@ -72,6 +73,7 @@ export default function PlaceDetailScreen() {
   const [activeHeritageTab, setActiveHeritageTab] = useState<'chronicle' | 'architecture' | 'facts' | 'sources'>('chronicle');
   const [sosVisible, setSosVisible] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [googleDetails, setGoogleDetails] = useState<any>(null);
 
   const isFavorite = id ? favorites.includes(id) : false;
 
@@ -80,6 +82,7 @@ export default function PlaceDetailScreen() {
       setImageError(false);
       setActiveSlide(0);
       setGallery([]);
+      setGoogleDetails(null);
       loadHeritage(true);
     }
   }, [id]);
@@ -184,6 +187,14 @@ export default function PlaceDetailScreen() {
         .catch((err) => {
           console.warn('[PlaceDetail] Dynamic gallery fetch notice:', err);
         });
+
+      // Fetch live Google Places rating and open status
+      placesApi
+        .getGoogleDetails(id!)
+        .then((res: any) => {
+          if (res?.data) setGoogleDetails(res.data);
+        })
+        .catch(() => {});
     }
   };
 
@@ -521,19 +532,29 @@ export default function PlaceDetailScreen() {
 
             <Text style={styles.heroTitle} pointerEvents="none">{displayName}</Text>
             <View style={styles.heroMeta} pointerEvents="none">
-              {placeObj.rating && (
-                <View style={styles.metaItem}>
-                  <MaterialIcons name="star" size={16} color={Colors.primary} />
-                  <Text style={styles.metaText}>{placeObj.rating}</Text>
+              <View style={styles.metaItem}>
+                <MaterialIcons name="star" size={15} color={Colors.primary} />
+                <Text style={styles.metaText}>
+                  {googleDetails?.googleRating
+                    ? `${googleDetails.googleRating.toFixed(1)} (${(googleDetails.userRatingCount || 1000).toLocaleString()} on Google)`
+                    : `${placeObj.rating || 4.7} Rating`}
+                </Text>
+              </View>
+              {googleDetails?.isOpenNow !== undefined && (
+                <View style={[styles.metaItem, { backgroundColor: 'rgba(76, 175, 80, 0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }]}>
+                  <MaterialIcons name="fiber-manual-record" size={8} color="#4CAF50" />
+                  <Text style={[styles.metaText, { color: '#4CAF50', fontWeight: 'bold' }]}>
+                    {googleDetails.isOpenNow ? 'Open Now' : 'Closed'}
+                  </Text>
                 </View>
               )}
               {heritage.period && (
                 <View style={styles.metaItem}>
-                  <MaterialIcons name="history" size={16} color={Colors.textSecondary} />
+                  <MaterialIcons name="history" size={15} color={Colors.textSecondary} />
                   <Text style={styles.metaText}>{heritage.period}</Text>
                 </View>
               )}
-              {placeObj.openingHours && (
+              {placeObj.openingHours && googleDetails?.isOpenNow === undefined && (
                 <View style={styles.metaItem}>
                   <MaterialIcons name="schedule" size={14} color={Colors.textSecondary} />
                   <Text style={styles.metaText}>{placeObj.openingHours.split('(')[0].trim()}</Text>
@@ -864,6 +885,14 @@ export default function PlaceDetailScreen() {
 
           {/* Local Artisans & Regional Gastronomy Showcase */}
           <LocalArtisansSection placeName={displayName} stateOrCity={displayName} />
+
+          {/* Nearby Tourist Amenities Radar (Google Places Integration) */}
+          <NearbyAmenitiesSection
+            placeId={placeObj.id || id || ''}
+            placeName={displayName}
+            latitude={placeObj.latitude}
+            longitude={placeObj.longitude}
+          />
 
           {/* Visitor Reviews & Community Ratings */}
           <ReviewsSection

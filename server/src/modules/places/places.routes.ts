@@ -3,6 +3,7 @@ import prisma from '../../config/database';
 import { cacheMiddleware, cacheManager } from '../../utils/cacheManager';
 import { searchEngine } from './searchService';
 import { loadMasterUnifiedPlaces } from '../../utils/masterDataLoader';
+import { GooglePlacesService } from './googlePlaces.service';
 
 const router = Router();
 
@@ -464,7 +465,56 @@ router.post('/:id/reviews', async (req: Request, res: Response) => {
   }
 });
 
-// 8. GET /places/:id (Parametric route at the bottom)
+// 8. GET /places/:id/google-details - Real-time Google rating, review count, open status
+router.get('/:id/google-details', cacheMiddleware(180), async (req: Request, res: Response) => {
+  try {
+    const q = (req.params.id as string).toLowerCase().trim();
+    let place = masterUnifiedPlaces.find(
+      (p) => p.id?.toLowerCase() === q || p.name?.toLowerCase() === q
+    );
+    if (!place) {
+      try {
+        place = (await prisma.place.findUnique({ where: { id: req.params.id as string } })) as any;
+      } catch (_) {}
+    }
+    if (!place) {
+      return res.status(404).json({ success: false, error: 'Place not found' });
+    }
+
+    const enrichment = await GooglePlacesService.enrichPlace(place.name, place.latitude, place.longitude);
+    res.json({ success: true, data: enrichment });
+  } catch (error: any) {
+    console.error('Error fetching Google Place details:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch Google Place details' });
+  }
+});
+
+// 9. GET /places/:id/nearby-amenities?type=food|restroom|atm|parking
+router.get('/:id/nearby-amenities', cacheMiddleware(180), async (req: Request, res: Response) => {
+  try {
+    const q = (req.params.id as string).toLowerCase().trim();
+    const type = (req.query.type as any) || 'food';
+    let place = masterUnifiedPlaces.find(
+      (p) => p.id?.toLowerCase() === q || p.name?.toLowerCase() === q
+    );
+    if (!place) {
+      try {
+        place = (await prisma.place.findUnique({ where: { id: req.params.id as string } })) as any;
+      } catch (_) {}
+    }
+    if (!place) {
+      return res.status(404).json({ success: false, error: 'Place not found' });
+    }
+
+    const amenities = await GooglePlacesService.getNearbyAmenities(place.name, place.latitude, place.longitude, type);
+    res.json({ success: true, data: amenities, count: amenities.length, type });
+  } catch (error: any) {
+    console.error('Error fetching nearby amenities:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch nearby amenities' });
+  }
+});
+
+// 10. GET /places/:id (Parametric route at the bottom)
 router.get('/:id', cacheMiddleware(300), async (req: Request, res: Response) => {
   try {
     let place: any = null;

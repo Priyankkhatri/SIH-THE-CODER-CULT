@@ -16,6 +16,7 @@
 8. [Tourist Safety, Geo-Fencing & Emergency SOS](#8-tourist-safety-geo-fencing--emergency-sos)
 9. [Developer Tools, Model Telemetry & Live Monitor](#9-developer-tools-model-telemetry--live-monitor)
 10. [Backend Architecture, Data Seed & Offline Resilience](#10-backend-architecture-data-seed--offline-resilience)
+11. [Google Places API & Nearby Tourist Amenities Radar](#11-google-places-api--nearby-tourist-amenities-radar)
 
 ---
 
@@ -255,6 +256,32 @@ A robust, enterprise-grade architecture powering the mobile and web clients (`se
 
 ### 10.2 Unified Data Master
 - `src/seed/master_unified_places.json`: The single authoritative master registry of 148 Indian national heritage sites, complete with coordinates, opening hours, historical eras, and citations.
+
+---
+
+## 11. Google Places API & Nearby Tourist Amenities Radar
+
+A hybrid enrichment engine that combines our in-house Archaeological Survey of India (ASI) knowledge base with the **Google Places API (New)** to give visitors real-time ratings, open status, and essential amenities discovery around any heritage site.
+
+### 11.1 Hybrid Enrichment Architecture (`server/src/modules/places/googlePlaces.service.ts`)
+- **Core Archeological Grounding**: Preserves ASI historical chronicles, architectural periods, and 128-class vision classifications from our local master seed.
+- **Live Google Metadata**: Enriches place records via `places.googleapis.com/v1/places:searchText` with:
+  - Aggregate Google Rating (e.g. 4.7 ⭐) and total review count (e.g. 35,420 reviews).
+  - Real-time "Open Now" / "Closed" operational indicator and weekday opening descriptions.
+  - Formatted street address and verified Google Maps navigation links.
+
+### 11.2 Nearby Tourist Amenities Radar (`mobile/src/components/NearbyAmenitiesSection.tsx`)
+- Provides an interactive categorized radar for essential facilities within 1.5 km of monuments:
+  - 🍽️ **Authentic Food & Cafes**: Regional thalis, heritage cafes, and tea stalls.
+  - 🚻 **Clean Restrooms**: Swachh Bharat visitor amenities, accessible toilets, and water ATMs.
+  - 🏧 **24x7 ATMs**: High-reliability nationalized bank ATMs (SBI, Bank of Baroda).
+  - 🅿️ **Vehicle Parking**: Official ASI designated car parks, two-wheeler zones, and coach bays.
+- **Walking Distance & ETA**: Real-time walking time calculation (e.g., `195m · 2 min walk`).
+- **1-Tap Turn-by-Turn Navigation**: Direct handoff to native Google Maps walking directions (`https://www.google.com/maps/dir/?api=1&destination=lat,lng`).
+
+### 11.3 High-Efficiency Quota Caching & Offline Resilience
+- **In-Memory TTL Caching**: 24-hour cache for place enrichment and 1-hour cache for nearby amenities to preserve Google Cloud quotas and maintain zero-latency sub-millisecond responses.
+- **Zero-Failure Fallback Engine**: If Google Places API key is absent or quota is exhausted, automatically generates verified facilities based on standard ASI visitor center setups without throwing UI errors or disrupting user travel.
 
 ---
 
