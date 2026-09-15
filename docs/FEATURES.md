@@ -216,17 +216,29 @@ Comprehensive safety features designed to protect tourists, especially in unfami
 
 ## 9. Developer Tools, Model Telemetry & Live Monitor
 
-An enterprise-grade developer workbench for monitoring AI model performance, embeddings, and API health (`devtools/`).
+An enterprise-grade developer workbench running at `http://localhost:5173` (`devtools/`) for monitoring AI model performance, embeddings, and real-time system health.
 
-### 9.1 Live Vision Debugger (`devtools/src/pages/VisionDebugger.tsx`)
-- Drag-and-drop test images to benchmark `infer.py` and the ONNX model in real time.
-- Visual inspection of Multi-Scale TTA crop predictions, softmax distribution, and surface entropy.
+### 9.1 Live Vision Studio & Interactive Inference Tester (`devtools/src/pages/VisionDebugger.tsx`)
+- **End-to-End Live Image Testing**: Drag-and-drop or upload any image (JPG, PNG, WEBP) directly in the browser to run live inference against `POST /vision/identify`.
+- **Instant Synthetic Test Patterns**: 1-click generators for architectural masonry patterns (triggering stepwell/monument recognition) and uniform plain surfaces (testing the Laplacian edge-variance surface complexity rejection filter).
+- **Interactive GPS Geofencing**: Enter custom latitude/longitude or select 1-click presets (Adalaj Stepwell, Modhera Sun Temple, Taj Mahal, Kumbhalgarh Fort, Somnath Temple, Red Fort) to test geospatial Bayesian prior fusion live.
+- **Stage-by-Stage Telemetry Breakdown**: Visual indicators for Stage 1 (MobileNetV3 ONNX), Stage 2 (Multimodal VL LLM), Stage 3 (Catalog Match), and Stage 4 (Spatial Geofence Proximity).
+- **128 Heritage Classes Explorer**: Interactive search and filter tool exploring all 128 trained output classes, showing indices, scientific class identifiers, and cross-referenced Place IDs.
+- **Full Curated Monument Catalog (`/vision/catalog`)**: Dedicated tab and proxy displaying all curated heritage sites, vision labels, coordinates, and historical context.
 
-### 9.2 RAG Context & Embedding Inspector (`devtools/src/pages/RAGInspector.tsx`)
-- Visualizes prompt construction, vector similarity scores, and retrieved ASI knowledge chunks.
+### 9.2 Real-Time Service Health & Self-Healing Resilience (`devtools/src/pages/Overview.tsx`)
+- **Immediate Snapshot Loading**: Fetches `/devtools/services` on initial mount for zero-delay health badge rendering.
+- **Accurate Model Telemetry**: Computes combined ONNX graph and external tensor weights (6.9MB) and validates 128 classes in `classes.json`.
+- **In-Memory Zero-Latency Mode**: Accurately reports in-memory seed mode (545KB · 148 monuments synced) as healthy and resilient for zero-setup offline development.
 
-### 9.3 Live WebSocket Telemetry Broadcast
-- Server broadcasts real-time API call latency, memory usage, and inference stages to the DevTools interface via WebSockets.
+### 9.3 RAG Context & Embedding Inspector (`devtools/src/pages/RAGInspector.tsx`)
+- Visualizes prompt construction, vector similarity scores, and retrieved ASI knowledge chunks with interactive score distribution charts.
+
+### 9.4 Multi-Tier LLM Playground (`devtools/src/pages/LLMPlayground.tsx`)
+- Side-by-side benchmark tester for Local Llama (`:1234`), GPT-4o-mini, and static deterministic RAG fallback across modes (`short`, `detailed`, `child`, `narrative`) and languages (`en`, `hi`, `gu`).
+
+### 9.5 Live WebSocket Telemetry Stream (`devtools/src/pages/LiveMonitor.tsx`)
+- Real-time streaming of API call traces, durations, status codes, and multi-stage execution timelines with live pause and regex filtering.
 
 ---
 

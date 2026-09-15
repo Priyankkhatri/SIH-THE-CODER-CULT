@@ -296,6 +296,25 @@ if (Array.isArray(ARTIFACTS_DATA)) {
   });
 }
 
+// GET /vision/catalog - List all monuments and artifacts in the vision catalog
+router.get('/catalog', (_req: Request, res: Response) => {
+  try {
+    const list = Object.entries(MONUMENT_CATALOG).map(([id, item]) => ({
+      id,
+      name: item.name,
+      placeId: item.placeId,
+      description: item.description,
+      latitude: item.latitude,
+      longitude: item.longitude,
+      visionLabels: item.visionLabels,
+      heritageContext: item.heritageContext,
+    }));
+    res.json({ success: true, data: list, count: list.length });
+  } catch (e: any) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // POST /vision/identify - Identify an artifact or monument from image + GPS
 router.post('/identify', async (req: Request, res: Response) => {
   try {

@@ -164,17 +164,16 @@ router.get('/ai/prompt-preview', (req, res) => {
 
 router.get('/vision/catalog', (_req, res) => {
   try {
-    const visionRoutePath = path.resolve(__dirname, '..', 'vision', 'vision.routes.ts');
-    const routesCode = fs.readFileSync(visionRoutePath, 'utf8');
     const classesPath = path.join(rootDir, 'ml', 'weights', 'classes.json');
     const classes = fs.existsSync(classesPath)
       ? JSON.parse(fs.readFileSync(classesPath, 'utf8'))
-      : [];
+      : {};
+    const classesCount = Array.isArray(classes) ? classes.length : Object.keys(classes).length;
     res.json({
       success: true,
       data: {
         catalogSize: 18,
-        classesCount: classes.length,
+        classesCount,
         classes,
         confidenceThresholds: {
           hard: 20,

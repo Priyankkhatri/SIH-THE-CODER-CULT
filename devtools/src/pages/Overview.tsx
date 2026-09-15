@@ -11,6 +11,15 @@ export default function Overview() {
   const nav = useNavigate();
 
   useEffect(() => {
+    fetch('/devtools/services')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && Array.isArray(d.data)) setServices(d.data);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     let snap: any = undefined;
     for (let i = messages.length - 1; i >= 0; i--) {
       if (messages[i].type === 'services_snapshot') { snap = messages[i]; break; }
