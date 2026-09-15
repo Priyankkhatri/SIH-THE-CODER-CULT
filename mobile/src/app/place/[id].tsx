@@ -233,25 +233,11 @@ export default function PlaceDetailScreen() {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
-  if (isLoading) {
-    return <PlaceDetailSkeleton onBack={() => router.back()} />;
-  }
-
-  if (!heritage) {
-    return (
-      <View style={[styles.container, styles.centerContent]}>
-        <MaterialIcons name="error-outline" size={48} color={Colors.textMuted} />
-        <Text style={styles.errorText}>{t('place.recordNotFound')}</Text>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backLink}>{t('common.goBack')}</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  const placeObj = heritage.place || {
+  // ── Derived values (must come before early returns so hook order is stable) ──
+  // These use optional-chaining / fallbacks for when heritage is still null.
+  const placeObj = heritage?.place || {
     id: id || '',
-    name: heritage.placeName || 'Heritage Monument',
+    name: heritage?.placeName || 'Heritage Monument',
     latitude: 22.3072,
     longitude: 73.1812,
     category: 'heritage',
@@ -261,15 +247,16 @@ export default function PlaceDetailScreen() {
 
   const category = placeObj.category || 'heritage';
   const categoryColor = CATEGORY_COLORS[category] || Colors.primary;
-  const displayName = heritage.placeName || placeObj.name || 'Heritage Monument';
-  const safeKeyFacts = Array.isArray(heritage.keyFacts) ? heritage.keyFacts : [];
-  const safeSources = Array.isArray(heritage.sources) ? heritage.sources : [];
+  const displayName = heritage?.placeName || placeObj.name || 'Heritage Monument';
+  const safeKeyFacts = Array.isArray(heritage?.keyFacts) ? heritage!.keyFacts : [];
+  const safeSources = Array.isArray(heritage?.sources) ? heritage!.sources : [];
 
   const verifiedPrimary = dynamicImageService.getPlaceImage(displayName, category, placeObj.imageUrl);
   const effectivePrimary = !imageError
     ? verifiedPrimary
     : dynamicImageService.getArchitecturalFallback(displayName, category, 1);
 
+  // MUST be declared before any early return — hooks rules
   const displayGallery: GalleryImage[] = React.useMemo(() => {
     let list: GalleryImage[] = [];
     if (gallery.length > 0) {
@@ -294,6 +281,7 @@ export default function PlaceDetailScreen() {
     return list;
   }, [gallery, effectivePrimary, displayName, category, imageError, verifiedPrimary]);
 
+  // MUST be declared before any early return — hooks rules
   const panResponder = React.useMemo(
     () =>
       PanResponder.create({
@@ -326,6 +314,23 @@ export default function PlaceDetailScreen() {
       }),
     [displayGallery.length, width]
   );
+
+  // Early returns — placed AFTER all hooks
+  if (isLoading) {
+    return <PlaceDetailSkeleton onBack={() => router.back()} />;
+  }
+
+  if (!heritage) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <MaterialIcons name="error-outline" size={48} color={Colors.textMuted} />
+        <Text style={styles.errorText}>{t('place.recordNotFound')}</Text>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={styles.backLink}>{t('common.goBack')}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
