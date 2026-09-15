@@ -899,20 +899,59 @@ export default function PlaceDetailScreen() {
                 </View>
               </View>
 
-              {/* Deep Heritage Link */}
+              {/* Deep Heritage Curated Archive Dossier */}
               <TouchableOpacity
-                style={styles.deepHeritageBtn}
+                style={styles.deepHeritageCard}
                 onPress={() => router.push(`/place/${id}/heritage`)}
-                activeOpacity={0.85}
+                activeOpacity={0.88}
               >
-                <View style={styles.deepHeritageIconWrap}>
-                  <MaterialIcons name="history-edu" size={24} color={Colors.primary} />
+                {/* Header with verified provenance badge */}
+                <View style={styles.dossierHeader}>
+                  <View style={styles.dossierEyebrowRow}>
+                    <MaterialIcons name="verified" size={13} color={Colors.primary} />
+                    <Text style={styles.dossierEyebrow}>OFFICIAL ASI RESEARCH DOSSIER</Text>
+                  </View>
+                  <View style={styles.dossierBadge}>
+                    <Text style={styles.dossierBadgeText}>100% Grounded</Text>
+                  </View>
                 </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.deepHeritageTitle}>Explore Full Heritage Archive</Text>
-                  <Text style={styles.deepHeritageSubtitle}>Read verified ASI chronicles, architectural breakdowns & citations</Text>
+
+                {/* Main Content Area */}
+                <View style={styles.dossierMainRow}>
+                  <View style={styles.dossierIconCircle}>
+                    <MaterialIcons name="auto-stories" size={24} color={Colors.primary} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.deepHeritageTitle}>Explore Full Heritage Archive</Text>
+                    <Text style={styles.deepHeritageSubtitle}>
+                      Comprehensive architectural blueprints, dynasty chronicles, royal inscriptions & verified ASI citations.
+                    </Text>
+                  </View>
                 </View>
-                <MaterialIcons name="chevron-right" size={22} color={Colors.primary} />
+
+                {/* Feature Highlight Pills */}
+                <View style={styles.dossierPillsRow}>
+                  <View style={styles.dossierPill}>
+                    <MaterialIcons name="schedule" size={12} color={Colors.primary} />
+                    <Text style={styles.dossierPillText}>Dynasty Timeline</Text>
+                  </View>
+                  <View style={styles.dossierPill}>
+                    <MaterialIcons name="account-balance" size={12} color={Colors.primary} />
+                    <Text style={styles.dossierPillText}>Structural Blueprints</Text>
+                  </View>
+                  <View style={styles.dossierPill}>
+                    <MaterialIcons name="menu-book" size={12} color={Colors.primary} />
+                    <Text style={styles.dossierPillText}>ASI Source Records</Text>
+                  </View>
+                </View>
+
+                {/* Interactive Action Footer */}
+                <View style={styles.dossierActionRow}>
+                  <Text style={styles.dossierActionText}>Open Curated Dossier</Text>
+                  <View style={styles.dossierActionBtn}>
+                    <MaterialIcons name="arrow-forward" size={14} color="#0A0A0E" />
+                  </View>
+                </View>
               </TouchableOpacity>
             </View>
           )}
@@ -975,11 +1014,11 @@ export default function PlaceDetailScreen() {
           <TouchableOpacity
             style={[styles.dockTabBtn, activeMainTab === 'heritage' && styles.dockTabBtnActive]}
             onPress={() => setActiveMainTab('heritage')}
-            activeOpacity={0.85}
+            activeOpacity={0.8}
           >
             <MaterialIcons
               name="auto-stories"
-              size={15}
+              size={16}
               color={activeMainTab === 'heritage' ? '#0A0A0E' : Colors.primary}
             />
             <Text
@@ -991,16 +1030,17 @@ export default function PlaceDetailScreen() {
             >
               Heritage
             </Text>
+            {activeMainTab === 'heritage' && <View style={styles.dockActiveDot} />}
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.dockTabBtn, activeMainTab === 'radar' && styles.dockTabBtnActive]}
             onPress={() => setActiveMainTab('radar')}
-            activeOpacity={0.85}
+            activeOpacity={0.8}
           >
             <MaterialIcons
               name="explore"
-              size={15}
+              size={16}
               color={activeMainTab === 'radar' ? '#0A0A0E' : Colors.primary}
             />
             <Text
@@ -1012,16 +1052,17 @@ export default function PlaceDetailScreen() {
             >
               Visit & Radar
             </Text>
+            {activeMainTab === 'radar' && <View style={styles.dockActiveDot} />}
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.dockTabBtn, activeMainTab === 'reviews' && styles.dockTabBtnActive]}
             onPress={() => setActiveMainTab('reviews')}
-            activeOpacity={0.85}
+            activeOpacity={0.8}
           >
             <MaterialIcons
               name="rate-review"
-              size={15}
+              size={16}
               color={activeMainTab === 'reviews' ? '#0A0A0E' : Colors.primary}
             />
             <Text
@@ -1033,6 +1074,7 @@ export default function PlaceDetailScreen() {
             >
               Reviews
             </Text>
+            {activeMainTab === 'reviews' && <View style={styles.dockActiveDot} />}
           </TouchableOpacity>
         </View>
       </View>
@@ -1416,26 +1458,28 @@ const styles = StyleSheet.create({
   },
   floatingBottomDock: {
     position: 'absolute',
-    left: 16,
-    right: 16,
+    left: 0,
+    right: 0,
     zIndex: 999,
     alignItems: 'center',
+    paddingHorizontal: 16,
   },
   floatingDockPill: {
     flexDirection: 'row',
+    alignItems: 'center',
     width: '100%',
-    maxWidth: 420,
-    backgroundColor: 'rgba(18, 18, 24, 0.95)',
+    maxWidth: 400,
+    backgroundColor: '#111118',
     borderRadius: BorderRadius.full,
-    padding: 5,
+    padding: 6,
     borderWidth: 1.5,
     borderColor: 'rgba(212, 175, 124, 0.35)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 10,
-    gap: 4,
+    shadowOpacity: 0.55,
+    shadowRadius: 18,
+    elevation: 12,
+    gap: 6,
   },
   dockTabBtn: {
     flex: 1,
@@ -1450,20 +1494,27 @@ const styles = StyleSheet.create({
   dockTabBtnActive: {
     backgroundColor: Colors.primary,
     shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
   },
   dockTabText: {
     fontSize: 12,
     fontWeight: '600',
-    color: Colors.textSecondary,
-    letterSpacing: 0.3,
+    color: '#9E9EB2',
+    letterSpacing: 0.2,
   },
   dockTabTextActive: {
     color: '#0A0A0E',
     fontWeight: '800',
+  },
+  dockActiveDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#0A0A0E',
+    marginLeft: 2,
   },
   tabSectionWrapper: {
     minHeight: 250,
@@ -1720,28 +1771,65 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     lineHeight: 17,
   },
-  deepHeritageBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    padding: 16,
+  deepHeritageCard: {
+    backgroundColor: '#14141E',
+    borderRadius: BorderRadius.lg,
+    padding: 18,
     borderWidth: 1,
-    borderColor: Colors.border,
-    gap: 12,
+    borderColor: 'rgba(212, 175, 124, 0.28)',
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.primary,
     marginTop: 20,
     marginBottom: 24,
+    ...Shadows.md,
+    gap: 14,
   },
-  deepHeritageIconWrap: {
+  dossierHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dossierEyebrowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  dossierEyebrow: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: Colors.primary,
+    letterSpacing: 1.2,
+  },
+  dossierBadge: {
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.25)',
+  },
+  dossierBadgeText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: Colors.primaryLight,
+  },
+  dossierMainRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  dossierIconCircle: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.goldSoft,
+    backgroundColor: 'rgba(212, 175, 124, 0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   deepHeritageTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
     color: Colors.text,
     fontFamily: Typography.fontFamily.serif,
@@ -1749,7 +1837,50 @@ const styles = StyleSheet.create({
   deepHeritageSubtitle: {
     fontSize: 12,
     color: Colors.textSecondary,
-    lineHeight: 17,
-    marginTop: 2,
+    lineHeight: 18,
+    marginTop: 3,
+  },
+  dossierPillsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  dossierPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+  },
+  dossierPillText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+  },
+  dossierActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  dossierActionText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.primary,
+    letterSpacing: 0.3,
+  },
+  dossierActionBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
