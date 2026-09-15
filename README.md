@@ -24,6 +24,7 @@
 ## Table of Contents
 
 - [About](#about)
+- [🌟 Complete Feature Specification (docs/FEATURES.md)](docs/FEATURES.md)
 - [Key Features](#key-features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
