@@ -723,7 +723,7 @@ export default function HomeScreen() {
               <Text style={styles.sectionTitle} numberOfLines={1}>{t('home.nearbyHeritageSites')}</Text>
               <Text style={styles.sectionSubtitle} numberOfLines={1}>Discover monuments near your GPS coordinates</Text>
             </View>
-            <Text style={styles.sectionCount}>{filteredPlaces.length} {t('home.placesCount')}</Text>
+            <Text style={styles.sectionCount}>{allCatalogPlaces.length} {t('home.placesCount')}</Text>
           </View>
 
           {/* Category Filter */}
@@ -741,9 +741,9 @@ export default function HomeScreen() {
               <PlaceCardHorizontalSkeleton />
               <PlaceCardHorizontalSkeleton />
             </ScrollView>
-          ) : filteredPlaces.length > 0 ? (
+          ) : allCatalogPlaces.length > 0 ? (
             <FlatList
-              data={filteredPlaces.slice(0, 8)}
+              data={allCatalogPlaces.slice(0, 8)}
               horizontal
               showsHorizontalScrollIndicator={false}
               nestedScrollEnabled={true}

@@ -21,8 +21,7 @@ export function WeatherCrowdBar({
   isLoading = false,
 }: WeatherCrowdBarProps) {
   const [expanded, setExpanded] = useState(false);
-  const fallbackWeather: WeatherInfo = getLiveWeather(latitude, longitude);
-  const [weather, setWeather] = useState<WeatherInfo>(fallbackWeather);
+  const [weather, setWeather] = useState<WeatherInfo>(() => getLiveWeather(latitude, longitude));
 
   // Live real-time weather from Open-Meteo (free, zero API key, exact coordinates)
   React.useEffect(() => {
@@ -66,17 +65,24 @@ export function WeatherCrowdBar({
           icon = 'wb-sunny';
         }
 
-        setWeather({
-          temp,
-          condition,
-          icon,
-          humidity: fallbackWeather.humidity,
-          advisory: fallbackWeather.advisory,
-        });
+        // Recompute the fallback for the current lat/lng so humidity/advisory are fresh
+        const freshFallback = getLiveWeather(latitude, longitude);
+        if (isMounted) {
+          setWeather({
+            temp,
+            condition,
+            icon,
+            humidity: freshFallback.humidity,
+            advisory: freshFallback.advisory,
+          });
+        }
       } catch {
-        // Retain calculated fallback weather
+        // Retain fresh calculated fallback for current coordinates
+        if (isMounted) setWeather(getLiveWeather(latitude, longitude));
       }
     }
+    // Reset to fresh location-aware fallback immediately when coordinates change
+    setWeather(getLiveWeather(latitude, longitude));
     fetchLiveWeather();
     return () => {
       isMounted = false;

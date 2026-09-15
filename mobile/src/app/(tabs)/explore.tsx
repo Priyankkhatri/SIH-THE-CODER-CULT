@@ -221,7 +221,7 @@ export default function ExploreScreen() {
         }
       }
     }
-  }, [params.destinationId, params.destinationName, params.routeTo, allCatalogPlaces]);
+  }, [params.destinationId, params.destinationName, params.routeTo]);
 
   const handleMarkerPress = (place: Place) => {
     setSelectedPlace(place);

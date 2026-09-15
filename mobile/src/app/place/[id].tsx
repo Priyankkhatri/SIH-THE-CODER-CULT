@@ -188,8 +188,7 @@ export default function PlaceDetailScreen() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await loadHeritage(true);
-    setIsRefreshing(false);
+    await loadHeritage(false); // keep content visible during refresh; loadHeritage sets isRefreshing(false)
   };
 
   const handleAskAI = () => {

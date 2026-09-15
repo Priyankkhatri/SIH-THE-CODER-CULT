@@ -108,6 +108,13 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
 
   useEffect(() => {
     loadReviews(true);
+    // Reset modal fields whenever the target place changes
+    setNewRating(5);
+    setNewTitle('');
+    setNewComment('');
+    setNewVisitType('Family');
+    setNewAuthorName(currentUserName || 'Heritage Visitor');
+    setSelectedFilter('all');
   }, [placeId]);
 
   const loadReviews = async (showSkeleton = true) => {
@@ -203,6 +210,9 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
     setIsModalOpen(false);
     setNewTitle('');
     setNewComment('');
+    setNewRating(5);
+    setNewVisitType('Family');
+    setNewAuthorName(currentUserName || 'Heritage Visitor');
   };
 
   if (isLoading) {

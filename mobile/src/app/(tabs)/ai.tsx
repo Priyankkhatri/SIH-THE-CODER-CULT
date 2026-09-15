@@ -84,7 +84,7 @@ export default function AIGuideScreen() {
   }, [isSpeaking]);
 
   useEffect(() => {
-    loadSuggestions();
+    loadSuggestions(contextPlaceId, contextPlaceName);
   }, [contextPlaceId]);
 
   // Stop TTS when leaving the chat tab so narration never bleeds into other tabs
@@ -114,18 +114,18 @@ export default function AIGuideScreen() {
     }
   }, [params.autoAsk, params.t, params.placeId, params.placeName]);
 
-  const loadSuggestions = async () => {
+  const loadSuggestions = async (placeId?: string | null, placeName?: string | null) => {
     try {
-      const response: any = await aiApi.getSuggestions(contextPlaceId || undefined);
+      const response: any = await aiApi.getSuggestions(placeId || undefined);
       if (response?.data) {
         setSuggestions(response.data);
       }
     } catch {
       // Use context-aware defaults
-      if (contextPlaceName) {
+      if (placeName) {
         setSuggestions([
-          `Why was ${contextPlaceName} built?`,
-          `Who built ${contextPlaceName} and when?`,
+          `Why was ${placeName} built?`,
+          `Who built ${placeName} and when?`,
           `Tell me the history in 2 minutes`,
           `What is the architectural style?`,
           `Explain like I'm 8 years old`,
@@ -169,7 +169,7 @@ export default function AIGuideScreen() {
       setLastWasOffline(true);
     } finally {
       setTyping(false);
-      loadSuggestions();
+      loadSuggestions(activePlaceId, activePlaceName);
     }
 
     setTimeout(() => {
