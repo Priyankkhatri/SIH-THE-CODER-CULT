@@ -12,12 +12,16 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { useChatStore } from '../../stores';
+import { useSpeech } from '../../hooks/useSpeech';
+import { useTranslation } from '../../hooks/useTranslation';
 import { dynamicImageService } from '../../services/dynamicImageService';
 
 export default function CameraResultScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { setContext } = useChatStore();
+  const { language } = useTranslation();
+  const { speak, stop, isSpeaking } = useSpeech();
 
   const params = useLocalSearchParams<{
     artifactName?: string;
@@ -26,6 +30,8 @@ export default function CameraResultScreen() {
     heritageContext?: string;
     placeId?: string;
     placeName?: string;
+    architecturalStyle?: string;
+    period?: string;
     imageUri?: string;
   }>();
 
@@ -36,9 +42,26 @@ export default function CameraResultScreen() {
   const heritageContext = params.heritageContext || 'Historical information cataloged by Archaeological Survey of India.';
   const placeId = params.placeId || '';
   const placeName = params.placeName || artifactName || 'Heritage Monument';
+  const architecturalStyle = params.architecturalStyle;
+  const period = params.period;
   const displayImageUri = params.imageUri || dynamicImageService.getPlaceImage(placeName, 'heritage');
 
+  const handleToggleAudio = () => {
+    if (isSpeaking) {
+      stop();
+    } else {
+      const audioNarrative = `${artifactName}. ${description}. ${heritageContext}`;
+      speak(audioNarrative, language);
+    }
+  };
+
+  const handleBack = () => {
+    stop();
+    router.back();
+  };
+
   const handleAskAI = () => {
+    stop();
     if (placeId) {
       setContext(placeId, placeName);
     }
@@ -54,6 +77,7 @@ export default function CameraResultScreen() {
   };
 
   const handleViewPlace = () => {
+    stop();
     if (placeId) {
       router.push(`/place/${placeId}`);
     } else {
@@ -65,7 +89,7 @@ export default function CameraResultScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Top Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
           <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Identification Result</Text>
@@ -102,7 +126,51 @@ export default function CameraResultScreen() {
 
           <Text style={styles.artifactName}>{artifactName}</Text>
           <Text style={styles.description}>{description}</Text>
+
+          {/* Architectural Style & Historical Era Meta Badges */}
+          {(architecturalStyle || period) && (
+            <View style={styles.metaRow}>
+              {architecturalStyle ? (
+                <View style={styles.styleBadge}>
+                  <MaterialIcons name="museum" size={14} color={Colors.primary} />
+                  <Text style={styles.styleBadgeText}>{architecturalStyle}</Text>
+                </View>
+              ) : null}
+              {period ? (
+                <View style={styles.periodBadge}>
+                  <MaterialIcons name="schedule" size={14} color={Colors.accent} />
+                  <Text style={styles.periodBadgeText}>{period}</Text>
+                </View>
+              ) : null}
+            </View>
+          )}
         </View>
+
+        {/* Audio Guide Playback Card */}
+        <TouchableOpacity
+          style={[styles.audioGuideCard, isSpeaking && styles.audioGuideCardActive]}
+          onPress={handleToggleAudio}
+          activeOpacity={0.85}
+        >
+          <View style={[styles.audioIconCircle, isSpeaking && styles.audioIconCircleActive]}>
+            <MaterialIcons
+              name={isSpeaking ? 'volume-up' : 'headphones'}
+              size={22}
+              color={isSpeaking ? '#fff' : Colors.primary}
+            />
+          </View>
+          <View style={styles.audioTextContent}>
+            <Text style={styles.audioTitle}>{isSpeaking ? 'Playing Audio Guide...' : 'Listen to Audio Guide'}</Text>
+            <Text style={styles.audioSubtitle}>
+              {isSpeaking ? 'Tap to pause narrative' : 'AI human-cadence audio tour'}
+            </Text>
+          </View>
+          <MaterialIcons
+            name={isSpeaking ? 'pause-circle-filled' : 'play-circle-filled'}
+            size={28}
+            color={Colors.primary}
+          />
+        </TouchableOpacity>
 
         {/* Associated Monument Box */}
         <View style={styles.monumentBox}>
@@ -269,6 +337,83 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.sm,
     color: Colors.textSecondary,
     lineHeight: 22,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    marginTop: Spacing.xs,
+  },
+  styleBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.25)',
+  },
+  styleBadgeText: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  periodBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(230, 126, 34, 0.12)',
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(230, 126, 34, 0.25)',
+  },
+  periodBadgeText: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.accent,
+    fontWeight: '600',
+  },
+  audioGuideCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.base,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    gap: Spacing.md,
+    ...Shadows.sm,
+  },
+  audioGuideCardActive: {
+    borderColor: Colors.primary,
+    backgroundColor: 'rgba(212, 175, 124, 0.08)',
+  },
+  audioIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(212, 175, 124, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  audioIconCircleActive: {
+    backgroundColor: Colors.primary,
+  },
+  audioTextContent: {
+    flex: 1,
+  },
+  audioTitle: {
+    fontSize: Typography.sizes.base,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  audioSubtitle: {
+    fontSize: Typography.sizes.xs,
+    color: Colors.textMuted,
+    marginTop: 2,
   },
   monumentBox: {
     flexDirection: 'row',

@@ -319,7 +319,7 @@ router.post('/identify', async (req: Request, res: Response) => {
             });
           }
 
-          if (customPred.confidence >= 25.0) {
+          if (customPred.confidence >= 14.0 || customPred.isMonument) {
             console.log(`[Vision API] In-House Model Match: ${customPred.name} (${customPred.confidence}%) [ID: ${customPred.placeId}]`);
 
             // Lookup matching catalog entry for enriched description
@@ -392,8 +392,10 @@ router.post('/identify', async (req: Request, res: Response) => {
               finalConfidence = Math.min(99, Math.round(95 + (customPred.confidence - 50) * 0.08));
             } else if (customPred.confidence >= 35) {
               finalConfidence = Math.round(90 + (customPred.confidence - 35) * 0.3);
+            } else if (customPred.confidence >= 20) {
+              finalConfidence = Math.round(85 + (customPred.confidence - 20) * 0.5);
             } else {
-              finalConfidence = Math.round(85 + (customPred.confidence - 25) * 0.5);
+              finalConfidence = Math.round(80 + (customPred.confidence - 14) * 0.8);
             }
 
             return res.json({
@@ -405,6 +407,12 @@ router.post('/identify', async (req: Request, res: Response) => {
                   name: resolvedName,
                   description: resolvedDesc || `Verified historical landmark identified by Yatra Heritage Vision Model.`,
                   confidence: finalConfidence,
+                  architecturalStyle: matchedMaster?.heritageRecord?.architecture || matchedMaster?.architecture || 'Classical Indian Heritage Architecture',
+                  period: matchedMaster?.heritageRecord?.period || matchedMaster?.period || 'Historical Era',
+                  significance: matchedMaster?.heritageRecord?.significance || 'Protected monument under Archaeological Survey of India (ASI) registry records.',
+                  city: matchedMaster?.city || matchedMaster?.district || '',
+                  state: matchedMaster?.state || '',
+                  rating: matchedMaster?.rating || 4.8,
                 },
                 heritageContext: resolvedContext || 'Protected monument under Archaeological Survey of India (ASI) registry records.',
                 placeId: resolvedPlaceId,

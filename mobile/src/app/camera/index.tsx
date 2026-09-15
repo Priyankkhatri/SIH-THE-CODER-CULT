@@ -104,8 +104,7 @@ export default function CameraScreen() {
         try {
           const photo = await cameraRef.current.takePictureAsync({
             base64: true,
-            quality: 0.5,
-            skipProcessing: Platform.OS === 'android',
+            quality: 0.6,
           });
           if (photo) {
             photoBase64 = photo.base64;
@@ -138,6 +137,8 @@ export default function CameraScreen() {
             heritageContext: item.heritageContext || 'Protected monument under Archaeological Survey of India (ASI) records.',
             placeId: item.placeId || item.artifact?.placeId || '',
             placeName: item.placeName || item.artifact?.name || 'Heritage Landmark',
+            architecturalStyle: item.artifact?.architecturalStyle || '',
+            period: item.artifact?.period || '',
             imageUri: photoUri || '',
             t: String(Date.now()),
           },

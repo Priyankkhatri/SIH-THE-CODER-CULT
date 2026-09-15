@@ -130,20 +130,6 @@ class HeritageVisionPredictor:
 
         # 1. Structural surface analysis (Physics-based wall / plain surface filter)
         surface = analyze_surface_complexity(pil_image)
-        if surface['is_flat_surface']:
-            return {
-                'identified': False,
-                'isMonument': False,
-                'reason': 'plain_surface_detected',
-                'message': 'No heritage monument detected in the frame.',
-                'guidance': 'Please point your camera directly at an Indian heritage monument, temple, fortress, or museum artifact.',
-                'class': 'non_monument',
-                'name': 'Plain Surface / Wall',
-                'placeId': '',
-                'confidence': 0.0,
-                'surfaceComplexity': surface,
-                'predictions': []
-            }
 
         # 2. Deep Neural Vision Model (MobileNetV3 ONNX)
         input_tensor = self.preprocess(pil_image)
@@ -165,6 +151,9 @@ class HeritageVisionPredictor:
             })
 
         top_match = results[0]
+        runner_up = results[1] if len(results) > 1 else {'confidence': 0.1}
+        margin_ratio = top_match['confidence'] / max(runner_up['confidence'], 0.1)
+
         is_neg_class = (
             top_match['class'] == 'non_monument' or
             'non-monument' in top_match['name'].lower() or
@@ -177,8 +166,8 @@ class HeritageVisionPredictor:
                 'identified': False,
                 'isMonument': False,
                 'reason': 'non_monument_detected',
-                'message': 'No historical monument or artifact detected.',
-                'guidance': 'Please point your camera at an Indian heritage site, monument, temple, fortress, or museum exhibit.',
+                'message': 'No historical monument or artifact detected in view.',
+                'guidance': 'Please point your camera steadily at an Indian heritage site, monument, temple, fortress, or museum artifact.',
                 'class': 'non_monument',
                 'name': 'Non-Monument / Everyday Scene',
                 'placeId': '',
@@ -187,10 +176,30 @@ class HeritageVisionPredictor:
                 'predictions': results
             }
 
-        # 4. Confidence Gating (Diffuse low-confidence probability across classes)
-        # In a 128-class model, uniform random noise is ~0.78%.
-        # A confident real-world match must achieve at least 25% top-1 margin.
-        if top_match['confidence'] < 25.0:
+        # 4. Filter completely blank / lens-covered frames only when model lacks strong conviction
+        if surface['is_flat_surface'] and top_match['confidence'] < 25.0:
+            return {
+                'identified': False,
+                'isMonument': False,
+                'reason': 'plain_surface_detected',
+                'message': 'No heritage monument detected in the frame.',
+                'guidance': 'Please point your camera directly at an Indian heritage monument, temple, fortress, or museum artifact.',
+                'class': 'non_monument',
+                'name': 'Plain Surface / Wall',
+                'placeId': '',
+                'confidence': 0.0,
+                'surfaceComplexity': surface,
+                'predictions': results
+            }
+
+        # 5. Smart Relative-Entropy Confidence Gating:
+        # Uniform random chance across 128 classes is 0.78%.
+        # A match is considered decisive if:
+        #  - confidence >= 20.0%, OR
+        #  - confidence >= 14.0% with a clear 1.4x margin over runner-up.
+        is_decisive = (top_match['confidence'] >= 20.0) or (top_match['confidence'] >= 14.0 and margin_ratio >= 1.4)
+
+        if not is_decisive:
             return {
                 'identified': False,
                 'isMonument': False,
@@ -205,7 +214,7 @@ class HeritageVisionPredictor:
                 'predictions': results
             }
 
-        # 5. Confirmed Monument Verification
+        # 6. Confirmed Monument Verification
         return {
             'identified': True,
             'isMonument': True,
