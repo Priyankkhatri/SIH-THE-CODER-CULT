@@ -83,6 +83,8 @@ interface CatalogEntry {
   latitude?: number;
   longitude?: number;
   heritageContext?: string;
+  architecturalStyle?: string;
+  period?: string;
 }
 
 const GENERIC_ARCH_TERMS = new Set([
@@ -626,6 +628,7 @@ Respond strictly with valid JSON only in this format:
 
     traceStage('vision_gps', { latitude, longitude, thresholdKm: 15 });
     if (latitude && longitude && !bestMatch) {
+      // 1. Check curated catalog
       for (const [catalogId, artifact] of Object.entries(MONUMENT_CATALOG)) {
         if (artifact.latitude && artifact.longitude) {
           const dist = haversineDistance(latitude, longitude, artifact.latitude, artifact.longitude);
@@ -636,6 +639,45 @@ Respond strictly with valid JSON only in this format:
               bestMatch = { catalogId, artifact, confidence: gpsConfidence, score: gpsScore };
             }
           }
+        }
+      }
+
+      // 2. Also check all 148 national monuments in masterUnifiedPlaces
+      if (!bestMatch) {
+        let closestMaster: any = null;
+        let closestDist = Infinity;
+
+        for (const p of masterUnifiedPlaces) {
+          if (typeof p.latitude === 'number' && typeof p.longitude === 'number') {
+            const dist = haversineDistance(latitude, longitude, p.latitude, p.longitude);
+            if (dist < 15.0 && dist < closestDist) {
+              closestDist = dist;
+              closestMaster = p;
+            }
+          }
+        }
+
+        if (closestMaster) {
+          const gpsScore = closestDist < 1.0 ? 30 : closestDist < 5.0 ? 25 : 20;
+          const gpsConfidence = closestDist < 1.0 ? 0.99 : closestDist < 5.0 ? 0.98 : 0.96;
+          const pseudoArtifact: CatalogEntry = {
+            name: closestMaster.name,
+            placeId: closestMaster.id,
+            placeName: closestMaster.name,
+            description: closestMaster.shortDescription || closestMaster.description,
+            visionLabels: [closestMaster.category || 'monument'],
+            heritageContext: closestMaster.heritageRecord?.shortStory || closestMaster.shortDescription,
+            architecturalStyle: closestMaster.heritageRecord?.architecture || closestMaster.architecture || 'Ancient Indian Architecture',
+            period: closestMaster.heritageRecord?.period || closestMaster.period || 'Historical Heritage Era',
+            latitude: closestMaster.latitude,
+            longitude: closestMaster.longitude,
+          };
+          bestMatch = {
+            catalogId: `master-${closestMaster.id}`,
+            artifact: pseudoArtifact,
+            confidence: gpsConfidence,
+            score: gpsScore,
+          };
         }
       }
     }

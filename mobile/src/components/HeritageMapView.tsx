@@ -149,14 +149,21 @@ export function HeritageMapView({
     }
   }, [selectedPlace]);
 
-  // 3. Vadodara-first detail region — streets/labels visible instantly.
-  // Old 3.6 delta showed all Gujarat as empty wash; 0.12 ≈ 12km street detail.
-  const initialRegion = {
-    latitude: 22.3072,
-    longitude: 73.1812,
-    latitudeDelta: 0.14,
-    longitudeDelta: 0.14,
-  };
+  // 3. User-location or Vadodara detail region — streets/labels visible instantly.
+  const initialRegion = React.useMemo(() => {
+    const lat = userLocation?.latitude && userLocation.latitude >= 6 && userLocation.latitude <= 38
+      ? userLocation.latitude
+      : 22.3072;
+    const lng = userLocation?.longitude && userLocation.longitude >= 68 && userLocation.longitude <= 98
+      ? userLocation.longitude
+      : 73.1812;
+    return {
+      latitude: lat,
+      longitude: lng,
+      latitudeDelta: 0.14,
+      longitudeDelta: 0.14,
+    };
+  }, [userLocation?.latitude, userLocation?.longitude]);
 
   const tileUrl = TILE_URLS[mapLayer];
 

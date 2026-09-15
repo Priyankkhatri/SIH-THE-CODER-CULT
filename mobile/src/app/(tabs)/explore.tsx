@@ -285,16 +285,37 @@ export default function ExploreScreen() {
 
   const zoomOut = () => zoomByDelta(2);
 
-  const centerOnUser = () => {
+  // Enable continuous location tracking on active radar/map
+  useEffect(() => {
+    if (viewMode === 'map') {
+      location.startWatching?.();
+      return () => {
+        location.stopWatching?.();
+      };
+    }
+  }, [viewMode]);
+
+  const centerOnUser = async () => {
+    let lat = location.latitude;
+    let lng = location.longitude;
+
+    if (!location.isGpsResolved || !location.permissionGranted) {
+      try {
+        const fresh = await location.refresh();
+        if (fresh?.latitude && fresh?.longitude) {
+          lat = fresh.latitude;
+          lng = fresh.longitude;
+        }
+      } catch {}
+    }
+
     if (mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
-      const lat = location.latitude || 22.3072;
-      const lng = location.longitude || 73.1812;
       mapRef.current.animateToRegion({
-        latitude: lat,
-        longitude: lng,
+        latitude: lat || 22.3072,
+        longitude: lng || 73.1812,
         latitudeDelta: 0.08,
         longitudeDelta: 0.08,
-      });
+      }, 500);
     }
   };
 

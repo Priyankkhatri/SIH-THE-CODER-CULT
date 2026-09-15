@@ -263,7 +263,10 @@ router.post('/generate', async (req: Request, res: Response) => {
       const travelTime = estimateTravelTime(dist, travelMode as 'walk' | 'drive');
       const visitDuration = baseVisitDuration + (nextPlace.heritageRecord ? 10 : 0);
 
-      if (totalTime + travelTime + visitDuration > maxMinutes) {
+      const isFirstStop = itineraryItems.length === 0;
+      const effectiveTravelTime = isFirstStop ? Math.min(travelTime, 15) : travelTime;
+
+      if (!isFirstStop && totalTime + effectiveTravelTime + visitDuration > maxMinutes) {
         remainingPlaces.splice(bestIdx, 1);
         continue;
       }
@@ -284,7 +287,7 @@ router.post('/generate', async (req: Request, res: Response) => {
         placeName: nextPlace.name,
         order: itineraryItems.length + 1,
         visitDuration,
-        travelTime,
+        travelTime: isFirstStop ? Math.max(5, Math.min(travelTime, 30)) : travelTime,
         travelMode,
         reason,
         latitude: nextPlace.latitude,
@@ -294,10 +297,33 @@ router.post('/generate', async (req: Request, res: Response) => {
         shortStory: nextPlace.heritageRecord?.shortStory || null,
       });
 
-      totalTime += travelTime + visitDuration;
+      totalTime += effectiveTravelTime + visitDuration;
       currentLat = nextPlace.latitude;
       currentLng = nextPlace.longitude;
       remainingPlaces.splice(bestIdx, 1);
+    }
+
+    // Safety guarantee: If strict time budget resulted in zero stops, supply closest 2-3 stops
+    if (itineraryItems.length === 0 && scoredPlaces.length > 0) {
+      const topStops = scoredPlaces.slice(0, 3);
+      topStops.forEach((p: any, idx: number) => {
+        const d = haversineDistance(lat, lng, p.latitude, p.longitude);
+        itineraryItems.push({
+          placeId: p.id,
+          placeName: p.name,
+          order: idx + 1,
+          visitDuration: baseVisitDuration,
+          travelTime: idx === 0 ? 10 : 20,
+          travelMode: d > 3 ? 'drive' : 'walk',
+          reason: `Featured ${p.category} highlight for your selected interests`,
+          latitude: p.latitude,
+          longitude: p.longitude,
+          distance: Math.round(d * 10) / 10,
+          imageUrl: p.imageUrl,
+          shortStory: p.heritageRecord?.shortStory || p.shortDescription || null,
+        });
+      });
+      totalTime = topStops.length * baseVisitDuration + 30;
     }
 
     res.json({

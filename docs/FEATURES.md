@@ -174,9 +174,12 @@ A multilingual conversational guide that brings monuments to life with human-lik
 
 Helps travelers discover, navigate, and visualize heritage sites across India (`mobile/src/app/(tabs)/explore.tsx`, `mobile/src/components/Map.tsx`).
 
-### 6.1 Custom Heritage Map & Proximity Radar
-- Interactive map powered by OpenStreetMap/Leaflet with custom category pins.
-- Real-time Haversine distance calculation from the tourist's active GPS coordinates.
+### 6.1 Custom Heritage Map & High-Performance Geolocation Engine
+- **Fast-Path Last-Known Position**: Leverages OS-level cached GPS coordinates for instant (<50ms) map initialization, preventing cold-start freezes.
+- **Timeout-Guarded Satellite Fix**: 7-second race protection prevents device hanging in indoor or shielded heritage zones.
+- **Continuous Live Movement Tracking**: Real-time position watcher (8-meter threshold) updates the tourist's map pin and radar bearing as they explore monuments on foot.
+- **In-Memory Reverse Geocoding Cache**: Lat/lng grid caching prevents duplicate network lookups and eliminates offline geocoding crashes.
+- **Real-Time Haversine Distance**: Instant distance calculation from active tourist coordinates to all 148+ national heritage sites.
 
 ### 6.2 Category-Based Discovery
 - Dedicated filters for:
