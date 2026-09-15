@@ -66,6 +66,12 @@ To ensure the AI can recognize a monument even when a tourist takes a close-up p
 
 The Place Detail view (`mobile/src/app/place/[id].tsx`) is engineered for clean, breathable editorial storytelling inspired by world-class museum placards.
 
+### 2.0 Tri-Modal Master Experience Navigation (Cognitive Overload Elimination)
+Replaces 4000px continuous doom-scrolling with a top-tier segmented master navigator:
+- **🏛️ Heritage & Story**: Pure cultural storytelling (2-Minute Heritage Story, Visual Perspective Gallery, 4-tab Knowledge Hub, and ASI citations). Zero clutter from commercial or utility sections.
+- **🧭 Visit & Radar**: On-ground tourist utility suite (Official ASI Fast-Track Ticketing, Google Places Nearby Amenities Radar [Restrooms, Cafes, ATMs, Parking with 1-tap Google Maps walking directions], and Grassroots Artisans/Cuisine).
+- **⭐ Reviews**: Community social proof suite (5.0 rating breakdown histogram, verified traveler reviews carousel, category chips, and review submission).
+
 ### 2.1 Multi-Perspective Visual Gallery Carousel
 - **Hero Slider with Perspective Captions**: Smooth horizontal swipe carousel with active dot pagination and left/right quick chevrons.
 - **Photo Counter Badge**: Displays current slide position (`1 / N`).

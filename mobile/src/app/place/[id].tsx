@@ -70,6 +70,7 @@ export default function PlaceDetailScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>('story');
+  const [activeMainTab, setActiveMainTab] = useState<'heritage' | 'radar' | 'reviews'>('heritage');
   const [activeHeritageTab, setActiveHeritageTab] = useState<'chronicle' | 'architecture' | 'facts' | 'sources'>('chronicle');
   const [sosVisible, setSosVisible] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -531,15 +532,19 @@ export default function PlaceDetailScreen() {
             )}
 
             <Text style={styles.heroTitle} pointerEvents="none">{displayName}</Text>
-            <View style={styles.heroMeta} pointerEvents="none">
-              <View style={styles.metaItem}>
+            <View style={styles.heroMeta} pointerEvents="box-none">
+              <TouchableOpacity
+                style={styles.metaItem}
+                onPress={() => setActiveMainTab('reviews')}
+                activeOpacity={0.75}
+              >
                 <MaterialIcons name="star" size={15} color={Colors.primary} />
                 <Text style={styles.metaText}>
                   {googleDetails?.googleRating
                     ? `${googleDetails.googleRating.toFixed(1)} (${(googleDetails.userRatingCount || 1000).toLocaleString()} on Google)`
                     : `${placeObj.rating || 4.7} Rating`}
                 </Text>
-              </View>
+              </TouchableOpacity>
               {googleDetails?.isOpenNow !== undefined && (
                 <View style={[styles.metaItem, { backgroundColor: 'rgba(76, 175, 80, 0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }]}>
                   <MaterialIcons name="fiber-manual-record" size={8} color="#4CAF50" />
@@ -594,328 +599,411 @@ export default function PlaceDetailScreen() {
             variant="full"
           />
 
-          {/* Official Monument Ticketing Card */}
-          <TouchableOpacity
-            style={styles.ticketCard}
-            onPress={() => Linking.openURL('https://asi.payumoney.com')}
-            activeOpacity={0.85}
-          >
-            <View style={styles.ticketIconWrap}>
-              <MaterialIcons name="confirmation-number" size={22} color={Colors.background} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.ticketTitle}>Book Official ASI Entry Ticket</Text>
-              <Text style={styles.ticketSubtitle}>Direct Govt e-portal • Fast-track QR scan entry</Text>
-            </View>
-            <View style={styles.ticketActionBadge}>
-              <Text style={styles.ticketActionText}>Book Online</Text>
-              <MaterialIcons name="open-in-new" size={13} color={Colors.primary} />
-            </View>
-          </TouchableOpacity>
-
-          {/* 2-Minute Heritage Story — editorial storytelling */}
-          {heritage.shortStory && (
-            <View style={styles.storyEditorial}>
-              <View style={styles.storyHeaderRow}>
-                <MaterialIcons name="auto-stories" size={14} color={Colors.primary} />
-                <Text style={styles.storyEyebrow}>2-MINUTE HERITAGE STORY</Text>
-              </View>
-              <Text style={styles.storyQuote}>
-                {heritage.significance && heritage.significance.length > 20
-                  ? (heritage.significance.length > 95
-                      ? `"${heritage.significance.slice(0, 95)}..."`
-                      : `"${heritage.significance}"`)
-                  : `"${displayName} — Where sacred stone and master craftsmanship tell the timeless story of India."`}
-              </Text>
-              <Text style={styles.storyText} numberOfLines={expandedSection === 'story' ? undefined : 4}>
-                {heritage.shortStory}
-              </Text>
-              <TouchableOpacity onPress={() => toggleSection('story')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Text style={styles.readMore}>{expandedSection === 'story' ? 'Show less' : 'Read more'}</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* Visual Architecture & Photo Perspectives Gallery */}
-          {displayGallery.length > 1 && (
-            <View style={styles.perspectivesSection}>
-              <View style={styles.perspectivesHeader}>
-                <View>
-                  <Text style={styles.galleryEyebrow}>ARCHITECTURE · {displayGallery.length} VIEWS</Text>
-                  <Text style={styles.perspectivesSectionTitle}>Visual Gallery</Text>
-                </View>
-                <Text style={styles.perspectivesCountBadge}>
-                  {activeSlide + 1} / {displayGallery.length}
-                </Text>
-              </View>
-              <FlatList
-                data={displayGallery}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                nestedScrollEnabled={true}
-                keyExtractor={(item, idx) => `gthumb-${item.url}-${idx}`}
-                decelerationRate="fast"
-                snapToInterval={196}
-                snapToAlignment="start"
-                disableIntervalMomentum
-                scrollEventThrottle={16}
-                contentContainerStyle={{ paddingVertical: 6, paddingRight: 20 }}
-                ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-                onMomentumScrollEnd={(e) => {
-                  const idx = Math.round(e.nativeEvent.contentOffset.x / 196);
-                  if (idx >= 0 && idx < displayGallery.length) setActiveSlide(idx);
-                }}
-                renderItem={({ item, index: idx }) => (
-                  <TouchableOpacity
-                    style={[
-                      styles.galleryCard,
-                      activeSlide === idx && styles.galleryCardActive,
-                    ]}
-                    onPress={() => {
-                      setActiveSlide(idx);
-                      heroScrollRef.current?.scrollTo({ x: idx * width, animated: true });
-                    }}
-                    activeOpacity={0.9}
-                  >
-                    <Image
-                      source={{ uri: item.url }}
-                      style={styles.galleryCardImg}
-                      contentFit="cover"
-                      transition={200}
-                      onError={() => {
-                        const brokenUrl = item.url;
-                        setGallery((prev) => prev.filter((i) => i.url !== brokenUrl));
-                      }}
-                    />
-                    <View style={styles.galleryCardOverlay}>
-                      <Text style={styles.galleryCardCaption} numberOfLines={1}>
-                        {item.caption}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-          )}
-
-          {/* Heritage Knowledge Hub - Clean Interactive Tabbed Navigator */}
-          <View style={styles.heritageHubContainer}>
-            <View style={styles.hubHeaderRow}>
-              <MaterialIcons name="menu-book" size={20} color={Colors.primary} />
-              <Text style={styles.hubTitle}>Heritage Knowledge Hub</Text>
-            </View>
-
-            {/* Segmented Tab Selector Bar */}
-            <View style={styles.tabSelectorBar}>
+          {/* Master Segmented Experience Switcher */}
+          <View style={styles.masterTabBarContainer}>
+            <View style={styles.masterTabBar}>
               <TouchableOpacity
-                style={[styles.tabSelectorBtn, activeHeritageTab === 'chronicle' && styles.tabSelectorBtnActive]}
-                onPress={() => setActiveHeritageTab('chronicle')}
-                activeOpacity={0.8}
+                style={[styles.masterTabBtn, activeMainTab === 'heritage' && styles.masterTabBtnActive]}
+                onPress={() => setActiveMainTab('heritage')}
+                activeOpacity={0.85}
               >
                 <MaterialIcons
-                  name="history-edu"
-                  size={14}
-                  color={activeHeritageTab === 'chronicle' ? '#0F0F0F' : Colors.textMuted}
+                  name="auto-stories"
+                  size={15}
+                  color={activeMainTab === 'heritage' ? '#0F0F0F' : Colors.primary}
                 />
                 <Text
                   style={[
-                    styles.tabSelectorText,
-                    activeHeritageTab === 'chronicle' && styles.tabSelectorTextActive,
+                    styles.masterTabText,
+                    activeMainTab === 'heritage' && styles.masterTabTextActive,
                   ]}
+                  numberOfLines={1}
                 >
-                  Chronicle
+                  Heritage & Story
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.tabSelectorBtn, activeHeritageTab === 'architecture' && styles.tabSelectorBtnActive]}
-                onPress={() => setActiveHeritageTab('architecture')}
-                activeOpacity={0.8}
+                style={[styles.masterTabBtn, activeMainTab === 'radar' && styles.masterTabBtnActive]}
+                onPress={() => setActiveMainTab('radar')}
+                activeOpacity={0.85}
               >
                 <MaterialIcons
-                  name="apartment"
-                  size={14}
-                  color={activeHeritageTab === 'architecture' ? '#0F0F0F' : Colors.textMuted}
+                  name="explore"
+                  size={15}
+                  color={activeMainTab === 'radar' ? '#0F0F0F' : Colors.primary}
                 />
                 <Text
                   style={[
-                    styles.tabSelectorText,
-                    activeHeritageTab === 'architecture' && styles.tabSelectorTextActive,
+                    styles.masterTabText,
+                    activeMainTab === 'radar' && styles.masterTabTextActive,
                   ]}
+                  numberOfLines={1}
                 >
-                  Architecture
+                  Visit & Radar
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.tabSelectorBtn, activeHeritageTab === 'facts' && styles.tabSelectorBtnActive]}
-                onPress={() => setActiveHeritageTab('facts')}
-                activeOpacity={0.8}
+                style={[styles.masterTabBtn, activeMainTab === 'reviews' && styles.masterTabBtnActive]}
+                onPress={() => setActiveMainTab('reviews')}
+                activeOpacity={0.85}
               >
                 <MaterialIcons
-                  name="lightbulb"
-                  size={14}
-                  color={activeHeritageTab === 'facts' ? '#0F0F0F' : Colors.textMuted}
+                  name="rate-review"
+                  size={15}
+                  color={activeMainTab === 'reviews' ? '#0F0F0F' : Colors.primary}
                 />
                 <Text
                   style={[
-                    styles.tabSelectorText,
-                    activeHeritageTab === 'facts' && styles.tabSelectorTextActive,
+                    styles.masterTabText,
+                    activeMainTab === 'reviews' && styles.masterTabTextActive,
                   ]}
+                  numberOfLines={1}
                 >
-                  Key Facts
+                  Reviews
                 </Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.tabSelectorBtn, activeHeritageTab === 'sources' && styles.tabSelectorBtnActive]}
-                onPress={() => setActiveHeritageTab('sources')}
-                activeOpacity={0.8}
-              >
-                <MaterialIcons
-                  name="verified"
-                  size={14}
-                  color={activeHeritageTab === 'sources' ? '#0F0F0F' : Colors.textMuted}
-                />
-                <Text
-                  style={[
-                    styles.tabSelectorText,
-                    activeHeritageTab === 'sources' && styles.tabSelectorTextActive,
-                  ]}
-                >
-                  Sources
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Active Tab Content Card */}
-            <View style={styles.hubContentCard}>
-              {activeHeritageTab === 'chronicle' && (
-                <View style={styles.tabPane}>
-                  <View style={styles.tabContentHeader}>
-                    <Text style={styles.tabContentTitle}>Historical Legacy & Chronicles</Text>
-                    {heritage.period && (
-                      <View style={styles.periodChip}>
-                        <MaterialIcons name="schedule" size={12} color={Colors.primary} />
-                        <Text style={styles.periodChipText}>{heritage.period}</Text>
-                      </View>
-                    )}
-                  </View>
-                  <Text style={styles.tabContentBody}>
-                    {heritage.history || 'Archived historical records preserved by the Archaeological Survey of India.'}
-                  </Text>
-                  {heritage.significance ? (
-                    <View style={styles.significanceBox}>
-                      <View style={styles.significanceHeader}>
-                        <MaterialIcons name="stars" size={15} color={Colors.accent} />
-                        <Text style={styles.significanceTitle}>Historical Significance</Text>
-                      </View>
-                      <Text style={styles.significanceText}>{heritage.significance}</Text>
-                    </View>
-                  ) : null}
-                </View>
-              )}
-
-              {activeHeritageTab === 'architecture' && (
-                <View style={styles.tabPane}>
-                  <View style={styles.tabContentHeader}>
-                    <Text style={styles.tabContentTitle}>Architectural Marvel & Design</Text>
-                    <View style={styles.periodChip}>
-                      <MaterialIcons name="museum" size={12} color={Colors.primary} />
-                      <Text style={styles.periodChipText}>Protected Landmark</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.tabContentBody}>
-                    {heritage.architecture ||
-                      'Exquisite stone masonry, intricate sculptural reliefs, and traditional structural craftsmanship preserved under national conservation guidelines.'}
-                  </Text>
-                </View>
-              )}
-
-              {activeHeritageTab === 'facts' && (
-                <View style={styles.tabPane}>
-                  <Text style={styles.tabContentTitle}>Fast Monument Facts</Text>
-                  <View style={styles.factsGrid}>
-                    {safeKeyFacts.map((fact, idx) => {
-                      const parts = fact.split(':');
-                      const label = parts.length > 1 ? parts[0].trim() : `Fact ${idx + 1}`;
-                      const value = parts.length > 1 ? parts.slice(1).join(':').trim() : fact;
-                      return (
-                        <View key={idx} style={styles.factGridCard}>
-                          <View style={styles.factCardDot} />
-                          <View style={{ flex: 1 }}>
-                            <Text style={styles.factCardLabel}>{label}</Text>
-                            <Text style={styles.factCardValue}>{value}</Text>
-                          </View>
-                        </View>
-                      );
-                    })}
-                  </View>
-                </View>
-              )}
-
-              {activeHeritageTab === 'sources' && (
-                <View style={styles.tabPane}>
-                  <Text style={styles.tabContentTitle}>Verified Govt & ASI Citations</Text>
-                  <View style={{ gap: 8, marginTop: 4 }}>
-                    {safeSources.map((source, idx) => (
-                      <TouchableOpacity
-                        key={idx}
-                        style={styles.hubSourceItem}
-                        onPress={() => source.sourceUrl && Linking.openURL(source.sourceUrl)}
-                        activeOpacity={0.8}
-                      >
-                        <MaterialIcons name="verified" size={18} color={Colors.success} />
-                        <View style={{ flex: 1 }}>
-                          <Text style={styles.sourceName}>{source.sourceName}</Text>
-                          <Text style={styles.sourceRef} numberOfLines={2}>
-                            {source.referenceText}
-                          </Text>
-                        </View>
-                        {source.sourceUrl && (
-                          <MaterialIcons name="open-in-new" size={14} color={Colors.primary} />
-                        )}
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
-              )}
             </View>
           </View>
 
-          {/* Local Artisans & Regional Gastronomy Showcase */}
-          <LocalArtisansSection placeName={displayName} stateOrCity={displayName} />
+          {/* TAB 1: HERITAGE & STORY (Museum-grade Cultural Narrative) */}
+          {activeMainTab === 'heritage' && (
+            <View style={styles.tabSectionWrapper}>
+              {/* 2-Minute Heritage Story — editorial storytelling */}
+              {heritage.shortStory && (
+                <View style={styles.storyEditorial}>
+                  <View style={styles.storyHeaderRow}>
+                    <MaterialIcons name="auto-stories" size={14} color={Colors.primary} />
+                    <Text style={styles.storyEyebrow}>2-MINUTE HERITAGE STORY</Text>
+                  </View>
+                  <Text style={styles.storyQuote}>
+                    {heritage.significance && heritage.significance.length > 20
+                      ? (heritage.significance.length > 95
+                          ? `"${heritage.significance.slice(0, 95)}..."`
+                          : `"${heritage.significance}"`)
+                      : `"${displayName} — Where sacred stone and master craftsmanship tell the timeless story of India."`}
+                  </Text>
+                  <Text style={styles.storyText} numberOfLines={expandedSection === 'story' ? undefined : 4}>
+                    {heritage.shortStory}
+                  </Text>
+                  <TouchableOpacity onPress={() => toggleSection('story')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                    <Text style={styles.readMore}>{expandedSection === 'story' ? 'Show less' : 'Read more'}</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
 
-          {/* Nearby Tourist Amenities Radar (Google Places Integration) */}
-          <NearbyAmenitiesSection
-            placeId={placeObj.id || id || ''}
-            placeName={displayName}
-            latitude={placeObj.latitude}
-            longitude={placeObj.longitude}
-          />
+              {/* Visual Architecture & Photo Perspectives Gallery */}
+              {displayGallery.length > 1 && (
+                <View style={styles.perspectivesSection}>
+                  <View style={styles.perspectivesHeader}>
+                    <View>
+                      <Text style={styles.galleryEyebrow}>ARCHITECTURE · {displayGallery.length} VIEWS</Text>
+                      <Text style={styles.perspectivesSectionTitle}>Visual Gallery</Text>
+                    </View>
+                    <Text style={styles.perspectivesCountBadge}>
+                      {activeSlide + 1} / {displayGallery.length}
+                    </Text>
+                  </View>
+                  <FlatList
+                    data={displayGallery}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    nestedScrollEnabled={true}
+                    keyExtractor={(item, idx) => `gthumb-${item.url}-${idx}`}
+                    decelerationRate="fast"
+                    snapToInterval={196}
+                    snapToAlignment="start"
+                    disableIntervalMomentum
+                    scrollEventThrottle={16}
+                    contentContainerStyle={{ paddingVertical: 6, paddingRight: 20 }}
+                    ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+                    onMomentumScrollEnd={(e) => {
+                      const idx = Math.round(e.nativeEvent.contentOffset.x / 196);
+                      if (idx >= 0 && idx < displayGallery.length) setActiveSlide(idx);
+                    }}
+                    renderItem={({ item, index: idx }) => (
+                      <TouchableOpacity
+                        style={[
+                          styles.galleryCard,
+                          activeSlide === idx && styles.galleryCardActive,
+                        ]}
+                        onPress={() => {
+                          setActiveSlide(idx);
+                          heroScrollRef.current?.scrollTo({ x: idx * width, animated: true });
+                        }}
+                        activeOpacity={0.9}
+                      >
+                        <Image
+                          source={{ uri: item.url }}
+                          style={styles.galleryCardImg}
+                          contentFit="cover"
+                          transition={200}
+                          onError={() => {
+                            const brokenUrl = item.url;
+                            setGallery((prev) => prev.filter((i) => i.url !== brokenUrl));
+                          }}
+                        />
+                        <View style={styles.galleryCardOverlay}>
+                          <Text style={styles.galleryCardCaption} numberOfLines={1}>
+                            {item.caption}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </View>
+              )}
 
-          {/* Visitor Reviews & Community Ratings */}
-          <ReviewsSection
-            placeId={placeObj.id || id || ''}
-            placeName={displayName}
-            initialRating={placeObj.rating}
-          />
+              {/* Heritage Knowledge Hub - Clean Interactive Tabbed Navigator */}
+              <View style={styles.heritageHubContainer}>
+                <View style={styles.hubHeaderRow}>
+                  <MaterialIcons name="menu-book" size={20} color={Colors.primary} />
+                  <Text style={styles.hubTitle}>Heritage Knowledge Hub</Text>
+                </View>
 
-          {/* Deep Heritage Link */}
-          <TouchableOpacity
-            style={styles.deepHeritageBtn}
-            onPress={() => router.push(`/place/${id}/heritage`)}
-            activeOpacity={0.85}
-          >
-            <View style={styles.deepHeritageIconWrap}>
-              <MaterialIcons name="history-edu" size={24} color={Colors.primary} />
+                {/* Segmented Tab Selector Bar */}
+                <View style={styles.tabSelectorBar}>
+                  <TouchableOpacity
+                    style={[styles.tabSelectorBtn, activeHeritageTab === 'chronicle' && styles.tabSelectorBtnActive]}
+                    onPress={() => setActiveHeritageTab('chronicle')}
+                    activeOpacity={0.8}
+                  >
+                    <MaterialIcons
+                      name="history-edu"
+                      size={14}
+                      color={activeHeritageTab === 'chronicle' ? '#0F0F0F' : Colors.textMuted}
+                    />
+                    <Text
+                      style={[
+                        styles.tabSelectorText,
+                        activeHeritageTab === 'chronicle' && styles.tabSelectorTextActive,
+                      ]}
+                    >
+                      Chronicle
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.tabSelectorBtn, activeHeritageTab === 'architecture' && styles.tabSelectorBtnActive]}
+                    onPress={() => setActiveHeritageTab('architecture')}
+                    activeOpacity={0.8}
+                  >
+                    <MaterialIcons
+                      name="apartment"
+                      size={14}
+                      color={activeHeritageTab === 'architecture' ? '#0F0F0F' : Colors.textMuted}
+                    />
+                    <Text
+                      style={[
+                        styles.tabSelectorText,
+                        activeHeritageTab === 'architecture' && styles.tabSelectorTextActive,
+                      ]}
+                    >
+                      Architecture
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.tabSelectorBtn, activeHeritageTab === 'facts' && styles.tabSelectorBtnActive]}
+                    onPress={() => setActiveHeritageTab('facts')}
+                    activeOpacity={0.8}
+                  >
+                    <MaterialIcons
+                      name="lightbulb"
+                      size={14}
+                      color={activeHeritageTab === 'facts' ? '#0F0F0F' : Colors.textMuted}
+                    />
+                    <Text
+                      style={[
+                        styles.tabSelectorText,
+                        activeHeritageTab === 'facts' && styles.tabSelectorTextActive,
+                      ]}
+                    >
+                      Key Facts
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.tabSelectorBtn, activeHeritageTab === 'sources' && styles.tabSelectorBtnActive]}
+                    onPress={() => setActiveHeritageTab('sources')}
+                    activeOpacity={0.8}
+                  >
+                    <MaterialIcons
+                      name="verified"
+                      size={14}
+                      color={activeHeritageTab === 'sources' ? '#0F0F0F' : Colors.textMuted}
+                    />
+                    <Text
+                      style={[
+                        styles.tabSelectorText,
+                        activeHeritageTab === 'sources' && styles.tabSelectorTextActive,
+                      ]}
+                    >
+                      Sources
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Active Tab Content Card */}
+                <View style={styles.hubContentCard}>
+                  {activeHeritageTab === 'chronicle' && (
+                    <View style={styles.tabPane}>
+                      <View style={styles.tabContentHeader}>
+                        <Text style={styles.tabContentTitle}>Historical Legacy & Chronicles</Text>
+                        {heritage.period && (
+                          <View style={styles.periodChip}>
+                            <MaterialIcons name="schedule" size={12} color={Colors.primary} />
+                            <Text style={styles.periodChipText}>{heritage.period}</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={styles.tabContentBody}>
+                        {heritage.history || 'Archived historical records preserved by the Archaeological Survey of India.'}
+                      </Text>
+                      {heritage.significance ? (
+                        <View style={styles.significanceBox}>
+                          <View style={styles.significanceHeader}>
+                            <MaterialIcons name="stars" size={15} color={Colors.accent} />
+                            <Text style={styles.significanceTitle}>Historical Significance</Text>
+                          </View>
+                          <Text style={styles.significanceText}>{heritage.significance}</Text>
+                        </View>
+                      ) : null}
+                    </View>
+                  )}
+
+                  {activeHeritageTab === 'architecture' && (
+                    <View style={styles.tabPane}>
+                      <View style={styles.tabContentHeader}>
+                        <Text style={styles.tabContentTitle}>Architectural Marvel & Design</Text>
+                        <View style={styles.periodChip}>
+                          <MaterialIcons name="museum" size={12} color={Colors.primary} />
+                          <Text style={styles.periodChipText}>Protected Landmark</Text>
+                        </View>
+                      </View>
+                      <Text style={styles.tabContentBody}>
+                        {heritage.architecture ||
+                          'Exquisite stone masonry, intricate sculptural reliefs, and traditional structural craftsmanship preserved under national conservation guidelines.'}
+                      </Text>
+                    </View>
+                  )}
+
+                  {activeHeritageTab === 'facts' && (
+                    <View style={styles.tabPane}>
+                      <Text style={styles.tabContentTitle}>Fast Monument Facts</Text>
+                      <View style={styles.factsGrid}>
+                        {safeKeyFacts.map((fact, idx) => {
+                          const parts = fact.split(':');
+                          const label = parts.length > 1 ? parts[0].trim() : `Fact ${idx + 1}`;
+                          const value = parts.length > 1 ? parts.slice(1).join(':').trim() : fact;
+                          return (
+                            <View key={idx} style={styles.factGridCard}>
+                              <View style={styles.factCardDot} />
+                              <View style={{ flex: 1 }}>
+                                <Text style={styles.factCardLabel}>{label}</Text>
+                                <Text style={styles.factCardValue}>{value}</Text>
+                              </View>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    </View>
+                  )}
+
+                  {activeHeritageTab === 'sources' && (
+                    <View style={styles.tabPane}>
+                      <Text style={styles.tabContentTitle}>Verified Govt & ASI Citations</Text>
+                      <View style={{ gap: 8, marginTop: 4 }}>
+                        {safeSources.map((source, idx) => (
+                          <TouchableOpacity
+                            key={idx}
+                            style={styles.hubSourceItem}
+                            onPress={() => source.sourceUrl && Linking.openURL(source.sourceUrl)}
+                            activeOpacity={0.8}
+                          >
+                            <MaterialIcons name="verified" size={18} color={Colors.success} />
+                            <View style={{ flex: 1 }}>
+                              <Text style={styles.sourceName}>{source.sourceName}</Text>
+                              <Text style={styles.sourceRef} numberOfLines={2}>
+                                {source.referenceText}
+                              </Text>
+                            </View>
+                            {source.sourceUrl && (
+                              <MaterialIcons name="open-in-new" size={14} color={Colors.primary} />
+                            )}
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              {/* Deep Heritage Link */}
+              <TouchableOpacity
+                style={styles.deepHeritageBtn}
+                onPress={() => router.push(`/place/${id}/heritage`)}
+                activeOpacity={0.85}
+              >
+                <View style={styles.deepHeritageIconWrap}>
+                  <MaterialIcons name="history-edu" size={24} color={Colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.deepHeritageTitle}>Explore Full Heritage Archive</Text>
+                  <Text style={styles.deepHeritageSubtitle}>Read verified ASI chronicles, architectural breakdowns & citations</Text>
+                </View>
+                <MaterialIcons name="chevron-right" size={22} color={Colors.primary} />
+              </TouchableOpacity>
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.deepHeritageTitle}>Explore Full Heritage Archive</Text>
-              <Text style={styles.deepHeritageSubtitle}>Read verified ASI chronicles, architectural breakdowns & citations</Text>
+          )}
+
+          {/* TAB 2: ON-GROUND VISIT & RADAR (Practical Utility Suite) */}
+          {activeMainTab === 'radar' && (
+            <View style={styles.tabSectionWrapper}>
+              {/* Official Monument Ticketing Card */}
+              <TouchableOpacity
+                style={styles.ticketCard}
+                onPress={() => Linking.openURL('https://asi.payumoney.com')}
+                activeOpacity={0.85}
+              >
+                <View style={styles.ticketIconWrap}>
+                  <MaterialIcons name="confirmation-number" size={22} color={Colors.background} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.ticketTitle}>Book Official ASI Entry Ticket</Text>
+                  <Text style={styles.ticketSubtitle}>Direct Govt e-portal • Fast-track QR scan entry</Text>
+                </View>
+                <View style={styles.ticketActionBadge}>
+                  <Text style={styles.ticketActionText}>Book Online</Text>
+                  <MaterialIcons name="open-in-new" size={13} color={Colors.primary} />
+                </View>
+              </TouchableOpacity>
+
+              {/* Nearby Tourist Amenities Radar (Google Places Integration) */}
+              <NearbyAmenitiesSection
+                placeId={placeObj.id || id || ''}
+                placeName={displayName}
+                latitude={placeObj.latitude}
+                longitude={placeObj.longitude}
+              />
+
+              {/* Local Artisans & Regional Gastronomy Showcase */}
+              <LocalArtisansSection placeName={displayName} stateOrCity={displayName} />
             </View>
-            <MaterialIcons name="chevron-right" size={22} color={Colors.primary} />
-          </TouchableOpacity>
+          )}
+
+          {/* TAB 3: VISITOR REVIEWS & RATINGS (Community & Social Proof) */}
+          {activeMainTab === 'reviews' && (
+            <View style={styles.tabSectionWrapper}>
+              {/* Visitor Reviews & Community Ratings */}
+              <ReviewsSection
+                placeId={placeObj.id || id || ''}
+                placeName={displayName}
+                initialRating={placeObj.rating}
+              />
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -1274,6 +1362,50 @@ const styles = StyleSheet.create({
   actionLabelPrimary: {
     color: '#0F0F0F',
     fontWeight: '700',
+  },
+  masterTabBarContainer: {
+    marginTop: 6,
+    marginBottom: 20,
+  },
+  masterTabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#121218',
+    borderRadius: BorderRadius.full,
+    padding: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.25)',
+    gap: 4,
+  },
+  masterTabBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    paddingVertical: 9,
+    paddingHorizontal: 6,
+    borderRadius: BorderRadius.full,
+  },
+  masterTabBtnActive: {
+    backgroundColor: Colors.primary,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  masterTabText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+    letterSpacing: 0.2,
+  },
+  masterTabTextActive: {
+    color: '#0A0A0E',
+    fontWeight: '800',
+  },
+  tabSectionWrapper: {
+    minHeight: 250,
   },
   ticketCard: {
     flexDirection: 'row',
