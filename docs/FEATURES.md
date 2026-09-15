@@ -66,11 +66,15 @@ To ensure the AI can recognize a monument even when a tourist takes a close-up p
 
 The Place Detail view (`mobile/src/app/place/[id].tsx`) is engineered for clean, breathable editorial storytelling inspired by world-class museum placards.
 
-### 2.0 Tri-Modal Master Experience Navigation (Cognitive Overload Elimination)
-Replaces 4000px continuous doom-scrolling with a top-tier segmented master navigator:
-- **🏛️ Heritage & Story**: Pure cultural storytelling (2-Minute Heritage Story, Visual Perspective Gallery, 4-tab Knowledge Hub, and ASI citations). Zero clutter from commercial or utility sections.
-- **🧭 Visit & Radar**: On-ground tourist utility suite (Official ASI Fast-Track Ticketing, Google Places Nearby Amenities Radar [Restrooms, Cafes, ATMs, Parking with 1-tap Google Maps walking directions], and Grassroots Artisans/Cuisine).
-- **⭐ Reviews**: Community social proof suite (5.0 rating breakdown histogram, verified traveler reviews carousel, category chips, and review submission).
+### 2.0 Sticky Floating Bottom Pill Dock & Tri-Modal Navigation (Zero Doom-Scrolling UX)
+Replaces 4000px continuous doom-scrolling and static in-scroll tabs with an Apple/Airbnb-grade floating bottom pill dock (`floatingBottomDock`):
+- **Sticky Thumb Dock**: An ergonomic floating pill dock fixed above the bottom safe area inset (`insets.bottom`), remaining accessible regardless of scroll depth.
+- **Sleek Context Breadcrumbs**: In-page eyebrow badge (`viewContextBanner`) indicating the active experience domain (`ARCHAEOLOGICAL STORY & ARCHITECTURE`, `ON-GROUND RADAR & LOCAL ARTISANS`, `VERIFIED REVIEWS & RATINGS`).
+- **Interactive Hero Rating Badge**: Direct tap on the hero star rating pill instantly jumps to the Reviews experience domain.
+- **Three Focused Experience Domains**:
+  - **🏛️ Heritage**: Pure cultural storytelling (2-Minute Heritage Story, Visual Perspective Gallery, 4-tab Knowledge Hub, and ASI citations).
+  - **🧭 Visit & Radar**: On-ground tourist utility suite (Official ASI Fast-Track Ticketing, Google Places Nearby Amenities Radar [Restrooms, Cafes, ATMs, Parking with 1-tap Google Maps walking directions], and Grassroots Artisans/Cuisine).
+  - **⭐ Reviews**: Community social proof suite (5.0 rating breakdown histogram, verified traveler reviews carousel, category chips, and review submission).
 
 ### 2.1 Multi-Perspective Visual Gallery Carousel
 - **Hero Slider with Perspective Captions**: Smooth horizontal swipe carousel with active dot pagination and left/right quick chevrons.

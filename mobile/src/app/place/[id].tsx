@@ -14,6 +14,7 @@ import {
   PanResponder,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } from '../../constants/theme';
@@ -54,6 +55,7 @@ interface HeritageDetail {
 }
 
 export default function PlaceDetailScreen() {
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { language } = useUserStore();
@@ -364,6 +366,7 @@ export default function PlaceDetailScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled={true}
+        contentContainerStyle={{ paddingBottom: 120 }}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
@@ -599,71 +602,27 @@ export default function PlaceDetailScreen() {
             variant="full"
           />
 
-          {/* Master Segmented Experience Switcher */}
-          <View style={styles.masterTabBarContainer}>
-            <View style={styles.masterTabBar}>
-              <TouchableOpacity
-                style={[styles.masterTabBtn, activeMainTab === 'heritage' && styles.masterTabBtnActive]}
-                onPress={() => setActiveMainTab('heritage')}
-                activeOpacity={0.85}
-              >
-                <MaterialIcons
-                  name="auto-stories"
-                  size={15}
-                  color={activeMainTab === 'heritage' ? '#0F0F0F' : Colors.primary}
-                />
-                <Text
-                  style={[
-                    styles.masterTabText,
-                    activeMainTab === 'heritage' && styles.masterTabTextActive,
-                  ]}
-                  numberOfLines={1}
-                >
-                  Heritage & Story
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.masterTabBtn, activeMainTab === 'radar' && styles.masterTabBtnActive]}
-                onPress={() => setActiveMainTab('radar')}
-                activeOpacity={0.85}
-              >
-                <MaterialIcons
-                  name="explore"
-                  size={15}
-                  color={activeMainTab === 'radar' ? '#0F0F0F' : Colors.primary}
-                />
-                <Text
-                  style={[
-                    styles.masterTabText,
-                    activeMainTab === 'radar' && styles.masterTabTextActive,
-                  ]}
-                  numberOfLines={1}
-                >
-                  Visit & Radar
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.masterTabBtn, activeMainTab === 'reviews' && styles.masterTabBtnActive]}
-                onPress={() => setActiveMainTab('reviews')}
-                activeOpacity={0.85}
-              >
-                <MaterialIcons
-                  name="rate-review"
-                  size={15}
-                  color={activeMainTab === 'reviews' ? '#0F0F0F' : Colors.primary}
-                />
-                <Text
-                  style={[
-                    styles.masterTabText,
-                    activeMainTab === 'reviews' && styles.masterTabTextActive,
-                  ]}
-                  numberOfLines={1}
-                >
-                  Reviews
-                </Text>
-              </TouchableOpacity>
+          {/* Subtle View Context Indicator */}
+          <View style={styles.viewContextBanner}>
+            <View style={styles.viewContextPill}>
+              <MaterialIcons
+                name={
+                  activeMainTab === 'heritage'
+                    ? 'auto-stories'
+                    : activeMainTab === 'radar'
+                    ? 'explore'
+                    : 'rate-review'
+                }
+                size={13}
+                color={Colors.primary}
+              />
+              <Text style={styles.viewContextText}>
+                {activeMainTab === 'heritage'
+                  ? 'ARCHAEOLOGICAL STORY & ARCHITECTURE'
+                  : activeMainTab === 'radar'
+                  ? 'ON-GROUND RADAR & LOCAL ARTISANS'
+                  : 'VERIFIED REVIEWS & RATINGS'}
+              </Text>
             </View>
           </View>
 
@@ -1006,6 +965,77 @@ export default function PlaceDetailScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* Floating Bottom Pill Dock */}
+      <View
+        pointerEvents="box-none"
+        style={[styles.floatingBottomDock, { bottom: Math.max(insets.bottom, 16) + 6 }]}
+      >
+        <View style={styles.floatingDockPill}>
+          <TouchableOpacity
+            style={[styles.dockTabBtn, activeMainTab === 'heritage' && styles.dockTabBtnActive]}
+            onPress={() => setActiveMainTab('heritage')}
+            activeOpacity={0.85}
+          >
+            <MaterialIcons
+              name="auto-stories"
+              size={15}
+              color={activeMainTab === 'heritage' ? '#0A0A0E' : Colors.primary}
+            />
+            <Text
+              style={[
+                styles.dockTabText,
+                activeMainTab === 'heritage' && styles.dockTabTextActive,
+              ]}
+              numberOfLines={1}
+            >
+              Heritage
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.dockTabBtn, activeMainTab === 'radar' && styles.dockTabBtnActive]}
+            onPress={() => setActiveMainTab('radar')}
+            activeOpacity={0.85}
+          >
+            <MaterialIcons
+              name="explore"
+              size={15}
+              color={activeMainTab === 'radar' ? '#0A0A0E' : Colors.primary}
+            />
+            <Text
+              style={[
+                styles.dockTabText,
+                activeMainTab === 'radar' && styles.dockTabTextActive,
+              ]}
+              numberOfLines={1}
+            >
+              Visit & Radar
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.dockTabBtn, activeMainTab === 'reviews' && styles.dockTabBtnActive]}
+            onPress={() => setActiveMainTab('reviews')}
+            activeOpacity={0.85}
+          >
+            <MaterialIcons
+              name="rate-review"
+              size={15}
+              color={activeMainTab === 'reviews' ? '#0A0A0E' : Colors.primary}
+            />
+            <Text
+              style={[
+                styles.dockTabText,
+                activeMainTab === 'reviews' && styles.dockTabTextActive,
+              ]}
+              numberOfLines={1}
+            >
+              Reviews
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {/* Geo-Fenced Safety & SOS Emergency Modal */}
       <SafetySOSModal
@@ -1363,44 +1393,75 @@ const styles = StyleSheet.create({
     color: '#0F0F0F',
     fontWeight: '700',
   },
-  masterTabBarContainer: {
-    marginTop: 6,
-    marginBottom: 20,
+  viewContextBanner: {
+    marginBottom: 16,
+    alignItems: 'flex-start',
   },
-  masterTabBar: {
+  viewContextPill: {
     flexDirection: 'row',
-    backgroundColor: '#121218',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: BorderRadius.full,
-    padding: 4,
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 124, 0.25)',
+  },
+  viewContextText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: Colors.primary,
+    letterSpacing: 0.8,
+  },
+  floatingBottomDock: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    zIndex: 999,
+    alignItems: 'center',
+  },
+  floatingDockPill: {
+    flexDirection: 'row',
+    width: '100%',
+    maxWidth: 420,
+    backgroundColor: 'rgba(18, 18, 24, 0.95)',
+    borderRadius: BorderRadius.full,
+    padding: 5,
+    borderWidth: 1.5,
+    borderColor: 'rgba(212, 175, 124, 0.35)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 10,
     gap: 4,
   },
-  masterTabBtn: {
+  dockTabBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5,
-    paddingVertical: 9,
-    paddingHorizontal: 6,
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     borderRadius: BorderRadius.full,
   },
-  masterTabBtnActive: {
+  dockTabBtnActive: {
     backgroundColor: Colors.primary,
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
   },
-  masterTabText: {
-    fontSize: 11,
+  dockTabText: {
+    fontSize: 12,
     fontWeight: '600',
     color: Colors.textSecondary,
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
   },
-  masterTabTextActive: {
+  dockTabTextActive: {
     color: '#0A0A0E',
     fontWeight: '800',
   },
