@@ -7,8 +7,6 @@
 
 [TypeScript](https://www.typescriptlang.org/) · [Expo / React Native](https://expo.dev/) · [Express](https://expressjs.com/) · [Prisma](https://www.prisma.io/) · [PostgreSQL](https://www.postgresql.org/) · [OpenAI](https://openai.com/)
 
-*Demo focus: Vadodara (Gujarat) · National coverage in datasets*
-
 <p align="center">
   <img src="docs/images/logo.svg" alt="AI Tourist Companion" width="96" height="96" />
 </p>
