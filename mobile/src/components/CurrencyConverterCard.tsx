@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,192 +6,225 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Shadows } from '../constants/theme';
 import {
-  SUPPORTED_CURRENCIES,
+  CURRENCIES,
+  fetchLiveRates,
   convertToInr,
   convertFromInr,
-  getPurchasingPowerBenchmark,
-  CurrencyInfo,
+  getSpendingContext,
+  CurrencyMeta,
+  LiveRates,
 } from '../services/currencyService';
 
-interface CurrencyConverterCardProps {
+interface Props {
   compact?: boolean;
 }
 
-export function CurrencyConverterCard({ compact = false }: CurrencyConverterCardProps) {
-  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyInfo>(SUPPORTED_CURRENCIES[0]); // USD
-  const [inputAmount, setInputAmount] = useState<string>('20');
-  const [direction, setDirection] = useState<'foreignToInr' | 'inrToForeign'>('foreignToInr');
+export function CurrencyConverterCard({ compact = false }: Props) {
+  const [selected, setSelected] = useState<CurrencyMeta>(CURRENCIES[0]);
+  const [amount, setAmount] = useState('20');
+  const [direction, setDirection] = useState<'toInr' | 'fromInr'>('toInr');
+  const [rates, setRates] = useState<LiveRates | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  const parsedAmount = parseFloat(inputAmount) || 0;
+  const loadRates = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const live = await fetchLiveRates();
+      setRates(live);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  let convertedValue = 0;
-  let inrEquivalent = 0;
+  useEffect(() => {
+    loadRates();
+  }, [loadRates]);
 
-  if (direction === 'foreignToInr') {
-    convertedValue = convertToInr(parsedAmount, selectedCurrency.code);
-    inrEquivalent = convertedValue;
+  const parsed = parseFloat(amount) || 0;
+  const rate = rates?.rates[selected.code] ?? 0;
+
+  let converted = 0;
+  let inrValue = 0;
+  if (direction === 'toInr') {
+    converted = convertToInr(parsed, rate);
+    inrValue = converted;
   } else {
-    convertedValue = convertFromInr(parsedAmount, selectedCurrency.code);
-    inrEquivalent = parsedAmount;
+    converted = convertFromInr(parsed, rate);
+    inrValue = parsed;
   }
 
-  const purchasingPower = getPurchasingPowerBenchmark(inrEquivalent);
+  const spending = getSpendingContext(inrValue);
 
-  const toggleDirection = () => {
-    setDirection((prev) => (prev === 'foreignToInr' ? 'inrToForeign' : 'foreignToInr'));
-  };
-
-  const setPreset = (amt: number) => {
-    setInputAmount(amt.toString());
+  const formatLastUpdated = () => {
+    if (!rates?.lastUpdated) return '';
+    try {
+      const d = new Date(rates.lastUpdated);
+      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return rates.lastUpdated;
+    }
   };
 
   return (
-    <View style={[styles.container, compact && styles.containerCompact]}>
+    <View style={[s.card, compact && s.cardCompact]}>
       {/* Header */}
-      <View style={styles.headerRow}>
-        <View style={styles.eyebrowWrap}>
+      <View style={s.headerRow}>
+        <View style={s.headerLeft}>
           <MaterialIcons name="currency-exchange" size={15} color={Colors.primary} />
-          <Text style={styles.eyebrow}>OFFLINE CURRENCY CONVERTER</Text>
+          <Text style={s.eyebrow}>LIVE FOREX</Text>
         </View>
-        <View style={styles.offlineBadge}>
-          <MaterialIcons name="cloud-off" size={11} color={Colors.success} />
-          <Text style={styles.offlineBadgeText}>100% Offline</Text>
-        </View>
-      </View>
-
-      <Text style={styles.title}>Traveler Forex & Local Price Meter</Text>
-      <Text style={styles.subtitle}>
-        Instant conversions calibrated for Indian tourist destinations with real-world spending context.
-      </Text>
-
-      {/* Currency Selector Horizontal Scroll */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.currencyScroll}
-      >
-        {SUPPORTED_CURRENCIES.map((cur) => {
-          const isSelected = cur.code === selectedCurrency.code;
-          return (
-            <TouchableOpacity
-              key={cur.code}
-              style={[styles.currencyPill, isSelected && styles.currencyPillSelected]}
-              onPress={() => setSelectedCurrency(cur)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.currencyFlag}>{cur.flag}</Text>
-              <Text style={[styles.currencyCode, isSelected && styles.currencyCodeSelected]}>
-                {cur.code}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-
-      {/* Conversion Input & Output Card */}
-      <View style={styles.calcBox}>
-        {/* Input Row */}
-        <View style={styles.inputSection}>
-          <Text style={styles.inputLabel}>
-            {direction === 'foreignToInr'
-              ? `${selectedCurrency.name} (${selectedCurrency.symbol})`
-              : 'Indian Rupee (₹ INR)'}
-          </Text>
-          <View style={styles.inputRow}>
-            <Text style={styles.currencySymbolPrefix}>
-              {direction === 'foreignToInr' ? selectedCurrency.symbol : '₹'}
-            </Text>
-            <TextInput
-              style={styles.textInput}
-              keyboardType="numeric"
-              value={inputAmount}
-              onChangeText={setInputAmount}
-              placeholder="0"
-              placeholderTextColor={Colors.textMuted}
-            />
-          </View>
-        </View>
-
-        {/* Direction Switch Button */}
-        <TouchableOpacity
-          style={styles.switchBtn}
-          onPress={toggleDirection}
-          activeOpacity={0.8}
-        >
-          <MaterialIcons name="swap-vert" size={20} color={Colors.primary} />
-        </TouchableOpacity>
-
-        {/* Output Section */}
-        <View style={styles.outputSection}>
-          <Text style={styles.inputLabel}>
-            {direction === 'foreignToInr'
-              ? 'Converted to Indian Rupee (₹ INR)'
-              : `Converted to ${selectedCurrency.name}`}
-          </Text>
-          <Text style={styles.outputValue}>
-            {direction === 'foreignToInr'
-              ? `₹${convertedValue.toLocaleString('en-IN')}`
-              : `${selectedCurrency.symbol}${convertedValue.toLocaleString()}`}
-          </Text>
-          <Text style={styles.rateNote}>
-            Base Rate: 1 {selectedCurrency.code} = ₹{selectedCurrency.rateToInr.toFixed(2)} INR
-          </Text>
-        </View>
-      </View>
-
-      {/* Preset Amount Shortcuts */}
-      <View style={styles.presetRow}>
-        {(direction === 'foreignToInr' ? [5, 10, 20, 50, 100] : [100, 250, 500, 1000, 2000]).map(
-          (val) => (
-            <TouchableOpacity
-              key={val}
-              style={[
-                styles.presetPill,
-                inputAmount === val.toString() && styles.presetPillActive,
-              ]}
-              onPress={() => setPreset(val)}
-              activeOpacity={0.75}
-            >
-              <Text
-                style={[
-                  styles.presetText,
-                  inputAmount === val.toString() && styles.presetTextActive,
-                ]}
-              >
-                {direction === 'foreignToInr' ? `${selectedCurrency.symbol}${val}` : `₹${val}`}
-              </Text>
-            </TouchableOpacity>
-          )
+        {rates && !loading && (
+          <TouchableOpacity style={s.liveBadge} onPress={loadRates} activeOpacity={0.7}>
+            <View style={s.liveDot} />
+            <Text style={s.liveText}>Live</Text>
+            <MaterialIcons name="refresh" size={11} color={Colors.success} />
+          </TouchableOpacity>
         )}
       </View>
 
-      {/* Real-World Indian Purchasing Power Context */}
-      <View style={styles.purchasingPowerCard}>
-        <View style={styles.purchasingHeader}>
-          <MaterialIcons name="shopping-bag" size={14} color={Colors.primary} />
-          <Text style={styles.purchasingHeaderText}>LOCAL PURCHASING POWER CONTEXT</Text>
+      <Text style={s.title}>Currency Converter</Text>
+      {rates && (
+        <Text style={s.updated}>Updated: {formatLastUpdated()}</Text>
+      )}
+
+      {/* Loading / Error state */}
+      {loading && (
+        <View style={s.loadingWrap}>
+          <ActivityIndicator size="small" color={Colors.primary} />
+          <Text style={s.loadingText}>Fetching live rates...</Text>
         </View>
-        <Text style={styles.purchasingText}>{purchasingPower}</Text>
-      </View>
+      )}
+
+      {error && !rates && (
+        <TouchableOpacity style={s.errorWrap} onPress={loadRates} activeOpacity={0.7}>
+          <MaterialIcons name="wifi-off" size={18} color="#E57373" />
+          <Text style={s.errorText}>Could not load rates. Tap to retry.</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Currency pills */}
+      {!loading && rates && (
+        <>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={s.pillScroll}
+          >
+            {CURRENCIES.map((c) => {
+              const active = c.code === selected.code;
+              return (
+                <TouchableOpacity
+                  key={c.code}
+                  style={[s.pill, active && s.pillActive]}
+                  onPress={() => setSelected(c)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={s.pillFlag}>{c.flag}</Text>
+                  <Text style={[s.pillCode, active && s.pillCodeActive]}>{c.code}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+
+          {/* Rate display */}
+          <View style={s.rateChip}>
+            <Text style={s.rateChipText}>
+              1 {selected.code} = ₹{rate.toFixed(2)}
+            </Text>
+          </View>
+
+          {/* Converter */}
+          <View style={s.converterBox}>
+            <View style={s.inputBlock}>
+              <Text style={s.label}>
+                {direction === 'toInr' ? selected.name : 'Indian Rupee'}
+              </Text>
+              <View style={s.inputRow}>
+                <Text style={s.symbolPrefix}>
+                  {direction === 'toInr' ? selected.symbol : '₹'}
+                </Text>
+                <TextInput
+                  style={s.input}
+                  keyboardType="numeric"
+                  value={amount}
+                  onChangeText={setAmount}
+                  placeholder="0"
+                  placeholderTextColor={Colors.textMuted}
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={s.swapBtn}
+              onPress={() => setDirection((d) => (d === 'toInr' ? 'fromInr' : 'toInr'))}
+              activeOpacity={0.7}
+            >
+              <MaterialIcons name="swap-vert" size={18} color={Colors.primary} />
+            </TouchableOpacity>
+
+            <View style={s.outputBlock}>
+              <Text style={s.label}>
+                {direction === 'toInr' ? 'Indian Rupee' : selected.name}
+              </Text>
+              <Text style={s.outputValue}>
+                {direction === 'toInr'
+                  ? `₹${converted.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
+                  : `${selected.symbol}${converted.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+              </Text>
+            </View>
+          </View>
+
+          {/* Quick presets */}
+          <View style={s.presetRow}>
+            {(direction === 'toInr' ? [1, 5, 10, 20, 50, 100] : [100, 500, 1000, 2000, 5000]).map(
+              (v) => (
+                <TouchableOpacity
+                  key={v}
+                  style={[s.preset, amount === String(v) && s.presetActive]}
+                  onPress={() => setAmount(String(v))}
+                  activeOpacity={0.75}
+                >
+                  <Text style={[s.presetText, amount === String(v) && s.presetTextActive]}>
+                    {direction === 'toInr' ? `${selected.symbol}${v}` : `₹${v}`}
+                  </Text>
+                </TouchableOpacity>
+              ),
+            )}
+          </View>
+
+          {/* Spending context */}
+          {spending ? (
+            <View style={s.spendCard}>
+              <Text style={s.spendLabel}>WHAT THIS BUYS IN INDIA</Text>
+              <Text style={s.spendText}>{spending}</Text>
+            </View>
+          ) : null}
+        </>
+      )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
+const s = StyleSheet.create({
+  card: {
     marginVertical: 14,
     backgroundColor: '#16161D',
-    borderRadius: 22,
+    borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255,255,255,0.08)',
     ...Shadows.md,
   },
-  containerCompact: {
+  cardCompact: {
     marginVertical: 8,
     padding: 16,
   },
@@ -199,9 +232,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 6,
+    marginBottom: 4,
   },
-  eyebrowWrap: {
+  headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -212,16 +245,22 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     letterSpacing: 1.1,
   },
-  offlineBadge: {
+  liveBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(127, 182, 133, 0.12)',
+    backgroundColor: 'rgba(127,182,133,0.12)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
   },
-  offlineBadgeText: {
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.success,
+  },
+  liveText: {
     fontSize: 10,
     color: Colors.success,
     fontWeight: '700',
@@ -231,63 +270,95 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: Colors.text,
     letterSpacing: -0.3,
-    marginBottom: 4,
+    marginBottom: 2,
   },
-  subtitle: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    lineHeight: 18,
-    marginBottom: 16,
+  updated: {
+    fontSize: 11,
+    color: Colors.textMuted,
+    marginBottom: 14,
   },
-  currencyScroll: {
-    gap: 8,
-    paddingBottom: 14,
-  },
-  currencyPill: {
+  loadingWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 12,
+    gap: 8,
+    paddingVertical: 24,
+    justifyContent: 'center',
+  },
+  loadingText: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+  },
+  errorWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 20,
+    justifyContent: 'center',
+  },
+  errorText: {
+    fontSize: 13,
+    color: '#E57373',
+  },
+  pillScroll: {
+    gap: 8,
+    paddingBottom: 12,
+  },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 10,
     backgroundColor: '#1E1E28',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255,255,255,0.06)',
   },
-  currencyPillSelected: {
-    backgroundColor: 'rgba(212, 175, 124, 0.18)',
+  pillActive: {
+    backgroundColor: 'rgba(212,175,124,0.15)',
     borderColor: Colors.primary,
   },
-  currencyFlag: {
-    fontSize: 16,
+  pillFlag: {
+    fontSize: 15,
   },
-  currencyCode: {
-    fontSize: 12,
+  pillCode: {
+    fontSize: 11,
     fontWeight: '700',
     color: Colors.textSecondary,
   },
-  currencyCodeSelected: {
+  pillCodeActive: {
     color: Colors.primary,
     fontWeight: '800',
   },
-  calcBox: {
+  rateChip: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(212,175,124,0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  rateChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  converterBox: {
     backgroundColor: '#1E1E28',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
-    position: 'relative',
-    marginBottom: 12,
+    borderColor: 'rgba(255,255,255,0.06)',
+    marginBottom: 10,
   },
-  inputSection: {
-    marginBottom: 12,
+  inputBlock: {
+    marginBottom: 8,
   },
-  inputLabel: {
+  label: {
     fontSize: 11,
     fontWeight: '700',
     color: Colors.textMuted,
     marginBottom: 4,
-    letterSpacing: 0.2,
   },
   inputRow: {
     flexDirection: 'row',
@@ -296,68 +367,64 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255,255,255,0.06)',
   },
-  currencySymbolPrefix: {
-    fontSize: 18,
+  symbolPrefix: {
+    fontSize: 17,
     fontWeight: '800',
     color: Colors.primary,
     marginRight: 6,
   },
-  textInput: {
+  input: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '800',
     color: Colors.text,
-    paddingVertical: 10,
+    paddingVertical: 9,
   },
-  switchBtn: {
+  swapBtn: {
     alignSelf: 'center',
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: '#262635',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.3)',
-    marginVertical: -4,
+    borderColor: 'rgba(212,175,124,0.25)',
+    marginVertical: -2,
     zIndex: 2,
   },
-  outputSection: {
+  outputBlock: {
     marginTop: 8,
-    paddingTop: 10,
+    paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+    borderTopColor: 'rgba(255,255,255,0.05)',
   },
   outputValue: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '900',
     color: Colors.primary,
     letterSpacing: -0.5,
-    marginVertical: 2,
-  },
-  rateNote: {
-    fontSize: 10.5,
-    color: Colors.textMuted,
+    marginTop: 2,
   },
   presetRow: {
     flexDirection: 'row',
     gap: 6,
-    marginBottom: 14,
+    marginBottom: 12,
+    flexWrap: 'wrap',
   },
-  presetPill: {
-    flex: 1,
-    paddingVertical: 6,
+  preset: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     backgroundColor: '#1E1E28',
     borderRadius: 8,
-    alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderColor: 'rgba(255,255,255,0.06)',
   },
-  presetPillActive: {
+  presetActive: {
     borderColor: Colors.primary,
-    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    backgroundColor: 'rgba(212,175,124,0.12)',
   },
   presetText: {
     fontSize: 11,
@@ -368,29 +435,23 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '800',
   },
-  purchasingPowerCard: {
-    backgroundColor: 'rgba(212, 175, 124, 0.08)',
-    borderRadius: 12,
-    padding: 12,
+  spendCard: {
+    backgroundColor: 'rgba(212,175,124,0.08)',
+    borderRadius: 10,
+    padding: 10,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.20)',
+    borderColor: 'rgba(212,175,124,0.18)',
   },
-  purchasingHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 4,
-  },
-  purchasingHeaderText: {
-    fontSize: 10,
+  spendLabel: {
+    fontSize: 9.5,
     fontWeight: '800',
     color: Colors.primary,
     letterSpacing: 0.6,
+    marginBottom: 3,
   },
-  purchasingText: {
-    fontSize: 12.5,
+  spendText: {
+    fontSize: 13,
     color: Colors.text,
-    lineHeight: 18,
     fontWeight: '600',
   },
 });

@@ -1,78 +1,119 @@
-export interface CurrencyInfo {
+const FOREX_API = 'https://open.er-api.com/v6/latest/INR';
+
+export interface CurrencyMeta {
   code: string;
   symbol: string;
   name: string;
   flag: string;
-  rateToInr: number; // How many INR is 1 unit of this currency
 }
 
-export const SUPPORTED_CURRENCIES: CurrencyInfo[] = [
-  { code: 'USD', symbol: '$', name: 'US Dollar', flag: '🇺🇸', rateToInr: 86.5 },
-  { code: 'EUR', symbol: '€', name: 'Euro', flag: '🇪🇺', rateToInr: 91.2 },
-  { code: 'GBP', symbol: '£', name: 'British Pound', flag: '🇬🇧', rateToInr: 108.5 },
-  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar', flag: '🇦🇺', rateToInr: 54.8 },
-  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar', flag: '🇨🇦', rateToInr: 60.5 },
-  { code: 'JPY', symbol: '¥', name: 'Japanese Yen', flag: '🇯🇵', rateToInr: 0.56 },
-  { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar', flag: '🇸🇬', rateToInr: 64.2 },
-  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham', flag: '🇦🇪', rateToInr: 23.55 },
-  { code: 'CNY', symbol: '¥', name: 'Chinese Yuan', flag: '🇨🇳', rateToInr: 11.9 },
-  { code: 'CHF', symbol: 'Fr.', name: 'Swiss Franc', flag: '🇨🇭', rateToInr: 96.4 },
+export const CURRENCIES: CurrencyMeta[] = [
+  { code: 'USD', symbol: '$', name: 'US Dollar', flag: '🇺🇸' },
+  { code: 'EUR', symbol: '€', name: 'Euro', flag: '🇪🇺' },
+  { code: 'GBP', symbol: '£', name: 'British Pound', flag: '🇬🇧' },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar', flag: '🇦🇺' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar', flag: '🇨🇦' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen', flag: '🇯🇵' },
+  { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar', flag: '🇸🇬' },
+  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham', flag: '🇦🇪' },
+  { code: 'CNY', symbol: '¥', name: 'Chinese Yuan', flag: '🇨🇳' },
+  { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc', flag: '🇨🇭' },
+  { code: 'THB', symbol: '฿', name: 'Thai Baht', flag: '🇹🇭' },
+  { code: 'MYR', symbol: 'RM', name: 'Malaysian Ringgit', flag: '🇲🇾' },
+  { code: 'SAR', symbol: '﷼', name: 'Saudi Riyal', flag: '🇸🇦' },
+  { code: 'KRW', symbol: '₩', name: 'South Korean Won', flag: '🇰🇷' },
+  { code: 'RUB', symbol: '₽', name: 'Russian Ruble', flag: '🇷🇺' },
 ];
 
-export interface PurchasingPowerItem {
-  thresholdInr: number;
-  label: string;
-  icon: string;
+export interface LiveRates {
+  rates: Record<string, number>; // code → how many INR per 1 unit
+  lastUpdated: string;
+  source: string;
 }
 
-export const PURCHASING_POWER_BENCHMARKS: PurchasingPowerItem[] = [
-  { thresholdInr: 25, label: 'Street Cutting Masala Chai ☕', icon: 'local-cafe' },
-  { thresholdInr: 60, label: 'Fresh Tender Coconut or Samosa Snack 🥥', icon: 'fastfood' },
-  { thresholdInr: 120, label: 'Purified Water + Light South Indian Breakfast 🥞', icon: 'restaurant' },
-  { thresholdInr: 350, label: 'Unlimited AC Traditional Heritage Thali Meal 🍛', icon: 'dining' },
-  { thresholdInr: 650, label: 'Cross-Town Auto-Rickshaw Ride across Historic City 🛺', icon: 'local-taxi' },
-  { thresholdInr: 1500, label: 'Private Licensed ASI Tour Guide Half-Day 🏛️', icon: 'badge' },
-  { thresholdInr: 3500, label: 'Authentic Heritage Haveli Boutique Stay (1 Night) 🏨', icon: 'hotel' },
-  { thresholdInr: 8000, label: 'Full Day Chauffeur AC Sedan & Monument Circuit 🚘', icon: 'directions-car' },
-];
+let cachedRates: LiveRates | null = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 10 * 60 * 1000; // 10 min
 
 /**
- * Returns a tangible real-world purchasing power comparison in India for a given INR amount.
+ * Fetches live exchange rates from open.er-api.com.
+ * API returns rates relative to INR (e.g. 1 INR = 0.0118 USD).
+ * We invert them to get: 1 USD = X INR (what users actually need).
  */
-export function getPurchasingPowerBenchmark(inrAmount: number): string {
-  if (inrAmount <= 0) return 'Enter an amount to see Indian purchasing power.';
-  if (inrAmount < 25) return 'Sub-₹25: Small roadside tips or single chai.';
+export async function fetchLiveRates(): Promise<LiveRates> {
+  const now = Date.now();
+  if (cachedRates && now - cacheTimestamp < CACHE_TTL) {
+    return cachedRates;
+  }
 
-  let bestMatch = PURCHASING_POWER_BENCHMARKS[0];
-  for (const item of PURCHASING_POWER_BENCHMARKS) {
-    if (inrAmount >= item.thresholdInr) {
-      bestMatch = item;
-    } else {
-      break;
+  try {
+    const res = await fetch(FOREX_API);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // API returns: 1 INR = X foreign. We want 1 foreign = X INR.
+    const inverted: Record<string, number> = {};
+    for (const cur of CURRENCIES) {
+      const foreignPerInr = data.rates?.[cur.code];
+      if (foreignPerInr && foreignPerInr > 0) {
+        inverted[cur.code] = Math.round((1 / foreignPerInr) * 100) / 100;
+      }
     }
-  }
 
-  const multiplier = Math.floor(inrAmount / bestMatch.thresholdInr);
-  if (multiplier > 1 && multiplier <= 5) {
-    return `≈ ${multiplier}x ${bestMatch.label}`;
+    cachedRates = {
+      rates: inverted,
+      lastUpdated: data.time_last_update_utc || new Date().toISOString(),
+      source: 'open.er-api.com',
+    };
+    cacheTimestamp = now;
+    return cachedRates;
+  } catch (err) {
+    // If we have stale cache, return it
+    if (cachedRates) return cachedRates;
+    throw err;
   }
-  return `In India, this roughly buys: ${bestMatch.label}`;
 }
 
 /**
- * Converts foreign currency to INR.
+ * Convert foreign currency → INR using live rate.
  */
-export function convertToInr(amount: number, currencyCode: string): number {
-  const currency = SUPPORTED_CURRENCIES.find((c) => c.code === currencyCode);
-  if (!currency) return amount;
-  return Math.round(amount * currency.rateToInr * 100) / 100;
+export function convertToInr(amount: number, rateToInr: number): number {
+  return Math.round(amount * rateToInr * 100) / 100;
 }
 
 /**
- * Converts INR to foreign currency.
+ * Convert INR → foreign currency using live rate.
  */
-export function convertFromInr(inrAmount: number, currencyCode: string): number {
-  const currency = SUPPORTED_CURRENCIES.find((c) => c.code === currencyCode);
-  if (!currency || currency.rateToInr === 0) return inrAmount;
-  return Math.round((inrAmount / currency.rateToInr) * 100) / 100;
+export function convertFromInr(inrAmount: number, rateToInr: number): number {
+  if (rateToInr === 0) return 0;
+  return Math.round((inrAmount / rateToInr) * 100) / 100;
+}
+
+export interface SpendingRef {
+  threshold: number;
+  label: string;
+}
+
+export const SPENDING_REFS: SpendingRef[] = [
+  { threshold: 25, label: 'Street masala chai ☕' },
+  { threshold: 60, label: 'Samosa plate or tender coconut 🥥' },
+  { threshold: 120, label: 'South Indian breakfast set 🥞' },
+  { threshold: 350, label: 'Full thali meal (unlimited) 🍛' },
+  { threshold: 650, label: 'Auto ride across city 🛺' },
+  { threshold: 1500, label: 'Half-day licensed tour guide 🏛️' },
+  { threshold: 3500, label: 'Heritage boutique stay / night 🏨' },
+  { threshold: 8000, label: 'Full-day chauffeur sedan 🚘' },
+];
+
+export function getSpendingContext(inr: number): string {
+  if (inr <= 0) return '';
+  if (inr < 25) return 'Tip or small roadside purchase';
+  let match = SPENDING_REFS[0];
+  for (const ref of SPENDING_REFS) {
+    if (inr >= ref.threshold) match = ref;
+    else break;
+  }
+  const mult = Math.floor(inr / match.threshold);
+  if (mult > 1 && mult <= 5) return `≈ ${mult}× ${match.label}`;
+  return match.label;
 }

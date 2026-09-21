@@ -43,7 +43,7 @@ export default function TravelerWalletScreen() {
         contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* 1. Offline Currency Converter (Top Tool) */}
+        {/* Live Currency Converter */}
         <CurrencyConverterCard />
 
         {/* 2. UPI One World Master Guide */}
