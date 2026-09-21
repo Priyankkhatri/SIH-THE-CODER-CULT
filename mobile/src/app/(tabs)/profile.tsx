@@ -22,8 +22,6 @@ export default function ProfileScreen() {
   const { favorites } = usePlacesStore();
   const { downloadedPackages } = useOfflineStore();
 
-  const currentLang = LANGUAGES.find((l) => l.code === language);
-  const currentStyle = TRAVEL_STYLES.find((s) => s.key === travelStyle);
 
   const handleResetOnboarding = () => {
     Alert.alert(
@@ -218,14 +216,13 @@ export default function ProfileScreen() {
 
         {/* App Info */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Application</Text>
+          <Text style={styles.sectionTitle}>About</Text>
           <View style={styles.infoCard}>
-            <Text style={styles.appName}>AI-Powered Intelligent Tourist Companion</Text>
+            <Text style={styles.appName}>Yatra — Indian Heritage Companion</Text>
             <Text style={styles.appDesc}>
-              Smart India Hackathon (SIH26204) — Travel & Tourism.{'\n'}
-              RAG Heritage Guidance • Vision Artifacts • Multilingual TTS • Dynamic Itineraries
+              AI Camera Scanner • Multilingual Audio Narration • Live Transit &amp; Forex • Cultural Intelligence
             </Text>
-            <Text style={styles.appVersion}>Prototype v1.0.0 (Internal College Edition)</Text>
+            <Text style={styles.appVersion}>Version 1.0.0</Text>
           </View>
         </View>
 

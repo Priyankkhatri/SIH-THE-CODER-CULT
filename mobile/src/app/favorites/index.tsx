@@ -152,7 +152,7 @@ export default function FavoritesScreen() {
           </View>
           <Text style={styles.emptyTitle}>No Favorites Yet</Text>
           <Text style={styles.emptySubtitle}>
-            Save historical monuments and museum exhibits to quickly access them offline and review heritage chronicles.
+            Tap the heart icon on any monument to save it here for quick access.
           </Text>
           <TouchableOpacity
             style={styles.exploreBtn}

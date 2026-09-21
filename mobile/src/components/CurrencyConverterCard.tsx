@@ -15,7 +15,6 @@ import {
   fetchLiveRates,
   convertToInr,
   convertFromInr,
-  getSpendingContext,
   CurrencyMeta,
   LiveRates,
 } from '../services/currencyService';
@@ -26,7 +25,7 @@ interface Props {
 
 export function CurrencyConverterCard({ compact = false }: Props) {
   const [selected, setSelected] = useState<CurrencyMeta>(CURRENCIES[0]);
-  const [amount, setAmount] = useState('20');
+  const [amount, setAmount] = useState('50');
   const [direction, setDirection] = useState<'toInr' | 'fromInr'>('toInr');
   const [rates, setRates] = useState<LiveRates | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,112 +48,105 @@ export function CurrencyConverterCard({ compact = false }: Props) {
     loadRates();
   }, [loadRates]);
 
-  const parsed = parseFloat(amount) || 0;
-  const rate = rates?.rates[selected.code] ?? 0;
+  const parsedAmount = parseFloat(amount) || 0;
+  const currentRate = rates?.rates[selected.code] ?? 0;
 
-  let converted = 0;
-  let inrValue = 0;
-  if (direction === 'toInr') {
-    converted = convertToInr(parsed, rate);
-    inrValue = converted;
-  } else {
-    converted = convertFromInr(parsed, rate);
-    inrValue = parsed;
-  }
+  const convertedValue =
+    direction === 'toInr'
+      ? convertToInr(parsedAmount, currentRate)
+      : convertFromInr(parsedAmount, currentRate);
 
-  const spending = getSpendingContext(inrValue);
-
-  const formatLastUpdated = () => {
-    if (!rates?.lastUpdated) return '';
-    try {
-      const d = new Date(rates.lastUpdated);
-      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-    } catch {
-      return rates.lastUpdated;
-    }
-  };
+  const presets =
+    direction === 'toInr'
+      ? [10, 25, 50, 100, 250, 500]
+      : [500, 1000, 2500, 5000, 10000];
 
   return (
-    <View style={[s.card, compact && s.cardCompact]}>
-      {/* Header */}
-      <View style={s.headerRow}>
-        <View style={s.headerLeft}>
-          <MaterialIcons name="currency-exchange" size={15} color={Colors.primary} />
-          <Text style={s.eyebrow}>LIVE FOREX</Text>
+    <View style={[styles.card, compact && styles.cardCompact]}>
+      {/* Top Header */}
+      <View style={styles.header}>
+        <View style={styles.headerTitleWrap}>
+          <MaterialIcons name="currency-exchange" size={18} color={Colors.primary} />
+          <Text style={styles.headerTitle}>Live Currency Converter</Text>
         </View>
-        {rates && !loading && (
-          <TouchableOpacity style={s.liveBadge} onPress={loadRates} activeOpacity={0.7}>
-            <View style={s.liveDot} />
-            <Text style={s.liveText}>Live</Text>
-            <MaterialIcons name="refresh" size={11} color={Colors.success} />
-          </TouchableOpacity>
-        )}
+
+        <TouchableOpacity
+          style={styles.refreshBtn}
+          onPress={loadRates}
+          activeOpacity={0.7}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color={Colors.primary} />
+          ) : (
+            <View style={styles.liveIndicator}>
+              <View style={styles.liveDot} />
+              <Text style={styles.liveText}>Live Rates</Text>
+              <MaterialIcons name="sync" size={13} color={Colors.success} />
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
 
-      <Text style={s.title}>Currency Converter</Text>
-      {rates && (
-        <Text style={s.updated}>Updated: {formatLastUpdated()}</Text>
-      )}
-
-      {/* Loading / Error state */}
-      {loading && (
-        <View style={s.loadingWrap}>
-          <ActivityIndicator size="small" color={Colors.primary} />
-          <Text style={s.loadingText}>Fetching live rates...</Text>
-        </View>
-      )}
-
-      {error && !rates && (
-        <TouchableOpacity style={s.errorWrap} onPress={loadRates} activeOpacity={0.7}>
-          <MaterialIcons name="wifi-off" size={18} color="#E57373" />
-          <Text style={s.errorText}>Could not load rates. Tap to retry.</Text>
+      {error && !rates ? (
+        <TouchableOpacity style={styles.errorBanner} onPress={loadRates} activeOpacity={0.8}>
+          <MaterialIcons name="error-outline" size={18} color="#FF7B7B" />
+          <Text style={styles.errorText}>Failed to fetch live rates. Tap to retry.</Text>
         </TouchableOpacity>
-      )}
-
-      {/* Currency pills */}
-      {!loading && rates && (
+      ) : (
         <>
+          {/* Currency Pill Selector */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={s.pillScroll}
+            contentContainerStyle={styles.selectorScroll}
           >
             {CURRENCIES.map((c) => {
-              const active = c.code === selected.code;
+              const isSelected = c.code === selected.code;
               return (
                 <TouchableOpacity
                   key={c.code}
-                  style={[s.pill, active && s.pillActive]}
+                  style={[styles.currencyPill, isSelected && styles.currencyPillActive]}
                   onPress={() => setSelected(c)}
-                  activeOpacity={0.8}
+                  activeOpacity={0.75}
                 >
-                  <Text style={s.pillFlag}>{c.flag}</Text>
-                  <Text style={[s.pillCode, active && s.pillCodeActive]}>{c.code}</Text>
+                  <Text style={styles.pillFlag}>{c.flag}</Text>
+                  <Text style={[styles.pillCode, isSelected && styles.pillCodeActive]}>
+                    {c.code}
+                  </Text>
                 </TouchableOpacity>
               );
             })}
           </ScrollView>
 
-          {/* Rate display */}
-          <View style={s.rateChip}>
-            <Text style={s.rateChipText}>
-              1 {selected.code} = ₹{rate.toFixed(2)}
-            </Text>
+          {/* Current Live Rate Tag */}
+          <View style={styles.rateTagRow}>
+            <View style={styles.rateTag}>
+              <Text style={styles.rateTagText}>
+                1 {selected.code} = ₹{currentRate > 0 ? currentRate.toFixed(2) : '--.--'} INR
+              </Text>
+            </View>
+            {rates?.lastUpdated ? (
+              <Text style={styles.updateTimeText}>
+                Synced: {new Date(rates.lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </Text>
+            ) : null}
           </View>
 
-          {/* Converter */}
-          <View style={s.converterBox}>
-            <View style={s.inputBlock}>
-              <Text style={s.label}>
-                {direction === 'toInr' ? selected.name : 'Indian Rupee'}
+          {/* Dual Converter Box */}
+          <View style={styles.converterContainer}>
+            {/* Input Row */}
+            <View style={styles.inputBlock}>
+              <Text style={styles.blockLabel}>
+                {direction === 'toInr' ? `${selected.name} (${selected.code})` : 'Indian Rupee (INR)'}
               </Text>
-              <View style={s.inputRow}>
-                <Text style={s.symbolPrefix}>
+              <View style={styles.inputWrapper}>
+                <Text style={styles.currencyPrefix}>
                   {direction === 'toInr' ? selected.symbol : '₹'}
                 </Text>
                 <TextInput
-                  style={s.input}
-                  keyboardType="numeric"
+                  style={styles.numericInput}
+                  keyboardType="decimal-pad"
                   value={amount}
                   onChangeText={setAmount}
                   placeholder="0"
@@ -163,96 +155,104 @@ export function CurrencyConverterCard({ compact = false }: Props) {
               </View>
             </View>
 
+            {/* Swap Button */}
             <TouchableOpacity
-              style={s.swapBtn}
+              style={styles.swapButton}
               onPress={() => setDirection((d) => (d === 'toInr' ? 'fromInr' : 'toInr'))}
-              activeOpacity={0.7}
+              activeOpacity={0.8}
             >
-              <MaterialIcons name="swap-vert" size={18} color={Colors.primary} />
+              <MaterialIcons name="swap-vert" size={20} color={Colors.primary} />
             </TouchableOpacity>
 
-            <View style={s.outputBlock}>
-              <Text style={s.label}>
-                {direction === 'toInr' ? 'Indian Rupee' : selected.name}
+            {/* Output Row */}
+            <View style={styles.outputBlock}>
+              <Text style={styles.blockLabel}>
+                {direction === 'toInr' ? 'Indian Rupee (INR)' : `${selected.name} (${selected.code})`}
               </Text>
-              <Text style={s.outputValue}>
-                {direction === 'toInr'
-                  ? `₹${converted.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
-                  : `${selected.symbol}${converted.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
-              </Text>
+              <View style={styles.outputWrapper}>
+                <Text style={styles.resultValue}>
+                  {direction === 'toInr'
+                    ? `₹${convertedValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
+                    : `${selected.symbol}${convertedValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+                </Text>
+              </View>
             </View>
           </View>
 
-          {/* Quick presets */}
-          <View style={s.presetRow}>
-            {(direction === 'toInr' ? [1, 5, 10, 20, 50, 100] : [100, 500, 1000, 2000, 5000]).map(
-              (v) => (
+          {/* Quick Presets */}
+          <View style={styles.presetContainer}>
+            {presets.map((val) => {
+              const isActive = amount === String(val);
+              return (
                 <TouchableOpacity
-                  key={v}
-                  style={[s.preset, amount === String(v) && s.presetActive]}
-                  onPress={() => setAmount(String(v))}
-                  activeOpacity={0.75}
+                  key={val}
+                  style={[styles.presetChip, isActive && styles.presetChipActive]}
+                  onPress={() => setAmount(String(val))}
+                  activeOpacity={0.7}
                 >
-                  <Text style={[s.presetText, amount === String(v) && s.presetTextActive]}>
-                    {direction === 'toInr' ? `${selected.symbol}${v}` : `₹${v}`}
+                  <Text style={[styles.presetChipText, isActive && styles.presetChipTextActive]}>
+                    {direction === 'toInr' ? `${selected.symbol}${val}` : `₹${val}`}
                   </Text>
                 </TouchableOpacity>
-              ),
-            )}
+              );
+            })}
           </View>
 
-          {/* Spending context */}
-          {spending ? (
-            <View style={s.spendCard}>
-              <Text style={s.spendLabel}>WHAT THIS BUYS IN INDIA</Text>
-              <Text style={s.spendText}>{spending}</Text>
-            </View>
-          ) : null}
+          {/* Practical Card Payment Warning */}
+          <View style={styles.advisoryCard}>
+            <MaterialIcons name="info-outline" size={15} color={Colors.primary} />
+            <Text style={styles.advisoryText}>
+              <Text style={{ fontWeight: '700', color: Colors.primary }}>Forex Tip: </Text>
+              Always choose "Pay in INR" on POS machines and ATMs to let your home bank do the exchange. Choosing your home currency triggers high conversion fees.
+            </Text>
+          </View>
         </>
       )}
     </View>
   );
 }
 
-const s = StyleSheet.create({
+const styles = StyleSheet.create({
   card: {
-    marginVertical: 14,
+    marginVertical: 12,
     backgroundColor: '#16161D',
     borderRadius: 20,
-    padding: 20,
+    padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     ...Shadows.md,
   },
   cardCompact: {
-    marginVertical: 8,
-    padding: 16,
+    marginVertical: 6,
+    padding: 14,
   },
-  headerRow: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: 12,
   },
-  headerLeft: {
+  headerTitleWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
-  eyebrow: {
-    fontSize: 11,
+  headerTitle: {
+    fontSize: 16,
     fontWeight: '800',
-    color: Colors.primary,
-    letterSpacing: 1.1,
+    color: Colors.text,
+    letterSpacing: -0.2,
   },
-  liveBadge: {
+  refreshBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: '#1E1E28',
+  },
+  liveIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(127,182,133,0.12)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
+    gap: 5,
   },
   liveDot: {
     width: 6,
@@ -261,68 +261,48 @@ const s = StyleSheet.create({
     backgroundColor: Colors.success,
   },
   liveText: {
-    fontSize: 10,
-    color: Colors.success,
+    fontSize: 10.5,
     fontWeight: '700',
+    color: Colors.success,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: Colors.text,
-    letterSpacing: -0.3,
-    marginBottom: 2,
-  },
-  updated: {
-    fontSize: 11,
-    color: Colors.textMuted,
-    marginBottom: 14,
-  },
-  loadingWrap: {
+  errorBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingVertical: 24,
     justifyContent: 'center',
-  },
-  loadingText: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-  },
-  errorWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: 8,
-    paddingVertical: 20,
-    justifyContent: 'center',
+    paddingVertical: 16,
+    backgroundColor: 'rgba(255, 123, 123, 0.1)',
+    borderRadius: 12,
   },
   errorText: {
-    fontSize: 13,
-    color: '#E57373',
+    fontSize: 12,
+    color: '#FF7B7B',
+    fontWeight: '600',
   },
-  pillScroll: {
+  selectorScroll: {
     gap: 8,
-    paddingBottom: 12,
+    paddingBottom: 10,
   },
-  pill: {
+  currencyPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 11,
-    paddingVertical: 6,
-    borderRadius: 10,
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
     backgroundColor: '#1E1E28',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255, 255, 255, 0.07)',
   },
-  pillActive: {
-    backgroundColor: 'rgba(212,175,124,0.15)',
+  currencyPillActive: {
+    backgroundColor: 'rgba(212, 175, 124, 0.15)',
     borderColor: Colors.primary,
   },
   pillFlag: {
     fontSize: 15,
   },
   pillCode: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
     color: Colors.textSecondary,
   },
@@ -330,59 +310,67 @@ const s = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '800',
   },
-  rateChip: {
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(212,175,124,0.1)',
+  rateTagRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 8,
+  },
+  rateTag: {
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
-    marginBottom: 12,
   },
-  rateChipText: {
+  rateTagText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
     color: Colors.primary,
   },
-  converterBox: {
+  updateTimeText: {
+    fontSize: 10,
+    color: Colors.textMuted,
+  },
+  converterContainer: {
     backgroundColor: '#1E1E28',
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    marginBottom: 10,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    marginVertical: 6,
   },
   inputBlock: {
-    marginBottom: 8,
+    marginBottom: 4,
   },
-  label: {
+  blockLabel: {
     fontSize: 11,
     fontWeight: '700',
     color: Colors.textMuted,
     marginBottom: 4,
   },
-  inputRow: {
+  inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#16161D',
+    backgroundColor: '#14141B',
     borderRadius: 10,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
-  symbolPrefix: {
-    fontSize: 17,
+  currencyPrefix: {
+    fontSize: 18,
     fontWeight: '800',
     color: Colors.primary,
     marginRight: 6,
   },
-  input: {
+  numericInput: {
     flex: 1,
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: '800',
     color: Colors.text,
-    paddingVertical: 9,
+    paddingVertical: 8,
   },
-  swapBtn: {
+  swapButton: {
     alignSelf: 'center',
     width: 32,
     height: 32,
@@ -391,67 +379,68 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(212,175,124,0.25)',
-    marginVertical: -2,
-    zIndex: 2,
+    borderColor: 'rgba(212, 175, 124, 0.3)',
+    marginVertical: 4,
   },
   outputBlock: {
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.05)',
+    marginTop: 4,
   },
-  outputValue: {
-    fontSize: 24,
+  outputWrapper: {
+    backgroundColor: '#14141B',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  resultValue: {
+    fontSize: 22,
     fontWeight: '900',
     color: Colors.primary,
-    letterSpacing: -0.5,
-    marginTop: 2,
+    letterSpacing: -0.3,
   },
-  presetRow: {
+  presetContainer: {
     flexDirection: 'row',
     gap: 6,
-    marginBottom: 12,
+    marginVertical: 10,
     flexWrap: 'wrap',
   },
-  preset: {
+  presetChip: {
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: '#1E1E28',
     borderRadius: 8,
+    backgroundColor: '#1E1E28',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255, 255, 255, 0.06)',
   },
-  presetActive: {
+  presetChipActive: {
+    backgroundColor: 'rgba(212, 175, 124, 0.15)',
     borderColor: Colors.primary,
-    backgroundColor: 'rgba(212,175,124,0.12)',
   },
-  presetText: {
+  presetChipText: {
     fontSize: 11,
     fontWeight: '700',
     color: Colors.textSecondary,
   },
-  presetTextActive: {
+  presetChipTextActive: {
     color: Colors.primary,
     fontWeight: '800',
   },
-  spendCard: {
-    backgroundColor: 'rgba(212,175,124,0.08)',
+  advisoryCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: 'rgba(212, 175, 124, 0.06)',
     borderRadius: 10,
     padding: 10,
+    marginTop: 4,
     borderWidth: 1,
-    borderColor: 'rgba(212,175,124,0.18)',
+    borderColor: 'rgba(212, 175, 124, 0.15)',
   },
-  spendLabel: {
-    fontSize: 9.5,
-    fontWeight: '800',
-    color: Colors.primary,
-    letterSpacing: 0.6,
-    marginBottom: 3,
-  },
-  spendText: {
-    fontSize: 13,
-    color: Colors.text,
-    fontWeight: '600',
+  advisoryText: {
+    flex: 1,
+    fontSize: 11,
+    color: Colors.textSecondary,
+    lineHeight: 16,
   },
 });

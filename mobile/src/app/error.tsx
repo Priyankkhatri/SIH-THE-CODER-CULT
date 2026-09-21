@@ -18,7 +18,7 @@ export default function ErrorScreen() {
 
         <Text style={styles.title}>Something Went Wrong</Text>
         <Text style={styles.message}>
-          We encountered an unexpected issue while loading heritage information. Don't worry, your offline cached records and saved tours are safe.
+          Something went wrong while loading this page. Your saved data is safe — try reloading.
         </Text>
 
         <View style={styles.buttonGroup}>

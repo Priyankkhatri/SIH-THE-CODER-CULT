@@ -173,7 +173,7 @@ export function getConversationalReply(
       } else if (language === 'gu') {
         answer = `⚡ **મને Team The Coder Cult દ્વારા વિકસાવવામાં આવ્યો છે!**\n\n**Smart India Hackathon (SIH)** અંતર્ગત અમારી ટીમે આ સ્માર્ટ ટુરિસ્ટ કમ્પેનિયન સિસ્ટમ બનાવી છે.\n\n💡 **અમારું લક્ષ્ય:**\nઓન-ડિવાઇસ AI વિઝન, ઑફલાઇન સપોર્ટ અને ઑડિયો ગાઇડ વડે ભારતીય સ્મારકોના પ્રવાસનને વિશ્વસ્તરીય બનાવવું.`;
       } else {
-        answer = `⚡ **I was created by Team The Coder Cult!**\n\nDeveloped with dedication for the **Smart India Hackathon (SIH)**, our team engineered this smart tourist companion app to revolutionize cultural tourism in India using on-device computer vision, offline knowledge sync, multi-lingual audio narration, and AI-powered heritage guidance.`;
+        answer = `⚡ **I was created by Team The Coder Cult!**\n\nBuilt for the **Smart India Hackathon (SIH)** — we're a team of developers who built this app to make exploring India's heritage sites easier. It uses camera-based monument recognition, works offline, speaks Hindi/Gujarati/English, and gives you real heritage knowledge instead of generic tourism fluff.`;
       }
       sourceLabel = 'The Coder Cult - SIH';
       break;
@@ -185,7 +185,7 @@ export function getConversationalReply(
       } else if (language === 'gu') {
         answer = `✨ **હું તમારી આ બાબતોમાં મદદ કરી શકું છું:**\n\n1. 🏛️ **ઐતિહાસિક માહિતી**: 150+ સ્મારકોના ઇતિહાસ, સ્થાપત્ય અને રહસ્યો.\n2. 📸 **AI વિઝન સ્કેનર**: કેમેરા દ્વારા કોઈપણ સ્મારક કે મૂર્તિની તુરંત ઓળખ.\n3. 🗺️ **ટૂર પ્લાનિંગ**: ગુજરાત અને ભારતના ઐતિહાસિક પ્રવાસનું સચોટ આયોજન.\n4. 🎧 **ઑડિયો ગાઇડ**: ગુજરાતી, હિન્દી અને અંગ્રેજીમાં સ્પષ્ટ અવાજમાં શ્રવણ.\n5. 📶 **ઑફલાઇન સપોર્ટ**: ઇન્ટરનેટ વગર પણ સંપૂર્ણ માહિતી ઉપલબ્ધ.`;
       } else {
-        answer = `✨ **Here is everything I can do for you:**\n\n1. 🏛️ **Deep Heritage Insights**: Ask me anything about 150+ national monuments — dynasty, patron king, construction year, architectural style, and legends.\n2. 📸 **Vision Monument Scanner**: Point your camera at any monument, temple pillar, or stone carving in the **Scan tab** to identify it instantly.\n3. 🗺️ **Itinerary & Route Planning**: Ask me to plan 1-day, 2-day, or 5-day heritage circuits across Gujarat and India.\n4. 🎧 **Multi-Lingual Audio Narration**: Tap the speaker icon on any response to listen to crystal-clear narration in English, Hindi, or Gujarati.\n5. 🎭 **4 Guide Personas**: Switch between **Short** (quick facts), **Detailed** (archaeological depth), **Kids** (fun fairy-tale mode), and **Narrative** (epic storytelling)!\n6. 📶 **Works 100% Offline**: Full access to verified heritage knowledge even in remote desert and mountain areas without internet.`;
+        answer = `✨ **Here's what I can do:**\n\n1. 🏛️ **Heritage Info**: Ask about any of 150+ monuments — who built it, when, what style, and the stories behind it.\n2. 📸 **Camera Scanner**: Point your camera at a monument or carving in the **Scan tab** and I'll identify it.\n3. 🗺️ **Trip Planning**: I can plan 1-day, 2-day, or 5-day heritage routes across Gujarat and India.\n4. 🎧 **Audio Guide**: Tap the speaker icon to hear any response read out in English, Hindi, or Gujarati.\n5. 🎭 **4 Guide Modes**: **Short** (quick facts), **Detailed** (full history), **Kids** (story mode), **Narrative** (cinematic).\n6. 📶 **Works Offline**: Full heritage knowledge available even without internet.`;
       }
       sourceLabel = 'App Features & Capabilities';
       break;

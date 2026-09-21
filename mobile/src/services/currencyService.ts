@@ -1,4 +1,4 @@
-const FOREX_API = 'https://open.er-api.com/v6/latest/INR';
+const FOREX_API = 'https://open.er-api.com/v6/latest/USD';
 
 export interface CurrencyMeta {
   code: string;
@@ -11,34 +11,33 @@ export const CURRENCIES: CurrencyMeta[] = [
   { code: 'USD', symbol: '$', name: 'US Dollar', flag: '🇺🇸' },
   { code: 'EUR', symbol: '€', name: 'Euro', flag: '🇪🇺' },
   { code: 'GBP', symbol: '£', name: 'British Pound', flag: '🇬🇧' },
+  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham', flag: '🇦🇪' },
   { code: 'AUD', symbol: 'A$', name: 'Australian Dollar', flag: '🇦🇺' },
   { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar', flag: '🇨🇦' },
-  { code: 'JPY', symbol: '¥', name: 'Japanese Yen', flag: '🇯🇵' },
   { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar', flag: '🇸🇬' },
-  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham', flag: '🇦🇪' },
-  { code: 'CNY', symbol: '¥', name: 'Chinese Yuan', flag: '🇨🇳' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen', flag: '🇯🇵' },
+  { code: 'SAR', symbol: '﷼', name: 'Saudi Riyal', flag: '🇸🇦' },
   { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc', flag: '🇨🇭' },
+  { code: 'CNY', symbol: '¥', name: 'Chinese Yuan', flag: '🇨🇳' },
   { code: 'THB', symbol: '฿', name: 'Thai Baht', flag: '🇹🇭' },
   { code: 'MYR', symbol: 'RM', name: 'Malaysian Ringgit', flag: '🇲🇾' },
-  { code: 'SAR', symbol: '﷼', name: 'Saudi Riyal', flag: '🇸🇦' },
   { code: 'KRW', symbol: '₩', name: 'South Korean Won', flag: '🇰🇷' },
   { code: 'RUB', symbol: '₽', name: 'Russian Ruble', flag: '🇷🇺' },
 ];
 
 export interface LiveRates {
-  rates: Record<string, number>; // code → how many INR per 1 unit
+  rates: Record<string, number>; // Currency code -> INR conversion rate (1 Unit = X INR)
   lastUpdated: string;
   source: string;
 }
 
 let cachedRates: LiveRates | null = null;
 let cacheTimestamp = 0;
-const CACHE_TTL = 10 * 60 * 1000; // 10 min
+const CACHE_TTL = 5 * 60 * 1000; // 5 min cache
 
 /**
- * Fetches live exchange rates from open.er-api.com.
- * API returns rates relative to INR (e.g. 1 INR = 0.0118 USD).
- * We invert them to get: 1 USD = X INR (what users actually need).
+ * Fetches real-time live forex rates.
+ * Base query is USD so we get high-precision rates against INR and all major currencies.
  */
 export async function fetchLiveRates(): Promise<LiveRates> {
   const now = Date.now();
@@ -48,72 +47,54 @@ export async function fetchLiveRates(): Promise<LiveRates> {
 
   try {
     const res = await fetch(FOREX_API);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`Forex API returned status ${res.status}`);
     const data = await res.json();
 
-    // API returns: 1 INR = X foreign. We want 1 foreign = X INR.
-    const inverted: Record<string, number> = {};
+    const inrPerUsd = data.rates?.INR;
+    if (!inrPerUsd || typeof inrPerUsd !== 'number') {
+      throw new Error('Invalid rate payload: missing INR rate');
+    }
+
+    const rates: Record<string, number> = {};
+
     for (const cur of CURRENCIES) {
-      const foreignPerInr = data.rates?.[cur.code];
-      if (foreignPerInr && foreignPerInr > 0) {
-        inverted[cur.code] = Math.round((1 / foreignPerInr) * 100) / 100;
+      if (cur.code === 'USD') {
+        rates['USD'] = Math.round(inrPerUsd * 100) / 100;
+      } else {
+        const rateAgainstUsd = data.rates?.[cur.code];
+        if (rateAgainstUsd && rateAgainstUsd > 0) {
+          // 1 Cur = (1 / rateAgainstUsd) USD = (inrPerUsd / rateAgainstUsd) INR
+          const inrVal = inrPerUsd / rateAgainstUsd;
+          rates[cur.code] = Math.round(inrVal * 100) / 100;
+        }
       }
     }
 
     cachedRates = {
-      rates: inverted,
+      rates,
       lastUpdated: data.time_last_update_utc || new Date().toISOString(),
-      source: 'open.er-api.com',
+      source: 'Global Interbank Feed (open.er-api.com)',
     };
     cacheTimestamp = now;
     return cachedRates;
   } catch (err) {
-    // If we have stale cache, return it
     if (cachedRates) return cachedRates;
     throw err;
   }
 }
 
 /**
- * Convert foreign currency → INR using live rate.
+ * Converts foreign currency amount to INR.
  */
 export function convertToInr(amount: number, rateToInr: number): number {
+  if (!rateToInr || isNaN(amount)) return 0;
   return Math.round(amount * rateToInr * 100) / 100;
 }
 
 /**
- * Convert INR → foreign currency using live rate.
+ * Converts INR amount to foreign currency.
  */
 export function convertFromInr(inrAmount: number, rateToInr: number): number {
-  if (rateToInr === 0) return 0;
+  if (!rateToInr || rateToInr === 0 || isNaN(inrAmount)) return 0;
   return Math.round((inrAmount / rateToInr) * 100) / 100;
-}
-
-export interface SpendingRef {
-  threshold: number;
-  label: string;
-}
-
-export const SPENDING_REFS: SpendingRef[] = [
-  { threshold: 25, label: 'Street masala chai ☕' },
-  { threshold: 60, label: 'Samosa plate or tender coconut 🥥' },
-  { threshold: 120, label: 'South Indian breakfast set 🥞' },
-  { threshold: 350, label: 'Full thali meal (unlimited) 🍛' },
-  { threshold: 650, label: 'Auto ride across city 🛺' },
-  { threshold: 1500, label: 'Half-day licensed tour guide 🏛️' },
-  { threshold: 3500, label: 'Heritage boutique stay / night 🏨' },
-  { threshold: 8000, label: 'Full-day chauffeur sedan 🚘' },
-];
-
-export function getSpendingContext(inr: number): string {
-  if (inr <= 0) return '';
-  if (inr < 25) return 'Tip or small roadside purchase';
-  let match = SPENDING_REFS[0];
-  for (const ref of SPENDING_REFS) {
-    if (inr >= ref.threshold) match = ref;
-    else break;
-  }
-  const mult = Math.floor(inr / match.threshold);
-  if (mult > 1 && mult <= 5) return `≈ ${mult}× ${match.label}`;
-  return match.label;
 }

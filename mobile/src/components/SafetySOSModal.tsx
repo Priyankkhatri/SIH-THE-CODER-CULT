@@ -36,8 +36,8 @@ export function SafetySOSModal({ visible, onClose, latitude = 22.3072, longitude
                 <MaterialIcons name="security" size={20} color="#FFFFFF" />
               </View>
               <View>
-                <Text style={styles.headerTitle}>Tourist Safety &amp; SOS Relay</Text>
-                <Text style={styles.headerSubtitle}>Geo-Fenced Emergency Assistance</Text>
+                <Text style={styles.headerTitle}>Tourist Safety &amp; Emergency SOS</Text>
+                <Text style={styles.headerSubtitle}>Direct Helplines &amp; Location Share</Text>
               </View>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
@@ -49,7 +49,7 @@ export function SafetySOSModal({ visible, onClose, latitude = 22.3072, longitude
           <View style={styles.gpsCard}>
             <MaterialIcons name="my-location" size={18} color={Colors.primary} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.gpsLabel}>Verified Location Anchor:</Text>
+              <Text style={styles.gpsLabel}>Current GPS Location:</Text>
               <Text style={styles.gpsCoords}>{latitude.toFixed(4)}° N, {longitude.toFixed(4)}° E ({currentLocationName})</Text>
             </View>
             <TouchableOpacity style={styles.shareBtn} onPress={handleShareLocation}>
@@ -58,7 +58,7 @@ export function SafetySOSModal({ visible, onClose, latitude = 22.3072, longitude
           </View>
 
           {/* Emergency Helplines */}
-          <Text style={styles.sectionHeading}>Immediate Emergency Helplines (Toll-Free):</Text>
+          <Text style={styles.sectionHeading}>Emergency Helplines (Toll-Free):</Text>
           <View style={styles.helplineList}>
             {EMERGENCY_HELPLINES.map((item, idx) => (
               <TouchableOpacity
@@ -87,7 +87,7 @@ export function SafetySOSModal({ visible, onClose, latitude = 22.3072, longitude
           {/* Footer note */}
           <View style={styles.footerNote}>
             <MaterialIcons name="verified-user" size={14} color={Colors.success} />
-            <Text style={styles.footerText}>Certified by Ministry of Tourism &amp; State Police Command Centers</Text>
+            <Text style={styles.footerText}>Official national emergency numbers active across all Indian states</Text>
           </View>
         </View>
       </View>

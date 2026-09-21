@@ -166,13 +166,6 @@ export default function PlaceDetailScreen() {
       }
     }
 
-    if (showSkeleton) {
-      const elapsed = Date.now() - start;
-      if (elapsed < 500) {
-        await new Promise((resolve) => setTimeout(resolve, 500 - elapsed));
-      }
-    }
-
     setHeritage(resultHeritage);
     setIsLoading(false);
     setIsRefreshing(false);
@@ -623,14 +616,14 @@ export default function PlaceDetailScreen() {
           {/* TAB 1: HERITAGE & STORY (Museum-grade Cultural Narrative - Airy, Editorial & Spacious) */}
           {activeMainTab === 'heritage' && (
             <View style={styles.tabSectionWrapper}>
-              {/* 1. Cultural Narrative & Living Story */}
+              {/* 1. Cultural Narrative & Story */}
               <View style={styles.heritageEditorialSection}>
                 <View style={styles.editorialEyebrowRow}>
                   <MaterialIcons name="history-edu" size={16} color={Colors.primary} />
-                  <Text style={styles.editorialEyebrow}>CHRONICLE & LIVING MEMORY</Text>
+                  <Text style={styles.editorialEyebrow}>HISTORICAL OVERVIEW</Text>
                 </View>
 
-                <Text style={styles.editorialMainHeading}>The Story of {displayName}</Text>
+                <Text style={styles.editorialMainHeading}>About {displayName}</Text>
 
                 {heritage.significance ? (
                   <View style={styles.editorialQuoteBlock}>
@@ -669,7 +662,7 @@ export default function PlaceDetailScreen() {
                 <View style={styles.perspectivesSection}>
                   <View style={styles.perspectivesHeader}>
                     <View>
-                      <Text style={styles.galleryEyebrow}>VISUAL PERSPECTIVES</Text>
+                      <Text style={styles.galleryEyebrow}>PHOTO GALLERY</Text>
                       <Text style={styles.perspectivesSectionTitle}>Architectural Gallery</Text>
                     </View>
                     <View style={styles.perspectivesBadge}>
@@ -825,10 +818,10 @@ export default function PlaceDetailScreen() {
                 <View style={styles.dossierHeader}>
                   <View style={styles.dossierEyebrowRow}>
                     <MaterialIcons name="account-balance" size={14} color={Colors.primary} />
-                    <Text style={styles.dossierEyebrow}>OFFICIAL RESEARCH DOSSIER</Text>
+                    <Text style={styles.dossierEyebrow}>HISTORICAL ARCHIVE & RECORDS</Text>
                   </View>
                   <View style={styles.dossierBadge}>
-                    <Text style={styles.dossierBadgeText}>100% Grounded</Text>
+                    <Text style={styles.dossierBadgeText}>Verified Records</Text>
                   </View>
                 </View>
 
@@ -837,9 +830,9 @@ export default function PlaceDetailScreen() {
                     <MaterialIcons name="auto-stories" size={24} color={Colors.primary} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.deepHeritageTitle}>Explore Full Heritage Archive</Text>
+                    <Text style={styles.deepHeritageTitle}>Explore Heritage Archive</Text>
                     <Text style={styles.deepHeritageSubtitle}>
-                      Comprehensive architectural blueprints, dynasty chronicles, royal inscriptions & verified ASI citations.
+                      Dynasty timeline, architectural breakdown, and official archaeological citations.
                     </Text>
                   </View>
                 </View>
@@ -851,20 +844,38 @@ export default function PlaceDetailScreen() {
                   </View>
                   <View style={styles.dossierPill}>
                     <MaterialIcons name="account-balance" size={12} color={Colors.primary} />
-                    <Text style={styles.dossierPillText}>Structural Blueprints</Text>
+                    <Text style={styles.dossierPillText}>Architecture</Text>
                   </View>
                   <View style={styles.dossierPill}>
                     <MaterialIcons name="menu-book" size={12} color={Colors.primary} />
-                    <Text style={styles.dossierPillText}>ASI Source Records</Text>
+                    <Text style={styles.dossierPillText}>ASI Records</Text>
                   </View>
                 </View>
 
                 <View style={styles.dossierActionRow}>
-                  <Text style={styles.dossierActionText}>Open Curated Dossier</Text>
+                  <Text style={styles.dossierActionText}>View Full Archive</Text>
                   <View style={styles.dossierActionBtn}>
                     <MaterialIcons name="arrow-forward" size={14} color="#0A0A0E" />
                   </View>
                 </View>
+              </TouchableOpacity>
+
+              {/* Quick Jump to Visit & Transit Suite */}
+              <TouchableOpacity
+                style={styles.visitQuickCard}
+                onPress={() => handleTabSwitch('radar')}
+                activeOpacity={0.85}
+              >
+                <View style={styles.visitQuickIconWrap}>
+                  <MaterialIcons name="directions-car" size={20} color={Colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.visitQuickTitle}>Plan Your On-Ground Visit</Text>
+                  <Text style={styles.visitQuickSubtitle}>
+                    Book Uber/Rapido, view entry tickets, check scam alerts & local amenities.
+                  </Text>
+                </View>
+                <MaterialIcons name="chevron-right" size={22} color={Colors.primary} />
               </TouchableOpacity>
             </View>
           )}
@@ -901,7 +912,7 @@ export default function PlaceDetailScreen() {
                 placeName={displayName}
                 latitude={placeObj.latitude}
                 longitude={placeObj.longitude}
-                cityOrState={(placeObj as any).city || (placeObj as any).state || displayName}
+                cityOrState={(placeObj as any).city || (placeObj as any).district || (placeObj as any).state || ''}
               />
 
               {/* Pro Gate Survival Tips & Scam Protection Shield */}
@@ -1817,5 +1828,36 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  visitQuickCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#16161D',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.2)',
+    marginTop: 14,
+    ...Shadows.md,
+  },
+  visitQuickIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  visitQuickTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: Colors.text,
+    marginBottom: 2,
+  },
+  visitQuickSubtitle: {
+    fontSize: 11.5,
+    color: Colors.textSecondary,
+    lineHeight: 16,
   },
 });

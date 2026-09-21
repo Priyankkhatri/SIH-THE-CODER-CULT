@@ -336,12 +336,7 @@ export default function HomeScreen() {
       if (places.length === 0) {
         setInitialLoading(true);
       }
-      const start = Date.now();
       await fetchPlaces();
-      const elapsed = Date.now() - start;
-      if (places.length === 0 && elapsed < 400) {
-        await new Promise((resolve) => setTimeout(resolve, 400 - elapsed));
-      }
       if (mounted) {
         setInitialLoading(false);
       }
@@ -364,12 +359,7 @@ export default function HomeScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    const start = Date.now();
     await fetchPlaces();
-    const elapsed = Date.now() - start;
-    if (elapsed < 650) {
-      await new Promise((resolve) => setTimeout(resolve, 650 - elapsed));
-    }
     setRefreshing(false);
   };
 

@@ -141,13 +141,6 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
       loadedStats = localData.stats;
     }
 
-    if (showSkeleton) {
-      const elapsed = Date.now() - start;
-      if (elapsed < 450) {
-        await new Promise((resolve) => setTimeout(resolve, 450 - elapsed));
-      }
-    }
-
     if (loadedReviews) setReviews(loadedReviews);
     if (loadedStats) setStats(loadedStats);
     setIsLoading(false);
@@ -232,7 +225,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
       <View style={styles.headerBlock}>
         <View style={styles.eyebrowRow}>
           <MaterialIcons name="forum" size={13} color={Colors.primary} />
-          <Text style={styles.eyebrowText}>COMMUNITY ARCHIVE · VISITOR VOICES</Text>
+          <Text style={styles.eyebrowText}>COMMUNITY REVIEWS</Text>
         </View>
 
         <View style={styles.titleRow}>
@@ -259,23 +252,23 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
         </View>
 
         <Text style={styles.sectionSubtitle}>
-          Authentic visit impressions, travel advice, and cultural reflections from verified explorers.
+          Visitor experiences, tips, and practical recommendations.
         </Text>
       </View>
 
       {/* Hero Rating Overview Card - Spacious & Grand */}
       <View style={styles.overviewCard}>
-        {/* Left: Overall Score & Verified Seal */}
+        {/* Left: Overall Score */}
         <View style={styles.scoreContainer}>
           <Text style={styles.bigScore}>{stats.averageRating.toFixed(1)}</Text>
           <View style={styles.starsRow}>
-            {[1, 2, 3, 4, 5].map((s) => (
+            {[1, 2, 3, 4, 5].map((star) => (
               <MaterialIcons
-                key={s}
+                key={star}
                 name={
-                  stats.averageRating >= s
+                  star <= Math.round(stats.averageRating)
                     ? 'star'
-                    : stats.averageRating >= s - 0.5
+                    : star - 0.5 <= stats.averageRating
                     ? 'star-half'
                     : 'star-border'
                 }
@@ -285,11 +278,11 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
             ))}
           </View>
           <Text style={styles.totalReviewsCount}>
-            {stats.totalReviews} verified {stats.totalReviews === 1 ? 'review' : 'reviews'}
+            {stats.totalReviews} {stats.totalReviews === 1 ? 'review' : 'reviews'}
           </Text>
           <View style={styles.verifiedCommunityBadge}>
-            <MaterialIcons name="verified" size={12} color={Colors.success} />
-            <Text style={styles.verifiedCommunityText}>100% Genuine</Text>
+            <MaterialIcons name="people" size={12} color={Colors.primary} />
+            <Text style={styles.verifiedCommunityText}>Community Verified</Text>
           </View>
         </View>
 
