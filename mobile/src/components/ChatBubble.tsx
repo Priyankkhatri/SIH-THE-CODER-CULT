@@ -22,6 +22,11 @@ const markdownStyle = {
     color: Colors.text,
     lineHeight: 22,
   },
+  paragraph: {
+    marginTop: 2,
+    marginBottom: 6,
+    lineHeight: 22,
+  },
   heading1: {
     fontFamily: Typography.fontFamily.serif,
     fontSize: Typography.sizes.lg,
