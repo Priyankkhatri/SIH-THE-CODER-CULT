@@ -540,9 +540,16 @@ Respond strictly with valid JSON only in this format:
           let content = visionResponse.data?.choices?.[0]?.message?.content;
           if (content) {
             content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
-            content = content.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+            const match = content.match(/\{[\s\S]*\}/);
+            const cleanJson = match
+              ? match[0]
+              : content.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
 
-            const parsed = JSON.parse(content);
+            let parsed: any = null;
+            try {
+              parsed = JSON.parse(cleanJson);
+            } catch (_) {}
+
             if (parsed && parsed.monumentName && !parsed.monumentName.toLowerCase().includes('not identifiable')) {
               const rawName = parsed.monumentName.toLowerCase();
               finalizeStage({ success: true, model: modelName, monumentName: parsed.monumentName, confidence: parsed.confidence });

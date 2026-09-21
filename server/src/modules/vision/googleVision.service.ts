@@ -93,11 +93,27 @@ export class GoogleVisionService {
     longitude?: number
   ): Promise<GoogleVisionIdentificationResult | null> {
     const apiKey = config.geminiApiKey;
-    const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+    const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+
+    let gpsHint = '';
+    if (latitude && longitude) {
+      const nearby = (masterUnifiedPlaces || [])
+        .map((p) => ({
+          name: p.name,
+          dist: haversineDistanceKm(latitude, longitude, p.latitude, p.longitude),
+        }))
+        .filter((p) => p.dist <= 35.0)
+        .sort((a, b) => a.dist - b.dist)
+        .slice(0, 3);
+
+      if (nearby.length > 0) {
+        gpsHint = `\n\nSPATIAL GPS PRIOR: The tourist's device camera is located at coordinates (${latitude.toFixed(4)}, ${longitude.toFixed(4)}). Nearby candidate monuments from ASI registry: ${nearby.map((n) => `"${n.name}" (${n.dist.toFixed(1)} km away)`).join(', ')}. Use this spatial context to disambiguate similar-looking stone carvings, pillars, or architectural styles!`;
+      }
+    }
 
     const promptText = `You are an expert Indian archaeological computer vision and architectural historian AI.
 Carefully examine the photo provided.
-Identify if this photo depicts an authentic Indian historical monument, ancient temple, stepwell (vav), fortress, palace, rock-cut cave, mausoleum, stupa, or museum heritage artifact (e.g. Rani ki Vav, Modhera Sun Temple, Taj Mahal, Kumbhalgarh Fort, Chittorgarh, Mehrangarh, Red Fort, Qutub Minar, Hampi, Konark, Somnath, Statue of Unity, Adalaj Stepwell, Laxmi Vilas Palace, etc.).
+Identify if this photo depicts an authentic Indian historical monument, ancient temple, stepwell (vav), fortress, palace, rock-cut cave, mausoleum, stupa, or museum heritage artifact (e.g. Rani ki Vav, Modhera Sun Temple, Taj Mahal, Kumbhalgarh Fort, Chittorgarh, Mehrangarh, Red Fort, Qutub Minar, Hampi, Konark, Somnath, Statue of Unity, Adalaj Stepwell, Laxmi Vilas Palace, etc.).${gpsHint}
 
 If this is a valid Indian heritage monument or ancient artifact, output JSON:
 {
@@ -152,13 +168,21 @@ Return ONLY valid raw JSON with NO markdown code fences or backticks.`;
         const rawContent = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (rawContent) {
-          const cleanJson = rawContent
-            .replace(/^```json\s*/i, '')
-            .replace(/^```\s*/i, '')
-            .replace(/```\s*$/i, '')
-            .trim();
-
-          const parsed = JSON.parse(cleanJson);
+          let parsed: any = null;
+          try {
+            const match = rawContent.match(/\{[\s\S]*\}/);
+            const cleanJson = match
+              ? match[0]
+              : rawContent
+                  .replace(/^```json\s*/i, '')
+                  .replace(/^```\s*/i, '')
+                  .replace(/```\s*$/i, '')
+                  .trim();
+            parsed = JSON.parse(cleanJson);
+          } catch (pe) {
+            console.warn(`[GoogleVisionService] JSON parse error on ${model}:`, pe);
+            continue;
+          }
 
           // Handle negative rejection
           if (parsed.isMonument === false) {

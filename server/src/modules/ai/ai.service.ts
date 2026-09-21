@@ -352,32 +352,29 @@ function ensureLocalLLMServer(): void {
 
 class AIService {
   async askQuestion(params: AskQuestionParams): Promise<AIResponse> {
-    const { question, placeId, mode, language } = params;
+    const { question, placeId, mode, language, history } = params;
 
-    ensureLocalLLMServer();
-
-    // Check conversational intent early (greetings, identity, capabilities, gratitude)
-    const intent = detectConversationalIntent(question);
-    if (intent && ['GREETING', 'WELL_BEING', 'IDENTITY', 'CREATOR', 'CAPABILITIES', 'HELP', 'GRATITUDE', 'FAREWELL'].includes(intent)) {
-      const conv = getConversationalReply(intent, mode, language);
-      if (placeId && intent === 'GREETING') {
-        const placeName = (await this.retrieveContext(question, placeId)).placeName;
+    // Only short-circuit pure greetings (e.g. "hi", "hello", "namaste", "kem cho") when there is no specific inquiry
+    if (isGreetingOnly(question)) {
+      if (placeId) {
+        const context = await this.retrieveContext(question, placeId, history);
         const greetingPrefix = language === 'hi'
-          ? `🙏 **नमस्ते! मैं आपका AI Heritage Guide हूँ।**\n\nमैं **${placeName}** के बारे में आपके सभी सवालों के जवाब देने के लिए तैयार हूँ — इतिहास, वास्तुकla, दर्शन का सही समय, या घूमने की सलाह। आप क्या जानना चाहते हैं?`
+          ? `🙏 **नमस्ते! मैं आपका AI Heritage Guide हूँ।**\n\nमैं **${context.placeName}** के बारे में आपके सभी सवालों के जवाब देने के लिए तैयार हूँ — इतिहास, वास्तुकला, दर्शन का सही समय, या घूमने की सलाह। आप क्या जानना चाहते हैं?`
           : language === 'gu'
-          ? `🙏 **નમસ્તે! હું તમારો AI Heritage Guide છું.**\n\nહું **${placeName}** વિશે તમારા બધા પ્રશ્નોના જવાબ આપવા તૈયાર છું — ઇતિહાસ, સ્થાપત્ય કે મુલાકાતની ટિપ્સ. તમે શું જાણવા માંગો છો?`
-          : `👋 **Hello! I'm your AI Heritage Guide.**\n\nI'm ready to answer any questions about **${placeName}** — its architecture, royal history, best photo spots, or visit logistics. What would you like to explore?`;
+          ? `🙏 **નમસ્તે! હું તમારો AI Heritage Guide છું.**\n\nહું **${context.placeName}** વિશે તમારા બધા પ્રશ્નોના જવાબ આપવા તૈયાર છું — ઇતિહાસ, સ્થાપત્ય કે મુલાકાતની ટિપ્સ. તમે શું જાણવા માંગો છો?`
+          : `👋 **Hello! I'm your AI Heritage Guide.**\n\nI'm ready to answer any questions about **${context.placeName}** — its architecture, royal history, best photo spots, or visit logistics. What would you like to explore?`;
         return {
           answer: greetingPrefix,
-          sources: [{ name: 'AI Heritage Guide', text: `Context: ${placeName}` }],
+          sources: [{ name: 'AI Heritage Guide', text: `Context: ${context.placeName}` }],
           confidence: 0.99,
           mode,
           language,
         };
       }
+      const gr = greetingReply(language);
       return {
-        answer: conv.answer,
-        sources: conv.sources,
+        answer: gr.answer,
+        sources: gr.sources,
         confidence: 0.99,
         mode,
         language,
@@ -385,7 +382,7 @@ class AIService {
     }
 
     traceStage('rag', { mode, language, hasPlaceId: !!placeId });
-    const context = await this.retrieveContext(question, placeId);
+    const context = await this.retrieveContext(question, placeId, history);
     finalizeStage({ passages: context.passages.length, matched: context.placeName });
 
     const systemPrompt = getSystemPrompt(mode, language);
@@ -402,14 +399,15 @@ User Inquiry: "${question}"
 
 Instructions:
 1. Answer the user's inquiry conversationally like ChatGPT, specifically addressing their exact question using the context above.
-2. Direct answer first. Do not recite a generic biography.
-3. If asking about accessibility, tickets, timings, photography, or secrets, give honest and practical advice.`
+2. Direct answer first. Do not recite a generic biography unless specifically requested.
+3. If asking about accessibility, tickets, timings, photography, architecture, or secrets, give honest and practical advice.
+4. Structure your answer cleanly with **bold** key terms and bullet points (•) when appropriate.`
       : `User Question: "${question}"
 
 Instructions:
-Answer conversationally and helpfully like ChatGPT. If this is a travel inquiry, provide fascinating suggestions across Indian heritage.`;
+Answer conversationally and helpfully like ChatGPT with deep intelligence, historical insight, and warmth.`;
 
-    const previousMessages = (params.history || [])
+    const previousMessages = (history || [])
       .slice(-6)
       .map((m) => ({
         role: m.role as 'user' | 'assistant',
@@ -422,7 +420,57 @@ Answer conversationally and helpfully like ChatGPT. If this is a travel inquiry,
       { role: 'user', content: userPrompt },
     ];
 
-    traceStage('llm_local', { endpoint: 'http://127.0.0.1:1234/v1', timeoutMs: 25000 });
+    // ==========================================
+    // TIER 1: Groq Cloud LLM (Llama 3.3 70B - Frontier Reasoning, ~140ms latency)
+    // ==========================================
+    if (config.groqApiKey && config.groqApiKey.trim() !== '') {
+      traceStage('llm_groq', { model: 'llama-3.3-70b-versatile', timeoutMs: 10000 });
+      try {
+        const temperature = mode === 'narrative' ? 0.65 : mode === 'child' ? 0.5 : 0.4;
+        const maxTokens = mode === 'short' ? 320 : mode === 'detailed' ? 900 : 500;
+
+        const completion = await Promise.race([
+          groq.chat.completions.create({
+            model: 'llama-3.3-70b-versatile',
+            messages: chatMessages,
+            temperature,
+            max_tokens: maxTokens,
+          }),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('Groq timeout after 10s')), 10000)
+          ),
+        ]);
+
+        let answer = (completion as any).choices?.[0]?.message?.content;
+        if (answer && answer.trim().length > 10) {
+          answer = answer.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+          finalizeStage({ tokens: (completion as any).usage, success: true });
+          return {
+            answer: answer.trim(),
+            sources: context.passages.map((p) => ({
+              name: p.sourceName,
+              url: p.sourceUrl,
+              text: p.content.substring(0, 150) + '...',
+            })),
+            confidence: context.passages.length > 0 ? 0.99 : 0.97,
+            mode,
+            language,
+          };
+        }
+        finalizeStage({ success: false, reason: 'empty_answer' });
+      } catch (error: any) {
+        console.warn(`[AIService] Groq Cloud LLM notice (${error.message || 'offline'}). Attempting local edge LLM.`);
+        finalizeStage({ success: false, error: error.message?.slice(0, 80) });
+      }
+    } else {
+      finalizeStage({ success: false, reason: 'no_groq_key' });
+    }
+
+    // ==========================================
+    // TIER 2: Local LM Studio (Llama 3.2 3B - 100% Offline Edge Fallback)
+    // ==========================================
+    ensureLocalLLMServer();
+    traceStage('llm_local', { endpoint: 'http://127.0.0.1:1234/v1', timeoutMs: 15000 });
     try {
       const temperature = mode === 'narrative' ? 0.65 : mode === 'child' ? 0.5 : 0.4;
       const maxTokens = mode === 'short' ? 260 : mode === 'detailed' ? 600 : 360;
@@ -447,16 +495,16 @@ Answer conversationally and helpfully like ChatGPT. If this is a travel inquiry,
           temperature,
           max_tokens: maxTokens,
         },
-        { timeout: 25000 }
+        { timeout: 15000 }
       );
 
-      let qwenAnswer = localResponse.data?.choices?.[0]?.message?.content;
-      if (qwenAnswer && qwenAnswer.trim().length > 10) {
-        qwenAnswer = qwenAnswer.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+      let localAnswer = localResponse.data?.choices?.[0]?.message?.content;
+      if (localAnswer && localAnswer.trim().length > 10) {
+        localAnswer = localAnswer.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
         finalizeStage({ model: modelName, tokens: localResponse.data?.usage, success: true });
 
         return {
-          answer: qwenAnswer,
+          answer: localAnswer,
           sources: context.passages.map((p) => ({
             name: p.sourceName,
             url: p.sourceUrl,
@@ -472,53 +520,32 @@ Answer conversationally and helpfully like ChatGPT. If this is a travel inquiry,
       finalizeStage({ success: false, error: err.message?.slice(0, 80) });
     }
 
-    traceStage('llm_groq', { model: 'llama-3.3-70b-versatile', timeoutMs: 8000 });
-    if (config.groqApiKey && config.groqApiKey.trim() !== '') {
-      try {
-        const completion = await Promise.race([
-          groq.chat.completions.create({
-            model: 'llama-3.3-70b-versatile',
-            messages: chatMessages,
-            temperature: 0.7,
-            max_tokens: mode === 'short' ? 300 : mode === 'detailed' ? 800 : 500,
-          }),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Groq timeout after 8s')), 8000)
-          ),
-        ]);
-
-        const answer = (completion as any).choices?.[0]?.message?.content;
-        if (answer && answer.trim().length > 10) {
-          finalizeStage({ tokens: (completion as any).usage, success: true });
-          return {
-            answer: answer.trim(),
-            sources: context.passages.map((p) => ({
-              name: p.sourceName,
-              url: p.sourceUrl,
-              text: p.content.substring(0, 150) + '...',
-            })),
-            confidence: context.passages.length > 0 ? 0.98 : 0.96,
-            mode,
-            language,
-          };
-        }
-        finalizeStage({ success: false, reason: 'empty_answer' });
-      } catch (error: any) {
-        console.warn(`[AIService] Groq Cloud LLM skipped (${error.message || 'offline'}). Using verified ASI knowledge base.`);
-        finalizeStage({ success: false, error: error.message?.slice(0, 80) });
-      }
-    } else {
-      finalizeStage({ success: false, reason: 'no_groq_key' });
-    }
-
+    // ==========================================
+    // TIER 3: Static Heritage RAG Intent Synthesizer (Zero-Failure Fallback)
+    // ==========================================
     traceStage('fallback', { type: 'static_rag_catalog' });
     const fb = this.fallbackResponse(context, question, mode, language);
     finalizeStage({ success: true, answerLen: fb.answer.length, sources: fb.sources.length });
     return fb;
   }
 
-  private async retrieveContext(question: string, placeId?: string) {
-    const targetPlaceId = placeId ? (ID_ALIASES[placeId] || placeId) : undefined;
+  private async retrieveContext(
+    question: string,
+    placeId?: string,
+    history?: Array<{ role: 'user' | 'assistant'; content: string }>
+  ) {
+    let targetPlaceId = placeId ? (ID_ALIASES[placeId] || placeId) : undefined;
+
+    // In multi-turn conversation: if placeId not provided, recover monument from recent conversation history
+    if (!targetPlaceId && history && history.length > 0) {
+      const recentText = history.slice(-4).map((m) => m.content).join(' ').toLowerCase();
+      for (const [key, monument] of Object.entries(STATIC_MONUMENTS)) {
+        if (recentText.includes(key) || monument.ids.some((id) => recentText.includes(id.toLowerCase()))) {
+          targetPlaceId = monument.ids[0];
+          break;
+        }
+      }
+    }
     let passages: Array<{
       content: string;
       sourceName: string;
