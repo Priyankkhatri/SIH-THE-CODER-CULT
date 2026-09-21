@@ -133,6 +133,18 @@ export default function SettingsScreen() {
             <MaterialIcons name="chevron-right" size={22} color={Colors.textMuted} />
           </TouchableOpacity>
 
+          {/* Tourist Wallet & UPI Guide */}
+          <TouchableOpacity style={styles.rowItem} onPress={() => router.push('/settings/wallet' as any)}>
+            <View style={[styles.rowIconWrap, { backgroundColor: 'rgba(212, 175, 124, 0.15)' }]}>
+              <MaterialIcons name="account-balance-wallet" size={22} color={Colors.primary} />
+            </View>
+            <View style={styles.rowBody}>
+              <Text style={styles.rowTitle}>Tourist Wallet & UPI Guide</Text>
+              <Text style={styles.rowSubtitle}>UPI One World, Offline Forex & ATM Advisory</Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={22} color={Colors.textMuted} />
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.rowItem} onPress={() => router.push('/itinerary/create' as any)}>
             <View style={styles.rowIconWrap}>
               <MaterialIcons name="route" size={22} color={Colors.accent} />

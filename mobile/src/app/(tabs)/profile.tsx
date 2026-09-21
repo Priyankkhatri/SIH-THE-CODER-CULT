@@ -121,6 +121,30 @@ export default function ProfileScreen() {
               <Text style={styles.menuCardCount}>All options</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Tourist Financial Compass Banner */}
+          <TouchableOpacity
+            style={styles.walletBanner}
+            onPress={() => router.push('/settings/wallet' as any)}
+            activeOpacity={0.85}
+          >
+            <View style={styles.walletBannerIconWrap}>
+              <MaterialIcons name="account-balance-wallet" size={24} color={Colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                <Text style={styles.walletBannerEyebrow}>FOREX & DIGITAL PAYMENTS</Text>
+                <View style={styles.walletBadge}>
+                  <Text style={styles.walletBadgeText}>Offline Ready</Text>
+                </View>
+              </View>
+              <Text style={styles.walletBannerTitle}>Tourist Wallet & UPI Guide</Text>
+              <Text style={styles.walletBannerSubtitle}>
+                UPI One World activation, offline multi-currency converter & ATM protection.
+              </Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={22} color={Colors.primary} />
+          </TouchableOpacity>
         </View>
 
         {/* Language Selection */}
@@ -481,5 +505,54 @@ const styles = StyleSheet.create({
     color: Colors.error,
     fontSize: Typography.sizes.sm,
     fontWeight: '700',
+  },
+  walletBanner: {
+    marginTop: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#181822',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.25)',
+    gap: 12,
+  },
+  walletBannerIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.3)',
+  },
+  walletBannerEyebrow: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: Colors.primary,
+    letterSpacing: 0.8,
+  },
+  walletBadge: {
+    backgroundColor: 'rgba(127, 182, 133, 0.15)',
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 4,
+  },
+  walletBadgeText: {
+    fontSize: 8.5,
+    fontWeight: '800',
+    color: Colors.success,
+  },
+  walletBannerTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: Colors.text,
+    marginBottom: 2,
+  },
+  walletBannerSubtitle: {
+    fontSize: 11.5,
+    color: Colors.textSecondary,
+    lineHeight: 16,
   },
 });
