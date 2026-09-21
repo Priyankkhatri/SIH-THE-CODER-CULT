@@ -723,6 +723,31 @@ export default function HomeScreen() {
           isLoading={isScreenLoading}
         />
 
+        {/* Tourist Financial Compass & Forex Banner */}
+        <TouchableOpacity
+          style={styles.homescreenWalletBanner}
+          onPress={() => router.push('/settings/wallet' as any)}
+          activeOpacity={0.85}
+        >
+          <View style={styles.homescreenWalletIconWrap}>
+            <MaterialIcons name="currency-exchange" size={18} color={Colors.primary} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 1 }}>
+              <Text style={styles.homescreenWalletEyebrow}>TOURIST WALLET & FOREX</Text>
+              <View style={styles.homescreenWalletBadge}>
+                <Text style={styles.homescreenWalletBadgeText}>Offline Rates</Text>
+              </View>
+            </View>
+            <Text style={styles.homescreenWalletTitle} numberOfLines={1}>
+              UPI One World & Currency Converter
+            </Text>
+          </View>
+          <View style={styles.homescreenWalletArrow}>
+            <MaterialIcons name="arrow-forward" size={14} color="#0A0A0E" />
+          </View>
+        </TouchableOpacity>
+
         {/* Quick Actions */}
         <View style={styles.quickActionsSection}>
           <Text style={styles.sectionTitle}>{t('home.quickActions')}</Text>
@@ -1261,6 +1286,60 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 18,
+  },
+  homescreenWalletBanner: {
+    marginHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#161622',
+    borderRadius: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.22)',
+    gap: 12,
+  },
+  homescreenWalletIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.25)',
+  },
+  homescreenWalletEyebrow: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: Colors.primary,
+    letterSpacing: 0.8,
+  },
+  homescreenWalletBadge: {
+    backgroundColor: 'rgba(127, 182, 133, 0.15)',
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  homescreenWalletBadgeText: {
+    fontSize: 8,
+    fontWeight: '800',
+    color: Colors.success,
+  },
+  homescreenWalletTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: Colors.text,
+  },
+  homescreenWalletArrow: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   quickActionsSection: {
     paddingHorizontal: 20,
