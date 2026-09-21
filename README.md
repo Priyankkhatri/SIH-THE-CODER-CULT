@@ -63,7 +63,7 @@ The demo experience is centered on the **heritage of Vadodara, Gujarat** — Lax
 - **Home** — top attractions, category filter, and full-text search
 - **Explore** — interactive map (`react-native-maps` / Leaflet on web) with nearby heritage sites
 - **AI Guide chat** — ask questions about any monument, with modes: *short, detailed, child, narrative* and text-to-speech playback
-- **Vision ID** — photograph an artifact; the server matches GPS position + visual labels against a heritage catalog and returns the monument with rich context
+- **Vision ID & AI Scanner** — photograph an artifact or monument; processed by a 5-tier vision pipeline: Google Vision API (Google Gemini Multimodal / Cloud Vision) with fallback to in-house MobileNetV3 ONNX (128 classes), local VLM (Qwen2-VL), catalog labels, and on-site GPS radar
 - **Plan** — generate, review, save, and reload personalized itineraries with walk/drive routing, visit times, and per-stop reasons
 - **Place detail pages** — hero image, trivia, history, architecture, key facts, timeline, sources, and read-aloud
 - **Dark heritage-gold theme** — trilingual UI (English, हिन्दी, ગુજરાતી)
@@ -73,7 +73,7 @@ The demo experience is centered on the **heritage of Vadodara, Gujarat** — Lax
 - **Dual-database architecture** — Prisma/PostgreSQL with automatic transparent fallback to a seeded in-memory dataset (1.5 s connect timeout)
 - **REST API** covering auth, places, heritage, AI, vision, itinerary, and translation
 - **JWT auth** — guest tokens (7 days) and registered-user tokens (30 days)
-- **AI Q&A & suggestions** via OpenAI SDK with curated RAG context
+- **AI Q&A & suggestions** — 3-tier hybrid LLM architecture: Local LM Studio (offline `llama-3.2-3b-instruct`), Groq Cloud LLM (`llama-3.3-70b-versatile` at ~300 tokens/sec), and static heritage RAG intent synthesizer
 - **Itinerary engine** — greedy nearest-neighbor planner scoring places by interests, rating, and proximity
 - **Trilingual heritage content** — localized short stories, history, and names served by `?lang`
 - **Secure by default** — `helmet`, `cors`, centralized error handling, zod-validated inputs
@@ -89,7 +89,7 @@ The demo experience is centered on the **heritage of Vadodara, Gujarat** — Lax
 | Mobile UI | react-native-maps, expo-camera, expo-location, expo-speech (TTS), expo-image, @expo/vector-icons |
 | Backend | Express 5, Prisma 6 ORM, PostgreSQL |
 | Auth | jsonwebtoken (JWT) |
-| AI | OpenAI SDK 4 (RAG Q&A + suggestions) |
+| AI & Vision | Google Gemini Multimodal Vision, Groq Cloud LLM (Llama 3.3 70B), LM Studio (Local LLM / VLM), MobileNetV3-Small ONNX (128 classes) |
 | Validation | zod |
 | Data assets | CSV / JSON / HTML (National Heritage Matrix viewer) + Python vision pipelines (SigLIP / DINOv2 / MobileNetV4 / Google Landmarks v2) |
 

@@ -22,38 +22,51 @@
 
 ## 1. AI Heritage Vision & Real-Time Camera Scanner
 
-Our vision system is custom-engineered to identify Indian heritage monuments, temple complexes, stepwells, and museum artifacts with up to **99% accuracy**, even when capturing small architectural details (pillars, carvings, arches, jalis).
+Our vision system is custom-engineered to identify Indian heritage monuments, temple complexes, stepwells, and museum artifacts with up to **99% accuracy** using a robust **5-tier multi-model vision pipeline** with automatic intelligent fallback:
 
-### 1.1 In-House Neural Model (`MobileNetV3-Small ONNX`)
+### 1.1 Tier 1 (Primary): Google Vision Engine (Google Gemini Multimodal Vision & Cloud Vision)
+- **Google Gemini Multimodal Vision (100% Free Forever)**:
+  - Generous free tier of up to **1,500 scans/day** via Google AI Studio (`GEMINI_API_KEY`).
+  - End-to-end multimodal perception: accurately identifies complex architectural facades, domes, stepwell pavilions, and stone carvings directly from camera frames.
+  - Distinguishes authentic monuments from non-monument surfaces (desks, floors, walls, selfies) with structured JSON.
+  - Automatically correlates detected monuments with our master dataset of 149 ASI unified places (`placeId`, 3D models, audio guides, history).
+- **Google Cloud Vision API (`images:annotate`)**:
+  - Secondary cloud engine supporting `LANDMARK_DETECTION` and `WEB_DETECTION` with geographical landmark bounding coordinates.
+
+### 1.2 Tier 2 (Neural Fallback): In-House Neural Model (`MobileNetV3-Small ONNX`)
 - **Custom In-House Architecture**: MobileNetV3-Small with custom classification head fine-tuned specifically on Indian heritage sites and museum artifacts.
 - **Trained Classes**: 128 distinct national heritage classes (`ml/weights/classes.json`), spanning UNESCO sites, ASI centrally protected monuments, and ancient museum artifacts.
 - **Model Weight Footprint**: ~10.5 MB (`heritage_vision_model.onnx`), highly optimized for mobile CPU execution (~6–15 ms latency).
 - **Execution Engine**: `onnxruntime` with dynamic batch processing (`batch_size` parameter support).
+- **100% Offline Resilience**: Runs completely locally on the server/device with zero external API calls or internet dependency.
 
-### 1.2 Multi-Scale Spatial TTA Pyramid (Test-Time Augmentation)
-To ensure the AI can recognize a monument even when a tourist takes a close-up photo of a small carving or pillar:
+### 1.3 Multi-Scale Spatial TTA Pyramid (Test-Time Augmentation)
+To ensure the in-house AI can recognize a monument even when a tourist takes a close-up photo of a small carving or pillar:
 - **Perspective 1 (Center Crop)**: Standard 256 -> 224 center crop for typical framed shots.
 - **Perspective 2 (Global Silhouette)**: Direct 224x224 scaled perspective to capture wide monument geometry.
 - **Perspective 3 (70% Zoomed Detail Crop)**: Center 70% detail crop resized to 224x224, focusing on intricate stone masonry, pillar brackets, and relief sculptures.
 - **Batch Ensembling**: All 3 perspectives are run simultaneously in a single 6ms batch (`[3, 3, 224, 224]`), and their softmax probability distributions are averaged (`P_ensemble = (P1 + P2 + P3) / 3`).
 
-### 1.3 Geospatial Bayesian Radar Fusion (Vision x GPS)
-- Combines the visual classifier with real-time GPS telemetry from the mobile camera:
-  P(Monument | Image, GPS) proportional to P(Image | Monument) x P(GPS | Monument)
-- When a tourist is physically within <= 2 km of a heritage monument, the on-site spatial prior boosts recognition accuracy to **99%**.
+### 1.4 Tier 3 (VLM Fallback): In-House Multimodal Local LLM (`Qwen2-VL` / `Llama 3.2 Vision`)
+- For monuments outside the 128 core classes or uncatalogued inscriptions, the system routes the base64 frame to a local Vision-Language Model via LM Studio (`http://127.0.0.1:1234/v1/chat/completions`) for deep visual-linguistic reasoning without sending data to third-party clouds.
+
+### 1.5 Tier 4 (Catalog Fallback): Architectural Feature & Vision Label Catalog Matching
+- High-precision matching across our curated `MONUMENT_CATALOG` scoring architectural keywords, structural styles, and heritage labels.
+
+### 1.6 Tier 5 (Geospatial Fallback): Geospatial Bayesian Radar Fusion (Vision x GPS)
+- Combines visual classification with real-time GPS telemetry from the mobile camera:
+  $$\text{P}(\text{Monument} \mid \text{Image}, \text{GPS}) \propto \text{P}(\text{Image} \mid \text{Monument}) \times \text{P}(\text{GPS} \mid \text{Monument})$$
+- When a tourist is physically within $\le 2\text{ km}$ of a heritage monument, the on-site spatial prior boosts recognition accuracy to **99%**.
 - Prevents false-negative rejections when tourists photograph obscure corners or under low-light conditions.
 
-### 1.4 Physics-Based Surface Entropy Filter
+### 1.7 Physics-Based Surface Entropy Filter
 - Analyzes visual entropy and texture using a discrete 3x3 Laplacian filter before final gating.
 - Rejects plain walls, floors, or untextured frames with clear feedback to align the camera with historical architecture.
 
-### 1.5 Softmax Margin & Relative Gating
+### 1.8 Softmax Margin & Relative Gating
 - Replaces rigid cutoff thresholds with relative margin-ratio gating: predictions are accepted if confidence is decisive (>= 20%) or shows a dominant lead (>= 1.4x) over the runner-up across the 128-class distribution.
 
-### 1.6 Multimodal Vision-Language (VLM) Deep Fallback
-- For monuments outside the 128 core classes or uncatalogued inscriptions, the system automatically routes the base64 frame to a Multimodal Visual LLM (`/vision/identify` Tier 2) for deep architectural and historical analysis.
-
-### 1.7 Identification Result Screen (`mobile/src/app/camera/result.tsx`)
+### 1.9 Identification Result Screen (`mobile/src/app/camera/result.tsx`)
 - **Hero Image with Scanned Badge**: Shows the captured frame alongside an ASI-verified perspective.
 - **Accuracy Meter**: Visual progress meter displaying calibrated match percentage (e.g. 98% Match).
 - **Architectural Meta Badges**: Visual pill tags displaying architectural style (e.g. *Mughal*, *Maru-Gurjara*, *Dravidian*) and historical era (e.g. *11th Century CE*).
@@ -171,11 +184,21 @@ A multilingual conversational guide that brings monuments to life with human-lik
 - **Dynamic Question Reasoning Synthesizer (Zero-Failure Fallback)**: Intelligent intent parser recognizing 14 distinct inquiry domains (Accessibility, Timings & Crowds, Tickets, Photography & Drones, Dress Code & Etiquette, Food & Amenities, Royal Builders, Subterranean Engineering & Purpose, Secrets & Mysteries, Architecture & Carvings, Transit Logistics, Kids Adventures). Synthesizes custom answers on-the-fly even in offline fallback mode.
 - **Context-Aware Conversational Politeness**: Automatically detects casual greetings, gratitude, and well-being inquiries and replies with natural warmth while acknowledging the monument in discussion.
 
-### 5.2 Natural Human-Cadence Text-to-Speech (TTS)
+### 5.2 3-Tier Hybrid AI Architecture (Local LM Studio + Groq Cloud LLM + Offline RAG)
+The conversational engine implements a robust 3-tier fallback hierarchy:
+1. **Tier 1: Local LM Studio (`llama-3.2-3b-instruct`)**:
+   - Zero-latency, 100% private and offline inference running on the local host/edge (`http://127.0.0.1:1234/v1`).
+2. **Tier 2: Groq Cloud LLM (`llama-3.3-70b-versatile`)**:
+   - Blazing-fast cloud reasoning engine executing at ~300 tokens/sec via Groq's LPU hardware (`https://api.groq.com/openai/v1`).
+   - Free tier provides rich cultural commentary and multi-turn contextual depth.
+3. **Tier 3: Static Heritage RAG Catalog (Zero-Failure Fallback)**:
+   - Dynamic intent synthesizer across 14 archaeological inquiry domains, ensuring tourists always get accurate answers even when completely offline.
+
+### 5.3 Natural Human-Cadence Text-to-Speech (TTS)
 - Phonetically tuned speech engine using natural pauses, punctuation handling, and cadence inflection.
 - Clean lifecycle handling (stops speech on back navigation so audio never leaks across screens).
 
-### 5.3 Multilingual Localization
+### 5.4 Multilingual Localization
 - Full app localization across 10+ languages: English, Hindi, Gujarati, Marathi, Tamil, Telugu, Bengali, etc.
 - Culture-specific terminology translation for historical terms (e.g., *Baori*, *Chhatri*, *Jharokha*, *Gopuram*).
 
