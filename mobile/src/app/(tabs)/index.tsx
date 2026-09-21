@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   Image,
   TextInput,
   Dimensions,
+  Animated,
 } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -216,6 +217,66 @@ export default function HomeScreen() {
       setActiveAudioId(null);
     }
   }, [isSpeaking]);
+
+  // Live GPS Radar Pulse Animation for Top Navbar
+  const gpsPulseAnim = useRef(new Animated.Value(1)).current;
+  const gpsOpacityAnim = useRef(new Animated.Value(0.9)).current;
+
+  // Emergency SOS subtle pulse animation
+  const sosPulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const gpsLoop = Animated.loop(
+      Animated.sequence([
+        Animated.parallel([
+          Animated.timing(gpsPulseAnim, {
+            toValue: 1.4,
+            duration: 1400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(gpsOpacityAnim, {
+            toValue: 0.35,
+            duration: 1400,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.parallel([
+          Animated.timing(gpsPulseAnim, {
+            toValue: 1,
+            duration: 1400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(gpsOpacityAnim, {
+            toValue: 0.9,
+            duration: 1400,
+            useNativeDriver: true,
+          }),
+        ]),
+      ])
+    );
+
+    const sosLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(sosPulseAnim, {
+          toValue: 1.06,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sosPulseAnim, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    gpsLoop.start();
+    sosLoop.start();
+    return () => {
+      gpsLoop.stop();
+      sosLoop.stop();
+    };
+  }, [gpsPulseAnim, gpsOpacityAnim, sosPulseAnim]);
 
   // Instant render if places already present in store
   const isScreenLoading = (places.length === 0 && (initialLoading || isLoading)) || refreshing;
@@ -427,22 +488,29 @@ export default function HomeScreen() {
     return matchesName || matchesDesc || matchesCity || matchesTags;
   });
 
-  const greeting = () => {
+  const getTimeMeta = () => {
     const hour = new Date().getHours();
+    let text = 'Good Evening';
+    let icon: keyof typeof MaterialIcons.glyphMap = 'nights-stay';
+
     if (language === 'hi') {
-      if (hour < 12) return 'शुभ प्रभात';
-      if (hour < 17) return 'शुभ दोपहर';
-      return 'शुभ संध्या';
+      if (hour < 12) { text = 'शुभ प्रभात'; icon = 'wb-twilight'; }
+      else if (hour < 17) { text = 'शुभ दोपहर'; icon = 'wb-sunny'; }
+      else { text = 'शुभ संध्या'; icon = 'nights-stay'; }
+    } else if (language === 'gu') {
+      if (hour < 12) { text = 'શુભ સવાર'; icon = 'wb-twilight'; }
+      else if (hour < 17) { text = 'શુભ બપોર'; icon = 'wb-sunny'; }
+      else { text = 'શુભ સાંજ'; icon = 'nights-stay'; }
+    } else {
+      if (hour < 12) { text = 'Good Morning'; icon = 'wb-twilight'; }
+      else if (hour < 17) { text = 'Good Afternoon'; icon = 'wb-sunny'; }
+      else { text = 'Good Evening'; icon = 'nights-stay'; }
     }
-    if (language === 'gu') {
-      if (hour < 12) return 'શુભ સવાર';
-      if (hour < 17) return 'શુભ બપોર';
-      return 'શુભ સાંજ';
-    }
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
+
+    return { text, icon };
   };
+
+  const timeMeta = getTimeMeta();
 
   const quickActionsList = [
     { key: 'explore', label: t('home.exploreMap'), icon: 'map' },
@@ -455,48 +523,80 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        nestedScrollEnabled={true}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
+        {/* Modern Animated Top Navbar Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Image
-              source={require('../../../assets/images/app-logo.jpeg')}
-              style={styles.headerLogo}
-              resizeMode="cover"
-            />
+            <View style={styles.headerLogoWrapper}>
+              <Image
+                source={require('../../../assets/images/app-logo.jpeg')}
+                style={styles.headerLogo}
+                resizeMode="cover"
+              />
+              <View style={styles.logoActiveGlow} />
+            </View>
             <View style={styles.headerTextWrap}>
-              <Text style={styles.eyebrowLabel} numberOfLines={1} ellipsizeMode="tail">YATRA · EXPLORE — UNDERSTAND — BELONG</Text>
-              <Text style={styles.greeting} numberOfLines={1}>{greeting()},</Text>
-              <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">{name}</Text>
+              <Text style={styles.eyebrowLabel} numberOfLines={1} ellipsizeMode="tail">
+                YATRA · EXPLORE — UNDERSTAND — BELONG
+              </Text>
+              <View style={styles.greetingRow}>
+                <MaterialIcons name={timeMeta.icon} size={13} color={Colors.primary} />
+                <Text style={styles.greeting} numberOfLines={1}>
+                  {timeMeta.text},
+                </Text>
+              </View>
+              <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">
+                {name}
+              </Text>
             </View>
           </View>
+
           <View style={styles.headerRight}>
             {isScreenLoading ? (
               <LocationBadgeSkeleton />
             ) : (
-              <TouchableOpacity style={styles.locationBadge} onPress={() => router.push('/(tabs)/explore')}>
-                <MaterialIcons name="place" size={16} color={Colors.primary} />
+              <TouchableOpacity
+                style={styles.locationBadge}
+                onPress={() => router.push('/(tabs)/explore')}
+                activeOpacity={0.8}
+              >
+                {/* Live GPS Pulsing Radar Dot */}
+                <View style={styles.gpsRadarContainer}>
+                  <Animated.View
+                    pointerEvents="none"
+                    style={[
+                      styles.gpsRadarPulse,
+                      {
+                        transform: [{ scale: gpsPulseAnim }],
+                        opacity: gpsOpacityAnim,
+                      },
+                    ]}
+                  />
+                  <View style={styles.gpsRadarDot} />
+                </View>
                 <Text style={styles.locationText} numberOfLines={1} ellipsizeMode="tail">
                   {`${location.city}`}
                 </Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity
-              style={styles.sosBadge}
-              onPress={() => setSosVisible(true)}
-              activeOpacity={0.8}
-            >
-              <MaterialIcons name="emergency" size={14} color="#FFFFFF" />
-              <Text style={styles.sosBadgeText}>SOS</Text>
-            </TouchableOpacity>
+
+            <Animated.View style={{ transform: [{ scale: sosPulseAnim }] }}>
+              <TouchableOpacity
+                style={styles.sosBadge}
+                onPress={() => setSosVisible(true)}
+                activeOpacity={0.85}
+              >
+                <MaterialIcons name="emergency" size={14} color="#FFFFFF" />
+                <Text style={styles.sosBadgeText}>SOS</Text>
+              </TouchableOpacity>
+            </Animated.View>
           </View>
         </View>
 
-        {/* Live Search Bar */}
+        {/* Live Search Bar with Modern Glass Styling */}
         <View style={styles.searchSection}>
           <View style={styles.searchBar}>
             <MaterialIcons name="search" size={22} color={Colors.primary} />
@@ -509,12 +609,20 @@ export default function HomeScreen() {
               returnKeyType="search"
               clearButtonMode="while-editing"
             />
-            {searchQuery.length > 0 && (
+            {searchQuery.length > 0 ? (
               <TouchableOpacity
                 onPress={() => setSearchQuery('')}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <MaterialIcons name="cancel" size={20} color={Colors.textMuted} />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                onPress={() => router.push('/(tabs)/explore')}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                style={styles.searchExploreBtn}
+              >
+                <MaterialIcons name="tune" size={17} color={Colors.primary} />
               </TouchableOpacity>
             )}
           </View>
@@ -865,14 +973,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: 115,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 48,
+    paddingTop: 50,
     paddingBottom: Spacing.md,
     gap: 12,
   },
@@ -882,32 +990,54 @@ const styles = StyleSheet.create({
     minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
+  },
+  headerLogoWrapper: {
+    position: 'relative',
+  },
+  headerLogo: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1.5,
+    borderColor: 'rgba(212, 175, 124, 0.45)',
+  },
+  logoActiveGlow: {
+    position: 'absolute',
+    bottom: -1,
+    right: -1,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#4CAF50',
+    borderWidth: 2,
+    borderColor: Colors.background,
   },
   headerTextWrap: {
     flex: 1,
     flexShrink: 1,
     minWidth: 0,
   },
-  headerLogo: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-  },
   eyebrowLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 1.2,
+    fontSize: 9.5,
+    fontWeight: '800',
+    letterSpacing: 1.4,
     color: Colors.primary,
-    marginBottom: 4,
+    marginBottom: 2,
+  },
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
   },
   greeting: {
-    fontSize: Typography.sizes.sm,
+    fontSize: Typography.sizes.xs,
     color: Colors.textSecondary,
+    fontWeight: '500',
   },
   userName: {
     fontFamily: Typography.fontFamily.serif,
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '700',
     color: Colors.text,
     letterSpacing: 0.2,
@@ -922,21 +1052,41 @@ const styles = StyleSheet.create({
   locationBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: Colors.surface,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
+    gap: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.035)',
+    paddingHorizontal: 11,
+    paddingVertical: 8,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.border,
-    maxWidth: 110,
+    borderColor: 'rgba(212, 175, 124, 0.25)',
+    maxWidth: 120,
     flexShrink: 1,
     minWidth: 0,
   },
+  gpsRadarContainer: {
+    width: 14,
+    height: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  gpsRadarPulse: {
+    position: 'absolute',
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: 'rgba(76, 175, 80, 0.4)',
+  },
+  gpsRadarDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#4CAF50',
+  },
   locationText: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 11,
     color: Colors.text,
-    fontWeight: '600',
+    fontWeight: '700',
     flexShrink: 1,
     minWidth: 0,
   },
@@ -945,11 +1095,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     backgroundColor: '#EF5350',
-    paddingHorizontal: 10,
-    paddingVertical: 7,
+    paddingHorizontal: 11,
+    paddingVertical: 8,
     borderRadius: BorderRadius.full,
     flexShrink: 0,
-    ...Shadows.sm,
+    shadowColor: '#EF5350',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 4,
   },
   sosBadgeText: {
     fontSize: Typography.sizes.xs,
@@ -965,18 +1119,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
     paddingHorizontal: 16,
     paddingVertical: 13,
-    borderRadius: BorderRadius.lg,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(212, 175, 124, 0.22)',
   },
   searchInput: {
     flex: 1,
     fontSize: Typography.sizes.sm,
     color: Colors.text,
     padding: 0,
+  },
+  searchExploreBtn: {
+    padding: 4,
   },
   searchResultsSection: {
     paddingHorizontal: Spacing.xl,
