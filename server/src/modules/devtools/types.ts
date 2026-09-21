@@ -1,7 +1,7 @@
 export type ServiceName =
   | 'server'
   | 'lmStudio'
-  | 'openai'
+  | 'groq'
   | 'onnxVision'
   | 'database'
   | 'mobileNetV3'
@@ -19,7 +19,7 @@ export interface ServiceHealth {
   details?: Record<string, any>;
 }
 
-export type ApiCallStage = 'request' | 'llm_local' | 'llm_openai' | 'rag' | 'fallback' | 'vision_infer' | 'vision_vl' | 'vision_catalog' | 'vision_gps' | 'response';
+export type ApiCallStage = 'request' | 'llm_local' | 'llm_groq' | 'rag' | 'fallback' | 'vision_infer' | 'vision_vl' | 'vision_catalog' | 'vision_gps' | 'response';
 
 export interface ApiCallTrace {
   id: string;
@@ -48,7 +48,7 @@ export interface ApiCallTrace {
   };
   response?: {
     answerPreview?: string;
-    answerProvider?: 'local_lm' | 'openai' | 'static_rag' | 'fallback';
+    answerProvider?: 'local_lm' | 'groq' | 'static_rag' | 'fallback';
     ragSources?: number;
     visionMatch?: string | null;
     error?: string;

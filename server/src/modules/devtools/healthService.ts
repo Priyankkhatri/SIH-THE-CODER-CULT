@@ -46,18 +46,18 @@ export async function checkAllServicesHealth(): Promise<ServiceHealth[]> {
     })(),
 
     (async (): Promise<ServiceHealth> => {
-      const key = config.openaiApiKey?.trim();
-      if (!key || key.includes('your-openai')) return { name: 'openai', status: 'offline', message: 'OPENAI_API_KEY not configured in .env', checkedAt: new Date().toISOString() };
+      const key = config.groqApiKey?.trim();
+      if (!key || key.includes('your-groq')) return { name: 'groq', status: 'offline', message: 'GROQ_API_KEY not configured in .env', checkedAt: new Date().toISOString() };
       try {
         const start = performance.now();
         await axios.post(
-          'https://api.openai.com/v1/chat/completions',
-          { model: 'gpt-4o-mini', messages: [{ role: 'user', content: 'hi' }], max_tokens: 1 },
+          'https://api.groq.com/openai/v1/chat/completions',
+          { model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: 'hi' }], max_tokens: 1 },
           { headers: { Authorization: `Bearer ${key}` }, timeout: 6000, validateStatus: () => true }
         );
-        return { name: 'openai', status: 'healthy', latencyMs: Math.round(performance.now() - start), message: 'gpt-4o-mini reachable', checkedAt: new Date().toISOString() };
+        return { name: 'groq', status: 'healthy', latencyMs: Math.round(performance.now() - start), message: 'llama-3.3-70b reachable', checkedAt: new Date().toISOString() };
       } catch {
-        return { name: 'openai', status: 'degraded', message: 'API ping failed', checkedAt: new Date().toISOString() };
+        return { name: 'groq', status: 'degraded', message: 'Groq API ping failed', checkedAt: new Date().toISOString() };
       }
     })(),
 

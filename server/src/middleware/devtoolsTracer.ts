@@ -138,7 +138,7 @@ export function devtoolsTracer(req: Request, res: Response, next: NextFunction):
         const d = body.data;
         trace.response = {
           answerPreview: typeof d.answer === 'string' ? d.answer.slice(0, 120) : undefined,
-          answerProvider: d.confidence ? (d.confidence >= 0.97 ? 'local_lm' : d.confidence >= 0.95 ? 'openai' : 'static_rag') : undefined,
+          answerProvider: d.confidence ? (d.confidence >= 0.97 ? 'local_lm' : d.confidence >= 0.95 ? 'groq' : 'static_rag') : undefined,
           ragSources: Array.isArray(d.sources) ? d.sources.length : undefined,
           visionMatch: d.placeName || d.artifact?.name || null,
           error: body.error || undefined,

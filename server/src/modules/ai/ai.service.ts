@@ -8,8 +8,9 @@ import { getSystemPrompt } from './ai.prompts';
 import { detectConversationalIntent, getConversationalReply } from './conversational.knowledge';
 import { traceStage, finalizeStage } from '../../middleware/devtoolsTracer';
 
-const openai = new OpenAI({
-  apiKey: config.openaiApiKey || 'mock-key',
+const groq = new OpenAI({
+  apiKey: config.groqApiKey || 'mock-key',
+  baseURL: 'https://api.groq.com/openai/v1',
 });
 
 interface AskQuestionParams {
@@ -471,18 +472,18 @@ Answer conversationally and helpfully like ChatGPT. If this is a travel inquiry,
       finalizeStage({ success: false, error: err.message?.slice(0, 80) });
     }
 
-    traceStage('llm_openai', { model: 'gpt-4o-mini', timeoutMs: 8000 });
-    if (config.openaiApiKey && !config.openaiApiKey.includes('your-openai')) {
+    traceStage('llm_groq', { model: 'llama-3.3-70b-versatile', timeoutMs: 8000 });
+    if (config.groqApiKey && config.groqApiKey.trim() !== '') {
       try {
         const completion = await Promise.race([
-          openai.chat.completions.create({
-            model: 'gpt-4o-mini',
+          groq.chat.completions.create({
+            model: 'llama-3.3-70b-versatile',
             messages: chatMessages,
             temperature: 0.7,
             max_tokens: mode === 'short' ? 300 : mode === 'detailed' ? 800 : 500,
           }),
           new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('OpenAI timeout after 8s')), 8000)
+            setTimeout(() => reject(new Error('Groq timeout after 8s')), 8000)
           ),
         ]);
 
@@ -496,18 +497,18 @@ Answer conversationally and helpfully like ChatGPT. If this is a travel inquiry,
               url: p.sourceUrl,
               text: p.content.substring(0, 150) + '...',
             })),
-            confidence: context.passages.length > 0 ? 0.96 : 0.95,
+            confidence: context.passages.length > 0 ? 0.98 : 0.96,
             mode,
             language,
           };
         }
         finalizeStage({ success: false, reason: 'empty_answer' });
       } catch (error: any) {
-        console.warn(`[AIService] Cloud LLM skipped (${error.message || 'offline'}). Using verified ASI knowledge base.`);
+        console.warn(`[AIService] Groq Cloud LLM skipped (${error.message || 'offline'}). Using verified ASI knowledge base.`);
         finalizeStage({ success: false, error: error.message?.slice(0, 80) });
       }
     } else {
-      finalizeStage({ success: false, reason: 'no_api_key' });
+      finalizeStage({ success: false, reason: 'no_groq_key' });
     }
 
     traceStage('fallback', { type: 'static_rag_catalog' });

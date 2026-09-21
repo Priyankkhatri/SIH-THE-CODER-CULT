@@ -35,29 +35,29 @@ interface PlaygroundBody {
   placeId?: string;
   mode: 'short' | 'detailed' | 'child' | 'narrative';
   language: 'en' | 'hi' | 'gu';
-  forceTier?: 'local' | 'openai' | 'static';
+  forceTier?: 'local' | 'groq' | 'static';
+  systemPrompt?: string;
   temperature?: number;
   maxTokens?: number;
 }
 
 router.post('/ai/playground', async (req: Request, res: Response) => {
   try {
-    const body = req.body as PlaygroundBody;
-    const { question, placeId, mode, language, forceTier, temperature, maxTokens } = body;
+    const { question, placeId, mode, language, forceTier, systemPrompt: customSystemPrompt, temperature, maxTokens } = req.body as PlaygroundBody;
+    const results: Record<string, any> = {};
+
+    const tiers: Array<'local' | 'groq' | 'static'> = forceTier
+      ? [forceTier]
+      : ['local', 'groq', 'static'];
 
     if (!question) {
       return res.status(400).json({ success: false, error: 'question required' });
     }
 
-    const systemPrompt = getSystemPrompt(mode || 'short', language || 'en');
+    const effectiveSystemPrompt = customSystemPrompt || getSystemPrompt(mode || 'short', language || 'en');
     const userPrompt = placeId
       ? `Context place ID: ${placeId}\n\nQuestion: ${question}`
       : `Question: ${question}`;
-
-    const results: Record<string, any> = {};
-    const tiers: Array<'local' | 'openai' | 'static'> = forceTier
-      ? [forceTier]
-      : ['local', 'openai', 'static'];
 
     for (const tier of tiers) {
       const t0 = performance.now();
@@ -78,7 +78,7 @@ router.post('/ai/playground', async (req: Request, res: Response) => {
             {
               model: modelName,
               messages: [
-                { role: 'system', content: systemPrompt },
+                { role: 'system', content: effectiveSystemPrompt },
                 { role: 'user', content: userPrompt },
               ],
               temperature: temperature ?? 0.5,
@@ -95,31 +95,34 @@ router.post('/ai/playground', async (req: Request, res: Response) => {
             answer: content,
             tokens: r.data?.usage,
           };
-        } else if (tier === 'openai') {
-          if (!config.openaiApiKey || config.openaiApiKey.includes('your-openai')) {
-            results.openai = { ok: false, latencyMs: Math.round(performance.now() - t0), error: 'OPENAI_API_KEY not configured in server/.env' };
+        } else if (tier === 'groq') {
+          if (!config.groqApiKey) {
+            results.groq = { ok: false, latencyMs: Math.round(performance.now() - t0), error: 'GROQ_API_KEY not configured in server/.env' };
             continue;
           }
-          const openai = new OpenAI({ apiKey: config.openaiApiKey });
+          const groq = new OpenAI({
+            apiKey: config.groqApiKey,
+            baseURL: 'https://api.groq.com/openai/v1',
+          });
           const completion = await Promise.race([
-            openai.chat.completions.create({
-              model: 'gpt-4o-mini',
+            groq.chat.completions.create({
+              model: 'llama-3.3-70b-versatile',
               messages: [
-                { role: 'system', content: systemPrompt },
+                { role: 'system', content: effectiveSystemPrompt },
                 { role: 'user', content: userPrompt },
               ],
               temperature: temperature ?? 0.7,
               max_tokens: maxTokens ?? 500,
             }),
             new Promise<never>((_, rej) =>
-              setTimeout(() => rej(new Error('OpenAI timeout')), 12000)
+              setTimeout(() => rej(new Error('Groq timeout')), 12000)
             ),
           ] as any);
           const content = (completion as any).choices?.[0]?.message?.content || '';
-          results.openai = {
+          results.groq = {
             ok: true,
             latencyMs: Math.round(performance.now() - t0),
-            model: 'gpt-4o-mini',
+            model: 'llama-3.3-70b-versatile',
             answer: content.trim(),
             tokens: (completion as any).usage,
           };
@@ -148,7 +151,7 @@ router.post('/ai/playground', async (req: Request, res: Response) => {
       }
     }
 
-    res.json({ success: true, data: { tiers: results, systemPrompt, userPrompt } });
+    res.json({ success: true, data: { tiers: results, systemPrompt: effectiveSystemPrompt, userPrompt } });
     broadcast({ type: 'benchmark_update', payload: { completed: tiers.length, total: tiers.length, passRate: tiers.filter(t => results[t]?.ok).length / tiers.length } });
   } catch (e: any) {
     res.status(500).json({ success: false, error: e.message });
