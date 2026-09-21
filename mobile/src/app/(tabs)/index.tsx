@@ -736,7 +736,7 @@ export default function HomeScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 1 }}>
               <Text style={styles.homescreenWalletEyebrow}>TOURIST WALLET & FOREX</Text>
               <View style={styles.homescreenWalletBadge}>
-                <Text style={styles.homescreenWalletBadgeText}>Offline Rates</Text>
+                <Text style={styles.homescreenWalletBadgeText}>Live Rates</Text>
               </View>
             </View>
             <Text style={styles.homescreenWalletTitle} numberOfLines={1}>

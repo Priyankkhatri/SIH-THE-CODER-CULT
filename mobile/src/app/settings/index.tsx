@@ -140,7 +140,7 @@ export default function SettingsScreen() {
             </View>
             <View style={styles.rowBody}>
               <Text style={styles.rowTitle}>Tourist Wallet & UPI Guide</Text>
-              <Text style={styles.rowSubtitle}>UPI One World, Offline Forex & ATM Advisory</Text>
+              <Text style={styles.rowSubtitle}>UPI One World, Live Forex & ATM Advisory</Text>
             </View>
             <MaterialIcons name="chevron-right" size={22} color={Colors.textMuted} />
           </TouchableOpacity>

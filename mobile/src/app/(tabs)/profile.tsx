@@ -135,12 +135,12 @@ export default function ProfileScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                 <Text style={styles.walletBannerEyebrow}>FOREX & DIGITAL PAYMENTS</Text>
                 <View style={styles.walletBadge}>
-                  <Text style={styles.walletBadgeText}>Offline Ready</Text>
+                  <Text style={styles.walletBadgeText}>Live Forex</Text>
                 </View>
               </View>
               <Text style={styles.walletBannerTitle}>Tourist Wallet & UPI Guide</Text>
               <Text style={styles.walletBannerSubtitle}>
-                UPI One World activation, offline multi-currency converter & ATM protection.
+                UPI One World activation, live currency converter & ATM protection.
               </Text>
             </View>
             <MaterialIcons name="chevron-right" size={22} color={Colors.primary} />
