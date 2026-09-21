@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, BorderRadius, Shadows } from '../constants/theme';
 import { openUberRide, openRapidoRide, openNativeNavigation } from '../services/transitService';
@@ -18,6 +19,7 @@ export function RideBookingSection({
   longitude,
   cityOrState,
 }: RideBookingSectionProps) {
+  const router = useRouter();
   const [showTips, setShowTips] = useState(false);
 
   const destination = {
@@ -200,6 +202,18 @@ export function RideBookingSection({
             ))}
           </View>
         )}
+
+        {/* 1-Tap Link to Tourist Wallet & Forex */}
+        <TouchableOpacity
+          style={styles.walletLinkRow}
+          onPress={() => router.push('/settings/wallet' as any)}
+          activeOpacity={0.8}
+        >
+          <MaterialIcons name="currency-exchange" size={14} color={Colors.primary} />
+          <Text style={styles.walletLinkText}>
+            Need currency conversion or UPI One World setup? Open Tourist Wallet →
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -470,5 +484,21 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     lineHeight: 16,
     flex: 1,
+  },
+  walletLinkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  walletLinkText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.primary,
+    flex: 1,
+    lineHeight: 15,
   },
 });
