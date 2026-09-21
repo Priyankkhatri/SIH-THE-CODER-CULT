@@ -118,12 +118,13 @@ router.post('/ai/playground', async (req: Request, res: Response) => {
               setTimeout(() => rej(new Error('Groq timeout')), 12000)
             ),
           ] as any);
-          const content = (completion as any).choices?.[0]?.message?.content || '';
+          let content = (completion as any).choices?.[0]?.message?.content || '';
+          content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
           results.groq = {
             ok: true,
             latencyMs: Math.round(performance.now() - t0),
             model: 'llama-3.3-70b-versatile',
-            answer: content.trim(),
+            answer: content,
             tokens: (completion as any).usage,
           };
         } else {
