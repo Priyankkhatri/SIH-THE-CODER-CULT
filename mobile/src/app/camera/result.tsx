@@ -32,6 +32,7 @@ export default function CameraResultScreen() {
     placeName?: string;
     architecturalStyle?: string;
     period?: string;
+    aiModel?: string;
     imageUri?: string;
   }>();
 
@@ -112,7 +113,7 @@ export default function CameraResultScreen() {
           <View style={styles.statusRow}>
             <View style={styles.verifiedTag}>
               <MaterialIcons name="verified" size={16} color={Colors.success} />
-              <Text style={styles.verifiedTagText}>AI Vision Verified</Text>
+              <Text style={styles.verifiedTagText}>{params.aiModel || 'Google AI Vision Verified'}</Text>
             </View>
             <View style={styles.confidenceBadge}>
               <Text style={styles.confidenceScore}>{confidence}% Match</Text>

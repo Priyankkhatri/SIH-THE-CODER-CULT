@@ -115,7 +115,7 @@ export default function CameraScreen() {
         }
       }
 
-      setScanStatus('🧠 Neural Vision analyzing architectural style...');
+      setScanStatus('✨ Google AI Vision analyzing architecture...');
 
       // Call vision identify with captured image + GPS coordinates
       const response: any = await visionApi.identify({
@@ -133,12 +133,13 @@ export default function CameraScreen() {
           params: {
             artifactName: item.artifact?.name || 'Heritage Landmark',
             confidence: String(item.artifact?.confidence || 98),
-            description: item.artifact?.description || 'Heritage landmark identified by Yatra Heritage Vision Model.',
+            description: item.artifact?.description || 'Heritage landmark identified by Google AI Vision.',
             heritageContext: item.heritageContext || 'Protected monument under Archaeological Survey of India (ASI) records.',
             placeId: item.placeId || item.artifact?.placeId || '',
             placeName: item.placeName || item.artifact?.name || 'Heritage Landmark',
             architecturalStyle: item.artifact?.architecturalStyle || '',
             period: item.artifact?.period || '',
+            aiModel: item.aiModel || 'Google AI Vision',
             imageUri: photoUri || '',
             t: String(Date.now()),
           },

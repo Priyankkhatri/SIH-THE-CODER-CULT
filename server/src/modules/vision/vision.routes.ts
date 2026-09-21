@@ -8,6 +8,7 @@ import { ARTIFACTS_DATA, PLACES_DATA } from '../../seed/data';
 
 import { loadMasterUnifiedPlaces } from '../../utils/masterDataLoader';
 import { traceStage, finalizeStage } from '../../middleware/devtoolsTracer';
+import { googleVisionService } from './googleVision.service';
 
 const router = Router();
 
@@ -324,6 +325,21 @@ router.post('/identify', async (req: Request, res: Response) => {
 
     traceStage('vision_infer', { hasImage: !!image, imageLen: typeof image === 'string' ? image.length : 0, hasGPS: !!(latitude && longitude) });
     if (image && typeof image === 'string' && image.length > 100) {
+      // 1. Google Vision Engine (Gemini Multimodal / Cloud Vision)
+      try {
+        const googleResult = await googleVisionService.identify(image, latitude, longitude);
+        if (googleResult) {
+          console.log(`[Vision API] Google Vision Match: ${googleResult.artifact?.name || googleResult.placeName} (model: ${googleResult.aiModel}, isMonument: ${googleResult.isMonument})`);
+          finalizeStage({ success: true, model: googleResult.aiModel, pred: googleResult.artifact?.name || googleResult.placeName, isMonument: googleResult.isMonument });
+          return res.json({
+            success: true,
+            data: googleResult,
+          });
+        }
+      } catch (gErr: any) {
+        console.warn(`[Vision API] Google Vision notice:`, gErr?.message || gErr);
+      }
+
       try {
         const customPred = await runCustomVisionInference(image);
         if (customPred) {
