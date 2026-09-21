@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, BorderRadius, Shadows } from '../constants/theme';
 import { openUberRide, openRapidoRide, openNativeNavigation } from '../services/transitService';
+import { estimateTransitFares } from '../services/transitFareEstimator';
 
 interface RideBookingSectionProps {
   placeName: string;
@@ -17,12 +18,16 @@ export function RideBookingSection({
   longitude,
   cityOrState,
 }: RideBookingSectionProps) {
+  const [showTips, setShowTips] = useState(false);
+
   const destination = {
     name: placeName,
     latitude,
     longitude,
     address: cityOrState,
   };
+
+  const fareData = estimateTransitFares(placeName, cityOrState);
 
   return (
     <View style={styles.container}>
@@ -113,6 +118,88 @@ export function RideBookingSection({
             <MaterialIcons name="open-in-new" size={15} color="#5B8FB9" />
           </View>
         </TouchableOpacity>
+      </View>
+
+      {/* 4. Regional Street Fair Fare Benchmark (For Rural / Out-of-station tourists) */}
+      <View style={styles.benchmarkCard}>
+        <View style={styles.benchmarkHeader}>
+          <View style={styles.benchmarkTitleRow}>
+            <MaterialIcons name="price-check" size={18} color={Colors.primary} />
+            <Text style={styles.benchmarkTitle}>
+              {fareData.zoneType === 'metro'
+                ? 'City Street Meter Benchmark'
+                : 'Rural Heritage Fair Fare Benchmark'}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.zoneBadge,
+              fareData.zoneType === 'regional' ? styles.zoneBadgeRegional : styles.zoneBadgeMetro,
+            ]}
+          >
+            <Text style={styles.zoneBadgeText}>
+              {fareData.zoneType === 'regional' ? 'Local Autos Dominate' : 'App Cabs Available'}
+            </Text>
+          </View>
+        </View>
+
+        <Text style={styles.benchmarkNotice}>
+          Expected fair rates from {fareData.hubName} to protect against tout overcharging:
+        </Text>
+
+        <View style={styles.pricePillsRow}>
+          <View style={styles.pricePill}>
+            <Text style={styles.pricePillLabel}>Private Auto</Text>
+            <Text style={styles.pricePillValue}>{fareData.autoPrivateRange}</Text>
+          </View>
+
+          {fareData.sharedTransitRange && (
+            <View style={styles.pricePill}>
+              <Text style={styles.pricePillLabel}>Shared Jeep / Bus</Text>
+              <Text style={styles.pricePillValue}>{fareData.sharedTransitRange.split(' ')[0]}</Text>
+            </View>
+          )}
+
+          {fareData.fullDayAutoRange && (
+            <View style={styles.pricePill}>
+              <Text style={styles.pricePillLabel}>Full Day Circuit</Text>
+              <Text style={styles.pricePillValue}>{fareData.fullDayAutoRange.split(' ')[0]}</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Local Hindi Bargaining Helper */}
+        <View style={styles.phraseBox}>
+          <View style={styles.phraseHeaderRow}>
+            <MaterialIcons name="record-voice-over" size={14} color={Colors.primary} />
+            <Text style={styles.phraseHeader}>Driver Negotiation Phrase</Text>
+          </View>
+          <Text style={styles.phraseHindi}>{fareData.localPhrase.hindi}</Text>
+          <Text style={styles.phrasePronunciation}>"{fareData.localPhrase.pronunciation}"</Text>
+          <Text style={styles.phraseEnglish}>Meaning: {fareData.localPhrase.english}</Text>
+        </View>
+
+        {/* Expandable Tips Toggle */}
+        <TouchableOpacity
+          style={styles.tipsToggleBtn}
+          onPress={() => setShowTips(!showTips)}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.tipsToggleText}>
+            {showTips ? 'Hide Anti-Gouging Tips ▲' : 'View Street Bargaining Rules ▼'}
+          </Text>
+        </TouchableOpacity>
+
+        {showTips && (
+          <View style={styles.tipsList}>
+            {fareData.bargainingTips.map((tip, idx) => (
+              <View key={idx} style={styles.tipRow}>
+                <MaterialIcons name="check-circle" size={14} color={Colors.success} />
+                <Text style={styles.tipText}>{tip}</Text>
+              </View>
+            ))}
+          </View>
+        )}
       </View>
     </View>
   );
@@ -247,5 +334,141 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  // Regional Benchmark Styles
+  benchmarkCard: {
+    marginTop: 18,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  benchmarkHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  benchmarkTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  benchmarkTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: Colors.text,
+  },
+  zoneBadge: {
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 6,
+  },
+  zoneBadgeMetro: {
+    backgroundColor: 'rgba(123, 182, 133, 0.15)',
+  },
+  zoneBadgeRegional: {
+    backgroundColor: 'rgba(217, 164, 91, 0.15)',
+  },
+  zoneBadgeText: {
+    fontSize: 9.5,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  benchmarkNotice: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    lineHeight: 16,
+    marginBottom: 12,
+  },
+  pricePillsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+  pricePill: {
+    flex: 1,
+    backgroundColor: '#1C1C26',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    alignItems: 'center',
+  },
+  pricePillLabel: {
+    fontSize: 9.5,
+    color: Colors.textMuted,
+    marginBottom: 2,
+    fontWeight: '600',
+  },
+  pricePillValue: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: Colors.primary,
+  },
+  phraseBox: {
+    backgroundColor: 'rgba(212, 175, 124, 0.08)',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.20)',
+    marginBottom: 10,
+  },
+  phraseHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginBottom: 4,
+  },
+  phraseHeader: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: Colors.primary,
+    letterSpacing: 0.5,
+  },
+  phraseHindi: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: 2,
+  },
+  phrasePronunciation: {
+    fontSize: 11.5,
+    fontStyle: 'italic',
+    color: Colors.primaryLight,
+    marginBottom: 2,
+  },
+  phraseEnglish: {
+    fontSize: 10.5,
+    color: Colors.textMuted,
+  },
+  tipsToggleBtn: {
+    alignSelf: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  tipsToggleText: {
+    fontSize: 11,
+    color: Colors.primary,
+    fontWeight: '700',
+  },
+  tipsList: {
+    marginTop: 8,
+    gap: 6,
+    backgroundColor: '#1A1A24',
+    padding: 12,
+    borderRadius: 12,
+  },
+  tipRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  tipText: {
+    fontSize: 11.5,
+    color: Colors.textSecondary,
+    lineHeight: 16,
+    flex: 1,
   },
 });
