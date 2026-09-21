@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -28,8 +28,8 @@ const TAB_CONFIG: Record<string, TabItemConfig> = {
   profile: { icon: 'person', label: 'Profile' },
 };
 
-// ── Jelly Tab Button with Physics Squash & Stretch + Hold Wobble ──
-interface JellyTabButtonProps {
+// ── Tab Item Props ──
+interface TabButtonProps {
   config: TabItemConfig;
   label: string;
   isFocused: boolean;
@@ -37,151 +37,42 @@ interface JellyTabButtonProps {
   onLongPress: () => void;
 }
 
-function JellyTabButton({ config, label, isFocused, onPress, onLongPress }: JellyTabButtonProps) {
-  const scaleX = useRef(new Animated.Value(1)).current;
-  const scaleY = useRef(new Animated.Value(1)).current;
-  const rotateVal = useRef(new Animated.Value(0)).current;
-  const isHolding = useRef(false);
-  const holdAnimRef = useRef<Animated.CompositeAnimation | null>(null);
+// ── 1. Standard Tab Button with Crisp Micro-Spring & Subtle Levitation ──
+function StandardTabButton({ config, label, isFocused, onPress, onLongPress }: TabButtonProps) {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const translateYAnim = useRef(new Animated.Value(isFocused ? -2 : 0)).current;
 
-  // Rotation interpolation for jiggle tilt: [-1 -> -5deg, 0 -> 0deg, 1 -> 5deg]
-  const rotateDeg = rotateVal.interpolate({
-    inputRange: [-1, 0, 1],
-    outputRange: ['-5deg', '0deg', '5deg'],
-  });
+  // Smooth elevation shift when tab selection changes
+  useEffect(() => {
+    Animated.spring(translateYAnim, {
+      toValue: isFocused ? -2 : 0,
+      friction: 8,
+      tension: 120,
+      useNativeDriver: true,
+    }).start();
+  }, [isFocused]);
 
   const handlePressIn = () => {
-    isHolding.current = true;
-
-    // 1. Initial Jelly Squash: widen horizontally, compress vertically
-    Animated.parallel([
-      Animated.timing(scaleX, {
-        toValue: 1.25,
-        duration: 110,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleY, {
-        toValue: 0.78,
-        duration: 110,
-        useNativeDriver: true,
-      }),
-      Animated.timing(rotateVal, {
-        toValue: 0.4,
-        duration: 110,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    // 2. Touch-and-hold interaction: If held, enter continuous rhythmic jelly jiggle!
-    holdAnimRef.current = Animated.loop(
-      Animated.sequence([
-        Animated.parallel([
-          Animated.timing(scaleX, { toValue: 1.16, duration: 140, useNativeDriver: true }),
-          Animated.timing(scaleY, { toValue: 0.86, duration: 140, useNativeDriver: true }),
-          Animated.timing(rotateVal, { toValue: -0.8, duration: 140, useNativeDriver: true }),
-        ]),
-        Animated.parallel([
-          Animated.timing(scaleX, { toValue: 1.28, duration: 140, useNativeDriver: true }),
-          Animated.timing(scaleY, { toValue: 0.76, duration: 140, useNativeDriver: true }),
-          Animated.timing(rotateVal, { toValue: 0.8, duration: 140, useNativeDriver: true }),
-        ]),
-      ])
-    );
-
-    // Start hold jiggle loop after 260ms of holding
-    setTimeout(() => {
-      if (isHolding.current && holdAnimRef.current) {
-        holdAnimRef.current.start();
-      }
-    }, 260);
+    Animated.spring(scaleAnim, {
+      toValue: 0.92,
+      friction: 8,
+      tension: 160,
+      useNativeDriver: true,
+    }).start();
   };
 
   const handlePressOut = () => {
-    isHolding.current = false;
-    if (holdAnimRef.current) {
-      holdAnimRef.current.stop();
-      holdAnimRef.current = null;
-    }
-
-    // 3. Elastic Jelly Rebound Wave: Boing! Oscillate before settling
-    Animated.sequence([
-      // Snap up tall & skinny
-      Animated.parallel([
-        Animated.timing(scaleX, { toValue: 0.82, duration: 90, useNativeDriver: true }),
-        Animated.timing(scaleY, { toValue: 1.26, duration: 90, useNativeDriver: true }),
-        Animated.timing(rotateVal, { toValue: -1, duration: 90, useNativeDriver: true }),
-      ]),
-      // Squash wide
-      Animated.parallel([
-        Animated.timing(scaleX, { toValue: 1.15, duration: 80, useNativeDriver: true }),
-        Animated.timing(scaleY, { toValue: 0.88, duration: 80, useNativeDriver: true }),
-        Animated.timing(rotateVal, { toValue: 0.7, duration: 80, useNativeDriver: true }),
-      ]),
-      // Slight stretch
-      Animated.parallel([
-        Animated.timing(scaleX, { toValue: 0.94, duration: 70, useNativeDriver: true }),
-        Animated.timing(scaleY, { toValue: 1.08, duration: 70, useNativeDriver: true }),
-        Animated.timing(rotateVal, { toValue: -0.3, duration: 70, useNativeDriver: true }),
-      ]),
-      // Settle smoothly
-      Animated.parallel([
-        Animated.spring(scaleX, { toValue: 1.0, friction: 3.5, tension: 55, useNativeDriver: true }),
-        Animated.spring(scaleY, { toValue: 1.0, friction: 3.5, tension: 55, useNativeDriver: true }),
-        Animated.spring(rotateVal, { toValue: 0, friction: 3.5, tension: 55, useNativeDriver: true }),
-      ]),
-    ]).start();
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 6,
+      tension: 120,
+      useNativeDriver: true,
+    }).start();
   };
 
-  // ── CENTER AI ORB JELLY BUTTON ──
-  if (config.isCenter) {
-    return (
-      <View style={styles.centerButtonOuter}>
-        <Pressable
-          onPress={onPress}
-          onLongPress={onLongPress}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          accessibilityRole="button"
-          accessibilityState={{ selected: isFocused }}
-          accessibilityLabel={label}
-        >
-          <Animated.View
-            style={[
-              styles.aiJellyPill,
-              isFocused && styles.aiJellyPillActive,
-              {
-                transform: [
-                  { scaleX },
-                  { scaleY },
-                  { rotate: rotateDeg },
-                ],
-              },
-            ]}
-          >
-            <MaterialIcons
-              name={config.icon}
-              size={23}
-              color={isFocused ? '#0A0A0E' : Colors.primary}
-            />
-            <Text
-              style={[
-                styles.aiJellyLabel,
-                isFocused && styles.aiJellyLabelActive,
-              ]}
-              numberOfLines={1}
-            >
-              Yatra AI
-            </Text>
-          </Animated.View>
-        </Pressable>
-      </View>
-    );
-  }
-
-  // ── STANDARD TAB (Home, Explore, Plan, Profile) ──
   return (
     <Pressable
-      style={styles.tabItemPressable}
+      style={styles.tabPressable}
       onPress={onPress}
       onLongPress={onLongPress}
       onPressIn={handlePressIn}
@@ -192,29 +83,28 @@ function JellyTabButton({ config, label, isFocused, onPress, onLongPress }: Jell
     >
       <Animated.View
         style={[
-          styles.tabJellyCapsule,
-          isFocused && styles.tabJellyCapsuleActive,
+          styles.tabCapsule,
+          isFocused && styles.tabCapsuleActive,
           {
             transform: [
-              { scaleX },
-              { scaleY },
-              { rotate: rotateDeg },
+              { scale: scaleAnim },
+              { translateY: translateYAnim },
             ],
           },
         ]}
       >
-        <View style={styles.iconWrap}>
+        <View style={styles.iconContainer}>
           <MaterialIcons
             name={config.icon}
             size={22}
             color={isFocused ? Colors.primary : Colors.textMuted}
           />
-          {isFocused && <View style={styles.jellyActiveDot} />}
+          {isFocused && <View style={styles.activeIndicatorPip} />}
         </View>
         <Text
           style={[
-            styles.tabJellyLabel,
-            isFocused ? styles.tabJellyLabelActive : styles.tabJellyLabelInactive,
+            styles.tabLabel,
+            isFocused ? styles.tabLabelActive : styles.tabLabelInactive,
           ]}
           numberOfLines={1}
         >
@@ -225,10 +115,103 @@ function JellyTabButton({ config, label, isFocused, onPress, onLongPress }: Jell
   );
 }
 
-// ── Main Docked Bottom Navigation Bar ──
+// ── 2. Center "Yatra AI" Button with Controlled Luxury Aura & Snappy Feedback ──
+function CenterAiButton({ config, isFocused, onPress, onLongPress }: TabButtonProps) {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const pulseAnim = useRef(new Animated.Value(0.4)).current;
+
+  // Gentle, stable luxury breathing aura for the AI pill
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 0.85,
+          duration: 2200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 0.4,
+          duration: 2200,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [pulseAnim]);
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.92,
+      friction: 8,
+      tension: 160,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 6,
+      tension: 120,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <Pressable
+      style={styles.centerPressable}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      accessibilityRole="button"
+      accessibilityState={{ selected: isFocused }}
+      accessibilityLabel="AI Guide"
+    >
+      <Animated.View
+        style={[
+          styles.aiPillContainer,
+          isFocused && styles.aiPillContainerActive,
+          {
+            transform: [{ scale: scaleAnim }],
+          },
+        ]}
+      >
+        {/* Subtle Luxury Aura Ring */}
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.aiGlowHalo,
+            {
+              opacity: isFocused ? 0.9 : pulseAnim,
+            },
+          ]}
+        />
+
+        <MaterialIcons
+          name={config.icon}
+          size={20}
+          color={isFocused ? '#0A0A0E' : Colors.primary}
+        />
+        <Text
+          style={[
+            styles.aiPillText,
+            isFocused && styles.aiPillTextActive,
+          ]}
+          numberOfLines={1}
+        >
+          AI Guide
+        </Text>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+// ── 3. Bottom Docked Navigation Bar ──
 export function AnimatedBottomTabBar({ state, descriptors, navigation }: CustomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const bottomPadding = Math.max(insets.bottom, Platform.OS === 'ios' ? 14 : 10);
+  const bottomPadding = Math.max(insets.bottom, Platform.OS === 'ios' ? 14 : 8);
 
   return (
     <View
@@ -267,8 +250,21 @@ export function AnimatedBottomTabBar({ state, descriptors, navigation }: CustomT
             });
           };
 
+          if (config.isCenter) {
+            return (
+              <CenterAiButton
+                key={route.key}
+                config={config}
+                label={label}
+                isFocused={isFocused}
+                onPress={handlePress}
+                onLongPress={handleLongPress}
+              />
+            );
+          }
+
           return (
-            <JellyTabButton
+            <StandardTabButton
               key={route.key}
               config={config}
               label={label}
@@ -284,113 +280,123 @@ export function AnimatedBottomTabBar({ state, descriptors, navigation }: CustomT
 }
 
 const styles = StyleSheet.create({
-  // Docked to the very bottom — no floating margins!
+  // Docked to device bottom — grounded, stable, elegant
   dockedBarContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(14, 14, 20, 0.96)',
+    backgroundColor: 'rgba(13, 13, 18, 0.98)',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(212, 175, 124, 0.22)',
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -6 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 20,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 16,
     zIndex: 9999,
   },
   tabBarInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    height: 58,
-    paddingHorizontal: 8,
+    height: 56,
+    paddingHorizontal: 6,
   },
 
-  // Standard Tab Styles
-  tabItemPressable: {
+  // Standard Tab Button
+  tabPressable: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     height: '100%',
   },
-  tabJellyCapsule: {
+  tabCapsule: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 5,
-    paddingHorizontal: 12,
-    borderRadius: 18,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: BorderRadius.md,
     gap: 2,
-    minWidth: 54,
+    minWidth: 50,
   },
-  tabJellyCapsuleActive: {
-    backgroundColor: 'rgba(212, 175, 124, 0.14)',
+  tabCapsuleActive: {
+    backgroundColor: 'rgba(212, 175, 124, 0.10)',
   },
-  iconWrap: {
+  iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     height: 24,
   },
-  jellyActiveDot: {
+  activeIndicatorPip: {
     position: 'absolute',
     bottom: -3,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    width: 12,
+    height: 2.5,
+    borderRadius: 1.5,
     backgroundColor: Colors.primary,
   },
-  tabJellyLabel: {
+  tabLabel: {
     fontSize: 10,
-    fontWeight: '600',
-    letterSpacing: 0.2,
+    letterSpacing: 0.1,
   },
-  tabJellyLabelActive: {
+  tabLabelActive: {
     color: Colors.primary,
     fontWeight: '800',
   },
-  tabJellyLabelInactive: {
+  tabLabelInactive: {
     color: Colors.textMuted,
+    fontWeight: '500',
   },
 
-  // Center Yatra AI Jelly Button Styles
-  centerButtonOuter: {
+  // Center Yatra AI Button
+  centerPressable: {
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 4,
-    width: 72,
   },
-  aiJellyPill: {
-    width: 60,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#1E1E2A',
-    borderWidth: 1.5,
-    borderColor: 'rgba(212, 175, 124, 0.45)',
+  aiPillContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 5,
+    height: 40,
+    paddingHorizontal: 13,
+    borderRadius: 20,
+    backgroundColor: '#1C1C28',
+    borderWidth: 1.2,
+    borderColor: 'rgba(212, 175, 124, 0.35)',
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 6,
-    gap: 1,
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 4,
+    position: 'relative',
   },
-  aiJellyPillActive: {
+  aiPillContainerActive: {
     backgroundColor: Colors.primary,
     borderColor: '#FFFFFF',
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
-    elevation: 10,
+    shadowOpacity: 0.45,
+    shadowRadius: 10,
+    elevation: 8,
   },
-  aiJellyLabel: {
-    fontSize: 8.5,
+  aiGlowHalo: {
+    position: 'absolute',
+    top: -2,
+    left: -2,
+    right: -2,
+    bottom: -2,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.45)',
+  },
+  aiPillText: {
+    fontSize: 11,
     fontWeight: '800',
     color: Colors.primary,
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
   },
-  aiJellyLabelActive: {
+  aiPillTextActive: {
     color: '#0A0A0E',
     fontWeight: '900',
   },
