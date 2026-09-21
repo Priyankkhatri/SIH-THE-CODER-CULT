@@ -37,7 +37,7 @@ const CATEGORIES: Array<{ key: AmenityType; label: string; icon: keyof typeof Ma
   { key: 'food', label: 'Food & Cafes', icon: 'restaurant' },
   { key: 'restroom', label: 'Clean Restrooms', icon: 'wc' },
   { key: 'atm', label: '24x7 ATMs', icon: 'local-atm' },
-  { key: 'parking', label: 'Parking', icon: 'local-parking' },
+  { key: 'parking', label: 'Parking Bays', icon: 'local-parking' },
 ];
 
 export const NearbyAmenitiesSection: React.FC<Props> = ({
@@ -84,22 +84,16 @@ export const NearbyAmenitiesSection: React.FC<Props> = ({
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerRow}>
-        <View style={styles.headerTitleWrap}>
-          <View style={styles.headerIconBadge}>
-            <MaterialIcons name="near-me" size={15} color={Colors.primary} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.headerEyebrow}>TOURIST AMENITIES RADAR</Text>
-            <Text style={styles.headerTitle} numberOfLines={1}>
-              Nearby Facilities Around Monument
-            </Text>
-          </View>
+      {/* Spacious Header */}
+      <View style={styles.headerWrap}>
+        <View style={styles.headerEyebrowRow}>
+          <MaterialIcons name="near-me" size={15} color={Colors.primary} />
+          <Text style={styles.headerEyebrow}>TOURIST AMENITIES RADAR</Text>
         </View>
+        <Text style={styles.headerTitle}>Nearby Facilities Around Monument</Text>
       </View>
 
-      {/* Category Chips Carousel */}
+      {/* Spacious Category Chips Carousel */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -112,12 +106,12 @@ export const NearbyAmenitiesSection: React.FC<Props> = ({
               key={cat.key}
               style={[styles.tabChip, isSelected && styles.tabChipActive]}
               onPress={() => setSelectedType(cat.key)}
-              activeOpacity={0.8}
+              activeOpacity={0.85}
             >
               <MaterialIcons
                 name={cat.icon}
-                size={13}
-                color={isSelected ? '#0F0F0F' : Colors.textMuted}
+                size={16}
+                color={isSelected ? '#0A0A0E' : Colors.primary}
               />
               <Text style={[styles.tabLabel, isSelected && styles.tabLabelActive]}>
                 {cat.label}
@@ -136,76 +130,77 @@ export const NearbyAmenitiesSection: React.FC<Props> = ({
       ) : (
         <View style={styles.listContainer}>
           {amenities.map((item) => (
-            <View key={item.id} style={styles.compactRow}>
-              {/* Left: Icon Avatar */}
-              <View style={styles.iconCircle}>
-                <MaterialIcons
-                  name={
-                    item.type === 'food'
-                      ? 'restaurant-menu'
-                      : item.type === 'restroom'
-                      ? 'wash'
-                      : item.type === 'atm'
-                      ? 'credit-card'
-                      : 'directions-car'
-                  }
-                  size={16}
-                  color={Colors.primary}
-                />
+            <View key={item.id} style={styles.amenityCard}>
+              {/* Top Row: Avatar + Name & Address + Map Button */}
+              <View style={styles.cardTopRow}>
+                <View style={styles.iconCircle}>
+                  <MaterialIcons
+                    name={
+                      item.type === 'food'
+                        ? 'restaurant'
+                        : item.type === 'restroom'
+                        ? 'wc'
+                        : item.type === 'atm'
+                        ? 'account-balance-wallet'
+                        : 'local-parking'
+                    }
+                    size={20}
+                    color={Colors.primary}
+                  />
+                </View>
+
+                <View style={styles.detailsCol}>
+                  <Text style={styles.itemName} numberOfLines={1}>
+                    {item.name}
+                  </Text>
+                  <Text style={styles.itemAddress} numberOfLines={1}>
+                    {item.address}
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.navBtn}
+                  onPress={() => handleNavigate(item.googleMapsUri)}
+                  activeOpacity={0.8}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <MaterialIcons name="navigation" size={13} color="#0A0A0E" />
+                  <Text style={styles.navBtnText}>Maps</Text>
+                </TouchableOpacity>
               </View>
 
-              {/* Middle: Name, Address, and Badges */}
-              <View style={styles.detailsCol}>
-                <Text style={styles.itemName} numberOfLines={1}>
-                  {item.name}
-                </Text>
-                <Text style={styles.itemAddress} numberOfLines={1}>
-                  {item.address}
-                </Text>
+              {/* Bottom Row: Clean Pill Metas */}
+              <View style={styles.metaRow}>
+                <View style={styles.distanceBadge}>
+                  <MaterialIcons name="directions-walk" size={13} color={Colors.primary} />
+                  <Text style={styles.distanceText}>
+                    {item.distanceMeters < 1000
+                      ? `${item.distanceMeters}m`
+                      : `${(item.distanceMeters / 1000).toFixed(1)}km`} · {item.walkingMinutes} min walk
+                  </Text>
+                </View>
 
-                <View style={styles.metaRow}>
-                  <View style={styles.distanceBadge}>
-                    <MaterialIcons name="directions-walk" size={11} color={Colors.primary} />
-                    <Text style={styles.distanceText}>
-                      {item.distanceMeters < 1000
-                        ? `${item.distanceMeters}m`
-                        : `${(item.distanceMeters / 1000).toFixed(1)}km`} · {item.walkingMinutes}m
+                {item.rating && (
+                  <View style={styles.ratingBadge}>
+                    <MaterialIcons name="star" size={12} color="#FFB300" />
+                    <Text style={styles.ratingText}>{item.rating.toFixed(1)}</Text>
+                  </View>
+                )}
+
+                {item.isOpenNow !== undefined && (
+                  <View style={[styles.statusBadge, item.isOpenNow ? styles.openBadge : styles.closedBadge]}>
+                    <Text style={[styles.statusText, item.isOpenNow ? styles.openText : styles.closedText]}>
+                      {item.isOpenNow ? 'Open Now' : 'Closed'}
                     </Text>
                   </View>
-
-                  {item.rating && (
-                    <View style={styles.ratingBadge}>
-                      <MaterialIcons name="star" size={10} color="#FFB300" />
-                      <Text style={styles.ratingText}>{item.rating.toFixed(1)}</Text>
-                    </View>
-                  )}
-
-                  {item.isOpenNow !== undefined && (
-                    <View style={[styles.statusBadge, item.isOpenNow ? styles.openBadge : styles.closedBadge]}>
-                      <Text style={[styles.statusText, item.isOpenNow ? styles.openText : styles.closedText]}>
-                        {item.isOpenNow ? 'Open' : 'Closed'}
-                      </Text>
-                    </View>
-                  )}
-                </View>
+                )}
               </View>
-
-              {/* Right: Compact Navigation Button */}
-              <TouchableOpacity
-                style={styles.navChip}
-                onPress={() => handleNavigate(item.googleMapsUri)}
-                activeOpacity={0.8}
-                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-              >
-                <MaterialIcons name="navigation" size={11} color="#0F0F0F" />
-                <Text style={styles.navChipText}>Maps</Text>
-              </TouchableOpacity>
             </View>
           ))}
 
           {amenities.length === 0 && (
             <View style={styles.emptyBox}>
-              <MaterialIcons name="location-off" size={20} color={Colors.textMuted} />
+              <MaterialIcons name="location-off" size={24} color={Colors.textMuted} />
               <Text style={styles.emptyText}>No verified facilities recorded in this radius.</Text>
             </View>
           )}
@@ -217,97 +212,91 @@ export const NearbyAmenitiesSection: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: Spacing.sm,
-    paddingHorizontal: 0,
+    marginBottom: 32,
   },
-  headerRow: {
-    marginBottom: Spacing.xs,
+  headerWrap: {
+    marginBottom: 14,
   },
-  headerTitleWrap: {
+  headerEyebrowRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  headerIconBadge: {
-    width: 26,
-    height: 26,
-    borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(212, 175, 124, 0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: 7,
+    marginBottom: 6,
   },
   headerEyebrow: {
-    fontSize: 9,
-    fontFamily: Typography.fontFamily.bold,
-    letterSpacing: 1.1,
+    fontSize: 10.5,
+    fontWeight: '800',
+    letterSpacing: 1.6,
     color: Colors.primary,
     textTransform: 'uppercase',
   },
   headerTitle: {
-    fontSize: 14,
-    fontFamily: Typography.fontFamily.bold,
+    fontSize: 19,
+    fontFamily: Typography.fontFamily.serif,
+    fontWeight: '700',
     color: Colors.text,
-    marginTop: 1,
+    lineHeight: 26,
   },
   tabsScroll: {
-    paddingVertical: 4,
-    gap: 6,
+    paddingVertical: 6,
+    gap: 8,
+    marginBottom: 16,
   },
   tabChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   tabChipActive: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
   },
   tabLabel: {
-    fontSize: 11,
-    fontFamily: Typography.fontFamily.medium,
-    color: Colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.textSecondary,
   },
   tabLabelActive: {
-    color: '#0F0F0F',
-    fontFamily: Typography.fontFamily.bold,
+    color: '#0A0A0E',
+    fontWeight: '800',
   },
   loadingBox: {
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.xl,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 8,
   },
   loadingText: {
-    fontSize: 11,
-    fontFamily: Typography.fontFamily.regular,
+    fontSize: 13,
     color: Colors.textMuted,
   },
   listContainer: {
-    gap: 8,
-    marginTop: 4,
+    gap: 12,
   },
-  compactRow: {
+  amenityCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.025)',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    padding: 16,
+    gap: 12,
+  },
+  cardTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingHorizontal: 10,
-    paddingVertical: 9,
-    gap: 10,
+    gap: 12,
   },
   iconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: BorderRadius.md,
-    backgroundColor: 'rgba(212, 175, 124, 0.10)',
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -316,65 +305,65 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   itemName: {
-    fontSize: 12,
-    fontFamily: Typography.fontFamily.bold,
+    fontSize: 15,
+    fontWeight: '700',
     color: Colors.text,
   },
   itemAddress: {
-    fontSize: 10,
-    fontFamily: Typography.fontFamily.regular,
+    fontSize: 12,
     color: Colors.textMuted,
-    marginTop: 1,
+    marginTop: 2,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: 5,
-    marginTop: 4,
+    gap: 8,
   },
   distanceBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
-    backgroundColor: 'rgba(212, 175, 124, 0.1)',
-    paddingHorizontal: 5,
-    paddingVertical: 1.5,
-    borderRadius: BorderRadius.sm,
+    gap: 4,
+    backgroundColor: 'rgba(212, 175, 124, 0.10)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.20)',
   },
   distanceText: {
-    fontSize: 9,
-    fontFamily: Typography.fontFamily.medium,
-    color: Colors.primary,
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.primaryLight,
   },
   ratingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
-    backgroundColor: 'rgba(255, 179, 0, 0.1)',
-    paddingHorizontal: 4,
-    paddingVertical: 1.5,
-    borderRadius: BorderRadius.sm,
+    gap: 3,
+    backgroundColor: 'rgba(255, 179, 0, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
   },
   ratingText: {
-    fontSize: 9,
-    fontFamily: Typography.fontFamily.medium,
+    fontSize: 11,
+    fontWeight: '700',
     color: '#FFB300',
   },
   statusBadge: {
-    paddingHorizontal: 5,
-    paddingVertical: 1.5,
-    borderRadius: BorderRadius.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
   },
   openBadge: {
-    backgroundColor: 'rgba(76, 175, 80, 0.12)',
+    backgroundColor: 'rgba(76, 175, 80, 0.14)',
   },
   closedBadge: {
-    backgroundColor: 'rgba(239, 83, 80, 0.12)',
+    backgroundColor: 'rgba(239, 83, 80, 0.14)',
   },
   statusText: {
-    fontSize: 9,
-    fontFamily: Typography.fontFamily.medium,
+    fontSize: 11,
+    fontWeight: '700',
   },
   openText: {
     color: '#4CAF50',
@@ -382,29 +371,27 @@ const styles = StyleSheet.create({
   closedText: {
     color: '#EF5350',
   },
-  navChip: {
+  navBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 4,
     backgroundColor: Colors.primary,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: BorderRadius.full,
-    alignSelf: 'center',
   },
-  navChipText: {
-    fontSize: 10,
-    fontFamily: Typography.fontFamily.bold,
-    color: '#0F0F0F',
+  navBtnText: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#0A0A0E',
   },
   emptyBox: {
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.xl,
     alignItems: 'center',
-    gap: 4,
+    gap: 8,
   },
   emptyText: {
-    fontSize: 11,
-    fontFamily: Typography.fontFamily.regular,
+    fontSize: 13,
     color: Colors.textMuted,
   },
 });

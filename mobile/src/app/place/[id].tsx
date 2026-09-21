@@ -602,27 +602,7 @@ export default function PlaceDetailScreen() {
             variant="full"
           />
 
-          {/* Subtle View Context Indicator (hidden on Heritage for clean editorial breathing room) */}
-          {activeMainTab !== 'heritage' && (
-            <View style={styles.viewContextBanner}>
-              <View style={styles.viewContextPill}>
-                <MaterialIcons
-                  name={
-                    activeMainTab === 'radar'
-                      ? 'explore'
-                      : 'rate-review'
-                  }
-                  size={13}
-                  color={Colors.primary}
-                />
-                <Text style={styles.viewContextText}>
-                  {activeMainTab === 'radar'
-                    ? 'ON-GROUND RADAR & LOCAL ARTISANS'
-                    : 'VERIFIED REVIEWS & RATINGS'}
-                </Text>
-              </View>
-            </View>
-          )}
+
 
           {/* TAB 1: HERITAGE & STORY (Museum-grade Cultural Narrative - Airy, Editorial & Spacious) */}
           {activeMainTab === 'heritage' && (
@@ -876,22 +856,27 @@ export default function PlaceDetailScreen() {
           {/* TAB 2: ON-GROUND VISIT & RADAR (Practical Utility Suite) */}
           {activeMainTab === 'radar' && (
             <View style={styles.tabSectionWrapper}>
-              {/* Official Monument Ticketing Card */}
+              {/* Official Monument Entry Ticket Card */}
               <TouchableOpacity
                 style={styles.ticketCard}
                 onPress={() => Linking.openURL('https://asi.payumoney.com')}
-                activeOpacity={0.85}
+                activeOpacity={0.88}
               >
                 <View style={styles.ticketIconWrap}>
-                  <MaterialIcons name="confirmation-number" size={22} color={Colors.background} />
+                  <MaterialIcons name="confirmation-number" size={24} color={Colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
+                  <View style={styles.ticketEyebrowRow}>
+                    <Text style={styles.ticketEyebrow}>FAST-TRACK ADMISSION</Text>
+                    <View style={styles.ticketGovtBadge}>
+                      <Text style={styles.ticketGovtBadgeText}>Govt Portal</Text>
+                    </View>
+                  </View>
                   <Text style={styles.ticketTitle}>Book Official ASI Entry Ticket</Text>
-                  <Text style={styles.ticketSubtitle}>Direct Govt e-portal • Fast-track QR scan entry</Text>
+                  <Text style={styles.ticketSubtitle}>Archaeological Survey of India • Instant QR scan admission</Text>
                 </View>
-                <View style={styles.ticketActionBadge}>
-                  <Text style={styles.ticketActionText}>Book Online</Text>
-                  <MaterialIcons name="open-in-new" size={13} color={Colors.primary} />
+                <View style={styles.ticketActionBtn}>
+                  <MaterialIcons name="arrow-forward" size={16} color="#0A0A0E" />
                 </View>
               </TouchableOpacity>
 
@@ -1371,45 +1356,67 @@ const styles = StyleSheet.create({
   ticketCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    padding: 14,
+    gap: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.025)',
+    borderRadius: 20,
+    padding: 18,
     borderWidth: 1,
-    borderColor: Colors.border,
-    marginBottom: 24,
+    borderColor: 'rgba(212, 175, 124, 0.25)',
+    marginTop: 18,
+    marginBottom: 28,
   },
   ticketIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.goldSoft,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(212, 175, 124, 0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  ticketTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-  ticketSubtitle: {
-    fontSize: 11,
-    color: Colors.textSecondary,
-    marginTop: 2,
-  },
-  ticketActionBadge: {
+  ticketEyebrowRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: BorderRadius.md,
+    gap: 8,
+    marginBottom: 4,
   },
-  ticketActionText: {
-    fontSize: 11,
+  ticketEyebrow: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: Colors.primary,
+    letterSpacing: 1.2,
+  },
+  ticketGovtBadge: {
+    backgroundColor: 'rgba(76, 175, 80, 0.12)',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.full,
+  },
+  ticketGovtBadgeText: {
+    fontSize: 9,
     fontWeight: '700',
-    color: '#0F0F0F',
+    color: '#4CAF50',
+  },
+  ticketTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.text,
+    fontFamily: Typography.fontFamily.serif,
+  },
+  ticketSubtitle: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  ticketActionBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   // ── Heritage Editorial Section (Spacious & Breathable) ──
   heritageEditorialSection: {
