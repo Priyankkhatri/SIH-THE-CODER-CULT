@@ -27,6 +27,7 @@ import { SafetySOSModal } from '../../components/SafetySOSModal';
 import { LocalArtisansSection } from '../../components/LocalArtisansSection';
 import { ReviewsSection } from '../../components/ReviewsSection';
 import { NearbyAmenitiesSection } from '../../components/NearbyAmenitiesSection';
+import { RideBookingSection } from '../../components/RideBookingSection';
 import { PlaceDetailSkeleton } from '../../components/Skeleton';
 import { dynamicImageService, GalleryImage } from '../../services/dynamicImageService';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
@@ -893,6 +894,14 @@ export default function PlaceDetailScreen() {
                   <MaterialIcons name="arrow-forward" size={16} color="#0A0A0E" />
                 </View>
               </TouchableOpacity>
+
+              {/* 1-Tap Transit & Ride Dispatch (Uber, Rapido & Maps) */}
+              <RideBookingSection
+                placeName={displayName}
+                latitude={placeObj.latitude}
+                longitude={placeObj.longitude}
+                cityOrState={(placeObj as any).city || (placeObj as any).state || displayName}
+              />
 
               {/* Nearby Tourist Amenities Radar (Google Places Integration) */}
               <NearbyAmenitiesSection
