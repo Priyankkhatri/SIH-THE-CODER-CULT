@@ -5,11 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  FlatList,
   Modal,
   TextInput,
   ActivityIndicator,
-  Dimensions,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
@@ -57,12 +55,12 @@ function formatTimeAgo(isoString: string): string {
     const diffDays = Math.floor(diffHours / 24);
     if (diffDays <= 0) {
       if (diffHours <= 1) return 'Just now';
-      return `${diffHours} hours ago`;
+      return `${diffHours}h ago`;
     }
     if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return `${Math.floor(diffDays / 30)} months ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+    return `${Math.floor(diffDays / 30)}mo ago`;
   } catch (e) {
     return 'Recent visit';
   }
@@ -81,13 +79,9 @@ const QUICK_TAGS = [
   '🎧 Audio Guide Helpful',
   '📸 Great Photography',
   '👨‍👩‍👧 Family Friendly',
-  '🌅 Sunrise / Morning Best',
+  '🌅 Sunrise Best',
   '🕊️ Peaceful Atmosphere',
 ];
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const REVIEW_CARD_WIDTH = Math.min(SCREEN_WIDTH - 64, 330);
-const REVIEW_CARD_SPACING = 14;
 
 export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: ReviewsSectionProps) {
   const { name: currentUserName } = useUserStore();
@@ -102,8 +96,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
   });
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const [helpfulVoted, setHelpfulVoted] = useState<Record<string, boolean>>({});
-  const [activeReviewIndex, setActiveReviewIndex] = useState(0);
-  const carouselRef = React.useRef<FlatList>(null);
+  const [showAllReviews, setShowAllReviews] = useState(false);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -123,6 +116,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
     setNewVisitType('Family');
     setNewAuthorName(currentUserName || 'Heritage Visitor');
     setSelectedFilter('all');
+    setShowAllReviews(false);
   }, [placeId]);
 
   const loadReviews = async (showSkeleton = true) => {
@@ -167,6 +161,11 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
     if (selectedFilter === 'solo') return reviews.filter((r) => r.visitType?.toLowerCase() === 'solo');
     return reviews;
   }, [reviews, selectedFilter]);
+
+  const displayedReviews = useMemo(() => {
+    if (showAllReviews) return filteredReviews;
+    return filteredReviews.slice(0, 3);
+  }, [filteredReviews, showAllReviews]);
 
   const handleHelpfulToggle = (reviewId: string) => {
     const isVoted = helpfulVoted[reviewId];
@@ -229,38 +228,44 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
 
   return (
     <View style={styles.container}>
-      {/* Section Title & Header */}
-      <View style={styles.sectionHeader}>
-        <View style={styles.headerLeft}>
-          <MaterialIcons name="rate-review" size={20} color={Colors.primary} />
-          <Text style={styles.sectionTitle} numberOfLines={1}>Reviews & Ratings</Text>
+      {/* Section Eyebrow & Header */}
+      <View style={styles.headerBlock}>
+        <View style={styles.eyebrowRow}>
+          <MaterialIcons name="forum" size={13} color={Colors.primary} />
+          <Text style={styles.eyebrowText}>COMMUNITY ARCHIVE · VISITOR VOICES</Text>
         </View>
-        <View style={styles.headerActions}>
-          <TouchableOpacity
-            style={styles.reloadBtn}
-            onPress={() => loadReviews(true)}
-            activeOpacity={0.7}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <MaterialIcons name="refresh" size={16} color={Colors.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.writeBtn}
-            onPress={() => setIsModalOpen(true)}
-            activeOpacity={0.85}
-          >
-            <MaterialIcons name="edit" size={13} color={Colors.textInverse} />
-            <Text style={styles.writeBtnText}>+ Review</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      <Text style={styles.sectionSubtitle}>
-        Authentic reviews and visit insights from verified heritage explorers.
-      </Text>
 
-      {/* Rating Overview Histogram Card */}
+        <View style={styles.titleRow}>
+          <Text style={styles.sectionTitle}>Reviews & Ratings</Text>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.reloadBtn}
+              onPress={() => loadReviews(true)}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <MaterialIcons name="refresh" size={16} color={Colors.primary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.writeReviewBtn}
+              onPress={() => setIsModalOpen(true)}
+              activeOpacity={0.85}
+            >
+              <MaterialIcons name="rate-review" size={14} color="#0A0A0E" />
+              <Text style={styles.writeReviewBtnText}>+ Write Review</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <Text style={styles.sectionSubtitle}>
+          Authentic visit impressions, travel advice, and cultural reflections from verified explorers.
+        </Text>
+      </View>
+
+      {/* Hero Rating Overview Card - Spacious & Grand */}
       <View style={styles.overviewCard}>
-        {/* Left: Overall Score */}
+        {/* Left: Overall Score & Verified Seal */}
         <View style={styles.scoreContainer}>
           <Text style={styles.bigScore}>{stats.averageRating.toFixed(1)}</Text>
           <View style={styles.starsRow}>
@@ -283,7 +288,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
             {stats.totalReviews} verified {stats.totalReviews === 1 ? 'review' : 'reviews'}
           </Text>
           <View style={styles.verifiedCommunityBadge}>
-            <MaterialIcons name="verified" size={13} color={Colors.success} />
+            <MaterialIcons name="verified" size={12} color={Colors.success} />
             <Text style={styles.verifiedCommunityText}>100% Genuine</Text>
           </View>
         </View>
@@ -291,7 +296,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
         {/* Vertical Divider */}
         <View style={styles.overviewDivider} />
 
-        {/* Right: Star Progress Bars */}
+        {/* Right: Star Progress Bars with Breathing Room */}
         <View style={styles.barsContainer}>
           {[5, 4, 3, 2, 1].map((star) => {
             const pct = stats.percentages[star] || 0;
@@ -308,17 +313,17 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
         </View>
       </View>
 
-      {/* Filter Chips */}
+      {/* Filter Chips - Airy and Touch-Friendly */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.filterScroll}
       >
         {[
-          { key: 'all', label: `All (${reviews.length})` },
+          { key: 'all', label: `All Reviews (${reviews.length})` },
           { key: '5star', label: '⭐ 5 Stars' },
           { key: '4star', label: '⭐ 4 Stars' },
-          { key: 'family', label: '👨‍👩‍👦 Family Visits' },
+          { key: 'family', label: '👨‍👩‍👧 Family Visits' },
           { key: 'solo', label: '🎒 Solo Travelers' },
         ].map((chip) => {
           const isActive = selectedFilter === chip.key;
@@ -328,10 +333,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
               style={[styles.filterChip, isActive && styles.filterChipActive]}
               onPress={() => {
                 setSelectedFilter(chip.key);
-                setActiveReviewIndex(0);
-                try {
-                  carouselRef.current?.scrollToOffset({ offset: 0, animated: true });
-                } catch (_) {}
+                setShowAllReviews(false);
               }}
               activeOpacity={0.8}
             >
@@ -343,176 +345,75 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
         })}
       </ScrollView>
 
-      {/* Carousel Navigation Header */}
-      <View style={styles.carouselNavRow}>
-        <View style={styles.carouselCounterWrap}>
-          <MaterialIcons name="swipe" size={14} color={Colors.primary} />
-          <Text style={styles.carouselCounterText}>
-            {filteredReviews.length > 0
-              ? `Review ${Math.min(activeReviewIndex + 1, filteredReviews.length)} of ${filteredReviews.length}`
-              : '0 Reviews'}
-          </Text>
-        </View>
-
-        {filteredReviews.length > 1 && (
-          <View style={styles.carouselArrows}>
-            <TouchableOpacity
-              style={[styles.arrowBtn, activeReviewIndex === 0 && styles.arrowBtnDisabled]}
-              disabled={activeReviewIndex === 0}
-              onPress={() => {
-                const prev = Math.max(0, activeReviewIndex - 1);
-                setActiveReviewIndex(prev);
-                try {
-                  carouselRef.current?.scrollToIndex({ index: prev, animated: true });
-                } catch (_) {}
-              }}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <MaterialIcons
-                name="chevron-left"
-                size={20}
-                color={activeReviewIndex === 0 ? Colors.textMuted : Colors.text}
-              />
-            </TouchableOpacity>
-
-            {/* Pagination Dots */}
-            <View style={styles.dotIndicators}>
-              {filteredReviews.slice(0, Math.min(filteredReviews.length, 6)).map((_, i) => (
-                <View
-                  key={i}
-                  style={[
-                    styles.reviewDot,
-                    i === (activeReviewIndex % Math.min(filteredReviews.length, 6)) && styles.reviewDotActive,
-                  ]}
-                />
-              ))}
-            </View>
-
-            <TouchableOpacity
-              style={[
-                styles.arrowBtn,
-                activeReviewIndex >= filteredReviews.length - 1 && styles.arrowBtnDisabled,
-              ]}
-              disabled={activeReviewIndex >= filteredReviews.length - 1}
-              onPress={() => {
-                const next = Math.min(filteredReviews.length - 1, activeReviewIndex + 1);
-                setActiveReviewIndex(next);
-                try {
-                  carouselRef.current?.scrollToIndex({ index: next, animated: true });
-                } catch (_) {}
-              }}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <MaterialIcons
-                name="chevron-right"
-                size={20}
-                color={
-                  activeReviewIndex >= filteredReviews.length - 1
-                    ? Colors.textMuted
-                    : Colors.text
-                }
-              />
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
-
-      {/* Horizontal Sliding Reviews FlatList */}
+      {/* Reviews List - Spacious Full-Width Vertical Cards */}
       {filteredReviews.length === 0 ? (
         <View style={styles.emptyState}>
-          <MaterialIcons name="rate-review" size={36} color={Colors.textMuted} />
-          <Text style={styles.emptyText}>No reviews match this filter.</Text>
+          <MaterialIcons name="rate-review" size={38} color={Colors.textMuted} />
+          <Text style={styles.emptyTitle}>No Reviews Found</Text>
+          <Text style={styles.emptyText}>Be the first to share your experience for this monument.</Text>
+          <TouchableOpacity
+            style={styles.emptyActionBtn}
+            onPress={() => setIsModalOpen(true)}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.emptyActionText}>+ Write the First Review</Text>
+          </TouchableOpacity>
         </View>
       ) : (
-        <FlatList
-          ref={carouselRef}
-          data={filteredReviews}
-          keyExtractor={(item) => item.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          nestedScrollEnabled={true}
-          decelerationRate="fast"
-          snapToInterval={REVIEW_CARD_WIDTH + REVIEW_CARD_SPACING}
-          snapToAlignment="start"
-          disableIntervalMomentum
-          contentContainerStyle={styles.carouselContainer}
-          onScroll={(e) => {
-            const idx = Math.round(e.nativeEvent.contentOffset.x / (REVIEW_CARD_WIDTH + REVIEW_CARD_SPACING));
-            if (idx >= 0 && idx < filteredReviews.length && idx !== activeReviewIndex) {
-              setActiveReviewIndex(idx);
-            }
-          }}
-          scrollEventThrottle={16}
-          renderItem={({ item: rev }) => {
+        <View style={styles.reviewsList}>
+          {displayedReviews.map((rev) => {
             const isHelpful = helpfulVoted[rev.id];
             const avatarColor = getAvatarColor(rev.userName);
-            return (
-              <View style={styles.reviewSlideCard}>
-                {/* Subtle Decorative Quote Watermark */}
-                <MaterialIcons
-                  name="format-quote"
-                  size={52}
-                  color="rgba(212, 175, 124, 0.08)"
-                  style={styles.quoteWatermark}
-                />
 
-                {/* Top Header with Avatar, Name, Badge, Rating Pill */}
-                <View style={styles.slideHeader}>
+            return (
+              <View key={rev.id} style={styles.reviewCard}>
+                {/* Author Info & Rating Row */}
+                <View style={styles.cardHeader}>
                   <View style={[styles.avatarCircle, { backgroundColor: avatarColor }]}>
                     <Text style={styles.avatarInitials}>{getInitials(rev.userName)}</Text>
                   </View>
 
-                  <View style={{ flex: 1, marginLeft: 10 }}>
-                    <Text style={styles.userName} numberOfLines={1}>
-                      {rev.userName}
-                    </Text>
-                    <View style={styles.dateAndTypeRow}>
+                  <View style={styles.authorMeta}>
+                    <View style={styles.nameRow}>
+                      <Text style={styles.userName} numberOfLines={1}>
+                        {rev.userName}
+                      </Text>
                       {rev.badge ? (
-                        <View style={styles.badgeWrap}>
-                          <MaterialIcons name="verified-user" size={10} color={Colors.primary} />
-                          <Text style={styles.badgeText}>{rev.badge}</Text>
+                        <View style={styles.verifiedBadge}>
+                          <MaterialIcons name="verified-user" size={11} color={Colors.primary} />
+                          <Text style={styles.verifiedBadgeText}>{rev.badge}</Text>
                         </View>
+                      ) : null}
+                    </View>
+
+                    <View style={styles.subMetaRow}>
+                      {rev.visitType ? (
+                        <Text style={styles.visitTypeTag}>{rev.visitType} Trip</Text>
                       ) : null}
                       <Text style={styles.timeAgo}>• {formatTimeAgo(rev.createdAt)}</Text>
                     </View>
                   </View>
 
-                  {/* Rating Score Badge */}
-                  <View style={styles.ratingBadgePill}>
-                    <MaterialIcons name="star" size={13} color="#0F0F0F" />
-                    <Text style={styles.ratingBadgeText}>{rev.rating.toFixed(1)}</Text>
+                  {/* Rating Stars Pill */}
+                  <View style={styles.ratingScorePill}>
+                    <MaterialIcons name="star" size={13} color="#0A0A0E" />
+                    <Text style={styles.ratingScoreText}>{rev.rating.toFixed(1)}</Text>
                   </View>
                 </View>
 
-                {/* Stars Row & Visit Type */}
-                <View style={styles.ratingAndTitleRow}>
-                  <View style={styles.starsInline}>
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <MaterialIcons
-                        key={s}
-                        name={rev.rating >= s ? 'star' : 'star-border'}
-                        size={14}
-                        color={Colors.primary}
-                      />
-                    ))}
-                  </View>
-                  {rev.visitType ? (
-                    <Text style={styles.visitTypePill}>• {rev.visitType} Trip</Text>
-                  ) : null}
-                </View>
-
+                {/* Review Title */}
                 {rev.title ? (
-                  <Text style={styles.reviewTitle} numberOfLines={1}>
+                  <Text style={styles.reviewTitle}>
                     {rev.title}
                   </Text>
                 ) : null}
 
-                {/* Comment Body */}
-                <Text style={styles.reviewComment} numberOfLines={4}>
+                {/* Review Comment Body */}
+                <Text style={styles.reviewComment}>
                   "{rev.comment}"
                 </Text>
 
-                {/* Footer with Helpful toggle and Verified Visit */}
+                {/* Card Footer with Helpful and Verified Visit Seal */}
                 <View style={styles.cardFooter}>
                   <TouchableOpacity
                     style={[styles.helpfulBtn, isHelpful && styles.helpfulBtnActive]}
@@ -529,15 +430,30 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
                     </Text>
                   </TouchableOpacity>
 
-                  <View style={styles.verifiedVisitFooterWrap}>
-                    <MaterialIcons name="check-circle" size={12} color={Colors.success} />
-                    <Text style={styles.verifiedVisitFooter}>Verified Visit</Text>
+                  <View style={styles.verifiedVisitTag}>
+                    <MaterialIcons name="check-circle" size={13} color={Colors.success} />
+                    <Text style={styles.verifiedVisitTagText}>Verified Visitor</Text>
                   </View>
                 </View>
               </View>
             );
-          }}
-        />
+          })}
+
+          {/* Show All / Show Less Toggle Button */}
+          {filteredReviews.length > 3 && (
+            <TouchableOpacity
+              style={styles.toggleAllBtn}
+              onPress={() => setShowAllReviews(!showAllReviews)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.toggleAllBtnText}>
+                {showAllReviews
+                  ? 'Show Fewer Reviews ↑'
+                  : `Explore All ${filteredReviews.length} Reviews ↓`}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
       )}
 
       {/* Write Review Modal */}
@@ -551,8 +467,8 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
           <View style={styles.modalContent}>
             {/* Modal Header */}
             <View style={styles.modalHeader}>
-              <View>
-                <Text style={styles.modalTitle}>Rate Your Experience</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.modalTitle}>Share Your Experience</Text>
                 <Text style={styles.modalMonumentName} numberOfLines={1}>
                   {placeName}
                 </Text>
@@ -560,6 +476,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
               <TouchableOpacity
                 style={styles.closeBtn}
                 onPress={() => setIsModalOpen(false)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <MaterialIcons name="close" size={22} color={Colors.textSecondary} />
               </TouchableOpacity>
@@ -568,7 +485,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalScroll}>
               {/* Interactive Star Picker */}
               <View style={styles.starPickerBox}>
-                <Text style={styles.pickerLabel}>Overall Rating</Text>
+                <Text style={styles.pickerLabel}>OVERALL RATING</Text>
                 <View style={styles.interactiveStars}>
                   {[1, 2, 3, 4, 5].map((star) => (
                     <TouchableOpacity
@@ -579,7 +496,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
                     >
                       <MaterialIcons
                         name={newRating >= star ? 'star' : 'star-border'}
-                        size={36}
+                        size={38}
                         color={newRating >= star ? Colors.primary : Colors.textMuted}
                       />
                     </TouchableOpacity>
@@ -590,7 +507,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
                 </Text>
               </View>
 
-              {/* Visit Type Selector */}
+              {/* Travel Companion Selector */}
               <Text style={styles.fieldLabel}>Who did you travel with?</Text>
               <View style={styles.visitTypeOptions}>
                 {['Family', 'Solo', 'Couple', 'Friends'].map((type) => {
@@ -600,6 +517,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
                       key={type}
                       style={[styles.typeOption, isSelected && styles.typeOptionSelected]}
                       onPress={() => setNewVisitType(type)}
+                      activeOpacity={0.8}
                     >
                       <Text style={[styles.typeOptionText, isSelected && styles.typeOptionTextSelected]}>
                         {type}
@@ -609,14 +527,15 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
                 })}
               </View>
 
-              {/* Quick Tags */}
-              <Text style={styles.fieldLabel}>Highlights (Tap to include)</Text>
+              {/* Quick Highlight Tags */}
+              <Text style={styles.fieldLabel}>Experience Highlights (Tap to include)</Text>
               <View style={styles.quickTagsContainer}>
                 {QUICK_TAGS.map((tag, idx) => (
                   <TouchableOpacity
                     key={idx}
                     style={styles.quickTagChip}
                     onPress={() => handleTagPress(tag)}
+                    activeOpacity={0.75}
                   >
                     <Text style={styles.quickTagText}>{tag}</Text>
                   </TouchableOpacity>
@@ -624,7 +543,7 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
               </View>
 
               {/* Visitor Name */}
-              <Text style={styles.fieldLabel}>Your Name</Text>
+              <Text style={styles.fieldLabel}>Your Display Name</Text>
               <TextInput
                 style={styles.textInput}
                 value={newAuthorName}
@@ -639,17 +558,17 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
                 style={styles.textInput}
                 value={newTitle}
                 onChangeText={setNewTitle}
-                placeholder="e.g., Unforgettable architecture and serene morning"
+                placeholder="e.g., Majestic Indo-Saracenic grandeur in the morning light"
                 placeholderTextColor={Colors.textMuted}
               />
 
               {/* Review Comment */}
-              <Text style={styles.fieldLabel}>Detailed Experience *</Text>
+              <Text style={styles.fieldLabel}>Detailed Experience & Advice *</Text>
               <TextInput
                 style={[styles.textInput, styles.textArea]}
                 value={newComment}
                 onChangeText={setNewComment}
-                placeholder="Share advice about crowd timing, photography spots, or audio guide insights..."
+                placeholder="Share advice about photography angles, audio guides, or crowd timing..."
                 placeholderTextColor={Colors.textMuted}
                 multiline
                 numberOfLines={4}
@@ -667,10 +586,10 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
                 activeOpacity={0.85}
               >
                 {submitting ? (
-                  <ActivityIndicator size="small" color={Colors.textInverse} />
+                  <ActivityIndicator size="small" color="#0A0A0E" />
                 ) : (
                   <>
-                    <MaterialIcons name="send" size={18} color={Colors.textInverse} />
+                    <MaterialIcons name="send" size={18} color="#0A0A0E" />
                     <Text style={styles.submitBtnText}>Post Verified Review</Text>
                   </>
                 )}
@@ -685,137 +604,152 @@ export function ReviewsSection({ placeId, placeName, initialRating = 4.6 }: Revi
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.xl,
+    marginTop: 22,
+    marginBottom: 36,
   },
-  sectionHeader: {
+
+  // Header Block
+  headerBlock: {
+    marginBottom: 18,
+  },
+  eyebrowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  eyebrowText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: Colors.primary,
+    letterSpacing: 1.5,
+  },
+  titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.xs,
-    gap: 8,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    flex: 1,
-    flexShrink: 1,
+    marginBottom: 6,
+    gap: 12,
   },
   sectionTitle: {
     fontFamily: Typography.fontFamily.serif,
-    fontSize: 19,
+    fontSize: 22,
     fontWeight: '700',
     color: Colors.text,
-    flexShrink: 1,
+    letterSpacing: 0.2,
+    flex: 1,
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    flexShrink: 0,
-  },
-  writeBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: BorderRadius.full,
+    gap: 8,
     flexShrink: 0,
   },
   reloadBtn: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: Colors.surfaceElevated,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 0,
   },
-  writeBtnText: {
-    fontSize: Typography.sizes.xs,
-    fontWeight: '700',
-    color: Colors.textInverse,
+  writeReviewBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 13,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.full,
+  },
+  writeReviewBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0A0A0E',
+    letterSpacing: 0.2,
   },
   sectionSubtitle: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 13,
     color: Colors.textMuted,
-    lineHeight: 18,
-    marginBottom: Spacing.md,
+    lineHeight: 20,
   },
 
-  // Overview — quiet editorial split, no heavy card
+  // Overview Card (Airy & Grand Scorecard)
   overviewCard: {
     flexDirection: 'row',
-    backgroundColor: 'transparent',
-    paddingVertical: 6,
     alignItems: 'center',
-    marginBottom: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.025)',
+    borderRadius: 22,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.2)',
+    marginBottom: 20,
   },
   scoreContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 96,
+    width: 110,
   },
   bigScore: {
-    fontSize: 34,
+    fontFamily: Typography.fontFamily.serif,
+    fontSize: 42,
     fontWeight: '800',
     color: Colors.text,
-    lineHeight: 38,
+    lineHeight: 46,
   },
   starsRow: {
     flexDirection: 'row',
-    gap: 2,
+    gap: 3,
     marginVertical: 4,
   },
   totalReviewsCount: {
-    fontSize: Typography.sizes.xs,
-    color: Colors.textSecondary,
+    fontSize: 11,
+    color: Colors.textMuted,
     fontWeight: '500',
+    marginTop: 2,
   },
   verifiedCommunityBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     backgroundColor: 'rgba(76, 175, 80, 0.12)',
-    paddingHorizontal: 7,
+    paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: BorderRadius.sm,
-    marginTop: 6,
+    borderRadius: BorderRadius.full,
+    marginTop: 8,
   },
   verifiedCommunityText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: '700',
     color: Colors.success,
   },
   overviewDivider: {
     width: 1,
-    height: '80%',
-    backgroundColor: Colors.border,
-    marginHorizontal: Spacing.sm,
+    height: '75%',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    marginHorizontal: 16,
   },
   barsContainer: {
     flex: 1,
-    gap: 5,
+    gap: 7,
   },
   barRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   starLabel: {
     fontSize: 11,
+    fontWeight: '600',
     color: Colors.textSecondary,
-    width: 22,
+    width: 24,
   },
   barTrack: {
     flex: 1,
     height: 6,
-    backgroundColor: Colors.surfaceElevated,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -826,6 +760,7 @@ const styles = StyleSheet.create({
   },
   pctLabel: {
     fontSize: 10,
+    fontWeight: '500',
     color: Colors.textMuted,
     width: 28,
     textAlign: 'right',
@@ -834,175 +769,142 @@ const styles = StyleSheet.create({
   // Filter Chips
   filterScroll: {
     gap: 8,
-    paddingBottom: Spacing.sm,
+    paddingBottom: 16,
   },
   filterChip: {
-    paddingHorizontal: 13,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.surfaceElevated,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   filterChipActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: 'rgba(212, 175, 124, 0.16)',
+    borderColor: 'rgba(212, 175, 124, 0.5)',
   },
   filterChipText: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 12,
     fontWeight: '600',
     color: Colors.textSecondary,
   },
   filterChipTextActive: {
-    color: Colors.textInverse,
-    fontWeight: '700',
+    color: Colors.primary,
+    fontWeight: '800',
   },
 
+  // Empty State
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: Spacing.xl,
+    paddingVertical: 36,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
     gap: 8,
   },
+  emptyTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.text,
+    marginTop: 4,
+  },
   emptyText: {
-    fontSize: Typography.sizes.sm,
+    fontSize: 13,
     color: Colors.textMuted,
+    textAlign: 'center',
+    lineHeight: 18,
+    maxWidth: 260,
   },
-
-  // Reviews Carousel Nav & Indicators
-  carouselNavRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: Spacing.xs,
-    marginBottom: Spacing.sm,
-    paddingHorizontal: 2,
-  },
-  carouselCounterWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(212, 175, 124, 0.12)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+  emptyActionBtn: {
+    marginTop: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
     borderRadius: BorderRadius.full,
+    backgroundColor: 'rgba(212, 175, 124, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.35)',
   },
-  carouselCounterText: {
-    fontSize: 11,
+  emptyActionText: {
+    fontSize: 12,
     fontWeight: '700',
     color: Colors.primary,
   },
-  carouselArrows: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+
+  // Reviews List & Cards
+  reviewsList: {
+    gap: 14,
   },
-  arrowBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.surfaceElevated,
+  reviewCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.025)',
+    borderRadius: 20,
+    padding: 18,
     borderWidth: 1,
-    borderColor: Colors.border,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderColor: 'rgba(255, 255, 255, 0.07)',
   },
-  arrowBtnDisabled: {
-    opacity: 0.35,
-  },
-  dotIndicators: {
+  cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 4,
-  },
-  reviewDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-  },
-  reviewDotActive: {
-    width: 14,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: Colors.primary,
-  },
-  carouselContainer: {
-    paddingVertical: 4,
-    paddingRight: Spacing.base,
-    gap: REVIEW_CARD_SPACING,
-  },
-  reviewSlideCard: {
-    width: REVIEW_CARD_WIDTH,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.22)',
-    position: 'relative',
-    overflow: 'hidden',
-    justifyContent: 'space-between',
-    gap: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  quoteWatermark: {
-    position: 'absolute',
-    top: 6,
-    right: 8,
-    zIndex: 0,
-  },
-  slideHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    zIndex: 1,
+    marginBottom: 10,
   },
   avatarCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarInitials: {
-    fontSize: Typography.sizes.sm,
-    fontWeight: '700',
-    color: Colors.textInverse,
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0A0A0E',
+  },
+  authorMeta: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   userName: {
-    fontSize: Typography.sizes.sm,
+    fontSize: 14,
     fontWeight: '700',
     color: Colors.text,
   },
-  badgeWrap: {
+  verifiedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
     backgroundColor: 'rgba(212, 175, 124, 0.12)',
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: BorderRadius.sm,
+    borderRadius: 4,
   },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: '600',
+  verifiedBadgeText: {
+    fontSize: 9,
+    fontWeight: '700',
     color: Colors.primary,
   },
-  dateAndTypeRow: {
+  subMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    marginTop: 2,
+    gap: 6,
+    marginTop: 3,
+  },
+  visitTypeTag: {
+    fontSize: 11,
+    color: Colors.primary,
+    fontWeight: '600',
   },
   timeAgo: {
     fontSize: 11,
     color: Colors.textMuted,
   },
-  ratingBadgePill: {
+  ratingScorePill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
@@ -1011,136 +913,137 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
   },
-  ratingBadgeText: {
-    fontSize: 11,
+  ratingScoreText: {
+    fontSize: 12,
     fontWeight: '800',
-    color: '#0F0F0F',
-  },
-  visitTypePill: {
-    fontSize: 11,
-    color: Colors.textSecondary,
-    fontWeight: '500',
-  },
-  ratingAndTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    zIndex: 1,
-  },
-  starsInline: {
-    flexDirection: 'row',
-    gap: 2,
+    color: '#0A0A0E',
   },
   reviewTitle: {
-    fontSize: Typography.sizes.sm,
+    fontFamily: Typography.fontFamily.serif,
+    fontSize: 15,
     fontWeight: '700',
     color: Colors.text,
-    zIndex: 1,
+    marginBottom: 6,
+    lineHeight: 20,
   },
   reviewComment: {
-    fontSize: Typography.sizes.sm,
-    color: Colors.textSecondary,
-    lineHeight: 20,
-    zIndex: 1,
+    fontSize: 13.5,
+    color: 'rgba(255, 255, 255, 0.82)',
+    lineHeight: 22,
+    marginBottom: 12,
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: Colors.divider,
-    paddingTop: 8,
-    marginTop: 4,
-    zIndex: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+    paddingTop: 10,
   },
   helpfulBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    paddingVertical: 3,
-    paddingHorizontal: 6,
-    borderRadius: BorderRadius.sm,
+    gap: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
   },
   helpfulBtnActive: {
     backgroundColor: 'rgba(212, 175, 124, 0.15)',
   },
   helpfulText: {
-    fontSize: 11,
+    fontSize: 12,
     color: Colors.textMuted,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   helpfulTextActive: {
     color: Colors.primary,
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  verifiedVisitFooterWrap: {
+  verifiedVisitTag: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
-  verifiedVisitFooter: {
-    fontSize: 10,
+  verifiedVisitTagText: {
+    fontSize: 11,
     color: Colors.textMuted,
     fontWeight: '500',
+  },
+
+  // Toggle All Reviews Button
+  toggleAllBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 13,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.25)',
+    marginTop: 4,
+  },
+  toggleAllBtnText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: Colors.primary,
   },
 
   // Modal Styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: Colors.surface,
-    borderTopLeftRadius: BorderRadius.xl,
-    borderTopRightRadius: BorderRadius.xl,
-    padding: Spacing.lg,
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
+    padding: 22,
     maxHeight: '88%',
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: 'rgba(212, 175, 124, 0.3)',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: Spacing.md,
+    marginBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.divider,
-    paddingBottom: Spacing.sm,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    paddingBottom: 14,
   },
   modalTitle: {
-    fontSize: Typography.sizes.lg,
+    fontFamily: Typography.fontFamily.serif,
+    fontSize: 20,
     fontWeight: '700',
     color: Colors.text,
   },
   modalMonumentName: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 12,
     color: Colors.primary,
-    marginTop: 2,
-    fontWeight: '500',
-    maxWidth: 260,
+    marginTop: 3,
+    fontWeight: '600',
   },
   closeBtn: {
     padding: 4,
   },
   modalScroll: {
-    gap: Spacing.md,
-    paddingBottom: Spacing['2xl'],
+    gap: 16,
+    paddingBottom: 40,
   },
   starPickerBox: {
     alignItems: 'center',
-    backgroundColor: Colors.surfaceElevated,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    padding: 16,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   pickerLabel: {
-    fontSize: Typography.sizes.xs,
-    fontWeight: '600',
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    fontSize: 10,
+    fontWeight: '800',
+    color: Colors.primary,
+    letterSpacing: 1.2,
   },
   interactiveStars: {
     flexDirection: 'row',
@@ -1151,15 +1054,15 @@ const styles = StyleSheet.create({
     padding: 2,
   },
   starCaption: {
-    fontSize: Typography.sizes.sm,
+    fontSize: 13,
     fontWeight: '700',
     color: Colors.primary,
   },
   fieldLabel: {
-    fontSize: Typography.sizes.xs,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: Colors.textSecondary,
-    marginBottom: -4,
+    marginBottom: -6,
   },
   visitTypeOptions: {
     flexDirection: 'row',
@@ -1167,55 +1070,55 @@ const styles = StyleSheet.create({
   },
   typeOption: {
     flex: 1,
-    paddingVertical: 8,
-    borderRadius: BorderRadius.md,
-    backgroundColor: Colors.surfaceElevated,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     alignItems: 'center',
   },
   typeOptionSelected: {
-    backgroundColor: 'rgba(212, 175, 124, 0.18)',
+    backgroundColor: 'rgba(212, 175, 124, 0.16)',
     borderColor: Colors.primary,
   },
   typeOptionText: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 12,
     fontWeight: '600',
     color: Colors.textSecondary,
   },
   typeOptionTextSelected: {
     color: Colors.primary,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   quickTagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
+    gap: 8,
   },
   quickTagChip: {
-    backgroundColor: Colors.surfaceElevated,
-    paddingHorizontal: 9,
-    paddingVertical: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    paddingHorizontal: 11,
+    paddingVertical: 6,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   quickTagText: {
     fontSize: 11,
     color: Colors.textSecondary,
   },
   textInput: {
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: Colors.border,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 10,
-    fontSize: Typography.sizes.sm,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    fontSize: 13,
     color: Colors.text,
   },
   textArea: {
-    minHeight: 85,
+    minHeight: 95,
   },
   submitBtn: {
     flexDirection: 'row',
@@ -1224,15 +1127,16 @@ const styles = StyleSheet.create({
     gap: 8,
     backgroundColor: Colors.primary,
     paddingVertical: 14,
-    borderRadius: BorderRadius.md,
-    marginTop: Spacing.sm,
+    borderRadius: 14,
+    marginTop: 6,
   },
   submitBtnDisabled: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
   submitBtnText: {
-    fontSize: Typography.sizes.sm,
-    fontWeight: '700',
-    color: Colors.textInverse,
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0A0A0E',
+    letterSpacing: 0.2,
   },
 });
