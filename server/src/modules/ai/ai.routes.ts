@@ -77,10 +77,10 @@ router.post('/story', async (req: Request, res: Response) => {
   }
 });
 
-// POST /ai/suggest - Get suggested questions for a place
-router.post('/suggest', async (req: Request, res: Response) => {
+// GET & POST /ai/suggest & /ai/suggestions - Get suggested questions for a place
+const handleSuggest = async (req: Request, res: Response) => {
   try {
-    const { placeId } = req.body;
+    const placeId = (req.body?.placeId || req.query?.placeId) as string | undefined;
     const suggestions = await aiService.getSuggestedQuestions(placeId);
 
     res.json({
@@ -91,6 +91,11 @@ router.post('/suggest', async (req: Request, res: Response) => {
     console.error('AI Suggest Error:', error);
     res.status(500).json({ success: false, error: 'Failed to get suggestions' });
   }
-});
+};
+
+router.post('/suggest', handleSuggest);
+router.get('/suggest', handleSuggest);
+router.post('/suggestions', handleSuggest);
+router.get('/suggestions', handleSuggest);
 
 export default router;

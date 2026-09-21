@@ -189,7 +189,28 @@ router.post('/generate', async (req: Request, res: Response) => {
 
     const lat = latitude || 22.3072;
     const lng = longitude || 73.1812;
-    const maxMinutes = DURATION_MAP[duration] || 90;
+
+    const rawDur = typeof duration === 'string' ? duration.toLowerCase().replace(/[_\s]/g, '-') : '';
+    let maxMinutes = DURATION_MAP[rawDur] || 90;
+
+    if (typeof req.body.days === 'number' && req.body.days >= 1) {
+      maxMinutes = Math.min(1440, req.body.days * 480);
+    } else if (rawDur.includes('full') || rawDur.includes('8h') || rawDur === '1-day' || rawDur === '1day') {
+      maxMinutes = 480;
+    } else if (rawDur.includes('half') || rawDur.includes('4h')) {
+      maxMinutes = 240;
+    } else if (rawDur.includes('30')) {
+      maxMinutes = 35;
+    }
+
+    const readableTitle =
+      maxMinutes >= 480
+        ? 'Full-Day Heritage Expedition'
+        : maxMinutes >= 240
+        ? 'Half-Day Cultural Trail'
+        : maxMinutes <= 35
+        ? '30-Minute Express Highlights'
+        : '90-Minute Heritage Highlights';
 
     let places: any[] = [];
     try {
@@ -330,8 +351,8 @@ router.post('/generate', async (req: Request, res: Response) => {
       success: true,
       data: {
         id: uuidv4(),
-        title: `${duration} Heritage Tour`,
-        duration,
+        title: readableTitle,
+        duration: rawDur || duration,
         totalTimeMinutes: totalTime,
         stops: itineraryItems.length,
         items: itineraryItems,

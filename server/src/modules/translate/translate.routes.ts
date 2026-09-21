@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import axios from 'axios';
+import OpenAI from 'openai';
+import { config } from '../../config';
 
 const router = Router();
 
@@ -50,7 +52,7 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, error: 'text and targetLanguage are required' });
   }
 
-  // Check preset translations first
+  // Check preset translations first (instant <1ms hit)
   const presets = TRANSLATIONS[targetLanguage];
   if (presets && presets[text]) {
     return res.json({
@@ -63,22 +65,71 @@ router.post('/', async (req: Request, res: Response) => {
     });
   }
 
-  // Real-time translation via local Qwen 3.5 9B
+  const langName = targetLanguage === 'hi' ? 'Hindi (हिन्दी)' : targetLanguage === 'gu' ? 'Gujarati (ગુજરાતી)' : targetLanguage;
+
+  // 1. Tier 1: Groq Cloud LLM (Llama 3.3 70B - High speed, state-of-the-art Indian language fluency)
+  if (config.groqApiKey && config.groqApiKey.trim() !== '') {
+    try {
+      const groq = new OpenAI({
+        apiKey: config.groqApiKey,
+        baseURL: 'https://api.groq.com/openai/v1',
+      });
+
+      const completion = await Promise.race([
+        groq.chat.completions.create({
+          model: 'llama-3.3-70b-versatile',
+          messages: [
+            {
+              role: 'system',
+              content: `You are an expert translator for Indian cultural heritage and travel. Translate the provided text into natural, authentic, and fluent ${langName}. Return ONLY the direct translated text with NO explanations, quotes, or conversational filler.`,
+            },
+            { role: 'user', content: text },
+          ],
+          temperature: 0.1,
+          max_tokens: 300,
+        }),
+        new Promise<never>((_, rej) => setTimeout(() => rej(new Error('Groq timeout')), 6000)),
+      ]);
+
+      let translated = (completion as any).choices?.[0]?.message?.content?.trim();
+      if (translated) {
+        translated = translated.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+        return res.json({
+          success: true,
+          data: {
+            translatedText: translated,
+            source: 'groq-llama-3.3-70b',
+            targetLanguage,
+          },
+        });
+      }
+    } catch (groqErr: any) {
+      console.warn(`[Translate] Groq translation skipped (${groqErr.message || 'offline'}). Attempting local model.`);
+    }
+  }
+
+  // 2. Tier 2: Real-time translation via dynamic local model in LM Studio
   try {
-    const langName = targetLanguage === 'hi' ? 'Hindi' : targetLanguage === 'gu' ? 'Gujarati' : targetLanguage;
+    let modelName = 'llama-3.2-3b-instruct';
+    try {
+      const mres = await axios.get('http://127.0.0.1:1234/v1/models', { timeout: 1200 });
+      const list = mres.data?.data || [];
+      if (list[0]?.id) modelName = list[0].id;
+    } catch (_) {}
+
     const response = await axios.post(
       'http://127.0.0.1:1234/v1/chat/completions',
       {
-        model: 'qwen/qwen3.5-9b',
+        model: modelName,
         messages: [
           { role: 'system', content: `You are an expert Indian linguistic translator. Translate the text accurately into ${langName}. Return only the clean translated text.` },
           { role: 'user', content: text },
           { role: 'assistant', content: '</think>\n' },
         ],
-        temperature: 0.2,
+        temperature: 0.1,
         max_tokens: 200,
       },
-      { timeout: 15000 }
+      { timeout: 8000 }
     );
 
     let translated = response.data?.choices?.[0]?.message?.content?.trim();
@@ -88,7 +139,7 @@ router.post('/', async (req: Request, res: Response) => {
         success: true,
         data: {
           translatedText: translated,
-          source: 'qwen-3.5-9b',
+          source: modelName,
           targetLanguage,
         },
       });
@@ -97,7 +148,7 @@ router.post('/', async (req: Request, res: Response) => {
     // Fallback to passthrough
   }
 
-  // Fallback passthrough
+  // 3. Tier 3: Fallback passthrough
   res.json({
     success: true,
     data: {
