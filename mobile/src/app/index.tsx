@@ -11,130 +11,86 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
 import { useUserStore, usePlacesStore, useChatStore } from '../stores';
 
-const { width, height } = Dimensions.get('window');
-
-const LOADING_MESSAGES = [
-  'Calibrating Heritage GPS Radar...',
-  'Connecting 3,696+ Centrally Protected Monuments...',
-  'Initializing Neural AI Cultural Guide...',
-  'Welcome to Yatra — Explore • Discover • Belong',
-];
+const { width } = Dimensions.get('window');
 
 export default function LoadingScreen() {
   const router = useRouter();
-  const { isOnboarded, loadFromStorage } = useUserStore();
+  const { loadFromStorage } = useUserStore();
   const { loadFavorites } = usePlacesStore();
   const { loadChat } = useChatStore();
 
-  const [progress, setProgress] = useState(0);
-  const [messageIndex, setMessageIndex] = useState(0);
+  const [hasNavigated, setHasNavigated] = useState(false);
 
   // Animations
   const screenFadeAnim = useRef(new Animated.Value(0)).current;
-  const imageScaleAnim = useRef(new Animated.Value(1)).current;
-  const radarSpinAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(0.85)).current;
   const contentFadeAnim = useRef(new Animated.Value(0)).current;
+  const imageScaleAnim = useRef(new Animated.Value(1)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // 1. Initial screen fade in & slow cinematic background zoom
+    // 1. Smooth entrance animations: fade in screen, scale background slightly, fade in brand content
     Animated.parallel([
       Animated.timing(screenFadeAnim, {
         toValue: 1,
-        duration: 500,
+        duration: 450,
         useNativeDriver: true,
       }),
       Animated.timing(imageScaleAnim, {
-        toValue: 1.06,
-        duration: 3500,
-        easing: Easing.out(Easing.ease),
+        toValue: 1.05,
+        duration: 3000,
+        easing: Easing.out(Easing.quad),
         useNativeDriver: true,
       }),
       Animated.timing(contentFadeAnim, {
         toValue: 1,
-        duration: 800,
-        delay: 200,
+        duration: 600,
+        delay: 150,
         useNativeDriver: true,
+      }),
+      Animated.timing(progressAnim, {
+        toValue: 1,
+        duration: 850,
+        easing: Easing.inOut(Easing.quad),
+        useNativeDriver: false,
       }),
     ]).start();
 
-    // 2. Continuous rotating radar animation
-    const spinLoop = Animated.loop(
-      Animated.timing(radarSpinAnim, {
-        toValue: 1,
-        duration: 4000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    );
-    spinLoop.start();
-
-    // 3. Pulsing core animation
-    const pulseLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.15,
-          duration: 900,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 0.85,
-          duration: 900,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    pulseLoop.start();
-
-    // 4. Background preloading of stores in parallel
-    Promise.all([
-      loadFromStorage().catch(() => {}),
-      loadFavorites().catch(() => {}),
-      loadChat().catch(() => {}),
+    // 2. Hydrate local stores in parallel
+    const minDisplayPromise = new Promise((resolve) => setTimeout(resolve, 800));
+    const hydrationPromise = Promise.allSettled([
+      loadFromStorage(),
+      loadFavorites(),
+      loadChat(),
     ]);
 
-    // 5. Fast, smooth progress transition
-    const startTime = Date.now();
-    const duration = 750; // Snappy 750ms cold-start
+    // 3. Smooth transition once minimum aesthetic delay and hydration complete
+    Promise.all([hydrationPromise, minDisplayPromise]).then(() => {
+      navigateNext();
+    });
 
-    const interval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const currentProgress = Math.min(100, Math.round((elapsed / duration) * 100));
-      setProgress(currentProgress);
-
-      if (currentProgress < 35) {
-        setMessageIndex(0);
-      } else if (currentProgress < 70) {
-        setMessageIndex(1);
-      } else {
-        setMessageIndex(2);
-      }
-
-      if (currentProgress >= 100) {
-        clearInterval(interval);
-        setTimeout(() => {
-          navigateNext();
-        }, 150);
-      }
-    }, 75);
+    // Safety fallback: if anything hangs, guarantee navigation within 1.5s
+    const timeout = setTimeout(() => {
+      navigateNext();
+    }, 1500);
 
     return () => {
-      clearInterval(interval);
-      spinLoop.stop();
-      pulseLoop.stop();
+      clearTimeout(timeout);
     };
   }, []);
 
   const navigateNext = () => {
+    if (hasNavigated) return;
+    setHasNavigated(true);
+
     Animated.timing(screenFadeAnim, {
       toValue: 0,
       duration: 350,
+      easing: Easing.in(Easing.quad),
       useNativeDriver: true,
     }).start(() => {
       const userState = useUserStore.getState();
@@ -147,21 +103,16 @@ export default function LoadingScreen() {
     });
   };
 
-  const spinInterpolate = radarSpinAnim.interpolate({
+  const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
-  const reverseSpinInterpolate = radarSpinAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['360deg', '0deg'],
+    outputRange: ['0%', '100%'],
   });
 
   return (
     <Animated.View style={[styles.container, { opacity: screenFadeAnim }]}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
-      {/* Cinematic Background Image */}
+      {/* Cinematic Heritage Background */}
       <Animated.View
         style={[
           StyleSheet.absoluteFill,
@@ -178,76 +129,46 @@ export default function LoadingScreen() {
         />
       </Animated.View>
 
-      {/* Dark Subtle Vignette Gradient Overlay */}
-      <View style={styles.vignetteOverlay} />
+      {/* Luxury Gradient Vignette Overlay */}
+      <LinearGradient
+        colors={['rgba(15, 15, 15, 0.45)', 'rgba(15, 15, 15, 0.70)', '#0F0F0F']}
+        locations={[0, 0.55, 0.95]}
+        style={StyleSheet.absoluteFill}
+      />
 
-      {/* Main Interactive Loading Overlay */}
-      <Animated.View style={[styles.contentContainer, { opacity: contentFadeAnim }]}>
-        {/* Radar Hologram Animation in the sky above horizon */}
-        <View style={styles.radarWrapper}>
-          {/* Outer Orbiting Compass Ring */}
-          <Animated.View
-            style={[
-              styles.outerRing,
-              { transform: [{ rotate: spinInterpolate }] },
-            ]}
-          >
-            <View style={styles.orbitingParticle} />
-            <View style={[styles.orbitingParticle, styles.orbitingParticleOpposite]} />
-          </Animated.View>
-
-          {/* Inner Counter-Rotating Ring */}
-          <Animated.View
-            style={[
-              styles.innerRing,
-              { transform: [{ rotate: reverseSpinInterpolate }] },
-            ]}
-          >
-            <View style={styles.innerParticle} />
-          </Animated.View>
-
-          {/* Pulsing Core Glowing Badge */}
-          <Animated.View
-            style={[
-              styles.centerCore,
-              { transform: [{ scale: pulseAnim }] },
-            ]}
-          >
-            <MaterialIcons name="explore" size={24} color={Colors.primary} />
-          </Animated.View>
+      {/* Center Brand Identity */}
+      <Animated.View style={[styles.brandCenter, { opacity: contentFadeAnim }]}>
+        <View style={styles.emblemWrapper}>
+          <Image
+            source={require('../../assets/images/app-logo.jpeg')}
+            style={styles.emblemImage}
+            contentFit="cover"
+          />
         </View>
 
-        {/* Loading Progress Card */}
-        <View style={styles.progressCard}>
-          {/* Status Message */}
-          <View style={styles.statusRow}>
-            <View style={styles.pulsingDot} />
-            <Text style={styles.statusText} numberOfLines={1}>
-              {LOADING_MESSAGES[messageIndex]}
-            </Text>
-            <Text style={styles.percentText}>{progress}%</Text>
-          </View>
+        <Text style={styles.brandTitle}>Y A T R A</Text>
+        <View style={styles.goldSeparator} />
+        <Text style={styles.brandSubtitle}>EXPLORE • UNDERSTAND • BELONG</Text>
+      </Animated.View>
 
-          {/* Progress Bar Track */}
+      {/* Bottom Editorial Loading Cue & Skip */}
+      <Animated.View style={[styles.bottomContainer, { opacity: contentFadeAnim }]}>
+        <View style={styles.progressSection}>
           <View style={styles.progressBarTrack}>
-            <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
+            <Animated.View style={[styles.progressBarFill, { width: progressWidth }]} />
           </View>
+          <Text style={styles.loadingCaption}>Preparing your journey</Text>
         </View>
 
-        {/* Bottom Metadata & Fast Skip Button */}
-        <View style={styles.bottomBar}>
-          <Text style={styles.footerTag}>
-            CENTRAL HERITAGE ATLAS • ASI RECOGNISED
-          </Text>
-          <TouchableOpacity
-            style={styles.skipBtn}
-            onPress={navigateNext}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.skipText}>Sign In / Skip</Text>
-            <MaterialIcons name="arrow-forward" size={14} color={Colors.primary} />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={styles.skipButton}
+          onPress={navigateNext}
+          activeOpacity={0.7}
+          hitSlop={{ top: 12, bottom: 12, left: 16, right: 16 }}
+        >
+          <Text style={styles.skipText}>Enter</Text>
+          <Ionicons name="arrow-forward" size={12} color={Colors.primary} />
+        </TouchableOpacity>
       </Animated.View>
     </Animated.View>
   );
@@ -258,168 +179,102 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  vignetteOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(10, 10, 15, 0.25)',
-  },
-  contentContainer: {
+  brandCenter: {
     flex: 1,
-    justifyContent: 'flex-end',
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing['3xl'],
-  },
-
-  // Radar Animation
-  radarWrapper: {
-    alignSelf: 'center',
-    width: 100,
-    height: 100,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.xl,
+    paddingHorizontal: Spacing.xl,
   },
-  outerRing: {
-    position: 'absolute',
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+  emblemWrapper: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
     borderWidth: 1.5,
-    borderColor: 'rgba(212, 175, 124, 0.40)',
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  orbitingParticle: {
-    position: 'absolute',
-    top: -4,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.primary,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  orbitingParticleOpposite: {
-    top: undefined,
-    bottom: -4,
-    backgroundColor: '#FFF',
-  },
-  innerRing: {
-    position: 'absolute',
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  innerParticle: {
-    position: 'absolute',
-    left: -3,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: Colors.secondary,
-  },
-  centerCore: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(20, 20, 31, 0.85)',
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 10,
+    borderColor: 'rgba(212, 175, 124, 0.45)',
+    padding: 3,
+    marginBottom: Spacing.lg,
+    backgroundColor: 'rgba(23, 23, 23, 0.75)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
     elevation: 8,
   },
-
-  // Progress Card
-  progressCard: {
-    backgroundColor: 'rgba(23, 23, 23, 0.90)',
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.25)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 10,
-    marginBottom: Spacing.lg,
+  emblemImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 35,
   },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: Spacing.sm,
-  },
-  pulsingDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.primary,
-  },
-  statusText: {
-    flex: 1,
-    fontSize: Typography.sizes.xs,
-    fontWeight: '600',
-    color: Colors.text,
-    letterSpacing: 0.3,
+  brandTitle: {
     fontFamily: Typography.fontFamily.serif,
-  },
-  percentText: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 30,
     fontWeight: '700',
-    color: Colors.primary,
-    fontVariant: ['tabular-nums'],
+    letterSpacing: 6,
+    color: Colors.text,
+    textAlign: 'center',
+  },
+  goldSeparator: {
+    width: 36,
+    height: 2,
+    backgroundColor: Colors.primary,
+    borderRadius: 1,
+    marginVertical: Spacing.sm + 2,
+    opacity: 0.85,
+  },
+  brandSubtitle: {
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 2.5,
+    color: Colors.primaryLight,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
+
+  // Bottom section
+  bottomContainer: {
+    paddingHorizontal: Spacing['2xl'],
+    paddingBottom: Spacing['3xl'],
+    alignItems: 'center',
+    gap: Spacing.lg,
+  },
+  progressSection: {
+    alignItems: 'center',
+    width: 160,
   },
   progressBarTrack: {
-    height: 6,
-    borderRadius: 3,
+    width: '100%',
+    height: 2,
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 1,
     overflow: 'hidden',
+    marginBottom: Spacing.sm,
   },
   progressBarFill: {
     height: '100%',
     backgroundColor: Colors.primary,
-    borderRadius: 3,
+    borderRadius: 1,
   },
-
-  // Bottom Bar
-  bottomBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.xs,
+  loadingCaption: {
+    fontSize: 11,
+    color: Colors.textMuted,
+    letterSpacing: 0.6,
+    fontWeight: '500',
   },
-  footerTag: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: 'rgba(245, 240, 232, 0.65)',
-    letterSpacing: 0.8,
-  },
-  skipBtn: {
+  skipButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(29, 29, 29, 0.80)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.35)',
+    borderColor: 'rgba(212, 175, 124, 0.25)',
+    backgroundColor: 'rgba(23, 23, 23, 0.60)',
   },
   skipText: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '600',
     color: Colors.primary,
+    letterSpacing: 0.8,
   },
 });
