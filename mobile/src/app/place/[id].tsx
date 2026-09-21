@@ -28,6 +28,7 @@ import { LocalArtisansSection } from '../../components/LocalArtisansSection';
 import { ReviewsSection } from '../../components/ReviewsSection';
 import { NearbyAmenitiesSection } from '../../components/NearbyAmenitiesSection';
 import { RideBookingSection } from '../../components/RideBookingSection';
+import { ProGateTipsSection } from '../../components/ProGateTipsSection';
 import { PlaceDetailSkeleton } from '../../components/Skeleton';
 import { dynamicImageService, GalleryImage } from '../../services/dynamicImageService';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
@@ -901,6 +902,12 @@ export default function PlaceDetailScreen() {
                 latitude={placeObj.latitude}
                 longitude={placeObj.longitude}
                 cityOrState={(placeObj as any).city || (placeObj as any).state || displayName}
+              />
+
+              {/* Pro Gate Survival Tips & Scam Protection Shield */}
+              <ProGateTipsSection
+                placeName={displayName}
+                category={placeObj.category}
               />
 
               {/* Nearby Tourist Amenities Radar (Google Places Integration) */}
