@@ -104,9 +104,10 @@ router.post('/ai/playground', async (req: Request, res: Response) => {
             apiKey: config.groqApiKey,
             baseURL: 'https://api.groq.com/openai/v1',
           });
+          const groqModelName = config.groqModel || 'qwen/qwen3.8-27b';
           const completion = await Promise.race([
             groq.chat.completions.create({
-              model: 'llama-3.3-70b-versatile',
+              model: groqModelName,
               messages: [
                 { role: 'system', content: effectiveSystemPrompt },
                 { role: 'user', content: userPrompt },
@@ -123,7 +124,7 @@ router.post('/ai/playground', async (req: Request, res: Response) => {
           results.groq = {
             ok: true,
             latencyMs: Math.round(performance.now() - t0),
-            model: 'llama-3.3-70b-versatile',
+            model: groqModelName,
             answer: content,
             tokens: (completion as any).usage,
           };

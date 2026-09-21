@@ -421,25 +421,40 @@ Answer conversationally and helpfully like ChatGPT with deep intelligence, histo
     ];
 
     // ==========================================
-    // TIER 1: Groq Cloud LLM (Llama 3.3 70B - Frontier Reasoning, ~140ms latency)
+    // TIER 1: Groq Cloud LLM (Qwen 3.8 27B / GPT-OSS 120B - Ultra fast ~120ms latency)
     // ==========================================
     if (config.groqApiKey && config.groqApiKey.trim() !== '') {
-      traceStage('llm_groq', { model: 'llama-3.3-70b-versatile', timeoutMs: 10000 });
+      const primaryModel = config.groqModel || 'qwen/qwen3.8-27b';
+      traceStage('llm_groq', { model: primaryModel, timeoutMs: 10000 });
       try {
         const temperature = mode === 'narrative' ? 0.65 : mode === 'child' ? 0.5 : 0.4;
         const maxTokens = mode === 'short' ? 320 : mode === 'detailed' ? 900 : 500;
 
-        const completion = await Promise.race([
-          groq.chat.completions.create({
-            model: 'llama-3.3-70b-versatile',
-            messages: chatMessages,
-            temperature,
-            max_tokens: maxTokens,
-          }),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Groq timeout after 10s')), 10000)
-          ),
-        ]);
+        let completion: any;
+        try {
+          completion = await Promise.race([
+            groq.chat.completions.create({
+              model: primaryModel,
+              messages: chatMessages,
+              temperature,
+              max_tokens: maxTokens,
+            }),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error('Groq timeout after 10s')), 10000)
+            ),
+          ]);
+        } catch (modelErr: any) {
+          if (modelErr.message?.includes('does not exist') || modelErr.status === 404) {
+            completion = await groq.chat.completions.create({
+              model: 'openai/gpt-oss-120b',
+              messages: chatMessages,
+              temperature,
+              max_tokens: maxTokens,
+            });
+          } else {
+            throw modelErr;
+          }
+        }
 
         let answer = (completion as any).choices?.[0]?.message?.content;
         if (answer && answer.trim().length > 10) {

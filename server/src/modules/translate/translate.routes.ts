@@ -75,9 +75,10 @@ router.post('/', async (req: Request, res: Response) => {
         baseURL: 'https://api.groq.com/openai/v1',
       });
 
+      const trModel = config.groqModel || 'qwen/qwen3.8-27b';
       const completion = await Promise.race([
         groq.chat.completions.create({
-          model: 'llama-3.3-70b-versatile',
+          model: trModel,
           messages: [
             {
               role: 'system',

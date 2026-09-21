@@ -50,12 +50,13 @@ export async function checkAllServicesHealth(): Promise<ServiceHealth[]> {
       if (!key || key.includes('your-groq')) return { name: 'groq', status: 'offline', message: 'GROQ_API_KEY not configured in .env', checkedAt: new Date().toISOString() };
       try {
         const start = performance.now();
+        const model = config.groqModel || 'qwen/qwen3.8-27b';
         await axios.post(
           'https://api.groq.com/openai/v1/chat/completions',
-          { model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: 'hi' }], max_tokens: 1 },
+          { model, messages: [{ role: 'user', content: 'hi' }], max_tokens: 1 },
           { headers: { Authorization: `Bearer ${key}` }, timeout: 6000, validateStatus: () => true }
         );
-        return { name: 'groq', status: 'healthy', latencyMs: Math.round(performance.now() - start), message: 'llama-3.3-70b reachable', checkedAt: new Date().toISOString() };
+        return { name: 'groq', status: 'healthy', latencyMs: Math.round(performance.now() - start), message: `${model} reachable`, checkedAt: new Date().toISOString() };
       } catch {
         return { name: 'groq', status: 'degraded', message: 'Groq API ping failed', checkedAt: new Date().toISOString() };
       }
