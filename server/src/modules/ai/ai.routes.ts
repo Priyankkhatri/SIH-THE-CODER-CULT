@@ -6,7 +6,7 @@ const router = Router();
 // POST /ai/ask - Ask the AI Heritage Guide a question
 router.post('/ask', async (req: Request, res: Response) => {
   try {
-    const { question, placeId, mode, language, history } = req.body;
+    const { question, placeId, mode, language, history, conversationHistory } = req.body;
 
     if (!question) {
       return res.status(400).json({ success: false, error: 'Question is required' });
@@ -17,7 +17,7 @@ router.post('/ask', async (req: Request, res: Response) => {
       placeId,
       mode: mode || 'short', // short, detailed, child, narrative
       language: language || 'en',
-      history,
+      history: history || conversationHistory,
     });
 
     res.json({
