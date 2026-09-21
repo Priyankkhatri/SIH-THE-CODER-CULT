@@ -161,18 +161,18 @@ export function WeatherCrowdBar({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.025)',
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(212, 175, 124, 0.2)',
     marginHorizontal: 20,
     marginBottom: Spacing.md,
   },
   containerFull: {
     marginHorizontal: 0,
-    marginBottom: Spacing.base,
+    marginBottom: 20,
   },
   row: {
     flexDirection: 'row',
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   metricTextWrap: {
     flex: 1,
@@ -194,9 +194,9 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   iconCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: 'rgba(212, 175, 124, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -209,11 +209,12 @@ const styles = StyleSheet.create({
   metricLabel: {
     fontSize: Typography.sizes.xs,
     color: Colors.textSecondary,
+    marginTop: 1,
   },
   divider: {
     width: 1,
-    height: 24,
-    backgroundColor: Colors.border,
+    height: 26,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     flexShrink: 0,
   },
   crowdDot: {
@@ -233,18 +234,18 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     paddingTop: Spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    gap: 6,
+    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+    gap: 8,
   },
   advisoryRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 6,
+    gap: 8,
   },
   advisoryText: {
     flex: 1,
     fontSize: Typography.sizes.xs,
     color: Colors.textSecondary,
-    lineHeight: 16,
+    lineHeight: 18,
   },
 });

@@ -94,48 +94,51 @@ export function ReviewCardSkeleton() {
 export function ReviewsSectionSkeleton() {
   return (
     <View style={styles.reviewsContainer}>
-      {/* Header Skeleton */}
-      <View style={styles.sectionHeader}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <SkeletonItem width={24} height={24} borderRadius={12} />
-          <SkeletonItem width={180} height={20} />
+      {/* Eyebrow & Header Skeleton */}
+      <View style={{ gap: 6, marginBottom: Spacing.sm }}>
+        <SkeletonItem width={160} height={10} borderRadius={5} />
+        <View style={styles.sectionHeader}>
+          <SkeletonItem width={190} height={24} borderRadius={6} />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <SkeletonItem width={34} height={34} borderRadius={17} />
+            <SkeletonItem width={100} height={34} borderRadius={17} />
+          </View>
         </View>
-        <SkeletonItem width={95} height={28} borderRadius={14} />
+        <SkeletonItem width={260} height={12} style={{ marginBottom: Spacing.sm }} />
       </View>
-      <SkeletonItem width={260} height={12} style={{ marginBottom: Spacing.md }} />
 
-      {/* Overview Card Skeleton */}
+      {/* Grand Scorecard Hero Skeleton */}
       <View style={styles.overviewCard}>
         <View style={styles.scoreContainer}>
-          <SkeletonItem width={60} height={36} borderRadius={6} />
-          <SkeletonItem width={90} height={14} style={{ marginVertical: 6 }} />
-          <SkeletonItem width={80} height={10} />
-          <SkeletonItem width={75} height={16} borderRadius={4} style={{ marginTop: 6 }} />
+          <SkeletonItem width={64} height={42} borderRadius={8} />
+          <SkeletonItem width={96} height={14} style={{ marginVertical: 6 }} />
+          <SkeletonItem width={84} height={10} />
+          <SkeletonItem width={90} height={18} borderRadius={9} style={{ marginTop: 8 }} />
         </View>
 
         <View style={styles.overviewDivider} />
 
         <View style={styles.barsContainer}>
-          {[1, 2, 3, 4, 5].map((i) => (
+          {[5, 4, 3, 2, 1].map((i) => (
             <View key={i} style={styles.barRow}>
-              <SkeletonItem width={20} height={10} />
-              <SkeletonItem width="72%" height={8} borderRadius={4} />
-              <SkeletonItem width={24} height={10} />
+              <SkeletonItem width={22} height={10} />
+              <SkeletonItem width="70%" height={7} borderRadius={4} />
+              <SkeletonItem width={26} height={10} />
             </View>
           ))}
         </View>
       </View>
 
       {/* Filter Chips Skeleton */}
-      <View style={{ flexDirection: 'row', gap: 8, marginBottom: Spacing.sm }}>
-        <SkeletonItem width={65} height={28} borderRadius={14} />
-        <SkeletonItem width={85} height={28} borderRadius={14} />
-        <SkeletonItem width={85} height={28} borderRadius={14} />
-        <SkeletonItem width={95} height={28} borderRadius={14} />
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: Spacing.md }}>
+        <SkeletonItem width={80} height={34} borderRadius={17} />
+        <SkeletonItem width={90} height={34} borderRadius={17} />
+        <SkeletonItem width={90} height={34} borderRadius={17} />
+        <SkeletonItem width={110} height={34} borderRadius={17} />
       </View>
 
-      {/* Review Cards Skeletons */}
-      <View style={{ gap: Spacing.md, marginTop: Spacing.xs }}>
+      {/* Full-Width Vertical Review Cards Skeletons */}
+      <View style={{ gap: 14 }}>
         <ReviewCardSkeleton />
         <ReviewCardSkeleton />
         <ReviewCardSkeleton />
@@ -144,11 +147,11 @@ export function ReviewsSectionSkeleton() {
   );
 }
 
-// 3. Full Place Detail Screen Skeleton (Hero, badges, radar, story, reviews)
+// 3. Full Place Detail Screen Skeleton (Spacious Hero, Actions, Chronicle, and Floating Dock)
 export function PlaceDetailSkeleton({ onBack }: { onBack?: () => void }) {
   return (
     <View style={styles.screenContainer}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
         {/* Hero Section Skeleton */}
         <View style={styles.heroSection}>
           <SkeletonItem width="100%" height="100%" borderRadius={0} />
@@ -165,17 +168,18 @@ export function PlaceDetailSkeleton({ onBack }: { onBack?: () => void }) {
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <SkeletonItem width={40} height={40} borderRadius={20} />
               <SkeletonItem width={40} height={40} borderRadius={20} />
+              <SkeletonItem width={40} height={40} borderRadius={20} />
             </View>
           </View>
 
           {/* Hero Bottom Meta */}
           <View style={styles.heroContent}>
-            <SkeletonItem width={80} height={20} borderRadius={10} style={{ marginBottom: 8 }} />
-            <SkeletonItem width="80%" height={26} style={{ marginBottom: 8 }} />
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              <SkeletonItem width={50} height={14} borderRadius={4} />
-              <SkeletonItem width={80} height={14} borderRadius={4} />
-              <SkeletonItem width={100} height={14} borderRadius={4} />
+            <SkeletonItem width={120} height={12} borderRadius={6} style={{ marginBottom: 8 }} />
+            <SkeletonItem width="75%" height={32} borderRadius={8} style={{ marginBottom: 10 }} />
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <SkeletonItem width={80} height={18} borderRadius={6} />
+              <SkeletonItem width={70} height={18} borderRadius={6} />
+              <SkeletonItem width={90} height={18} borderRadius={6} />
             </View>
           </View>
         </View>
@@ -186,8 +190,8 @@ export function PlaceDetailSkeleton({ onBack }: { onBack?: () => void }) {
           <View style={styles.actionsRow}>
             {[1, 2, 3, 4].map((i) => (
               <View key={i} style={styles.actionBtnSkeleton}>
-                <SkeletonItem width={24} height={24} borderRadius={12} />
-                <SkeletonItem width={46} height={10} style={{ marginTop: 4 }} />
+                <SkeletonItem width={26} height={26} borderRadius={13} />
+                <SkeletonItem width={48} height={10} style={{ marginTop: 6 }} />
               </View>
             ))}
           </View>
@@ -199,47 +203,50 @@ export function PlaceDetailSkeleton({ onBack }: { onBack?: () => void }) {
               <SkeletonItem width={70} height={16} borderRadius={8} />
             </View>
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
-              <SkeletonItem width="48%" height={40} borderRadius={6} />
-              <SkeletonItem width="48%" height={40} borderRadius={6} />
+              <SkeletonItem width="48%" height={38} borderRadius={8} />
+              <SkeletonItem width="48%" height={38} borderRadius={8} />
             </View>
           </View>
 
-          {/* ASI Ticket Card Skeleton */}
-          <View style={styles.ticketCardSkeleton}>
-            <SkeletonItem width={36} height={36} borderRadius={8} />
-            <View style={{ flex: 1, gap: 4 }}>
-              <SkeletonItem width={160} height={15} />
-              <SkeletonItem width={200} height={11} />
+          {/* Heritage Editorial Chronicle Skeleton */}
+          <View style={{ gap: 12, marginTop: 8 }}>
+            <SkeletonItem width={150} height={12} borderRadius={6} />
+            <SkeletonItem width="60%" height={24} borderRadius={6} />
+            <SkeletonItem width="100%" height={64} borderRadius={12} />
+            <View style={{ gap: 6, marginTop: 4 }}>
+              <SkeletonItem width="100%" height={14} />
+              <SkeletonItem width="95%" height={14} />
+              <SkeletonItem width="90%" height={14} />
+              <SkeletonItem width="70%" height={14} />
             </View>
-            <SkeletonItem width={75} height={24} borderRadius={12} />
           </View>
 
-          {/* 2-Minute Story Card Skeleton */}
-          <View style={styles.storyCardSkeleton}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <SkeletonItem width={150} height={16} />
-              <SkeletonItem width={20} height={20} borderRadius={10} />
+          {/* Architectural Perspectives Carousel Skeleton */}
+          <View style={{ marginTop: 12 }}>
+            <SkeletonItem width={180} height={14} borderRadius={6} style={{ marginBottom: 10 }} />
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <SkeletonItem width={220} height={160} borderRadius={18} />
+              <SkeletonItem width={220} height={160} borderRadius={18} />
             </View>
-            <SkeletonItem width="100%" height={12} style={{ marginTop: 10 }} />
-            <SkeletonItem width="95%" height={12} style={{ marginTop: 6 }} />
-            <SkeletonItem width="70%" height={12} style={{ marginTop: 6 }} />
           </View>
 
-          {/* Expandable Sections Skeleton */}
-          {[1, 2].map((i) => (
-            <View key={i} style={styles.expandSectionSkeleton}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <SkeletonItem width={20} height={20} borderRadius={10} />
-                <SkeletonItem width={140} height={16} />
-              </View>
-              <SkeletonItem width={18} height={18} borderRadius={9} />
-            </View>
-          ))}
-
-          {/* Reviews Section Skeleton */}
-          <ReviewsSectionSkeleton />
+          {/* Architectural Metrics Pills Skeleton */}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
+            {[1, 2, 3, 4].map((i) => (
+              <SkeletonItem key={i} width="48%" height={60} borderRadius={14} />
+            ))}
+          </View>
         </View>
       </ScrollView>
+
+      {/* Floating Bottom Dock Pill Skeleton */}
+      <View style={styles.floatingDockSkeleton}>
+        <View style={{ flexDirection: 'row', width: '100%', gap: 6 }}>
+          <SkeletonItem width="32%" height={38} borderRadius={19} />
+          <SkeletonItem width="32%" height={38} borderRadius={19} />
+          <SkeletonItem width="32%" height={38} borderRadius={19} />
+        </View>
+      </View>
     </View>
   );
 }
@@ -469,25 +476,25 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   reviewCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.025)',
+    borderRadius: 20,
+    padding: 18,
     borderWidth: 1,
-    borderColor: Colors.border,
-    gap: 8,
+    borderColor: 'rgba(255, 255, 255, 0.07)',
+    gap: 10,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: Colors.divider,
-    paddingTop: 8,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+    paddingTop: 10,
     marginTop: 4,
   },
 
@@ -510,5 +517,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     marginBottom: Spacing.sm,
+  },
+  floatingDockSkeleton: {
+    position: 'absolute',
+    bottom: 24,
+    left: 16,
+    right: 16,
+    alignItems: 'center',
+    backgroundColor: 'rgba(18, 18, 25, 0.95)',
+    borderRadius: BorderRadius.full,
+    padding: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.28)',
   },
 });

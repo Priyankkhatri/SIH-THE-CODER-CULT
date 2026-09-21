@@ -1251,30 +1251,31 @@ const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: 'row',
     gap: 10,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   actionBtn: {
     flex: 1,
     alignItems: 'center',
     gap: 7,
     paddingVertical: 14,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.035)',
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   actionPrimary: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
+    borderRadius: 16,
   },
   actionLabel: {
-    fontSize: 11,
+    fontSize: 11.5,
     fontWeight: '600',
     color: Colors.textSecondary,
   },
   actionLabelPrimary: {
-    color: '#0F0F0F',
-    fontWeight: '700',
+    color: '#0A0A0E',
+    fontWeight: '800',
   },
   viewContextBanner: {
     marginBottom: 16,
