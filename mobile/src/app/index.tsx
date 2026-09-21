@@ -92,37 +92,37 @@ export default function LoadingScreen() {
     );
     pulseLoop.start();
 
-    // 4. Background preloading of stores
-    loadFromStorage().catch(() => {});
-    loadFavorites().catch(() => {});
-    loadChat().catch(() => {});
+    // 4. Background preloading of stores in parallel
+    Promise.all([
+      loadFromStorage().catch(() => {}),
+      loadFavorites().catch(() => {}),
+      loadChat().catch(() => {}),
+    ]);
 
-    // 5. Simulated progress bar & message cycling
+    // 5. Fast, smooth progress transition
     const startTime = Date.now();
-    const duration = 2400; // 2.4 seconds smooth loading
+    const duration = 750; // Snappy 750ms cold-start
 
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
       const currentProgress = Math.min(100, Math.round((elapsed / duration) * 100));
       setProgress(currentProgress);
 
-      if (currentProgress < 30) {
+      if (currentProgress < 35) {
         setMessageIndex(0);
-      } else if (currentProgress < 65) {
+      } else if (currentProgress < 70) {
         setMessageIndex(1);
-      } else if (currentProgress < 90) {
-        setMessageIndex(2);
       } else {
-        setMessageIndex(3);
+        setMessageIndex(2);
       }
 
       if (currentProgress >= 100) {
         clearInterval(interval);
         setTimeout(() => {
           navigateNext();
-        }, 350);
+        }, 150);
       }
-    }, 40);
+    }, 75);
 
     return () => {
       clearInterval(interval);

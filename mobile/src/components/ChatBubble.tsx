@@ -127,7 +127,7 @@ class MarkdownSafe extends React.Component<{ content: string; style: any }, { ha
   }
 }
 
-export function ChatBubble({ message, onSpeak, speaking, onCopy, copied, onRetry, showRetry, offline }: ChatBubbleProps) {
+function ChatBubbleComponent({ message, onSpeak, speaking, onCopy, copied, onRetry, showRetry, offline }: ChatBubbleProps) {
   const isUser = message.role === 'user';
 
   const openSource = (url?: string) => {
@@ -428,3 +428,5 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
   },
 });
+
+export const ChatBubble = React.memo(ChatBubbleComponent);

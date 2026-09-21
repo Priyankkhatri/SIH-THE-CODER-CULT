@@ -118,27 +118,6 @@ function StandardTabButton({ config, label, isFocused, onPress, onLongPress }: T
 // ── 2. Center "Yatra AI" Button with Controlled Luxury Aura & Snappy Feedback ──
 function CenterAiButton({ config, isFocused, onPress, onLongPress }: TabButtonProps) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const pulseAnim = useRef(new Animated.Value(0.4)).current;
-
-  // Gentle, stable luxury breathing aura for the AI pill
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 0.85,
-          duration: 2200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 0.4,
-          duration: 2200,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [pulseAnim]);
 
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
@@ -178,13 +157,13 @@ function CenterAiButton({ config, isFocused, onPress, onLongPress }: TabButtonPr
           },
         ]}
       >
-        {/* Subtle Luxury Aura Ring */}
-        <Animated.View
+        {/* Subtle Luxury Accent Ring */}
+        <View
           pointerEvents="none"
           style={[
             styles.aiGlowHalo,
             {
-              opacity: isFocused ? 0.9 : pulseAnim,
+              opacity: isFocused ? 0.9 : 0.45,
             },
           ]}
         />

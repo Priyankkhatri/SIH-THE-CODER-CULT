@@ -218,65 +218,8 @@ export default function HomeScreen() {
     }
   }, [isSpeaking]);
 
-  // Live GPS Radar Pulse Animation for Top Navbar
-  const gpsPulseAnim = useRef(new Animated.Value(1)).current;
-  const gpsOpacityAnim = useRef(new Animated.Value(0.9)).current;
-
-  // Emergency SOS subtle pulse animation
-  const sosPulseAnim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    const gpsLoop = Animated.loop(
-      Animated.sequence([
-        Animated.parallel([
-          Animated.timing(gpsPulseAnim, {
-            toValue: 1.4,
-            duration: 1400,
-            useNativeDriver: true,
-          }),
-          Animated.timing(gpsOpacityAnim, {
-            toValue: 0.35,
-            duration: 1400,
-            useNativeDriver: true,
-          }),
-        ]),
-        Animated.parallel([
-          Animated.timing(gpsPulseAnim, {
-            toValue: 1,
-            duration: 1400,
-            useNativeDriver: true,
-          }),
-          Animated.timing(gpsOpacityAnim, {
-            toValue: 0.9,
-            duration: 1400,
-            useNativeDriver: true,
-          }),
-        ]),
-      ])
-    );
-
-    const sosLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(sosPulseAnim, {
-          toValue: 1.06,
-          duration: 1200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(sosPulseAnim, {
-          toValue: 1,
-          duration: 1200,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-
-    gpsLoop.start();
-    sosLoop.start();
-    return () => {
-      gpsLoop.stop();
-      sosLoop.stop();
-    };
-  }, [gpsPulseAnim, gpsOpacityAnim, sosPulseAnim]);
+  // One-time image cache warming guard
+  const hasWarmedCacheRef = useRef(false);
 
   // Instant render if places already present in store
   const isScreenLoading = (places.length === 0 && (initialLoading || isLoading)) || refreshing;
@@ -340,15 +283,18 @@ export default function HomeScreen() {
       if (mounted) {
         setInitialLoading(false);
       }
-      // Background: warm image cache for top-20 places so subsequent renders are instant
-      const namesToWarm = [...new Set(
-        [...(places.length > 0 ? places : []), ...allCatalogPlaces.slice(0, 20)]
-          .slice(0, 20)
-          .map((p) => p.name)
-          .filter(Boolean)
-      )];
-      if (namesToWarm.length > 0) {
-        dynamicImageService.warmCache(namesToWarm).catch(() => {});
+      // Background: warm image cache once for top-20 places so subsequent renders are instant
+      if (!hasWarmedCacheRef.current) {
+        const namesToWarm = [...new Set(
+          [...(places.length > 0 ? places : []), ...allCatalogPlaces.slice(0, 20)]
+            .slice(0, 20)
+            .map((p) => p.name)
+            .filter(Boolean)
+        )];
+        if (namesToWarm.length > 0) {
+          hasWarmedCacheRef.current = true;
+          dynamicImageService.warmCache(namesToWarm).catch(() => {});
+        }
       }
     };
     run();
@@ -553,18 +499,8 @@ export default function HomeScreen() {
                 onPress={() => router.push('/(tabs)/explore')}
                 activeOpacity={0.8}
               >
-                {/* Live GPS Pulsing Radar Dot */}
+                {/* Live GPS Dot */}
                 <View style={styles.gpsRadarContainer}>
-                  <Animated.View
-                    pointerEvents="none"
-                    style={[
-                      styles.gpsRadarPulse,
-                      {
-                        transform: [{ scale: gpsPulseAnim }],
-                        opacity: gpsOpacityAnim,
-                      },
-                    ]}
-                  />
                   <View style={styles.gpsRadarDot} />
                 </View>
                 <Text style={styles.locationText} numberOfLines={1} ellipsizeMode="tail">
@@ -573,16 +509,14 @@ export default function HomeScreen() {
               </TouchableOpacity>
             )}
 
-            <Animated.View style={{ transform: [{ scale: sosPulseAnim }] }}>
-              <TouchableOpacity
-                style={styles.sosBadge}
-                onPress={() => setSosVisible(true)}
-                activeOpacity={0.85}
-              >
-                <MaterialIcons name="emergency" size={14} color="#FFFFFF" />
-                <Text style={styles.sosBadgeText}>SOS</Text>
-              </TouchableOpacity>
-            </Animated.View>
+            <TouchableOpacity
+              style={styles.sosBadge}
+              onPress={() => setSosVisible(true)}
+              activeOpacity={0.85}
+            >
+              <MaterialIcons name="emergency" size={14} color="#FFFFFF" />
+              <Text style={styles.sosBadgeText}>SOS</Text>
+            </TouchableOpacity>
           </View>
         </View>
 

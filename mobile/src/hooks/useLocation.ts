@@ -246,8 +246,8 @@ export function useLocation() {
       activeWatcherSubscription = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.Balanced,
-          timeInterval: 4000,
-          distanceInterval: 8, // 8 meters
+          timeInterval: 10000, // 10s interval reduces GPS chip wake-locks
+          distanceInterval: 15, // 15 meters
         },
         async (newPos) => {
           if (!newPos?.coords) return;

@@ -1,14 +1,12 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import React, { memo, useMemo, useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } from '../constants/theme';
+import { Colors, Typography, Spacing, BorderRadius, CATEGORY_COLORS } from '../constants/theme';
 import type { Place } from '../stores';
 import { useTranslation } from '../hooks/useTranslation';
 import { getLiveCrowd } from '../utils/touristMeta';
 import { dynamicImageService } from '../services/dynamicImageService';
-
-const { width } = Dimensions.get('window');
 
 interface PlaceCardProps {
   place: Place;
@@ -18,19 +16,28 @@ interface PlaceCardProps {
   onFavoriteToggle?: (placeId: string) => void;
 }
 
-export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, onFavoriteToggle }: PlaceCardProps) {
+function PlaceCardComponent({ place, onPress, variant = 'vertical', isFavorite, onFavoriteToggle }: PlaceCardProps) {
   const { t, getPlaceName, getCategoryName } = useTranslation();
   const categoryColor = CATEGORY_COLORS[place.category] || Colors.primary;
   const placeName = getPlaceName(place);
   const categoryLabel = getCategoryName(place.category).toUpperCase();
   const kmUnit = t('common.km');
-  const crowd = getLiveCrowd(place.name);
 
-  const defaultFallback = dynamicImageService.getArchitecturalFallback(place.name, place.category, 0);
-  const initialUri = dynamicImageService.getPlaceImage(place.name, place.category, place.imageUrl);
-  const [currentImg, setCurrentImg] = React.useState<string>(initialUri);
+  // Compute crowd info once per place name
+  const crowd = useMemo(() => getLiveCrowd(place.name), [place.name]);
 
-  React.useEffect(() => {
+  const defaultFallback = useMemo(
+    () => dynamicImageService.getArchitecturalFallback(place.name, place.category, 0),
+    [place.name, place.category]
+  );
+  const initialUri = useMemo(
+    () => dynamicImageService.getPlaceImage(place.name, place.category, place.imageUrl),
+    [place.name, place.category, place.imageUrl]
+  );
+
+  const [currentImg, setCurrentImg] = useState<string>(initialUri);
+
+  useEffect(() => {
     let isMounted = true;
     const resolved = dynamicImageService.getPlaceImage(place.name, place.category, place.imageUrl);
     setCurrentImg(resolved);
@@ -57,7 +64,7 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
     return () => {
       isMounted = false;
     };
-  }, [place.name, place.imageUrl, place.category]);
+  }, [place.name, place.imageUrl, place.category, defaultFallback]);
 
   if (variant === 'horizontal') {
     return (
@@ -70,8 +77,10 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
           source={{ uri: currentImg }}
           style={styles.horizontalImage}
           contentFit="cover"
+          cachePolicy="memory-disk"
+          recyclingKey={place.id}
           placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
-          transition={250}
+          transition={150}
           onError={() => setCurrentImg(dynamicImageService.getArchitecturalFallback(place.name, place.category, 1))}
         />
         <View style={styles.horizontalOverlay}>
@@ -118,8 +127,10 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
         source={{ uri: currentImg }}
         style={styles.verticalImage}
         contentFit="cover"
+        cachePolicy="memory-disk"
+        recyclingKey={place.id}
         placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
-        transition={250}
+        transition={150}
         onError={() => setCurrentImg(dynamicImageService.getArchitecturalFallback(place.name, place.category, 1))}
       />
 
@@ -127,6 +138,7 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
         <TouchableOpacity
           style={styles.favoriteButton}
           onPress={() => onFavoriteToggle(place.id)}
+          activeOpacity={0.7}
         >
           <MaterialIcons
             name={isFavorite ? 'favorite' : 'favorite-border'}
@@ -142,34 +154,28 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
               {categoryLabel}
             </Text>
           </View>
-          <View style={[styles.crowdBadge, { backgroundColor: crowd.color + '20', borderColor: crowd.color + '55' }]}>
+          <View style={[styles.crowdBadge, { backgroundColor: crowd.color + '25', borderColor: crowd.color + '55' }]}>
             <View style={[styles.crowdDot, { backgroundColor: crowd.color }]} />
             <Text style={[styles.crowdBadgeText, { color: crowd.color }]} numberOfLines={1}>
-              {crowd.badge}
+              {crowd.level}
             </Text>
           </View>
         </View>
-        <Text style={styles.verticalName} numberOfLines={2}>{placeName}</Text>
-        <Text style={styles.verticalDesc} numberOfLines={2}>{place.shortDescription}</Text>
-        <View style={styles.verticalFooter}>
+        <Text style={styles.verticalName} numberOfLines={1}>{placeName}</Text>
+        <Text style={styles.verticalDesc} numberOfLines={2}>
+          {place.shortDescription || (place.heritageRecord as any)?.shortStory || 'Preserved Indian historical site.'}
+        </Text>
+        <View style={styles.verticalMeta}>
           {place.distance !== undefined && (
             <View style={styles.metaRow}>
-              <MaterialIcons name="place" size={14} color={Colors.textSecondary} />
+              <MaterialIcons name="place" size={13} color={Colors.textSecondary} />
               <Text style={styles.metaText}>{place.distance.toFixed(1)} {kmUnit}</Text>
             </View>
           )}
           {place.rating && (
             <View style={styles.metaRow}>
-              <MaterialIcons name="star" size={14} color={Colors.primary} />
-              <Text style={[styles.metaText, { color: Colors.primary }]}>{place.rating}</Text>
-            </View>
-          )}
-          {place.openingHours && (
-            <View style={styles.metaRow}>
-              <MaterialIcons name="schedule" size={13} color={Colors.textMuted} />
-              <Text style={[styles.metaText, { color: Colors.textMuted }]} numberOfLines={1}>
-                {place.openingHours.split('(')[0].trim()}
-              </Text>
+              <MaterialIcons name="star" size={13} color={Colors.primary} />
+              <Text style={styles.metaText}>{place.rating}</Text>
             </View>
           )}
         </View>
@@ -178,15 +184,41 @@ export function PlaceCard({ place, onPress, variant = 'vertical', isFavorite, on
   );
 }
 
+export const PlaceCard = memo(PlaceCardComponent);
+
 const styles = StyleSheet.create({
-  // Horizontal card — cinematic image-led, minimal chrome
+  cardHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  crowdBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+  },
+  crowdDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+  },
+  crowdBadgeText: {
+    fontSize: 9.5,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
   horizontalCard: {
-    width: width * 0.68,
-    height: 230,
+    width: 220,
+    height: 150,
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
+    backgroundColor: Colors.surfaceElevated,
     marginRight: Spacing.md,
-    backgroundColor: '#151515',
   },
   horizontalImage: {
     width: '100%',
@@ -214,8 +246,6 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 5,
   },
-
-  // Vertical card — editorial: image, then quiet text block on background
   verticalCard: {
     backgroundColor: 'transparent',
     borderRadius: 0,
@@ -238,88 +268,47 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(10, 10, 15, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1,
   },
   verticalContent: {
-    paddingTop: 10,
-    paddingHorizontal: 2,
+    paddingTop: Spacing.sm,
   },
   categoryBadge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 8,
+    paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
     borderRadius: BorderRadius.sm,
-    marginBottom: 6,
-    flexShrink: 1,
-    maxWidth: '58%',
+    marginBottom: Spacing.xs,
   },
   categoryText: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 10,
     fontWeight: '700',
-    letterSpacing: 0.5,
-    flexShrink: 1,
+    letterSpacing: 0.8,
   },
   verticalName: {
     fontSize: Typography.sizes.lg,
     fontWeight: '700',
     color: Colors.text,
-    marginBottom: 4,
     fontFamily: Typography.fontFamily.serif,
+    letterSpacing: 0.2,
+    marginBottom: 4,
   },
   verticalDesc: {
-    fontSize: Typography.sizes.sm,
+    fontSize: Typography.sizes.xs,
     color: Colors.textSecondary,
     lineHeight: 18,
-    marginBottom: 10,
+    marginBottom: Spacing.xs,
   },
-  verticalFooter: {
+  verticalMeta: {
     flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 14,
-    rowGap: 6,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: Colors.divider,
+    gap: 16,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    flexShrink: 1,
-    minWidth: 0,
   },
   metaText: {
     fontSize: Typography.sizes.xs,
     color: Colors.textSecondary,
-    fontWeight: '500',
-  },
-  cardHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 6,
-    gap: 8,
-  },
-  crowdBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    gap: 5,
-    flexShrink: 1,
-    maxWidth: '42%',
-  },
-  crowdDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  crowdBadgeText: {
-    fontSize: Typography.sizes.xs,
-    fontWeight: '700',
   },
 });

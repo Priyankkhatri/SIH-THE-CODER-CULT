@@ -114,30 +114,32 @@ export default function ExploreScreen() {
   }, [places, location.latitude, location.longitude]);
 
   // Comprehensive filter by category, crowd level & real-time search query
-  const filteredPlaces = allCatalogPlaces.filter((p) => {
-    const matchesCategory = !selectedCategory || p.category === selectedCategory;
-    if (!matchesCategory) return false;
+  const filteredPlaces = React.useMemo(() => {
+    return allCatalogPlaces.filter((p) => {
+      const matchesCategory = !selectedCategory || p.category === selectedCategory;
+      if (!matchesCategory) return false;
 
-    if (selectedCrowd !== 'all') {
-      const crowd = getLiveCrowd(p.name);
-      if (crowd.level !== selectedCrowd) return false;
-    }
+      if (selectedCrowd !== 'all') {
+        const crowd = getLiveCrowd(p.name);
+        if (crowd.level !== selectedCrowd) return false;
+      }
 
-    if (!debouncedQuery.trim()) return true;
-    const q = debouncedQuery.toLowerCase().trim();
-    const nameMatch =
-      p.name.toLowerCase().includes(q) ||
-      ((p as any).nameHi && (p as any).nameHi.toLowerCase().includes(q)) ||
-      ((p as any).nameGu && (p as any).nameGu.toLowerCase().includes(q));
-    const descMatch = (p.shortDescription || '').toLowerCase().includes(q);
-    const cityMatch =
-      ((p as any).city && (p as any).city.toLowerCase().includes(q)) ||
-      ((p as any).state && (p as any).state.toLowerCase().includes(q));
-    const tagsMatch =
-      Array.isArray((p as any).tags) &&
-      (p as any).tags.some((t: string) => t.toLowerCase().includes(q));
-    return nameMatch || descMatch || cityMatch || tagsMatch;
-  });
+      if (!debouncedQuery.trim()) return true;
+      const q = debouncedQuery.toLowerCase().trim();
+      const nameMatch =
+        p.name.toLowerCase().includes(q) ||
+        ((p as any).nameHi && (p as any).nameHi.toLowerCase().includes(q)) ||
+        ((p as any).nameGu && (p as any).nameGu.toLowerCase().includes(q));
+      const descMatch = (p.shortDescription || '').toLowerCase().includes(q);
+      const cityMatch =
+        ((p as any).city && (p as any).city.toLowerCase().includes(q)) ||
+        ((p as any).state && (p as any).state.toLowerCase().includes(q));
+      const tagsMatch =
+        Array.isArray((p as any).tags) &&
+        (p as any).tags.some((t: string) => t.toLowerCase().includes(q));
+      return nameMatch || descMatch || cityMatch || tagsMatch;
+    });
+  }, [allCatalogPlaces, selectedCategory, selectedCrowd, debouncedQuery]);
 
   // Top suggestions for the search dropdown
   const searchSuggestions = React.useMemo(() => {
@@ -370,6 +372,10 @@ export default function ExploreScreen() {
               data={filteredPlaces}
               keyExtractor={(item) => item.id}
               contentContainerStyle={styles.listContent}
+              initialNumToRender={5}
+              maxToRenderPerBatch={6}
+              windowSize={5}
+              removeClippedSubviews={Platform.OS !== 'web'}
               renderItem={({ item }) => (
                 <PlaceCard
                   place={item}
