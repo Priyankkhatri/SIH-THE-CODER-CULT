@@ -11,7 +11,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "We need your location to show nearby heritage sites.",
-        "NSCameraUsageDescription": "We need camera access to identify heritage artifacts."
+        "NSCameraUsageDescription": "We need camera access to identify heritage artifacts.",
+        "LSApplicationQueriesSchemes": ["uber", "rapido", "comgooglemaps"]
       }
     },
     "android": {
@@ -55,7 +56,8 @@
         {
           "cameraPermission": "Allow camera to identify heritage artifacts."
         }
-      ]
+      ],
+      "./plugins/withAndroidQueries"
     ],
     "experiments": {
       "typedRoutes": true
