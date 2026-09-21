@@ -69,11 +69,20 @@ export default function PlaceDetailScreen() {
   const [activeSlide, setActiveSlide] = useState(0);
   const heroScrollRef = React.useRef<ScrollView>(null);
   const galleryRequestRef = React.useRef(0);
+  const mainScrollRef = React.useRef<ScrollView>(null);
+  const currentScrollY = React.useRef(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>('story');
   const [activeMainTab, setActiveMainTab] = useState<'heritage' | 'radar' | 'reviews'>('heritage');
-  const [activeHeritageTab, setActiveHeritageTab] = useState<'chronicle' | 'architecture' | 'facts' | 'sources'>('chronicle');
+
+  const handleTabSwitch = (tab: 'heritage' | 'radar' | 'reviews') => {
+    setActiveMainTab(tab);
+    if (currentScrollY.current > 420) {
+      mainScrollRef.current?.scrollTo({ y: 430, animated: true });
+    }
+  };
+
   const [sosVisible, setSosVisible] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [googleDetails, setGoogleDetails] = useState<any>(null);
@@ -364,9 +373,14 @@ export default function PlaceDetailScreen() {
   return (
     <View style={styles.container}>
       <ScrollView
+        ref={mainScrollRef}
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled={true}
         contentContainerStyle={{ paddingBottom: 120 }}
+        onScroll={(e) => {
+          currentScrollY.current = e.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={32}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
@@ -538,7 +552,7 @@ export default function PlaceDetailScreen() {
             <View style={styles.heroMeta} pointerEvents="box-none">
               <TouchableOpacity
                 style={styles.metaItem}
-                onPress={() => setActiveMainTab('reviews')}
+                onPress={() => handleTabSwitch('reviews')}
                 activeOpacity={0.75}
               >
                 <MaterialIcons name="star" size={15} color={Colors.primary} />
@@ -915,7 +929,7 @@ export default function PlaceDetailScreen() {
         <View style={styles.floatingDockPill}>
           <TouchableOpacity
             style={[styles.dockTabBtn, activeMainTab === 'heritage' && styles.dockTabBtnActive]}
-            onPress={() => setActiveMainTab('heritage')}
+            onPress={() => handleTabSwitch('heritage')}
             activeOpacity={0.8}
           >
             <MaterialIcons
@@ -936,7 +950,7 @@ export default function PlaceDetailScreen() {
 
           <TouchableOpacity
             style={[styles.dockTabBtn, activeMainTab === 'radar' && styles.dockTabBtnActive]}
-            onPress={() => setActiveMainTab('radar')}
+            onPress={() => handleTabSwitch('radar')}
             activeOpacity={0.8}
           >
             <MaterialIcons
@@ -957,7 +971,7 @@ export default function PlaceDetailScreen() {
 
           <TouchableOpacity
             style={[styles.dockTabBtn, activeMainTab === 'reviews' && styles.dockTabBtnActive]}
-            onPress={() => setActiveMainTab('reviews')}
+            onPress={() => handleTabSwitch('reviews')}
             activeOpacity={0.8}
           >
             <MaterialIcons
