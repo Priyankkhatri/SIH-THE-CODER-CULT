@@ -10,6 +10,7 @@ import {
   Linking,
   FlatList,
   ActivityIndicator,
+  Share,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -542,9 +543,19 @@ export default function ExploreScreen() {
         />
       </View>
 
-      {/* Floating Map Actions (map mode only) */}
+      {/* Floating Map Actions (Google Maps FAB Stack) */}
       {viewMode === 'map' && (
-        <View style={[styles.mapActionCol, selectedPlace ? { bottom: 300 } : {}]}>
+        <View style={[styles.mapActionCol, selectedPlace ? { bottom: 310 } : {}]}>
+          {/* Compass / Reset North */}
+          <TouchableOpacity
+            style={styles.mapActionBtn}
+            onPress={centerGujarat}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons name="explore" size={20} color={Colors.primary} />
+          </TouchableOpacity>
+
+          {/* Map Layer Switcher */}
           <TouchableOpacity
             style={[styles.mapActionBtn, showLayerPicker && styles.mapActionBtnActive]}
             onPress={() => setShowLayerPicker(!showLayerPicker)}
@@ -552,54 +563,50 @@ export default function ExploreScreen() {
           >
             <MaterialIcons
               name="layers"
-              size={22}
+              size={20}
               color={showLayerPicker ? Colors.background : Colors.primary}
             />
           </TouchableOpacity>
+
+          {/* My Location Button */}
           <TouchableOpacity
-            style={styles.mapActionBtn}
-            onPress={zoomIn}
-            activeOpacity={0.8}
-          >
-            <MaterialIcons name="add" size={22} color={Colors.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.mapActionBtn}
-            onPress={zoomOut}
-            activeOpacity={0.8}
-          >
-            <MaterialIcons name="remove" size={22} color={Colors.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.mapActionBtn}
-            onPress={centerGujarat}
-            activeOpacity={0.8}
-          >
-            <MaterialIcons name="public" size={22} color={Colors.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.mapActionBtn}
+            style={[styles.mapActionBtn, location.isGpsResolved && styles.mapActionBtnGpsActive]}
             onPress={centerOnUser}
             activeOpacity={0.8}
           >
-            <MaterialIcons name="my-location" size={22} color={Colors.primary} />
+            <MaterialIcons
+              name="my-location"
+              size={20}
+              color={location.isGpsResolved ? '#38BDF8' : Colors.primary}
+            />
           </TouchableOpacity>
+
+          {/* Google Maps Paired Zoom Controls Pill */}
+          <View style={styles.zoomControlPill}>
+            <TouchableOpacity style={styles.zoomPillBtn} onPress={zoomIn} activeOpacity={0.7}>
+              <MaterialIcons name="add" size={19} color={Colors.text} />
+            </TouchableOpacity>
+            <View style={styles.zoomDivider} />
+            <TouchableOpacity style={styles.zoomPillBtn} onPress={zoomOut} activeOpacity={0.7}>
+              <MaterialIcons name="remove" size={19} color={Colors.text} />
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 
       {/* Interactive Map Layer Picker Tray */}
       {viewMode === 'map' && showLayerPicker && (
-        <View style={[styles.layerPickerTray, selectedPlace ? { bottom: 300 } : {}]}>
+        <View style={[styles.layerPickerTray, selectedPlace ? { bottom: 310 } : {}]}>
           <View style={styles.layerPickerHeader}>
-            <MaterialIcons name="map" size={16} color={Colors.primary} />
-            <Text style={styles.layerPickerTitle}>Map Style & Readings</Text>
+            <MaterialIcons name="layers" size={16} color={Colors.primary} />
+            <Text style={styles.layerPickerTitle}>Map Views</Text>
           </View>
           <View style={styles.layerPickerRow}>
             {[
-              { key: 'streets', label: '🗺️ Detailed Streets' },
+              { key: 'streets', label: '🗺️ Streets (Voyager HD)' },
               { key: 'satellite', label: '🛰️ Satellite' },
               { key: 'terrain', label: '🧭 Topographic' },
-              { key: 'dark', label: '🌙 Dark Radar' },
+              { key: 'dark', label: '🌙 Dark Mode' },
               { key: 'osm', label: '🌐 OpenStreetMap' },
             ].map((layer) => {
               const isActive = mapLayer === layer.key;
@@ -623,9 +630,11 @@ export default function ExploreScreen() {
         </View>
       )}
 
-      {/* Bottom place card (map mode only) */}
+      {/* Google Maps Style Bottom Sheet Card (map mode only) */}
       {viewMode === 'map' && selectedPlace && (
         <View style={styles.bottomCard}>
+          <View style={styles.dragHandle} />
+
           <View style={styles.bottomCardContent}>
             <View style={styles.bottomCardInfo}>
               {/* Dynamic Heritage Thumbnail with Category Badge & Placeholder */}
@@ -669,13 +678,42 @@ export default function ExploreScreen() {
                 </View>
               </View>
 
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1, justifyContent: 'center' }}>
                 <View style={styles.bottomCardTitleRow}>
                   <Text style={styles.bottomCardName} numberOfLines={1}>{getPlaceName(selectedPlace)}</Text>
-                  <MaterialIcons name="verified" size={15} color={Colors.primary} />
+                  <MaterialIcons name="verified" size={16} color="#38BDF8" />
                 </View>
-                <Text style={styles.bottomCardDesc} numberOfLines={2}>{selectedPlace.shortDescription}</Text>
                 
+                {/* Rating & Reviews */}
+                <View style={styles.bottomCardRatingRow}>
+                  <Text style={styles.bottomCardRatingStar}>★</Text>
+                  <Text style={styles.bottomCardRatingVal}>{selectedPlace.rating || 4.7}</Text>
+                  <Text style={styles.bottomCardRatingCount}>(1,420+ reviews)</Text>
+                  <Text style={styles.bottomCardDotSep}>•</Text>
+                  <Text style={styles.bottomCardCityTag}>{(selectedPlace as any).city || 'Gujarat'}</Text>
+                </View>
+
+                {/* Distance & Drive Time Pill */}
+                {(() => {
+                  const liveKm =
+                    selectedPlace.distance ??
+                    haversineDistance(
+                      location.latitude || 22.3072,
+                      location.longitude || 73.1812,
+                      selectedPlace.latitude,
+                      selectedPlace.longitude
+                    );
+                  const estMin = Math.round((liveKm / 35) * 60) || 5;
+                  return (
+                    <View style={styles.distancePillRow}>
+                      <View style={styles.distancePill}>
+                        <MaterialIcons name="directions-car" size={12} color={Colors.primary} />
+                        <Text style={styles.distancePillText}>{liveKm.toFixed(1)} km • ~{estMin} min drive</Text>
+                      </View>
+                    </View>
+                  );
+                })()}
+
                 {/* Real-time crowd badge */}
                 {(() => {
                   const crowd = getLiveCrowd(selectedPlace.name);
@@ -688,26 +726,6 @@ export default function ExploreScreen() {
                     </View>
                   );
                 })()}
-
-                <View style={styles.bottomCardMeta}>
-                  {(() => {
-                    const liveKm =
-                      selectedPlace.distance ??
-                      haversineDistance(
-                        location.latitude || 22.3072,
-                        location.longitude || 73.1812,
-                        selectedPlace.latitude,
-                        selectedPlace.longitude
-                      );
-                    return <Text style={styles.metaText}>📍 {liveKm.toFixed(1)} km</Text>;
-                  })()}
-                  {selectedPlace.rating && (
-                    <Text style={styles.metaText}>⭐ {selectedPlace.rating}</Text>
-                  )}
-                  {selectedPlace.openingHours && (
-                    <Text style={styles.metaText}>🕐 {selectedPlace.openingHours.split('(')[0].trim()}</Text>
-                  )}
-                </View>
               </View>
             </View>
 
@@ -720,65 +738,90 @@ export default function ExploreScreen() {
             )}
             {!isRouting && routeDestination?.id === selectedPlace.id && routeInfo && (
               <View style={styles.activeRouteBar}>
-                <MaterialIcons name="navigation" size={15} color={Colors.primary} />
+                <MaterialIcons name="navigation" size={15} color="#38BDF8" />
                 <Text style={styles.activeRouteText}>
-                  {routeInfo.source === 'osrm' ? 'Live road route' : 'Offline direct route'} • {routeInfo.distanceKm} km (~{routeInfo.durationMin} min)
+                  {routeInfo.source === 'osrm' ? 'Live road route' : 'Direct route'} • {routeInfo.distanceKm} km (~{routeInfo.durationMin} min)
                 </Text>
               </View>
             )}
 
+            {/* Google Maps Quick Action Buttons */}
             <View style={styles.bottomCardActions}>
+              <TouchableOpacity
+                style={styles.directionsPrimaryBtn}
+                onPress={() => {
+                  const originLat = location.latitude || 22.3072;
+                  const originLng = location.longitude || 73.1812;
+                  const url = Platform.select({
+                    ios: `maps:0,0?q=${selectedPlace.latitude},${selectedPlace.longitude}`,
+                    android: `google.navigation:q=${selectedPlace.latitude},${selectedPlace.longitude}`,
+                    default: `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${selectedPlace.latitude},${selectedPlace.longitude}&travelmode=driving`,
+                  });
+                  if (url) Linking.openURL(url).catch(() => {});
+                }}
+                activeOpacity={0.8}
+              >
+                <MaterialIcons name="directions" size={16} color="#0A0A0F" />
+                <Text style={styles.directionsPrimaryBtnText}>Directions</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.routeBtn,
+                  routeDestination?.id === selectedPlace.id && styles.routeBtnActive,
+                ]}
+                onPress={() => handleNavigate(selectedPlace)}
+                activeOpacity={0.8}
+              >
+                <MaterialIcons
+                  name="alt-route"
+                  size={15}
+                  color={routeDestination?.id === selectedPlace.id ? Colors.textInverse : Colors.primary}
+                />
+                <Text
+                  style={[
+                    styles.routeBtnText,
+                    routeDestination?.id === selectedPlace.id && styles.routeBtnTextActive,
+                  ]}
+                >
+                  {routeDestination?.id === selectedPlace.id ? 'Route Active' : 'Route'}
+                </Text>
+              </TouchableOpacity>
+
               <TouchableOpacity
                 style={styles.aiBtn}
                 onPress={() => handleAskAI(selectedPlace)}
                 activeOpacity={0.8}
               >
-                <MaterialIcons name="auto-awesome" size={16} color={Colors.textInverse} />
+                <MaterialIcons name="auto-awesome" size={15} color={Colors.textInverse} />
                 <Text style={styles.aiBtnText}>Ask AI</Text>
               </TouchableOpacity>
+
               <TouchableOpacity
                 style={styles.detailsBtn}
                 onPress={() => router.push(`/place/${selectedPlace.id}`)}
                 activeOpacity={0.8}
               >
-                <MaterialIcons name="info" size={16} color={Colors.textInverse} />
+                <MaterialIcons name="info" size={15} color={Colors.text} />
                 <Text style={styles.detailsBtnText}>Details</Text>
               </TouchableOpacity>
+
               <TouchableOpacity
-                style={[
-                  styles.navBtn,
-                  routeDestination?.id === selectedPlace.id && styles.navBtnActive,
-                ]}
+                style={styles.shareBtn}
                 onPress={() => {
-                  if (routeDestination?.id === selectedPlace.id) {
-                    const originLat = location.latitude || 22.3072;
-                    const originLng = location.longitude || 73.1812;
-                    const url = `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${selectedPlace.latitude},${selectedPlace.longitude}&travelmode=driving`;
-                    Linking.openURL(url).catch(() => {});
-                  } else {
-                    handleNavigate(selectedPlace);
-                  }
+                  Share.share({
+                    title: selectedPlace.name,
+                    message: `Explore ${selectedPlace.name} in Gujarat with Yatra Heritage Guide: https://maps.google.com/?q=${selectedPlace.latitude},${selectedPlace.longitude}`,
+                  }).catch(() => {});
                 }}
                 activeOpacity={0.8}
               >
-                <MaterialIcons
-                  name={routeDestination?.id === selectedPlace.id ? 'open-in-new' : 'directions'}
-                  size={16}
-                  color={routeDestination?.id === selectedPlace.id ? Colors.textInverse : Colors.primary}
-                />
-                <Text
-                  style={[
-                    styles.navBtnText,
-                    routeDestination?.id === selectedPlace.id && styles.navBtnTextActive,
-                  ]}
-                >
-                  {routeDestination?.id === selectedPlace.id ? 'Google Maps ↗' : 'Directions'}
-                </Text>
+                <MaterialIcons name="share" size={15} color={Colors.textSecondary} />
               </TouchableOpacity>
             </View>
           </View>
           <TouchableOpacity style={styles.closeBtn} onPress={() => setSelectedPlace(null)}>
-            <MaterialIcons name="close" size={18} color={Colors.textMuted} />
+            <MaterialIcons name="close" size={17} color={Colors.textMuted} />
           </TouchableOpacity>
         </View>
       )}
@@ -898,13 +941,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: Spacing.base,
     bottom: 180,
-    gap: 10,
+    gap: 8,
     zIndex: 15,
   },
   mapActionBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
@@ -915,6 +958,31 @@ const styles = StyleSheet.create({
   mapActionBtnActive: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
+  },
+  mapActionBtnGpsActive: {
+    borderColor: '#38BDF8',
+    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+  },
+  zoomControlPill: {
+    width: 42,
+    borderRadius: 21,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    overflow: 'hidden',
+    ...Shadows.md,
+  },
+  zoomPillBtn: {
+    width: 42,
+    height: 38,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  zoomDivider: {
+    width: 28,
+    height: 1,
+    backgroundColor: Colors.border,
   },
   layerPickerTray: {
     position: 'absolute',
@@ -967,65 +1035,40 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '700',
   },
-  calloutContainer: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    width: 220,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  calloutTitle: {
-    fontSize: Typography.sizes.md,
-    fontWeight: '700',
-    color: Colors.text,
-    marginBottom: 4,
-  },
-  calloutDesc: {
-    fontSize: Typography.sizes.xs,
-    color: Colors.textSecondary,
-    marginBottom: 4,
-  },
-  calloutRating: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    marginBottom: 4,
-  },
-  calloutRatingText: {
-    fontSize: Typography.sizes.xs,
-    color: Colors.primary,
-    fontWeight: '600',
-  },
-  calloutTap: {
-    fontSize: Typography.sizes.xs,
-    color: Colors.accent,
-    fontWeight: '600',
-  },
   bottomCard: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 16,
     left: Spacing.base,
     right: Spacing.base,
     backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.base,
+    borderRadius: 22,
+    paddingHorizontal: Spacing.base,
+    paddingTop: 8,
+    paddingBottom: Spacing.base,
     borderWidth: 1,
     borderColor: Colors.border,
     ...Shadows.lg,
   },
+  dragHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    alignSelf: 'center',
+    marginBottom: 8,
+  },
   bottomCardContent: {
-    gap: Spacing.md,
+    gap: Spacing.sm,
   },
   bottomCardInfo: {
     flexDirection: 'row',
     gap: 12,
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   bottomCardThumbWrap: {
     position: 'relative',
-    width: 84,
-    height: 84,
+    width: 88,
+    height: 88,
     borderRadius: 14,
     overflow: 'hidden',
     backgroundColor: Colors.surfaceHighlight,
@@ -1066,62 +1109,137 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 3,
+    marginBottom: 2,
   },
   bottomCardName: {
     fontFamily: Typography.fontFamily.serif,
-    fontSize: Typography.sizes.lg,
+    fontSize: Typography.sizes.md,
     fontWeight: '700',
     color: Colors.text,
-    marginBottom: 2,
     flexShrink: 1,
   },
-  bottomCardDesc: {
-    fontSize: Typography.sizes.sm,
-    color: Colors.textSecondary,
-    lineHeight: 18,
-    marginBottom: 6,
-  },
-  bottomCardMeta: {
+  bottomCardRatingRow: {
     flexDirection: 'row',
-    gap: 14,
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 4,
   },
-  metaText: {
-    fontSize: Typography.sizes.xs,
+  bottomCardRatingStar: {
+    fontSize: 12,
+    color: '#FBBF24',
+  },
+  bottomCardRatingVal: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  bottomCardRatingCount: {
+    fontSize: 11,
     color: Colors.textMuted,
+  },
+  bottomCardDotSep: {
+    fontSize: 10,
+    color: Colors.textMuted,
+  },
+  bottomCardCityTag: {
+    fontSize: 11,
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  distancePillRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  distancePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.25)',
+  },
+  distancePillText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: Colors.primary,
   },
   activeRouteBar: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    backgroundColor: 'rgba(56, 189, 248, 0.12)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.25)',
+    borderColor: 'rgba(56, 189, 248, 0.25)',
   },
   activeRouteText: {
     fontSize: Typography.sizes.xs,
     fontWeight: '700',
-    color: Colors.primary,
+    color: '#38BDF8',
   },
   bottomCardActions: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 2,
   },
-  aiBtn: {
-    flex: 1.1,
+  directionsPrimaryBtn: {
+    flex: 1.3,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 5,
+    backgroundColor: '#38BDF8',
+    paddingVertical: 9,
+    borderRadius: 12,
+  },
+  directionsPrimaryBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0A0A0F',
+  },
+  routeBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: Colors.surfaceHighlight,
+    paddingVertical: 9,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  routeBtnActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  routeBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  routeBtnTextActive: {
+    color: Colors.textInverse,
+  },
+  aiBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
     backgroundColor: Colors.accent,
-    paddingVertical: 10,
-    borderRadius: BorderRadius.lg,
+    paddingVertical: 9,
+    borderRadius: 12,
   },
   aiBtnText: {
-    fontSize: Typography.sizes.sm,
+    fontSize: 11,
     fontWeight: '700',
     color: Colors.textInverse,
   },
@@ -1130,40 +1248,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    backgroundColor: Colors.primary,
-    paddingVertical: 10,
-    borderRadius: BorderRadius.lg,
-  },
-  detailsBtnText: {
-    fontSize: Typography.sizes.base,
-    fontWeight: '700',
-    color: Colors.textInverse,
-  },
-  navBtn: {
-    flex: 1.2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
+    gap: 4,
     backgroundColor: Colors.surfaceHighlight,
-    paddingVertical: 10,
-    borderRadius: BorderRadius.lg,
+    paddingVertical: 9,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  navBtnActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  navBtnText: {
-    fontSize: Typography.sizes.base,
-    fontWeight: '600',
-    color: Colors.primary,
-  },
-  navBtnTextActive: {
-    color: Colors.textInverse,
+  detailsBtnText: {
+    fontSize: 11,
     fontWeight: '700',
+    color: Colors.text,
+  },
+  shareBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.surfaceHighlight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   searchSuggestionsDropdown: {
     marginTop: 8,

@@ -104,72 +104,136 @@ export function HeritageMapView({
 
     markersGroup.clearLayers();
 
-    // Render up to 60 markers for fluid web performance
-    places.slice(0, 60).forEach((place) => {
+    const CAT_ICONS: Record<string, { bg: string; icon: string }> = {
+      temple: { bg: '#E65100', icon: '🛕' },
+      fort: { bg: '#B71C1C', icon: '🏰' },
+      museum: { bg: '#1A73E8', icon: '🏺' },
+      stepwell: { bg: '#00897B', icon: '⛲' },
+      palace: { bg: '#D4AF7C', icon: '👑' },
+      nature: { bg: '#2E7D32', icon: '🌿' },
+      food: { bg: '#E53935', icon: '🍽️' },
+      monument: { bg: '#6A1B9A', icon: '🗿' },
+      culture: { bg: '#8E24AA', icon: '🎭' },
+      heritage: { bg: '#D4AF7C', icon: '🏛️' },
+    };
+
+    // User Location Puck on Web
+    if (userLocation?.latitude && userLocation?.longitude) {
+      const userPuckIcon = L.divIcon({
+        className: '',
+        html: `
+          <div style="position: relative; width: 22px; height: 22px;">
+            <div style="position: absolute; top: -11px; left: -11px; width: 44px; height: 44px; border-radius: 50%; background: rgba(26, 115, 232, 0.3); animation: gmapPulseWave 2s ease-out infinite; pointer-events: none;"></div>
+            <div style="position: absolute; top: 1px; left: 1px; width: 20px; height: 20px; border-radius: 50%; background: #1A73E8; border: 3px solid #FFFFFF; box-shadow: 0 2px 8px rgba(26,115,232,0.7);"></div>
+          </div>
+        `,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11],
+      });
+      L.marker([userLocation.latitude, userLocation.longitude], {
+        icon: userPuckIcon,
+        zIndexOffset: 2000,
+      }).addTo(markersGroup);
+    }
+
+    // Render heritage pins as Google Maps teardrops
+    places.slice(0, 100).forEach((place) => {
       if (typeof place.latitude !== 'number' || typeof place.longitude !== 'number') return;
 
       const isSelected = selectedPlace?.id === place.id;
-      const pinColor = CATEGORY_COLORS[place.category] || '#D4AF7C';
+      const catConfig = CAT_ICONS[place.category?.toLowerCase() || ''] || CAT_ICONS.heritage;
 
-      // Custom Gold Insignia HTML Marker
       const customIcon = L.divIcon({
-        className: 'heritage-custom-pin',
+        className: '',
         html: `
           <div style="
-            width: ${isSelected ? '32px' : '26px'};
-            height: ${isSelected ? '32px' : '26px'};
-            border-radius: 50%;
-            background-color: ${pinColor};
-            border: 2px solid ${isSelected ? '#D4AF7C' : '#FFFFFF'};
-            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+            position: relative;
+            width: 32px;
+            height: 42px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
             cursor: pointer;
-            transition: transform 0.2s;
-            transform: ${isSelected ? 'scale(1.15)' : 'scale(1)'};
+            transform: ${isSelected ? 'scale(1.22) translateY(-4px)' : 'scale(1)'};
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
           ">
-            <span style="color: #0A0A0F; font-size: 11px; font-weight: bold;">🏛️</span>
+            <div style="
+              width: 30px;
+              height: 30px;
+              border-radius: 50% 50% 50% 0;
+              transform: rotate(-45deg);
+              background-color: ${catConfig.bg};
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              box-shadow: 0 4px 10px rgba(0,0,0,0.45);
+              border: 2px solid ${isSelected ? '#FBBF24' : '#FFFFFF'};
+            ">
+              <span style="transform: rotate(45deg); font-size: 13px; line-height: 1;">${catConfig.icon}</span>
+            </div>
+            <div style="width: 14px; height: 5px; background: rgba(0,0,0,0.35); border-radius: 50%; margin-top: 2px; filter: blur(1px);"></div>
           </div>
         `,
-        iconSize: [isSelected ? 32 : 26, isSelected ? 32 : 26],
-        iconAnchor: [isSelected ? 16 : 13, isSelected ? 16 : 13],
+        iconSize: [32, 42],
+        iconAnchor: [16, 36],
+        popupAnchor: [0, -36],
       });
 
       const marker = L.marker([place.latitude, place.longitude], { icon: customIcon });
 
-      // Interactive Popup
+      // Interactive Google Maps styled Popup
       const popupHtml = `
-        <div style="font-family: system-ui, -apple-system; color: #F5F1E8; min-width: 180px; max-width: 240px;">
-          <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #D4AF7C;">
-            ${place.name}
-          </div>
-          <div style="font-size: 11px; color: #A7A7A7; margin-bottom: 8px; line-height: 1.4;">
-            ${place.shortDescription ? place.shortDescription.slice(0, 80) + '...' : ''}
-          </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 6px;">
-            <span style="font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase;">
+        <div style="font-family: system-ui, -apple-system; color: #F5F1E8; min-width: 180px; max-width: 240px; padding: 4px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="font-size: 9px; font-weight: 800; color: #FFFFFF; background: ${catConfig.bg}; padding: 1px 6px; border-radius: 4px; text-transform: uppercase;">
               ${place.category || 'heritage'}
             </span>
-            <button id="btn-details-${place.id}" style="
+            <span style="font-size: 11px; font-weight: 700; color: #FBBF24;">★ ${place.rating || 4.7}</span>
+          </div>
+          <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px; color: #F5F1E8;">
+            ${place.name}
+          </div>
+          <div style="font-size: 11px; color: #A7A7A7; margin-bottom: 8px; line-height: 1.35;">
+            ${place.shortDescription ? place.shortDescription.slice(0, 80) + '...' : ''}
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button id="btn-select-${place.id}" style="
+              flex: 1;
               background: #D4AF7C;
               color: #0F0F0F;
               border: none;
-              border-radius: 4px;
-              padding: 4px 8px;
+              border-radius: 6px;
+              padding: 5px 8px;
               font-size: 11px;
               font-weight: 700;
               cursor: pointer;
-            ">View →</button>
+            ">Select</button>
+            <button id="btn-details-${place.id}" style="
+              flex: 1;
+              background: rgba(255,255,255,0.12);
+              color: #F5F1E8;
+              border: 1px solid rgba(255,255,255,0.2);
+              border-radius: 6px;
+              padding: 5px 8px;
+              font-size: 11px;
+              font-weight: 700;
+              cursor: pointer;
+            ">Details →</button>
           </div>
         </div>
       `;
 
       marker.bindPopup(popupHtml, {
         className: 'heritage-dark-popup',
+        closeButton: false,
+        offset: [0, -32],
       });
 
       marker.on('popupopen', () => {
+        const selectBtn = document.getElementById(`btn-select-${place.id}`);
+        if (selectBtn) {
+          selectBtn.onclick = () => onSelectPlace(place);
+        }
         const btn = document.getElementById(`btn-details-${place.id}`);
         if (btn) {
           btn.onclick = () => onPlaceDetails(place.id);
@@ -182,7 +246,7 @@ export function HeritageMapView({
 
       markersGroup.addLayer(marker);
     });
-  }, [places, selectedPlace, isLeafletReady]);
+  }, [places, selectedPlace, isLeafletReady, userLocation?.latitude, userLocation?.longitude]);
 
   // 4. Fly to selected place
   useEffect(() => {

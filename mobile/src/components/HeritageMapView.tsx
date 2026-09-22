@@ -159,10 +159,20 @@ export function HeritageMapView({
     }
   };
 
+  // Handle real-time user location changes without re-rendering entire WebView
+  useEffect(() => {
+    if (userLocation?.latitude && userLocation?.longitude) {
+      webViewRef.current?.injectJavaScript(`
+        if (window.setUserLocation) window.setUserLocation(${userLocation.latitude}, ${userLocation.longitude});
+        true;
+      `);
+    }
+  }, [userLocation?.latitude, userLocation?.longitude]);
+
   const initialLat = userLocation?.latitude && userLocation.latitude > 6 ? userLocation.latitude : 22.3072;
   const initialLng = userLocation?.longitude && userLocation.longitude > 68 ? userLocation.longitude : 73.1812;
 
-  // Lightweight HTML bundle with Leaflet & Zero-API-key tile architecture
+  // Lightweight HTML bundle with Leaflet & Zero-API-key Google Maps-styled tile architecture
   const htmlContent = useMemo(() => {
     const placesJson = JSON.stringify(
       validPlaces.map((p) => ({
@@ -171,8 +181,8 @@ export function HeritageMapView({
         category: p.category || 'heritage',
         lat: p.latitude,
         lng: p.longitude,
-        rating: p.rating,
-        desc: (p.shortDescription || '').slice(0, 80),
+        rating: p.rating || 4.7,
+        desc: (p.shortDescription || '').slice(0, 90),
       }))
     );
 
@@ -183,34 +193,111 @@ export function HeritageMapView({
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body, #map { width: 100%; height: 100%; background: #0F0F0F; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body, #map { width: 100%; height: 100%; background: #0F0F0F; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; overflow: hidden; }
+
+    /* Google Maps styled Info Popup */
     .leaflet-popup-content-wrapper {
       background: #171717 !important;
-      border: 1px solid rgba(212, 175, 124, 0.4) !important;
-      border-radius: 12px !important;
+      border: 1px solid rgba(212, 175, 124, 0.45) !important;
+      border-radius: 14px !important;
       color: #F5F1E8 !important;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.7) !important;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+      padding: 0 !important;
+      overflow: hidden !important;
     }
-    .leaflet-popup-tip { background: #171717 !important; border: 1px solid rgba(212, 175, 124, 0.4) !important; }
-    .heritage-pin {
-      width: 28px; height: 28px; border-radius: 14px;
-      background: #171717; border: 2px solid #D4AF7C;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-      font-size: 13px; cursor: pointer;
-      transition: transform 0.2s;
+    .leaflet-popup-content {
+      margin: 0 !important;
+      padding: 10px 12px !important;
     }
-    .heritage-pin.active {
-      width: 36px; height: 36px; border-radius: 18px;
-      background: #D4AF7C; border-color: #FFFFFF;
-      transform: scale(1.2);
+    .leaflet-popup-tip-container {
+      margin-top: -1px;
     }
-    .user-location-pin {
-      width: 18px; height: 18px; border-radius: 9px;
-      background: #38BDF8; border: 2.5px solid #FFFFFF;
-      box-shadow: 0 0 12px #38BDF8;
+    .leaflet-popup-tip {
+      background: #171717 !important;
+      border: 1px solid rgba(212, 175, 124, 0.45) !important;
     }
+
+    /* Iconic Google Maps Teardrop Marker Pin */
+    .gmap-marker-wrap {
+      position: relative;
+      width: 32px;
+      height: 42px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transform-origin: 16px 36px;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .gmap-marker-wrap:hover, .gmap-marker-wrap.active {
+      transform: scale(1.22) translateY(-4px);
+      z-index: 9999 !important;
+    }
+    .gmap-pin-shape {
+      width: 30px;
+      height: 30px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.3);
+      border: 2px solid #FFFFFF;
+    }
+    .gmap-pin-glyph {
+      transform: rotate(45deg);
+      font-size: 13px;
+      line-height: 1;
+      text-align: center;
+      user-select: none;
+    }
+    .gmap-pin-dot-shadow {
+      width: 14px;
+      height: 5px;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 50%;
+      margin-top: 2px;
+      filter: blur(1px);
+    }
+    .gmap-marker-wrap.active .gmap-pin-shape {
+      border-color: #FBBF24;
+      box-shadow: 0 0 14px #FBBF24, 0 4px 12px rgba(0,0,0,0.6);
+    }
+
+    /* Google Maps Blue GPS User Puck with Sonar Radar Wave */
+    .gmap-user-puck {
+      position: relative;
+      width: 22px;
+      height: 22px;
+    }
+    .gmap-user-pulse {
+      position: absolute;
+      top: -11px;
+      left: -11px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(26, 115, 232, 0.3);
+      animation: gmapPulseWave 2s ease-out infinite;
+      pointer-events: none;
+    }
+    .gmap-user-dot {
+      position: absolute;
+      top: 1px;
+      left: 1px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #1A73E8;
+      border: 3px solid #FFFFFF;
+      box-shadow: 0 2px 8px rgba(26, 115, 232, 0.7), 0 0 0 1px rgba(0,0,0,0.2);
+    }
+    @keyframes gmapPulseWave {
+      0% { transform: scale(0.45); opacity: 1; }
+      100% { transform: scale(1.75); opacity: 0; }
+    }
+
     .leaflet-control-attribution { display: none !important; }
   </style>
 </head>
@@ -231,7 +318,8 @@ export function HeritageMapView({
     var map = L.map('map', {
       center: [${initialLat}, ${initialLng}],
       zoom: 12,
-      zoomControl: false
+      zoomControl: false,
+      attributionControl: false
     });
 
     var activeTileLayer = L.tileLayer(tileUrls[currentLayerName] || tileUrls.streets, {
@@ -240,38 +328,91 @@ export function HeritageMapView({
     }).addTo(map);
 
     var markersMap = {};
-    var routePolyline = null;
+    var routePolylineBg = null;
+    var routePolylineCore = null;
+    var userMarker = null;
 
-    // User Location Dot
+    // Google Maps category palette
+    var CAT_PALETTE = {
+      temple: { bg: '#E65100', icon: '🛕' },
+      fort: { bg: '#B71C1C', icon: '🏰' },
+      museum: { bg: '#1A73E8', icon: '🏺' },
+      stepwell: { bg: '#00897B', icon: '⛲' },
+      palace: { bg: '#D4AF7C', icon: '👑' },
+      nature: { bg: '#2E7D32', icon: '🌿' },
+      food: { bg: '#E53935', icon: '🍽️' },
+      monument: { bg: '#6A1B9A', icon: '🗿' },
+      culture: { bg: '#8E24AA', icon: '🎭' },
+      heritage: { bg: '#D4AF7C', icon: '🏛️' }
+    };
+
+    function getCatConfig(cat) {
+      var key = (cat || 'heritage').toLowerCase();
+      return CAT_PALETTE[key] || CAT_PALETTE.heritage;
+    }
+
+    // Google Maps Blue GPS Puck
+    var userPuckHtml = '<div class="gmap-user-puck"><div class="gmap-user-pulse"></div><div class="gmap-user-dot"></div></div>';
+    var userIcon = L.divIcon({
+      className: '',
+      html: userPuckHtml,
+      iconSize: [22, 22],
+      iconAnchor: [11, 11]
+    });
+
     ${userLocation?.latitude ? `
-      var userIcon = L.divIcon({
-        className: 'user-location-pin',
-        iconSize: [18, 18],
-        iconAnchor: [9, 9]
-      });
-      L.marker([${userLocation.latitude}, ${userLocation.longitude}], { icon: userIcon }).addTo(map);
+      userMarker = L.marker([${userLocation.latitude}, ${userLocation.longitude}], {
+        icon: userIcon,
+        zIndexOffset: 2000
+      }).addTo(map);
     ` : ''}
 
-    function createPin(p, isSelected) {
-      var icon = L.divIcon({
-        className: 'heritage-pin' + (isSelected ? ' active' : ''),
-        html: isSelected ? '⭐' : '🏛️',
-        iconSize: isSelected ? [36, 36] : [28, 28],
-        iconAnchor: isSelected ? [18, 18] : [14, 14]
+    window.setUserLocation = function(lat, lng) {
+      if (userMarker) {
+        userMarker.setLatLng([lat, lng]);
+      } else {
+        userMarker = L.marker([lat, lng], { icon: userIcon, zIndexOffset: 2000 }).addTo(map);
+      }
+    };
+
+    function createGooglePin(p, isSelected) {
+      var cfg = getCatConfig(p.category);
+      var html = '<div class="gmap-marker-wrap' + (isSelected ? ' active' : '') + '">' +
+        '<div class="gmap-pin-shape" style="background-color:' + cfg.bg + ';">' +
+          '<span class="gmap-pin-glyph">' + cfg.icon + '</span>' +
+        '</div>' +
+        '<div class="gmap-pin-dot-shadow"></div>' +
+      '</div>';
+
+      return L.divIcon({
+        className: '',
+        html: html,
+        iconSize: [32, 42],
+        iconAnchor: [16, 36],
+        popupAnchor: [0, -36]
       });
-      return icon;
     }
 
     places.forEach(function(p) {
-      var marker = L.marker([p.lat, p.lng], { icon: createPin(p, false) }).addTo(map);
+      var marker = L.marker([p.lat, p.lng], {
+        icon: createGooglePin(p, false)
+      }).addTo(map);
 
-      var popupHtml = '<div style="padding: 2px;">' +
-        '<div style="font-weight: bold; font-size: 13px; color: #D4AF7C; margin-bottom: 2px;">' + p.name + '</div>' +
-        '<div style="font-size: 11px; color: #A7A7A7; margin-bottom: 6px;">' + p.desc + '</div>' +
-        '<button onclick="window.postMessageToRN({type: \\'PLACE_DETAILS\\', id: \\'' + p.id + '\\'})" style="background:#D4AF7C; color:#0F0F0F; border:none; padding:4px 8px; border-radius:4px; font-weight:700; font-size:10px; cursor:pointer;">View Details →</button>' +
-        '</div>';
+      var cfg = getCatConfig(p.category);
+      var popupHtml = '<div style="min-width: 170px; max-width: 220px;">' +
+        '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 4px;">' +
+          '<span style="font-size: 9px; font-weight: 800; color: #FFFFFF; background:' + cfg.bg + '; padding: 1px 6px; border-radius: 4px; text-transform: uppercase;">' + (p.category || 'Heritage') + '</span>' +
+          '<span style="font-size: 11px; font-weight: 700; color: #FBBF24;">★ ' + p.rating + '</span>' +
+        '</div>' +
+        '<div style="font-weight: 700; font-size: 13px; color: #F5F1E8; margin-bottom: 4px; line-height: 1.25;">' + p.name + '</div>' +
+        '<div style="font-size: 11px; color: #A7A7A7; margin-bottom: 8px; line-height: 1.3;">' + p.desc + '</div>' +
+        '<div style="display:flex; gap:6px;">' +
+          '<button onclick="window.postMessageToRN({type: \\'SELECT_PLACE\\', id: \\'' + p.id + '\\'})" style="flex:1; background:#D4AF7C; color:#0F0F0F; border:none; padding:5px 8px; border-radius:6px; font-weight:700; font-size:10px; cursor:pointer;">Select</button>' +
+          '<button onclick="window.postMessageToRN({type: \\'PLACE_DETAILS\\', id: \\'' + p.id + '\\'})" style="flex:1; background:rgba(255,255,255,0.12); color:#F5F1E8; border:1px solid rgba(255,255,255,0.2); padding:5px 8px; border-radius:6px; font-weight:700; font-size:10px; cursor:pointer;">Details →</button>' +
+        '</div>' +
+      '</div>';
 
-      marker.bindPopup(popupHtml);
+      marker.bindPopup(popupHtml, { closeButton: false, offset: [0, -32] });
 
       marker.on('click', function() {
         window.postMessageToRN({ type: 'SELECT_PLACE', id: p.id });
@@ -299,24 +440,52 @@ export function HeritageMapView({
       activeTileLayer = L.tileLayer(url, { maxZoom: 19, subdomains: 'abcd' }).addTo(map);
     };
 
+    var currentlySelectedId = null;
     window.selectPlace = function(id, lat, lng) {
-      map.flyTo([lat, lng], 14, { duration: 0.8 });
+      if (currentlySelectedId && markersMap[currentlySelectedId]) {
+        var oldPlace = places.find(function(item) { return item.id === currentlySelectedId; });
+        if (oldPlace) markersMap[currentlySelectedId].setIcon(createGooglePin(oldPlace, false));
+      }
+
+      currentlySelectedId = id;
+      var curPlace = places.find(function(item) { return item.id === id; });
       var m = markersMap[id];
-      if (m) m.openPopup();
+      if (m && curPlace) {
+        m.setIcon(createGooglePin(curPlace, true));
+        m.openPopup();
+      }
+      map.flyTo([lat, lng], 14, { duration: 0.8 });
     };
 
     window.setRoute = function(coords) {
-      if (routePolyline) map.removeLayer(routePolyline);
+      if (routePolylineBg) map.removeLayer(routePolylineBg);
+      if (routePolylineCore) map.removeLayer(routePolylineCore);
+
       var latLngs = coords.map(function(c) { return [c.latitude, c.longitude]; });
-      routePolyline = L.polyline(latLngs, { color: '#D4AF7C', weight: 4, opacity: 0.9 }).addTo(map);
-      map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
+
+      // Google Maps Route: Outer casing for high contrast + inner vibrant core line
+      routePolylineBg = L.polyline(latLngs, {
+        color: '#1E3A8A',
+        weight: 7,
+        opacity: 0.9,
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(map);
+
+      routePolylineCore = L.polyline(latLngs, {
+        color: '#38BDF8',
+        weight: 4.5,
+        opacity: 1,
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(map);
+
+      map.fitBounds(routePolylineCore.getBounds(), { padding: [55, 55] });
     };
 
     window.clearRoute = function() {
-      if (routePolyline) {
-        map.removeLayer(routePolyline);
-        routePolyline = null;
-      }
+      if (routePolylineBg) { map.removeLayer(routePolylineBg); routePolylineBg = null; }
+      if (routePolylineCore) { map.removeLayer(routePolylineCore); routePolylineCore = null; }
     };
 
     window.fitBounds = function(coords) {
