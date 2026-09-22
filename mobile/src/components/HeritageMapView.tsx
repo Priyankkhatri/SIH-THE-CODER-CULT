@@ -1,8 +1,8 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Platform, TouchableOpacity, Linking } from 'react-native';
-import MapView, { Marker, Polyline, Callout, UrlTile } from 'react-native-maps';
+import React, { useMemo, useEffect, useRef, useImperativeHandle } from 'react';
+import { View, StyleSheet, Platform, TouchableOpacity, Text, Linking } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, CATEGORY_COLORS, Shadows, BorderRadius, Spacing, Typography } from '../constants/theme';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../constants/theme';
 import type { Place } from '../stores';
 
 export type MapLayerType = 'streets' | 'satellite' | 'terrain' | 'dark' | 'osm';
@@ -13,7 +13,7 @@ interface HeritageMapViewProps {
   onSelectPlace: (place: Place) => void;
   onPlaceDetails: (placeId: string) => void;
   userLocation: { latitude: number; longitude: number };
-  mapRef?: React.RefObject<MapView | null>;
+  mapRef?: any;
   mapLayer?: MapLayerType;
   routeDestination?: Place | null;
   routeCoordinates?: Array<{ latitude: number; longitude: number }>;
@@ -23,19 +23,7 @@ interface HeritageMapViewProps {
   onClearRoute?: () => void;
 }
 
-// Dark style for base canvas
-export const DARK_MAP_STYLE = [
-  { elementType: 'geometry', stylers: [{ color: '#121212' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#121212' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#888888' }] },
-  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#e0e0e0' }] },
-  { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#a0a0a0' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#222222' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0d1117' }] },
-];
-
-// High-Definition free tile layers — zero API key required (CARTO + Esri + OSM + OTM).
-export const TILE_URLS: Record<MapLayerType, string | null> = {
+export const TILE_URLS: Record<MapLayerType, string> = {
   streets: 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
   satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   terrain: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
@@ -50,103 +38,6 @@ export const TILE_ATTRIBUTION: Record<MapLayerType, string> = {
   dark: '© OpenStreetMap © CARTO',
   osm: '© OpenStreetMap',
 };
-
-function getCategoryIcon(category: string): keyof typeof MaterialIcons.glyphMap {
-  switch (category) {
-    case 'heritage':
-      return 'account-balance';
-    case 'museum':
-      return 'museum';
-    case 'culture':
-      return 'palette';
-    case 'food':
-      return 'restaurant';
-    case 'activity':
-      return 'hiking';
-    default:
-      return 'place';
-  }
-}
-
-// Memoized custom marker to eliminate unnecessary GPU texture re-rendering
-const HeritageMarker = React.memo(function HeritageMarker({
-  place,
-  isSelected,
-  isDestination,
-  onSelect,
-  onDetails,
-}: {
-  place: Place;
-  isSelected: boolean;
-  isDestination: boolean;
-  onSelect: (place: Place) => void;
-  onDetails: (placeId: string) => void;
-}) {
-  // Allow 1 frame for initial native paint, then freeze bitmap tracking for 60fps scrolling
-  const [tracksViewChanges, setTracksViewChanges] = useState(true);
-
-  useEffect(() => {
-    setTracksViewChanges(true);
-    const timer = setTimeout(() => setTracksViewChanges(false), 200);
-    return () => clearTimeout(timer);
-  }, [isSelected, isDestination]);
-
-  const pinColor = isDestination
-    ? Colors.primary
-    : CATEGORY_COLORS[place.category] || Colors.primary;
-  const iconName = getCategoryIcon(place.category);
-
-  return (
-    <Marker
-      coordinate={{ latitude: place.latitude, longitude: place.longitude }}
-      title={place.name}
-      description={place.shortDescription?.substring(0, 80)}
-      onPress={() => onSelect(place)}
-      tracksViewChanges={tracksViewChanges}
-    >
-      <View style={styles.markerAnchor}>
-        {(isSelected || isDestination) && <View style={styles.markerPulseRing} />}
-        <View
-          style={[
-            styles.markerBadge,
-            (isSelected || isDestination) && styles.markerBadgeSelected,
-            { backgroundColor: pinColor },
-          ]}
-        >
-          <MaterialIcons
-            name={isDestination ? 'flag' : iconName}
-            size={isSelected || isDestination ? 15 : 12}
-            color="#FFFFFF"
-          />
-        </View>
-        <View style={[styles.markerArrow, { borderTopColor: pinColor }]} />
-      </View>
-
-      <Callout tooltip onPress={() => onDetails(place.id)}>
-        <View style={styles.calloutContainer}>
-          <View style={styles.calloutHeader}>
-            <Text style={styles.calloutTitle} numberOfLines={1}>
-              {place.name}
-            </Text>
-            {place.rating !== undefined && (
-              <View style={styles.calloutRating}>
-                <MaterialIcons name="star" size={11} color={Colors.primary} />
-                <Text style={styles.calloutRatingText}>{place.rating}</Text>
-              </View>
-            )}
-          </View>
-          <Text style={styles.calloutDesc} numberOfLines={2}>
-            {place.shortDescription || 'Historical monument cataloged in heritage registry.'}
-          </Text>
-          <View style={styles.calloutFooter}>
-            <Text style={styles.calloutCategory}>{(place.category || 'heritage').toUpperCase()}</Text>
-            <Text style={styles.calloutTap}>View Details →</Text>
-          </View>
-        </View>
-      </Callout>
-    </Marker>
-  );
-});
 
 export function HeritageMapView({
   places,
@@ -163,6 +54,47 @@ export function HeritageMapView({
   routeDurationMin,
   onClearRoute,
 }: HeritageMapViewProps) {
+  const webViewRef = useRef<WebView>(null);
+
+  // Expose standard MapView camera API methods to explore.tsx via mapRef
+  useImperativeHandle(mapRef, () => ({
+    animateToRegion: (region: { latitude: number; longitude: number }) => {
+      webViewRef.current?.injectJavaScript(`
+        if (window.panTo) window.panTo(${region.latitude}, ${region.longitude});
+        true;
+      `);
+    },
+    fitToCoordinates: (coords: Array<{ latitude: number; longitude: number }>) => {
+      if (coords && coords.length > 0) {
+        webViewRef.current?.injectJavaScript(`
+          if (window.fitBounds) window.fitBounds(${JSON.stringify(coords)});
+          true;
+        `);
+      }
+    },
+    getCamera: async () => ({
+      center: {
+        latitude: selectedPlace?.latitude || userLocation.latitude || 22.3072,
+        longitude: selectedPlace?.longitude || userLocation.longitude || 73.1812,
+      },
+      zoom: 13,
+    }),
+    animateCamera: (cam: any) => {
+      if (cam?.center) {
+        webViewRef.current?.injectJavaScript(`
+          if (window.panTo) window.panTo(${cam.center.latitude}, ${cam.center.longitude});
+          true;
+        `);
+      }
+    },
+    zoomIn: () => {
+      webViewRef.current?.injectJavaScript(`if (window.zoomIn) window.zoomIn(); true;`);
+    },
+    zoomOut: () => {
+      webViewRef.current?.injectJavaScript(`if (window.zoomOut) window.zoomOut(); true;`);
+    },
+  }));
+
   // Sanitize numeric coordinates
   const validPlaces = useMemo(() => {
     return (places || []).filter(
@@ -179,221 +111,244 @@ export function HeritageMapView({
     );
   }, [places]);
 
-  // Viewport optimization: cull markers when array is huge to keep 60 FPS
-  const displayPlaces = useMemo(() => {
-    if (validPlaces.length <= 48) return validPlaces;
-
-    const selectedId = selectedPlace?.id;
-    const destId = routeDestination?.id;
-    const priority: Place[] = [];
-    const others: Place[] = [];
-
-    for (const p of validPlaces) {
-      if (p.id === selectedId || p.id === destId) {
-        priority.push(p);
-      } else {
-        others.push(p);
-      }
-    }
-
-    // Retain top 45 priority & nearest places to prevent GPU memory saturation
-    return [...priority, ...others.slice(0, 44)];
-  }, [validPlaces, selectedPlace?.id, routeDestination?.id]);
-
-  const [mapReady, setMapReady] = useState(false);
-
-  // Smooth auto-focus camera when a place is selected
+  // Handle layer changes
   useEffect(() => {
-    if (selectedPlace && mapRef?.current && typeof (mapRef.current as any).animateToRegion === 'function') {
-      const lat = Number(selectedPlace.latitude);
-      const lng = Number(selectedPlace.longitude);
-      if (!isNaN(lat) && !isNaN(lng) && lat > 0) {
-        (mapRef.current as any).animateToRegion(
-          {
-            latitude: lat,
-            longitude: lng,
-            latitudeDelta: 0.04,
-            longitudeDelta: 0.04,
-          },
-          450
-        );
-      }
+    webViewRef.current?.injectJavaScript(`
+      if (window.setLayer) window.setLayer('${mapLayer}');
+      true;
+    `);
+  }, [mapLayer]);
+
+  // Handle selected place changes
+  useEffect(() => {
+    if (selectedPlace) {
+      webViewRef.current?.injectJavaScript(`
+        if (window.selectPlace) window.selectPlace('${selectedPlace.id}', ${selectedPlace.latitude}, ${selectedPlace.longitude});
+        true;
+      `);
     }
-  }, [selectedPlace]);
+  }, [selectedPlace?.id]);
 
-  // Initial region: user location or Gujarat heritage center
-  const initialRegion = useMemo(() => {
-    const lat = userLocation?.latitude && userLocation.latitude >= 6 && userLocation.latitude <= 38
-      ? userLocation.latitude
-      : 22.3072;
-    const lng = userLocation?.longitude && userLocation.longitude >= 68 && userLocation.longitude <= 98
-      ? userLocation.longitude
-      : 73.1812;
-    return {
-      latitude: lat,
-      longitude: lng,
-      latitudeDelta: 0.14,
-      longitudeDelta: 0.14,
+  // Handle route coordinate updates
+  useEffect(() => {
+    if (routeCoordinates && routeCoordinates.length > 0) {
+      webViewRef.current?.injectJavaScript(`
+        if (window.setRoute) window.setRoute(${JSON.stringify(routeCoordinates)});
+        true;
+      `);
+    } else {
+      webViewRef.current?.injectJavaScript(`
+        if (window.clearRoute) window.clearRoute();
+        true;
+      `);
+    }
+  }, [routeCoordinates]);
+
+  // Handle messages from Leaflet in WebView
+  const handleMessage = (event: any) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      if (data.type === 'SELECT_PLACE') {
+        const found = validPlaces.find((p) => p.id === data.id);
+        if (found) onSelectPlace(found);
+      } else if (data.type === 'PLACE_DETAILS') {
+        onPlaceDetails(data.id);
+      }
+    } catch {
+      // Ignored
+    }
+  };
+
+  const initialLat = userLocation?.latitude && userLocation.latitude > 6 ? userLocation.latitude : 22.3072;
+  const initialLng = userLocation?.longitude && userLocation.longitude > 68 ? userLocation.longitude : 73.1812;
+
+  // Lightweight HTML bundle with Leaflet & Zero-API-key tile architecture
+  const htmlContent = useMemo(() => {
+    const placesJson = JSON.stringify(
+      validPlaces.map((p) => ({
+        id: p.id,
+        name: p.name,
+        category: p.category || 'heritage',
+        lat: p.latitude,
+        lng: p.longitude,
+        rating: p.rating,
+        desc: (p.shortDescription || '').slice(0, 80),
+      }))
+    );
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, #map { width: 100%; height: 100%; background: #0F0F0F; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .leaflet-popup-content-wrapper {
+      background: #171717 !important;
+      border: 1px solid rgba(212, 175, 124, 0.4) !important;
+      border-radius: 12px !important;
+      color: #F5F1E8 !important;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.7) !important;
+    }
+    .leaflet-popup-tip { background: #171717 !important; border: 1px solid rgba(212, 175, 124, 0.4) !important; }
+    .heritage-pin {
+      width: 28px; height: 28px; border-radius: 14px;
+      background: #171717; border: 2px solid #D4AF7C;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+      font-size: 13px; cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .heritage-pin.active {
+      width: 36px; height: 36px; border-radius: 18px;
+      background: #D4AF7C; border-color: #FFFFFF;
+      transform: scale(1.2);
+    }
+    .user-location-pin {
+      width: 18px; height: 18px; border-radius: 9px;
+      background: #38BDF8; border: 2.5px solid #FFFFFF;
+      box-shadow: 0 0 12px #38BDF8;
+    }
+    .leaflet-control-attribution { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    var places = ${placesJson};
+    var currentLayerName = '${mapLayer}';
+    var tileUrls = {
+      streets: 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+      dark: 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+      satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      terrain: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
+      osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
     };
-  }, []);
 
-  const tileUrl = TILE_URLS[mapLayer];
+    var map = L.map('map', {
+      center: [${initialLat}, ${initialLng}],
+      zoom: 12,
+      zoomControl: false
+    });
 
-  // Mid-route arrow bearing calculation
-  const midArrowBearing = useMemo(() => {
-    if (!routeCoordinates || routeCoordinates.length < 4) return routeBearing ?? 0;
-    const mid = Math.floor(routeCoordinates.length / 2);
-    const a = routeCoordinates[Math.max(0, mid - 1)];
-    const b = routeCoordinates[Math.min(routeCoordinates.length - 1, mid + 1)];
-    const toRad = (d: number) => (d * Math.PI) / 180;
-    const toDeg = (r: number) => (r * 180) / Math.PI;
-    const y = Math.sin(toRad(b.longitude - a.longitude)) * Math.cos(toRad(b.latitude));
-    const x =
-      Math.cos(toRad(a.latitude)) * Math.sin(toRad(b.latitude)) -
-      Math.sin(toRad(a.latitude)) * Math.cos(toRad(b.latitude)) * Math.cos(toRad(b.longitude - a.longitude));
-    return (toDeg(Math.atan2(y, x)) + 360) % 360;
-  }, [routeCoordinates, routeBearing]);
+    var activeTileLayer = L.tileLayer(tileUrls[currentLayerName] || tileUrls.streets, {
+      maxZoom: 19,
+      subdomains: 'abcd'
+    }).addTo(map);
 
-  if (Platform.OS === 'web') {
-    return null;
-  }
+    var markersMap = {};
+    var routePolyline = null;
+
+    // User Location Dot
+    ${userLocation?.latitude ? `
+      var userIcon = L.divIcon({
+        className: 'user-location-pin',
+        iconSize: [18, 18],
+        iconAnchor: [9, 9]
+      });
+      L.marker([${userLocation.latitude}, ${userLocation.longitude}], { icon: userIcon }).addTo(map);
+    ` : ''}
+
+    function createPin(p, isSelected) {
+      var icon = L.divIcon({
+        className: 'heritage-pin' + (isSelected ? ' active' : ''),
+        html: isSelected ? '⭐' : '🏛️',
+        iconSize: isSelected ? [36, 36] : [28, 28],
+        iconAnchor: isSelected ? [18, 18] : [14, 14]
+      });
+      return icon;
+    }
+
+    places.forEach(function(p) {
+      var marker = L.marker([p.lat, p.lng], { icon: createPin(p, false) }).addTo(map);
+
+      var popupHtml = '<div style="padding: 2px;">' +
+        '<div style="font-weight: bold; font-size: 13px; color: #D4AF7C; margin-bottom: 2px;">' + p.name + '</div>' +
+        '<div style="font-size: 11px; color: #A7A7A7; margin-bottom: 6px;">' + p.desc + '</div>' +
+        '<button onclick="window.postMessageToRN({type: \\'PLACE_DETAILS\\', id: \\'' + p.id + '\\'})" style="background:#D4AF7C; color:#0F0F0F; border:none; padding:4px 8px; border-radius:4px; font-weight:700; font-size:10px; cursor:pointer;">View Details →</button>' +
+        '</div>';
+
+      marker.bindPopup(popupHtml);
+
+      marker.on('click', function() {
+        window.postMessageToRN({ type: 'SELECT_PLACE', id: p.id });
+      });
+
+      markersMap[p.id] = marker;
+    });
+
+    window.postMessageToRN = function(data) {
+      if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+        window.ReactNativeWebView.postMessage(JSON.stringify(data));
+      }
+    };
+
+    window.panTo = function(lat, lng) {
+      map.panTo([lat, lng], { animate: true, duration: 0.6 });
+    };
+
+    window.zoomIn = function() { map.zoomIn(); };
+    window.zoomOut = function() { map.zoomOut(); };
+
+    window.setLayer = function(layerKey) {
+      var url = tileUrls[layerKey] || tileUrls.streets;
+      if (activeTileLayer) map.removeLayer(activeTileLayer);
+      activeTileLayer = L.tileLayer(url, { maxZoom: 19, subdomains: 'abcd' }).addTo(map);
+    };
+
+    window.selectPlace = function(id, lat, lng) {
+      map.flyTo([lat, lng], 14, { duration: 0.8 });
+      var m = markersMap[id];
+      if (m) m.openPopup();
+    };
+
+    window.setRoute = function(coords) {
+      if (routePolyline) map.removeLayer(routePolyline);
+      var latLngs = coords.map(function(c) { return [c.latitude, c.longitude]; });
+      routePolyline = L.polyline(latLngs, { color: '#D4AF7C', weight: 4, opacity: 0.9 }).addTo(map);
+      map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
+    };
+
+    window.clearRoute = function() {
+      if (routePolyline) {
+        map.removeLayer(routePolyline);
+        routePolyline = null;
+      }
+    };
+
+    window.fitBounds = function(coords) {
+      var latLngs = coords.map(function(c) { return [c.latitude, c.longitude]; });
+      map.fitBounds(latLngs, { padding: [60, 60] });
+    };
+  </script>
+</body>
+</html>`;
+  }, [validPlaces.length, mapLayer, initialLat, initialLng]);
 
   return (
-    <View style={styles.mapContainer}>
-      <View style={styles.mapBase} />
-
-      {!mapReady && (
-        <View style={styles.mapLoadingOverlay}>
-          <Text style={styles.mapLoadingText}>Loading heritage atlas…</Text>
-          <Text style={styles.mapLoadingSub}>{TILE_ATTRIBUTION[mapLayer]}</Text>
-        </View>
-      )}
-
-      <MapView
-        ref={mapRef as any}
-        style={styles.map}
-        initialRegion={initialRegion}
-        // mapType="none" ensures native engine never tries to load Google vector tiles or fail auth checks
-        mapType="none"
-        customMapStyle={DARK_MAP_STYLE}
-        loadingEnabled={false}
-        showsUserLocation={Boolean(userLocation?.latitude)}
-        showsMyLocationButton={false}
-        showsCompass={true}
-        showsPointsOfInterests={false}
-        showsBuildings={false}
-        toolbarEnabled={false}
-        moveOnMarkerPress={false}
-        onMapReady={() => setMapReady(true)}
-      >
-        {/* Zero-API-key Free Raster Tile Layer */}
-        {tileUrl && (
-          <UrlTile
-            key={mapLayer}
-            urlTemplate={tileUrl}
-            maximumZ={19}
-            minimumZ={1}
-            flipY={false}
-            tileSize={256}
-            zIndex={-1}
-            shouldReplaceMapContent={true}
-          />
-        )}
-
-        {/* Live Route Navigation Polyline */}
-        {routeCoordinates && routeCoordinates.length > 1 && (
-          <>
-            <Polyline
-              coordinates={routeCoordinates}
-              strokeColor={Colors.primary}
-              strokeWidth={4}
-              lineCap="round"
-              lineJoin="round"
-            />
-
-            {/* Mid-Route Directional Heading Arrow */}
-            {routeCoordinates.length > 3 && (
-              <Marker
-                coordinate={routeCoordinates[Math.floor(routeCoordinates.length / 2)]}
-                anchor={{ x: 0.5, y: 0.5 }}
-                tracksViewChanges={false}
-              >
-                <View style={styles.midRouteArrowBadge}>
-                  <MaterialIcons
-                    name="navigation"
-                    size={15}
-                    color="#0A0A0F"
-                    style={{ transform: [{ rotate: `${midArrowBearing}deg` }] }}
-                  />
-                </View>
-              </Marker>
-            )}
-
-            {/* Destination Flag */}
-            {routeDestination && (
-              <Marker
-                coordinate={{
-                  latitude: routeDestination.latitude,
-                  longitude: routeDestination.longitude,
-                }}
-                title={routeDestination.name}
-                anchor={{ x: 0.5, y: 0.5 }}
-                tracksViewChanges={false}
-              >
-                <View style={styles.destFlagBadge}>
-                  <MaterialIcons name="flag" size={14} color="#0A0A0F" />
-                </View>
-              </Marker>
-            )}
-          </>
-        )}
-
-        {/* User Navigation Heading Marker */}
-        {routeDestination && userLocation?.latitude && (
-          <Marker
-            coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude }}
-            title="Your Location"
-            anchor={{ x: 0.5, y: 0.5 }}
-            tracksViewChanges={false}
-          >
-            <View style={styles.userNavMarker}>
-              <View style={styles.userNavPulse} />
-              <View style={styles.userNavDot}>
-                <MaterialIcons
-                  name="navigation"
-                  size={14}
-                  color="#FFFFFF"
-                  style={{ transform: [{ rotate: `${routeBearing ?? 0}deg` }] }}
-                />
-              </View>
-            </View>
-          </Marker>
-        )}
-
-        {/* Custom Monument Markers (Optimized & Memoized) */}
-        {displayPlaces.map((place) => {
-          const isSelected = selectedPlace?.id === place.id;
-          const isDestination = routeDestination?.id === place.id;
-
-          return (
-            <HeritageMarker
-              key={place.id}
-              place={place}
-              isSelected={isSelected}
-              isDestination={isDestination}
-              onSelect={onSelectPlace}
-              onDetails={onPlaceDetails}
-            />
-          );
-        })}
-      </MapView>
+    <View style={styles.container}>
+      <WebView
+        ref={webViewRef}
+        originWhitelist={['*']}
+        source={{ html: htmlContent }}
+        style={styles.webView}
+        onMessage={handleMessage}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        scrollEnabled={false}
+        bounces={false}
+        overScrollMode="never"
+      />
 
       {/* Discrete tile attribution */}
       <View style={styles.attributionBadge}>
         <Text style={styles.attributionText}>{TILE_ATTRIBUTION[mapLayer]}</Text>
       </View>
 
-      {/* Floating Navigation Route HUD */}
+      {/* Active Navigation Route HUD */}
       {routeDestination && (
         <View style={styles.navigationHud}>
           <View style={styles.navHudLeft}>
@@ -452,38 +407,13 @@ export function HeritageMapView({
 }
 
 const styles = StyleSheet.create({
-  mapContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#0F0F0F',
-  },
-  mapBase: {
+  container: {
     ...StyleSheet.absoluteFill,
     backgroundColor: '#0F0F0F',
   },
-  map: {
-    ...StyleSheet.absoluteFill,
-  },
-  mapLoadingOverlay: {
+  webView: {
     ...StyleSheet.absoluteFill,
     backgroundColor: '#0F0F0F',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    zIndex: 1,
-  },
-  mapLoadingText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: Colors.primary,
-    letterSpacing: 0.5,
-  },
-  mapLoadingSub: {
-    fontSize: 10,
-    color: Colors.textMuted,
   },
   attributionBadge: {
     position: 'absolute',
@@ -500,58 +430,12 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     fontWeight: '500',
   },
-  destFlagBadge: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#FFFFFF',
-    ...Shadows.sm,
-  },
-  userNavMarker: {
-    width: 34,
-    height: 34,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  userNavPulse: {
-    position: 'absolute',
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: 'rgba(212, 175, 124, 0.25)',
-    borderWidth: 1,
-    borderColor: Colors.primary,
-  },
-  userNavDot: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: Colors.surfaceElevated,
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  midRouteArrowBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#FFFFFF',
-  },
   navigationHud: {
     position: 'absolute',
     top: 56,
     left: Spacing.base,
     right: Spacing.base,
-    backgroundColor: 'rgba(23, 23, 23, 0.94)',
+    backgroundColor: 'rgba(23, 23, 23, 0.95)',
     borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,
     paddingVertical: 8,
@@ -629,104 +513,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  markerAnchor: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 36,
-    height: 40,
-  },
-  markerBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#FFFFFF',
-  },
-  markerBadgeSelected: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: Colors.primary,
-  },
-  markerArrow: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 4,
-    borderRightWidth: 4,
-    borderTopWidth: 5,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    marginTop: -1,
-  },
-  markerPulseRing: {
-    position: 'absolute',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(212, 175, 124, 0.3)',
-    borderWidth: 1,
-    borderColor: Colors.primary,
-  },
-  calloutContainer: {
-    backgroundColor: Colors.surfaceElevated,
-    padding: Spacing.sm + 2,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
-    width: 210,
-    ...Shadows.md,
-  },
-  calloutHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  calloutTitle: {
-    fontSize: Typography.sizes.xs + 1,
-    fontWeight: '700',
-    color: Colors.text,
-    flex: 1,
-    marginRight: 4,
-  },
-  calloutRating: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  calloutRatingText: {
-    fontSize: 10,
-    color: Colors.primary,
-    fontWeight: '700',
-  },
-  calloutDesc: {
-    fontSize: 10,
-    color: Colors.textSecondary,
-    lineHeight: 14,
-    marginBottom: Spacing.xs,
-  },
-  calloutFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    paddingTop: 4,
-    marginTop: 2,
-  },
-  calloutCategory: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: Colors.textMuted,
-    letterSpacing: 0.5,
-  },
-  calloutTap: {
-    fontSize: 10,
-    color: Colors.primary,
-    fontWeight: '700',
   },
 });
