@@ -24,19 +24,19 @@ interface HeritageMapViewProps {
 }
 
 export const TILE_URLS: Record<MapLayerType, string> = {
-  streets: 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+  osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+  streets: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+  dark: 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
   satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   terrain: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
-  dark: 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-  osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
 };
 
 export const TILE_ATTRIBUTION: Record<MapLayerType, string> = {
-  streets: '© OpenStreetMap © CARTO',
-  satellite: '© Esri World Imagery',
-  terrain: '© OpenTopoMap © OSM',
-  dark: '© OpenStreetMap © CARTO',
-  osm: '© OpenStreetMap',
+  osm: '🗺️ Free OpenStreetMap (Zero API Key)',
+  streets: '🗺️ Free OpenStreetMap (Standard)',
+  dark: '🌙 Free Dark Matter Map',
+  satellite: '🛰️ Free Esri Satellite Imagery',
+  terrain: '🧭 Free Topographic Map',
 };
 
 export function HeritageMapView({
@@ -191,10 +191,34 @@ export function HeritageMapView({
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css';" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body, #map { width: 100%; height: 100%; background: #0F0F0F; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; overflow: hidden; }
+
+    #loadingOverlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #0F0F0F;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+    }
+    .map-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(212, 175, 124, 0.2);
+      border-top-color: #D4AF7C;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
     /* Google Maps styled Info Popup */
     .leaflet-popup-content-wrapper {
@@ -303,41 +327,32 @@ export function HeritageMapView({
 </head>
 <body>
   <div id="map"></div>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <div id="loadingOverlay">
+    <div class="map-spinner"></div>
+    <div style="font-size: 13px; font-weight: 700; color: #F5F1E8; margin-top: 14px; letter-spacing: 0.3px;">Loading Free OpenStreetMap...</div>
+    <div style="font-size: 11px; color: #A7A7A7; margin-top: 4px;">Zero API Key • 100% Free & Open-Source</div>
+  </div>
+
   <script>
-    if (typeof L === 'undefined') {
-      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"><\\/script>');
-    }
-  </script>
-  <script>
-    var places = ${placesJson};
-    var currentLayerName = '${mapLayer}';
-    var tileUrls = {
-      streets: 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-      dark: 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-      satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      terrain: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
-      osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-    };
-
-    var map = L.map('map', {
-      center: [${initialLat}, ${initialLng}],
-      zoom: 12,
-      zoomControl: false,
-      attributionControl: false
-    });
-
-    var activeTileLayer = L.tileLayer(tileUrls[currentLayerName] || tileUrls.streets, {
-      maxZoom: 19,
-      subdomains: 'abcd'
-    }).addTo(map);
-
+    var map = null;
+    var mapReady = false;
+    var pendingActions = [];
+    var activeTileLayer = null;
     var markersMap = {};
     var routePolylineBg = null;
     var routePolylineCore = null;
     var userMarker = null;
 
-    // Google Maps category palette
+    var places = ${placesJson};
+    var currentLayerName = '${mapLayer}';
+    var tileUrls = {
+      osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      streets: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      dark: 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+      satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      terrain: 'https://tile.opentopomap.org/{z}/{x}/{y}.png'
+    };
+
     var CAT_PALETTE = {
       temple: { bg: '#E65100', icon: '🛕' },
       fort: { bg: '#B71C1C', icon: '🏰' },
@@ -355,30 +370,6 @@ export function HeritageMapView({
       var key = (cat || 'heritage').toLowerCase();
       return CAT_PALETTE[key] || CAT_PALETTE.heritage;
     }
-
-    // Google Maps Blue GPS Puck
-    var userPuckHtml = '<div class="gmap-user-puck"><div class="gmap-user-pulse"></div><div class="gmap-user-dot"></div></div>';
-    var userIcon = L.divIcon({
-      className: '',
-      html: userPuckHtml,
-      iconSize: [22, 22],
-      iconAnchor: [11, 11]
-    });
-
-    ${userLocation?.latitude ? `
-      userMarker = L.marker([${userLocation.latitude}, ${userLocation.longitude}], {
-        icon: userIcon,
-        zIndexOffset: 2000
-      }).addTo(map);
-    ` : ''}
-
-    window.setUserLocation = function(lat, lng) {
-      if (userMarker) {
-        userMarker.setLatLng([lat, lng]);
-      } else {
-        userMarker = L.marker([lat, lng], { icon: userIcon, zIndexOffset: 2000 }).addTo(map);
-      }
-    };
 
     function createGooglePin(p, isSelected) {
       var cfg = getCatConfig(p.category);
@@ -398,34 +389,6 @@ export function HeritageMapView({
       });
     }
 
-    places.forEach(function(p) {
-      var marker = L.marker([p.lat, p.lng], {
-        icon: createGooglePin(p, false)
-      }).addTo(map);
-
-      var cfg = getCatConfig(p.category);
-      var popupHtml = '<div style="min-width: 170px; max-width: 220px;">' +
-        '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 4px;">' +
-          '<span style="font-size: 9px; font-weight: 800; color: #FFFFFF; background:' + cfg.bg + '; padding: 1px 6px; border-radius: 4px; text-transform: uppercase;">' + (p.category || 'Heritage') + '</span>' +
-          '<span style="font-size: 11px; font-weight: 700; color: #FBBF24;">★ ' + p.rating + '</span>' +
-        '</div>' +
-        '<div style="font-weight: 700; font-size: 13px; color: #F5F1E8; margin-bottom: 4px; line-height: 1.25;">' + p.name + '</div>' +
-        '<div style="font-size: 11px; color: #A7A7A7; margin-bottom: 8px; line-height: 1.3;">' + p.desc + '</div>' +
-        '<div style="display:flex; gap:6px;">' +
-          '<button onclick="window.postMessageToRN({type: \\'SELECT_PLACE\\', id: \\'' + p.id + '\\'})" style="flex:1; background:#D4AF7C; color:#0F0F0F; border:none; padding:5px 8px; border-radius:6px; font-weight:700; font-size:10px; cursor:pointer;">Select</button>' +
-          '<button onclick="window.postMessageToRN({type: \\'PLACE_DETAILS\\', id: \\'' + p.id + '\\'})" style="flex:1; background:rgba(255,255,255,0.12); color:#F5F1E8; border:1px solid rgba(255,255,255,0.2); padding:5px 8px; border-radius:6px; font-weight:700; font-size:10px; cursor:pointer;">Details →</button>' +
-        '</div>' +
-      '</div>';
-
-      marker.bindPopup(popupHtml, { closeButton: false, offset: [0, -32] });
-
-      marker.on('click', function() {
-        window.postMessageToRN({ type: 'SELECT_PLACE', id: p.id });
-      });
-
-      markersMap[p.id] = marker;
-    });
-
     window.postMessageToRN = function(data) {
       if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
         window.ReactNativeWebView.postMessage(JSON.stringify(data));
@@ -433,20 +396,32 @@ export function HeritageMapView({
     };
 
     window.panTo = function(lat, lng) {
+      if (!mapReady || !map) {
+        pendingActions.push(function() { window.panTo(lat, lng); });
+        return;
+      }
       map.panTo([lat, lng], { animate: true, duration: 0.6 });
     };
 
-    window.zoomIn = function() { map.zoomIn(); };
-    window.zoomOut = function() { map.zoomOut(); };
+    window.zoomIn = function() { if (map) map.zoomIn(); };
+    window.zoomOut = function() { if (map) map.zoomOut(); };
 
     window.setLayer = function(layerKey) {
-      var url = tileUrls[layerKey] || tileUrls.streets;
+      if (!mapReady || !map) {
+        pendingActions.push(function() { window.setLayer(layerKey); });
+        return;
+      }
+      var url = tileUrls[layerKey] || tileUrls.osm;
       if (activeTileLayer) map.removeLayer(activeTileLayer);
       activeTileLayer = L.tileLayer(url, { maxZoom: 19, subdomains: 'abcd' }).addTo(map);
     };
 
     var currentlySelectedId = null;
     window.selectPlace = function(id, lat, lng) {
+      if (!mapReady || !map) {
+        pendingActions.push(function() { window.selectPlace(id, lat, lng); });
+        return;
+      }
       if (currentlySelectedId && markersMap[currentlySelectedId]) {
         var oldPlace = places.find(function(item) { return item.id === currentlySelectedId; });
         if (oldPlace) markersMap[currentlySelectedId].setIcon(createGooglePin(oldPlace, false));
@@ -462,13 +437,29 @@ export function HeritageMapView({
       map.flyTo([lat, lng], 14, { duration: 0.8 });
     };
 
+    window.setUserLocation = function(lat, lng) {
+      if (!mapReady || !map) {
+        pendingActions.push(function() { window.setUserLocation(lat, lng); });
+        return;
+      }
+      var userPuckHtml = '<div class="gmap-user-puck"><div class="gmap-user-pulse"></div><div class="gmap-user-dot"></div></div>';
+      var userIcon = L.divIcon({ className: '', html: userPuckHtml, iconSize: [22, 22], iconAnchor: [11, 11] });
+      if (userMarker) {
+        userMarker.setLatLng([lat, lng]);
+      } else {
+        userMarker = L.marker([lat, lng], { icon: userIcon, zIndexOffset: 2000 }).addTo(map);
+      }
+    };
+
     window.setRoute = function(coords) {
+      if (!mapReady || !map) {
+        pendingActions.push(function() { window.setRoute(coords); });
+        return;
+      }
       if (routePolylineBg) map.removeLayer(routePolylineBg);
       if (routePolylineCore) map.removeLayer(routePolylineCore);
 
       var latLngs = coords.map(function(c) { return [c.latitude, c.longitude]; });
-
-      // Google Maps Route: Outer casing for high contrast + inner vibrant core line
       routePolylineBg = L.polyline(latLngs, {
         color: '#1E3A8A',
         weight: 7,
@@ -489,14 +480,110 @@ export function HeritageMapView({
     };
 
     window.clearRoute = function() {
-      if (routePolylineBg) { map.removeLayer(routePolylineBg); routePolylineBg = null; }
-      if (routePolylineCore) { map.removeLayer(routePolylineCore); routePolylineCore = null; }
+      if (routePolylineBg && map) { map.removeLayer(routePolylineBg); routePolylineBg = null; }
+      if (routePolylineCore && map) { map.removeLayer(routePolylineCore); routePolylineCore = null; }
     };
 
     window.fitBounds = function(coords) {
+      if (!mapReady || !map) {
+        pendingActions.push(function() { window.fitBounds(coords); });
+        return;
+      }
       var latLngs = coords.map(function(c) { return [c.latitude, c.longitude]; });
       map.fitBounds(latLngs, { padding: [60, 60] });
     };
+
+    function initMap() {
+      if (mapReady || typeof L === 'undefined') return;
+
+      try {
+        map = L.map('map', {
+          center: [${initialLat}, ${initialLng}],
+          zoom: 12,
+          zoomControl: false,
+          attributionControl: false
+        });
+
+        activeTileLayer = L.tileLayer(tileUrls[currentLayerName] || tileUrls.osm, {
+          maxZoom: 19,
+          subdomains: 'abcd'
+        }).addTo(map);
+
+        ${userLocation?.latitude ? `
+          window.setUserLocation(${userLocation.latitude}, ${userLocation.longitude});
+        ` : ''}
+
+        places.forEach(function(p) {
+          var marker = L.marker([p.lat, p.lng], {
+            icon: createGooglePin(p, false)
+          }).addTo(map);
+
+          var cfg = getCatConfig(p.category);
+          var popupHtml = '<div style="min-width: 170px; max-width: 220px;">' +
+            '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 4px;">' +
+              '<span style="font-size: 9px; font-weight: 800; color: #FFFFFF; background:' + cfg.bg + '; padding: 1px 6px; border-radius: 4px; text-transform: uppercase;">' + (p.category || 'Heritage') + '</span>' +
+              '<span style="font-size: 11px; font-weight: 700; color: #FBBF24;">★ ' + p.rating + '</span>' +
+            '</div>' +
+            '<div style="font-weight: 700; font-size: 13px; color: #F5F1E8; margin-bottom: 4px; line-height: 1.25;">' + p.name + '</div>' +
+            '<div style="font-size: 11px; color: #A7A7A7; margin-bottom: 8px; line-height: 1.3;">' + p.desc + '</div>' +
+            '<div style="display:flex; gap:6px;">' +
+              '<button onclick="window.postMessageToRN({type: \\'SELECT_PLACE\\', id: \\'' + p.id + '\\'})" style="flex:1; background:#D4AF7C; color:#0F0F0F; border:none; padding:5px 8px; border-radius:6px; font-weight:700; font-size:10px; cursor:pointer;">Select</button>' +
+              '<button onclick="window.postMessageToRN({type: \\'PLACE_DETAILS\\', id: \\'' + p.id + '\\'})" style="flex:1; background:rgba(255,255,255,0.12); color:#F5F1E8; border:1px solid rgba(255,255,255,0.2); padding:5px 8px; border-radius:6px; font-weight:700; font-size:10px; cursor:pointer;">Details →</button>' +
+            '</div>' +
+          '</div>';
+
+          marker.bindPopup(popupHtml, { closeButton: false, offset: [0, -32] });
+
+          marker.on('click', function() {
+            window.postMessageToRN({ type: 'SELECT_PLACE', id: p.id });
+          });
+
+          markersMap[p.id] = marker;
+        });
+
+        mapReady = true;
+
+        while (pendingActions.length > 0) {
+          var act = pendingActions.shift();
+          try { act(); } catch(e) { console.error(e); }
+        }
+
+        var overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+          overlay.style.opacity = '0';
+          setTimeout(function() { overlay.style.display = 'none'; }, 350);
+        }
+      } catch(err) {
+        console.error('Leaflet init error:', err);
+      }
+    }
+
+    function loadScript(url, onSuccess, onError) {
+      var script = document.createElement('script');
+      script.src = url;
+      script.onload = onSuccess;
+      script.onerror = onError;
+      document.head.appendChild(script);
+    }
+
+    loadScript(
+      'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js',
+      initMap,
+      function() {
+        loadScript(
+          'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js',
+          initMap,
+          function() {
+            loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', initMap, function() {
+              var overlay = document.getElementById('loadingOverlay');
+              if (overlay) {
+                overlay.innerHTML = '<div style="color:#EF4444;font-size:14px;font-weight:bold;margin-bottom:8px;">⚠️ Map Network Offline</div><div style="color:#A7A7A7;font-size:11px;text-align:center;padding:0 20px;">Unable to load map. Check your internet connection.</div>';
+              }
+            });
+          }
+        );
+      }
+    );
   </script>
 </body>
 </html>`;

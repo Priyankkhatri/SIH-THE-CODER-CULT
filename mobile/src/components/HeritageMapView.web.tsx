@@ -6,11 +6,11 @@ import type { Place } from '../stores';
 import { useTranslation } from '../hooks/useTranslation';
 
 export const TILE_URLS: Record<string, string> = {
-  streets: 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+  osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+  streets: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
   satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   terrain: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
   dark: 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-  osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
 };
 
 interface HeritageMapViewProps {
@@ -32,7 +32,7 @@ export function HeritageMapView({
   onPlaceDetails,
   userLocation,
   mapRef,
-  mapLayer = 'streets',
+  mapLayer = 'osm',
   routeDestination,
   routeCoordinates,
 }: HeritageMapViewProps) {
@@ -86,9 +86,9 @@ export function HeritageMapView({
       const link = document.createElement('link');
       link.id = 'leaflet-css';
       link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css';
       link.onerror = () => {
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css';
+        link.href = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';
       };
       document.head.appendChild(link);
     }
@@ -97,12 +97,12 @@ export function HeritageMapView({
     if (!(window as any).L) {
       const script = document.createElement('script');
       script.id = 'leaflet-js';
-      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js';
       script.onload = () => setIsLeafletReady(true);
       script.onerror = () => {
         const fallbackScript = document.createElement('script');
         fallbackScript.id = 'leaflet-js-fallback';
-        fallbackScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js';
+        fallbackScript.src = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';
         fallbackScript.onload = () => setIsLeafletReady(true);
         document.head.appendChild(fallbackScript);
       };

@@ -49,7 +49,7 @@ export default function ExploreScreen() {
   const [selectedCrowd, setSelectedCrowd] = useState<'all' | 'Low' | 'Moderate' | 'Peak'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
-  const [mapLayer, setMapLayer] = useState<MapLayerType>('streets');
+  const [mapLayer, setMapLayer] = useState<MapLayerType>('osm');
   const [showLayerPicker, setShowLayerPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRouting, setIsRouting] = useState(false);
@@ -603,11 +603,11 @@ export default function ExploreScreen() {
           </View>
           <View style={styles.layerPickerRow}>
             {[
-              { key: 'streets', label: '🗺️ Streets (Voyager HD)' },
+              { key: 'osm', label: '🌐 OpenStreetMap (Free)' },
+              { key: 'streets', label: '🗺️ Clean Streets' },
               { key: 'satellite', label: '🛰️ Satellite' },
               { key: 'terrain', label: '🧭 Topographic' },
               { key: 'dark', label: '🌙 Dark Mode' },
-              { key: 'osm', label: '🌐 OpenStreetMap' },
             ].map((layer) => {
               const isActive = mapLayer === layer.key;
               return (
