@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import {
   Modal,
   StatusBar,
   TouchableWithoutFeedback,
+  Animated,
+  Easing,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
@@ -30,6 +32,13 @@ export default function LoginScreen() {
 
   // Screen state: Welcome vs. Login Sheet
   const [showLoginSheet, setShowLoginSheet] = useState(false);
+  const [isStamped, setIsStamped] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+
+  // Animations
+  const ticketFloatAnim = useRef(new Animated.Value(0)).current;
+  const stampScaleAnim = useRef(new Animated.Value(2.5)).current;
+  const stampOpacityAnim = useRef(new Animated.Value(0)).current;
 
   // Form states
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -42,7 +51,57 @@ export default function LoginScreen() {
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Fast Developer Bypass - direct access to app via long-press on brand header in __DEV__
+  // Floating ticket gentle loop
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(ticketFloatAnim, {
+          toValue: -6,
+          duration: 2600,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(ticketFloatAnim, {
+          toValue: 0,
+          duration: 2600,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  // Trigger tactile ASI Stamp validation
+  const handleValidatePass = () => {
+    if (isStamped) {
+      setShowLoginSheet(true);
+      return;
+    }
+
+    setIsValidating(true);
+    setIsStamped(true);
+
+    Animated.parallel([
+      Animated.spring(stampScaleAnim, {
+        toValue: 1,
+        friction: 4,
+        tension: 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(stampOpacityAnim, {
+        toValue: 1,
+        duration: 180,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setTimeout(() => {
+        setIsValidating(false);
+        setShowLoginSheet(true);
+      }, 550);
+    });
+  };
+
+  // Fast Developer Bypass
   const handleDevSkip = () => {
     setUser(
       `dev-${Date.now().toString().slice(-4)}`,
@@ -153,10 +212,10 @@ export default function LoginScreen() {
     <View style={styles.screen}>
       <StatusBar barStyle="dark-content" backgroundColor="#FAF8F5" translucent={false} />
 
-      {/* Screen 1: Clean Light-Theme Welcome Screen */}
-      <View style={[styles.mainContainer, { paddingTop: insets.top + 6, paddingBottom: insets.bottom + 16 }]}>
+      {/* Screen 1: Bespoke Heritage Explorer Pass Welcome Screen */}
+      <View style={[styles.mainContainer, { paddingTop: insets.top + 6, paddingBottom: insets.bottom + 14 }]}>
         
-        {/* Top Brand Header & Language Pill */}
+        {/* Top Identity Row */}
         <View style={styles.topHeaderRow}>
           <TouchableOpacity
             style={styles.brandRow}
@@ -164,15 +223,16 @@ export default function LoginScreen() {
             onLongPress={__DEV__ ? handleDevSkip : undefined}
             delayLongPress={700}
           >
-            <View style={styles.brandIconWrap}>
-              <Ionicons name="compass" size={17} color="#D97706" />
-            </View>
             <Text style={styles.brandTitleText}>YATRA</Text>
+            <View style={styles.versionBadge}>
+              <Text style={styles.versionBadgeText}>v2.0</Text>
+            </View>
           </TouchableOpacity>
 
           <View style={styles.topRightActions}>
-            <View style={styles.heritageTag}>
-              <Text style={styles.heritageTagText}>Gujarat Heritage</Text>
+            <View style={styles.editionCol}>
+              <Text style={styles.editionSubText}>EDITION</Text>
+              <Text style={styles.editionTitleText}>GUJARAT 2026</Text>
             </View>
 
             <TouchableOpacity
@@ -181,63 +241,160 @@ export default function LoginScreen() {
               activeOpacity={0.75}
             >
               <Text style={styles.langPillText}>{currentLangObj.flag} {currentLangObj.code.toUpperCase()}</Text>
-              <Ionicons name="chevron-down" size={12} color="#78716C" style={{ marginLeft: 3 }} />
+              <Ionicons name="chevron-down" size={11} color="#78716C" style={{ marginLeft: 3 }} />
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Cinematic Heritage Video / Animation Hero Card */}
-        <View style={styles.heroCardWrap}>
-          <Image
-            source={require('../../../assets/images/auth-bg.jpg')}
-            style={styles.heroImage}
-            resizeMode="cover"
-          />
-          <LinearGradient
-            colors={['rgba(28, 28, 30, 0.05)', 'rgba(28, 28, 30, 0.20)', 'rgba(28, 28, 30, 0.82)']}
-            locations={[0, 0.5, 0.98]}
-            style={styles.heroGradient}
-          />
+        {/* Centerpiece: Physical Heritage Explorer Pass Ticket */}
+        <Animated.View style={[styles.ticketContainer, { transform: [{ translateY: ticketFloatAnim }] }]}>
+          <View style={styles.ticketCard}>
+            
+            {/* Perforated Notches (Left & Right Cutouts) */}
+            <View style={styles.perforatedNotchLeft} />
+            <View style={styles.perforatedNotchRight} />
 
-          {/* Floating 4K / Motion Pill */}
-          <View style={styles.heroFloatingBadge}>
-            <PulseBeacon color="#F59E0B" size={6} glowSize={12} />
-            <Text style={styles.heroBadgeText}>Immersive 4K</Text>
-          </View>
+            {/* Top Pass Header: Official Seal & Circuit */}
+            <View style={styles.ticketHeader}>
+              <View style={{ flex: 1 }}>
+                <View style={styles.officialPillRow}>
+                  <View style={styles.greenPulseDot} />
+                  <Text style={styles.officialPillText}>OFFICIAL HERITAGE PASS</Text>
+                </View>
+                <Text style={styles.ticketStateTitle}>State of Gujarat</Text>
+                <Text style={styles.ticketCircuitSub}>Circuit: Patan • Modhera • Dwarka</Text>
+              </View>
 
-          {/* Bottom Card Title & Subtitle */}
-          <View style={styles.heroCaptionArea}>
-            <Text style={styles.heroPreTitle}>UNESCO WORLD HERITAGE</Text>
-            <Text style={styles.heroCardTitle}>Rani Ki Vav & Sun Temple</Text>
-            <Text style={styles.heroCardSub} numberOfLines={1}>
-              Centuries of subterranean craftsmanship carved in golden sandstone.
-            </Text>
-          </View>
-        </View>
-
-        {/* Bottom Headline & Single Clean "Get Started" Button (NO LOGIN FORMS) */}
-        <View style={styles.bottomCtaArea}>
-          <View>
-            <Text style={styles.editorialHeadline}>Step into living history.</Text>
-            <Text style={styles.editorialSubtitle}>
-              AI audio storytelling, live crowd radar, and curated circuits across 155+ ancient sites.
-            </Text>
-          </View>
-
-          {/* Primary Action Button: GET STARTED */}
-          <ScalePressable
-            style={styles.getStartedButton}
-            onPress={() => setShowLoginSheet(true)}
-          >
-            <Text style={styles.getStartedButtonText}>Get Started</Text>
-            <View style={styles.getStartedArrowWrap}>
-              <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
+              {/* Hologram / Gold Wax Seal */}
+              <View style={styles.goldSealBadge}>
+                <LinearGradient
+                  colors={['#F59E0B', '#D97706', '#92400E']}
+                  style={styles.goldSealGradient}
+                >
+                  <Text style={styles.sealUnescoText}>UNESCO</Text>
+                  <MaterialIcons name="verified" size={16} color="#FFFFFF" />
+                  <Text style={styles.sealVerifiedText}>VERIFIED</Text>
+                </LinearGradient>
+              </View>
             </View>
+
+            {/* Architectural Visual Cutout */}
+            <View style={styles.ticketVisualWrap}>
+              <Image
+                source={require('../../../assets/images/auth-bg.jpg')}
+                style={styles.ticketVisualImage}
+                resizeMode="cover"
+              />
+              <LinearGradient
+                colors={['transparent', 'rgba(28, 25, 23, 0.75)']}
+                style={styles.ticketVisualGradient}
+              />
+              <View style={styles.ticketVisualCaption}>
+                <View>
+                  <Text style={styles.monumentNumTag}>MONUMENT NO. 042</Text>
+                  <Text style={styles.monumentNameText}>Rani Ki Vav • Stepwell</Text>
+                </View>
+                <View style={styles.eraPill}>
+                  <Text style={styles.eraPillText}>1026 AD</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Perforated Dashed Line */}
+            <View style={styles.dashedDivider} />
+
+            {/* Bottom Ticket Info & Stamp / Barcode Area */}
+            <View style={styles.ticketFooterRow}>
+              <View style={styles.holderAccessCol}>
+                <Text style={styles.holderAccessLabel}>HOLDER ACCESS</Text>
+                <Text style={styles.holderAccessTitle}>155+ SITES • 4K AUDIO</Text>
+                <Text style={styles.holderAccessSub}>GPS Radar • Live Footfall</Text>
+              </View>
+
+              {/* Dynamic Physical ASI Stamp (Slaps down with spring physics on click) */}
+              {isStamped && (
+                <Animated.View
+                  style={[
+                    styles.asiStampBox,
+                    {
+                      transform: [
+                        { scale: stampScaleAnim },
+                        { rotate: '-10deg' },
+                      ],
+                      opacity: stampOpacityAnim,
+                    },
+                  ]}
+                >
+                  <Text style={styles.stampPreText}>ASI ENTRY</Text>
+                  <Text style={styles.stampMainText}>APPROVED</Text>
+                  <Text style={styles.stampDateText}>22 SEP 2026</Text>
+                </Animated.View>
+              )}
+
+              {/* Realistic Faux Barcode */}
+              <View style={[styles.barcodeWrap, isStamped && { opacity: 0.3 }]}>
+                <View style={styles.barcodeLinesRow}>
+                  <View style={[styles.bLine, { width: 2 }]} />
+                  <View style={[styles.bLine, { width: 1 }]} />
+                  <View style={[styles.bLine, { width: 3 }]} />
+                  <View style={[styles.bLine, { width: 1 }]} />
+                  <View style={[styles.bLine, { width: 2 }]} />
+                  <View style={[styles.bLine, { width: 4 }]} />
+                  <View style={[styles.bLine, { width: 1 }]} />
+                  <View style={[styles.bLine, { width: 3 }]} />
+                  <View style={[styles.bLine, { width: 2 }]} />
+                </View>
+                <Text style={styles.barcodeNumText}>IN-YTR-8842</Text>
+              </View>
+            </View>
+
+          </View>
+        </Animated.View>
+
+        {/* Bottom Interactive Validation Action */}
+        <View style={styles.bottomInteractiveSection}>
+          <Text style={styles.bottomInstructionText}>
+            Tap pass to validate and begin your journey
+          </Text>
+
+          <ScalePressable
+            style={[
+              styles.validatePassBtn,
+              isStamped && styles.validatePassBtnActive,
+            ]}
+            onPress={handleValidatePass}
+          >
+            {isValidating ? (
+              <View style={styles.btnContentRow}>
+                <ActivityIndicator size="small" color="#F59E0B" />
+                <Text style={[styles.validateBtnText, { color: '#F59E0B' }]}>
+                  STAMPING ENTRY PASS…
+                </Text>
+              </View>
+            ) : isStamped ? (
+              <View style={styles.btnContentRow}>
+                <Ionicons name="checkmark-circle" size={19} color="#10B981" />
+                <Text style={[styles.validateBtnText, { color: '#10B981' }]}>
+                  PASS APPROVED • ENTER YATRA
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.btnContentRowBetween}>
+                <View style={styles.btnLeftLabel}>
+                  <View style={styles.btnGoldDot} />
+                  <Text style={styles.validateBtnText}>VALIDATE PASS & ENTER</Text>
+                </View>
+                <View style={styles.btnArrowCircle}>
+                  <Ionicons name="arrow-forward" size={17} color="#FFFFFF" />
+                </View>
+              </View>
+            )}
           </ScalePressable>
         </View>
+
       </View>
 
-      {/* Screen 2: Slide-up Bottom Sheet Modal (Opens ONLY after tapping Get Started) */}
+      {/* Screen 2: Slide-up Auth Sheet (Opens after validating pass) */}
       <Modal
         visible={showLoginSheet}
         transparent={true}
@@ -263,10 +420,10 @@ export default function LoginScreen() {
                   {/* Header Row */}
                   <View style={styles.sheetHeaderRow}>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.sheetPreTitle}>WELCOME TO YATRA</Text>
-                      <Text style={styles.sheetTitle}>Sign in to continue</Text>
+                      <Text style={styles.sheetPreTitle}>HERITAGE PASS APPROVED</Text>
+                      <Text style={styles.sheetTitle}>Sign in to save progress</Text>
                       <Text style={styles.sheetSub}>
-                        Unlock audio guides, custom circuits, and offline maps.
+                        Save audio tours, create itineraries, and navigate offline.
                       </Text>
                     </View>
                     <TouchableOpacity
@@ -494,48 +651,51 @@ const styles = StyleSheet.create({
   brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  brandIconWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F0EBE1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E5DEC9',
+    gap: 6,
   },
   brandTitleText: {
-    fontSize: 18,
-    fontWeight: '800',
-    letterSpacing: 2,
-    color: '#1C1C1E',
+    fontSize: 20,
+    fontWeight: '900',
+    letterSpacing: 3,
+    color: '#1C1917',
+  },
+  versionBadge: {
+    backgroundColor: '#E7E0D3',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  versionBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#78716C',
   },
   topRightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
-  heritageTag: {
-    backgroundColor: '#F0EBE1',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E5DEC9',
+  editionCol: {
+    alignItems: 'flex-end',
   },
-  heritageTagText: {
+  editionSubText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#A8A29E',
+    letterSpacing: 1,
+  },
+  editionTitleText: {
     fontSize: 11,
-    fontWeight: '600',
-    color: '#8C7A6B',
+    fontWeight: '800',
+    color: '#1C1917',
+    letterSpacing: 0.5,
   },
   langPill: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F0EBE1',
     paddingHorizontal: 9,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E5DEC9',
@@ -543,127 +703,321 @@ const styles = StyleSheet.create({
   langPillText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#1C1C1E',
+    color: '#1C1917',
   },
-  heroCardWrap: {
+  ticketContainer: {
     width: '100%',
-    aspectRatio: 0.88,
-    borderRadius: 32,
-    overflow: 'hidden',
-    position: 'relative',
-    backgroundColor: '#EFECE6',
-    borderWidth: 1,
-    borderColor: '#EADFCB',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 8,
     marginVertical: 'auto',
   },
-  heroImage: {
-    width: '100%',
-    height: '100%',
+  ticketCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#E7E2D6',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 8,
+    position: 'relative',
+    overflow: 'hidden',
   },
-  heroGradient: {
-    ...StyleSheet.absoluteFill,
-  },
-  heroFloatingBadge: {
+  perforatedNotchLeft: {
     position: 'absolute',
-    top: 14,
-    right: 14,
-    backgroundColor: 'rgba(250, 248, 245, 0.90)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 16,
+    left: -14,
+    top: '64%',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#FAF8F5',
+    borderWidth: 1,
+    borderColor: '#E7E2D6',
+    zIndex: 10,
+  },
+  perforatedNotchRight: {
+    position: 'absolute',
+    right: -14,
+    top: '64%',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#FAF8F5',
+    borderWidth: 1,
+    borderColor: '#E7E2D6',
+    zIndex: 10,
+  },
+  ticketHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#E7E2D6',
+  },
+  officialPillRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
+    marginBottom: 4,
   },
-  heroBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#1C1C1E',
-    letterSpacing: 0.2,
+  greenPulseDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#10B981',
   },
-  heroCaptionArea: {
-    position: 'absolute',
-    bottom: 18,
-    left: 18,
-    right: 18,
-  },
-  heroPreTitle: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#FCD34D',
+  officialPillText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#059669',
     letterSpacing: 1,
-    textTransform: 'uppercase',
   },
-  heroCardTitle: {
+  ticketStateTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#1C1917',
+  },
+  ticketCircuitSub: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#78716C',
     marginTop: 2,
   },
-  heroCardSub: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.85)',
-    marginTop: 3,
+  goldSealBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#D97706',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  bottomCtaArea: {
-    gap: 16,
-    marginTop: 10,
+  goldSealGradient: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 2,
   },
-  editorialHeadline: {
-    fontSize: 26,
+  sealUnescoText: {
+    fontSize: 7,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+  sealVerifiedText: {
+    fontSize: 6,
+    fontWeight: '700',
+    color: 'rgba(255, 255, 255, 0.9)',
+    letterSpacing: 0.5,
+  },
+  ticketVisualWrap: {
+    width: '100%',
+    aspectRatio: 1.65,
+    borderRadius: 18,
+    overflow: 'hidden',
+    position: 'relative',
+    marginVertical: 14,
+    backgroundColor: '#EFECE6',
+    borderWidth: 1,
+    borderColor: '#EADFCB',
+  },
+  ticketVisualImage: {
+    width: '100%',
+    height: '100%',
+  },
+  ticketVisualGradient: {
+    ...StyleSheet.absoluteFill,
+  },
+  ticketVisualCaption: {
+    position: 'absolute',
+    bottom: 10,
+    left: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+  },
+  monumentNumTag: {
+    fontSize: 8,
     fontWeight: '800',
-    color: '#1C1C1E',
-    letterSpacing: -0.5,
-    lineHeight: 32,
+    color: '#FDE68A',
+    letterSpacing: 1,
   },
-  editorialSubtitle: {
+  monumentNameText: {
     fontSize: 13,
-    color: '#78716C',
-    lineHeight: 19,
-    marginTop: 4,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginTop: 1,
   },
-  getStartedButton: {
-    backgroundColor: '#E05328',
-    paddingVertical: 14,
-    paddingHorizontal: 22,
-    borderRadius: 30,
+  eraPill: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  eraPillText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  dashedDivider: {
+    height: 1,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#D6CFC4',
+    marginVertical: 10,
+  },
+  ticketFooterRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#E05328',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.28,
-    shadowRadius: 12,
-    elevation: 6,
+    paddingTop: 4,
+    position: 'relative',
   },
-  getStartedButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
+  holderAccessCol: {
+    gap: 2,
+  },
+  holderAccessLabel: {
+    fontSize: 8,
+    fontWeight: '800',
+    color: '#A8A29E',
+    letterSpacing: 0.8,
+  },
+  holderAccessTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#1C1917',
     letterSpacing: 0.3,
   },
-  getStartedArrowWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+  holderAccessSub: {
+    fontSize: 10,
+    color: '#78716C',
+  },
+  asiStampBox: {
+    position: 'absolute',
+    right: 6,
+    top: -12,
+    borderWidth: 2.5,
+    borderColor: '#DC2626',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(254, 242, 242, 0.95)',
+    alignItems: 'center',
+    zIndex: 20,
+    shadowColor: '#DC2626',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  stampPreText: {
+    fontSize: 8,
+    fontWeight: '800',
+    color: '#DC2626',
+    letterSpacing: 1.5,
+  },
+  stampMainText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#DC2626',
+    letterSpacing: 1,
+  },
+  stampDateText: {
+    fontSize: 7,
+    fontWeight: '700',
+    color: '#DC2626',
+  },
+  barcodeWrap: {
+    alignItems: 'flex-end',
+  },
+  barcodeLinesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 28,
+    gap: 2,
+  },
+  bLine: {
+    height: '100%',
+    backgroundColor: '#1C1917',
+  },
+  barcodeNumText: {
+    fontSize: 8,
+    fontWeight: '600',
+    color: '#78716C',
+    letterSpacing: 1,
+    marginTop: 2,
+  },
+  bottomInteractiveSection: {
+    gap: 12,
+    marginTop: 8,
+  },
+  bottomInstructionText: {
+    textAlign: 'center',
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#78716C',
+  },
+  validatePassBtn: {
+    backgroundColor: '#1C1917',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  validatePassBtnActive: {
+    backgroundColor: '#1C1917',
+    borderColor: '#10B981',
+    borderWidth: 1.5,
+  },
+  btnContentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 3,
+  },
+  btnContentRowBetween: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  btnLeftLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  btnGoldDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#F59E0B',
+  },
+  validateBtnText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.8,
+  },
+  btnArrowCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   sheetBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(28, 28, 30, 0.55)',
+    backgroundColor: 'rgba(28, 25, 23, 0.55)',
     justifyContent: 'flex-end',
   },
   sheetContentWrapper: {
@@ -705,13 +1059,13 @@ const styles = StyleSheet.create({
   sheetPreTitle: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#E05328',
+    color: '#059669',
     letterSpacing: 0.8,
   },
   sheetTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#1C1C1E',
+    color: '#1C1917',
     marginTop: 2,
   },
   sheetSub: {
@@ -749,7 +1103,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#1C1C1E',
+    color: '#1C1917',
     letterSpacing: 0.2,
   },
   phoneInputRow: {
@@ -774,7 +1128,7 @@ const styles = StyleSheet.create({
   countryCodeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#1C1C1E',
+    color: '#1C1917',
   },
   phoneTextInput: {
     flex: 1,
@@ -785,15 +1139,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E7E2D6',
     fontSize: 13,
-    color: '#1C1C1E',
+    color: '#1C1917',
   },
   sendOtpButton: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: '#1C1917',
     paddingVertical: 13,
     borderRadius: 24,
     alignItems: 'center',
     marginTop: 4,
-    shadowColor: '#1C1C1E',
+    shadowColor: '#1C1917',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,
     shadowRadius: 6,
@@ -841,7 +1195,7 @@ const styles = StyleSheet.create({
   socialButtonText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#1C1C1E',
+    color: '#1C1917',
   },
   toggleEmailRow: {
     flexDirection: 'row',
@@ -868,7 +1222,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E7E2D6',
     fontSize: 12,
-    color: '#1C1C1E',
+    color: '#1C1917',
   },
   passwordRow: {
     flexDirection: 'row',
@@ -884,7 +1238,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 6,
     fontSize: 12,
-    color: '#1C1C1E',
+    color: '#1C1917',
   },
   emailLoginButton: {
     backgroundColor: '#E05328',
@@ -921,7 +1275,7 @@ const styles = StyleSheet.create({
   },
   langModalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(28, 28, 30, 0.65)',
+    backgroundColor: 'rgba(28, 25, 23, 0.65)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
@@ -951,7 +1305,7 @@ const styles = StyleSheet.create({
   langModalTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1C1C1E',
+    color: '#1C1917',
   },
   langModalCloseBtn: {
     padding: 4,
@@ -981,7 +1335,7 @@ const styles = StyleSheet.create({
   langOptionName: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#1C1C1E',
+    color: '#1C1917',
   },
   langOptionNative: {
     fontSize: 11,
