@@ -19,6 +19,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { useUserStore, usePlacesStore, useChatStore } from '../../stores';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Place } from '../../stores';
 import { placesApi } from '../../services/api';
 import { useLocation } from '../../hooks/useLocation';
@@ -120,36 +121,38 @@ function SpotlightCard({
   }, [item.id, item.imageUrl, item.place?.name, item.place?.imageUrl]);
 
   return (
-    <ScalePressable
-      style={[styles.spotlightCard, { width: cardWidth }]}
-      minScale={0.98}
-      onPress={onPress}
-    >
-      <ExpoImage
-        source={{ uri: imgUrl }}
-        style={styles.spotlightImage}
-        contentFit="cover"
-        transition={400}
-        onError={() => {
-          if (item.place?.imageUrl && item.place.imageUrl !== imgUrl) {
-            setImgUrl(item.place.imageUrl);
-          } else {
-            const fallback = dynamicImageService.getArchitecturalFallback(item.place?.name || item.title, item.place?.category, 0);
-            setImgUrl(fallback);
-          }
-        }}
-      />
-      <View style={styles.spotlightScrim} />
+    <View style={[styles.spotlightCard, { width: cardWidth }]}>
+      <TouchableOpacity
+        activeOpacity={0.92}
+        style={StyleSheet.absoluteFill}
+        onPress={onPress}
+      >
+        <ExpoImage
+          source={{ uri: imgUrl }}
+          style={styles.spotlightImage}
+          contentFit="cover"
+          transition={400}
+          onError={() => {
+            if (item.place?.imageUrl && item.place.imageUrl !== imgUrl) {
+              setImgUrl(item.place.imageUrl);
+            } else {
+              const fallback = dynamicImageService.getArchitecturalFallback(item.place?.name || item.title, item.place?.category, 0);
+              setImgUrl(fallback);
+            }
+          }}
+        />
+        <View style={styles.spotlightScrim} />
+      </TouchableOpacity>
 
       {/* Top Badges */}
-      <View style={styles.spotlightTopRow}>
+      <View style={styles.spotlightTopRow} pointerEvents="box-none">
         <View style={styles.spotlightBadge}>
           <MaterialIcons name="verified" size={12} color={Colors.primary} />
           <Text style={styles.spotlightBadgeText}>{item.badge}</Text>
         </View>
         <ScalePressable
           style={[styles.audioPlayBtn, isPlayingThis && styles.audioPlayBtnActive]}
-          onPress={(e) => { e.stopPropagation?.(); onAudioToggle(); }}
+          onPress={onAudioToggle}
           minScale={0.9}
         >
           <MaterialIcons
@@ -164,19 +167,21 @@ function SpotlightCard({
       </View>
 
       {/* Bottom Content */}
-      <View style={styles.spotlightContent}>
-        <Text style={styles.spotlightEra} numberOfLines={1}>{item.era}</Text>
-        <Text style={styles.spotlightTitle} numberOfLines={2} ellipsizeMode="tail">{item.title}</Text>
-        <View style={styles.spotlightLocRow}>
-          <MaterialIcons name="location-on" size={14} color="rgba(255,255,255,0.85)" />
-          <Text style={styles.spotlightLocText} numberOfLines={1} ellipsizeMode="tail">{item.location}</Text>
-        </View>
-        <Text style={styles.spotlightSubtitle} numberOfLines={2}>{item.subtitle}</Text>
+      <View style={styles.spotlightContent} pointerEvents="box-none">
+        <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
+          <Text style={styles.spotlightEra} numberOfLines={1}>{item.era}</Text>
+          <Text style={styles.spotlightTitle} numberOfLines={2} ellipsizeMode="tail">{item.title}</Text>
+          <View style={styles.spotlightLocRow}>
+            <MaterialIcons name="location-on" size={14} color="rgba(255,255,255,0.85)" />
+            <Text style={styles.spotlightLocText} numberOfLines={1} ellipsizeMode="tail">{item.location}</Text>
+          </View>
+          <Text style={styles.spotlightSubtitle} numberOfLines={2}>{item.subtitle}</Text>
+        </TouchableOpacity>
 
         <View style={styles.spotlightActions}>
           <ScalePressable
             style={styles.spotlightAiBtn}
-            onPress={(e) => { e.stopPropagation?.(); onAskAi(); }}
+            onPress={onAskAi}
             minScale={0.95}
           >
             <MaterialIcons name="auto-awesome" size={14} color="#FFFFFF" />
@@ -185,19 +190,20 @@ function SpotlightCard({
 
           <ScalePressable
             style={styles.spotlightViewBtn}
-            onPress={(e) => { e.stopPropagation?.(); onExplore(); }}
+            onPress={onExplore}
             minScale={0.95}
           >
             <Text style={styles.spotlightViewBtnText}>Explore →</Text>
           </ScalePressable>
         </View>
       </View>
-    </ScalePressable>
+    </View>
   );
 }
 
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { name, language } = useUserStore();
   const { t } = useTranslation();
   const { places, setPlaces, favorites, toggleFavorite, isLoading } = usePlacesStore();
@@ -256,14 +262,13 @@ export default function HomeScreen() {
       const response: any = await placesApi.getNearby(
         location.latitude || 22.3072,
         location.longitude || 73.1812,
-        50,
-        selectedCategory || undefined
+        50
       );
       const list = Array.isArray(response) ? response : (response?.data || []);
       if (list && list.length > 0) {
         setPlaces(list);
       } else {
-        const allRes: any = await placesApi.getAll(selectedCategory || undefined);
+        const allRes: any = await placesApi.getAll();
         const allList = Array.isArray(allRes) ? allRes : (allRes?.data || []);
         if (allList.length > 0) {
           setPlaces(allList);
@@ -302,7 +307,7 @@ export default function HomeScreen() {
     return () => {
       mounted = false;
     };
-  }, [selectedCategory, latKey, lonKey]);
+  }, [latKey, lonKey]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -461,11 +466,11 @@ export default function HomeScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom + 95, 115) }]}
         keyboardShouldPersistTaps="handled"
       >
         {/* Modern Animated Top Navbar Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: Math.max(insets.top + 8, 20) }]}>
           <View style={styles.headerLeft}>
             <View style={styles.headerLogoWrapper}>
               <Image
@@ -486,7 +491,7 @@ export default function HomeScreen() {
                 </Text>
               </View>
               <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">
-                {name}
+                {name || 'Explorer'}
               </Text>
             </View>
           </View>
@@ -502,7 +507,7 @@ export default function HomeScreen() {
               >
                 <PulseBeacon color="#10B981" size={6} glowSize={12} />
                 <Text style={styles.locationText} numberOfLines={1} ellipsizeMode="tail">
-                  {`${location.city}`}
+                  {location.city || 'Gujarat'}
                 </Text>
               </ScalePressable>
             )}
@@ -778,7 +783,7 @@ export default function HomeScreen() {
               <Text style={styles.sectionTitle} numberOfLines={1}>{t('home.nearbyHeritageSites')}</Text>
               <Text style={styles.sectionSubtitle} numberOfLines={1}>Discover monuments near your GPS coordinates</Text>
             </View>
-            <Text style={styles.sectionCount}>{allCatalogPlaces.length} {t('home.placesCount')}</Text>
+            <Text style={styles.sectionCount}>{filteredPlaces.length} {t('home.placesCount')}</Text>
           </View>
 
           {/* Category Filter */}
@@ -796,9 +801,9 @@ export default function HomeScreen() {
               <PlaceCardHorizontalSkeleton />
               <PlaceCardHorizontalSkeleton />
             </ScrollView>
-          ) : allCatalogPlaces.length > 0 ? (
+          ) : filteredPlaces.length > 0 ? (
             <FlatList
-              data={allCatalogPlaces.slice(0, 8)}
+              data={filteredPlaces.slice(0, 8)}
               horizontal
               showsHorizontalScrollIndicator={false}
               nestedScrollEnabled={true}
@@ -812,9 +817,17 @@ export default function HomeScreen() {
             <View style={styles.emptyWrap}>
               <MaterialIcons name="search-off" size={48} color={Colors.textMuted} />
               <Text style={styles.emptyText}>{t('home.noPlacesFound')}</Text>
-              {searchQuery.length > 0 && (
-                <TouchableOpacity style={styles.emptyClearBtn} onPress={() => setSearchQuery('')}>
-                  <Text style={styles.emptyClearText}>Clear search filter</Text>
+              {(selectedCategory || searchQuery.length > 0) && (
+                <TouchableOpacity
+                  style={styles.emptyClearBtn}
+                  onPress={() => {
+                    setSelectedCategory(null);
+                    setSearchQuery('');
+                  }}
+                >
+                  <Text style={styles.emptyClearText}>
+                    {selectedCategory ? 'Show all categories' : 'Clear search filter'}
+                  </Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -908,7 +921,7 @@ export default function HomeScreen() {
         onClose={() => setSosVisible(false)}
         latitude={location.latitude || 22.3072}
         longitude={location.longitude || 73.1812}
-        currentLocationName={`${location.city}, ${location.region}`}
+        currentLocationName={`${location.city || 'Gujarat'}, ${location.region || 'India'}`}
       />
     </View>
   );

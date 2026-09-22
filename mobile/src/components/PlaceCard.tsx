@@ -120,21 +120,56 @@ function PlaceCardComponent({ place, onPress, variant = 'vertical', isFavorite, 
   }
 
   return (
-    <ScalePressable
-      style={styles.verticalCard}
-      onPress={() => onPress(place)}
-      minScale={0.97}
-    >
-      <Image
-        source={{ uri: currentImg }}
-        style={styles.verticalImage}
-        contentFit="cover"
-        cachePolicy="memory-disk"
-        recyclingKey={place.id}
-        placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
-        transition={150}
-        onError={() => setCurrentImg(dynamicImageService.getArchitecturalFallback(place.name, place.category, 1))}
-      />
+    <View style={styles.verticalCard}>
+      <ScalePressable
+        onPress={() => onPress(place)}
+        minScale={0.98}
+      >
+        <Image
+          source={{ uri: currentImg }}
+          style={styles.verticalImage}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          recyclingKey={place.id}
+          placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+          transition={150}
+          onError={() => setCurrentImg(dynamicImageService.getArchitecturalFallback(place.name, place.category, 1))}
+        />
+
+        <View style={styles.verticalContent}>
+          <View style={styles.cardHeaderRow}>
+            <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30', marginBottom: 0 }]}>
+              <Text style={[styles.categoryText, { color: categoryColor }]} numberOfLines={1}>
+                {categoryLabel}
+              </Text>
+            </View>
+            <View style={[styles.crowdBadge, { backgroundColor: crowd.color + '25', borderColor: crowd.color + '55' }]}>
+              <PulseBeacon color={crowd.color} size={5} glowSize={10} />
+              <Text style={[styles.crowdBadgeText, { color: crowd.color }]} numberOfLines={1}>
+                {crowd.level}
+              </Text>
+            </View>
+          </View>
+          <Text style={styles.verticalName} numberOfLines={1}>{placeName}</Text>
+          <Text style={styles.verticalDesc} numberOfLines={2}>
+            {place.shortDescription || (place.heritageRecord as any)?.shortStory || 'Preserved Indian historical site.'}
+          </Text>
+          <View style={styles.verticalMeta}>
+            {place.distance !== undefined && (
+              <View style={styles.metaRow}>
+                <MaterialIcons name="place" size={13} color={Colors.textSecondary} />
+                <Text style={styles.metaText}>{place.distance.toFixed(1)} {kmUnit}</Text>
+              </View>
+            )}
+            {place.rating && (
+              <View style={styles.metaRow}>
+                <MaterialIcons name="star" size={13} color={Colors.primary} />
+                <Text style={styles.metaText}>{place.rating}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </ScalePressable>
 
       {onFavoriteToggle && (
         <ScalePressable
@@ -149,40 +184,7 @@ function PlaceCardComponent({ place, onPress, variant = 'vertical', isFavorite, 
           />
         </ScalePressable>
       )}
-      <View style={styles.verticalContent}>
-        <View style={styles.cardHeaderRow}>
-          <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '30', marginBottom: 0 }]}>
-            <Text style={[styles.categoryText, { color: categoryColor }]} numberOfLines={1}>
-              {categoryLabel}
-            </Text>
-          </View>
-          <View style={[styles.crowdBadge, { backgroundColor: crowd.color + '25', borderColor: crowd.color + '55' }]}>
-            <PulseBeacon color={crowd.color} size={5} glowSize={10} />
-            <Text style={[styles.crowdBadgeText, { color: crowd.color }]} numberOfLines={1}>
-              {crowd.level}
-            </Text>
-          </View>
-        </View>
-        <Text style={styles.verticalName} numberOfLines={1}>{placeName}</Text>
-        <Text style={styles.verticalDesc} numberOfLines={2}>
-          {place.shortDescription || (place.heritageRecord as any)?.shortStory || 'Preserved Indian historical site.'}
-        </Text>
-        <View style={styles.verticalMeta}>
-          {place.distance !== undefined && (
-            <View style={styles.metaRow}>
-              <MaterialIcons name="place" size={13} color={Colors.textSecondary} />
-              <Text style={styles.metaText}>{place.distance.toFixed(1)} {kmUnit}</Text>
-            </View>
-          )}
-          {place.rating && (
-            <View style={styles.metaRow}>
-              <MaterialIcons name="star" size={13} color={Colors.primary} />
-              <Text style={styles.metaText}>{place.rating}</Text>
-            </View>
-          )}
-        </View>
-      </View>
-    </ScalePressable>
+    </View>
   );
 }
 
