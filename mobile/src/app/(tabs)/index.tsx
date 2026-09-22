@@ -35,6 +35,7 @@ import { useSpeech } from '../../hooks/useSpeech';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
 import { dynamicImageService } from '../../services/dynamicImageService';
 import { haversineDistance } from '../../utils/routeService';
+import { ScalePressable, PulseBeacon } from '../../components/common/MicroAnimations';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SPOTLIGHT_CARD_WIDTH = Math.min(SCREEN_WIDTH - 48, 340);
@@ -119,9 +120,9 @@ function SpotlightCard({
   }, [item.id, item.imageUrl, item.place?.name, item.place?.imageUrl]);
 
   return (
-    <TouchableOpacity
+    <ScalePressable
       style={[styles.spotlightCard, { width: cardWidth }]}
-      activeOpacity={0.95}
+      minScale={0.98}
       onPress={onPress}
     >
       <ExpoImage
@@ -146,10 +147,10 @@ function SpotlightCard({
           <MaterialIcons name="verified" size={12} color={Colors.primary} />
           <Text style={styles.spotlightBadgeText}>{item.badge}</Text>
         </View>
-        <TouchableOpacity
+        <ScalePressable
           style={[styles.audioPlayBtn, isPlayingThis && styles.audioPlayBtnActive]}
           onPress={(e) => { e.stopPropagation?.(); onAudioToggle(); }}
-          activeOpacity={0.8}
+          minScale={0.9}
         >
           <MaterialIcons
             name={isPlayingThis ? 'stop' : 'volume-up'}
@@ -159,7 +160,7 @@ function SpotlightCard({
           <Text style={[styles.audioPlayBtnText, isPlayingThis && styles.audioPlayBtnTextActive]}>
             {isPlayingThis ? 'Stop' : 'Audio'}
           </Text>
-        </TouchableOpacity>
+        </ScalePressable>
       </View>
 
       {/* Bottom Content */}
@@ -173,25 +174,25 @@ function SpotlightCard({
         <Text style={styles.spotlightSubtitle} numberOfLines={2}>{item.subtitle}</Text>
 
         <View style={styles.spotlightActions}>
-          <TouchableOpacity
+          <ScalePressable
             style={styles.spotlightAiBtn}
             onPress={(e) => { e.stopPropagation?.(); onAskAi(); }}
-            activeOpacity={0.85}
+            minScale={0.95}
           >
             <MaterialIcons name="auto-awesome" size={14} color="#FFFFFF" />
             <Text style={styles.spotlightAiBtnText}>Ask AI Guide</Text>
-          </TouchableOpacity>
+          </ScalePressable>
 
-          <TouchableOpacity
+          <ScalePressable
             style={styles.spotlightViewBtn}
             onPress={(e) => { e.stopPropagation?.(); onExplore(); }}
-            activeOpacity={0.85}
+            minScale={0.95}
           >
             <Text style={styles.spotlightViewBtnText}>Explore →</Text>
-          </TouchableOpacity>
+          </ScalePressable>
         </View>
       </View>
-    </TouchableOpacity>
+    </ScalePressable>
   );
 }
 
@@ -494,29 +495,26 @@ export default function HomeScreen() {
             {isScreenLoading ? (
               <LocationBadgeSkeleton />
             ) : (
-              <TouchableOpacity
+              <ScalePressable
                 style={styles.locationBadge}
                 onPress={() => router.push('/(tabs)/explore')}
-                activeOpacity={0.8}
+                minScale={0.94}
               >
-                {/* Live GPS Dot */}
-                <View style={styles.gpsRadarContainer}>
-                  <View style={styles.gpsRadarDot} />
-                </View>
+                <PulseBeacon color="#10B981" size={6} glowSize={12} />
                 <Text style={styles.locationText} numberOfLines={1} ellipsizeMode="tail">
                   {`${location.city}`}
                 </Text>
-              </TouchableOpacity>
+              </ScalePressable>
             )}
 
-            <TouchableOpacity
+            <ScalePressable
               style={styles.sosBadge}
               onPress={() => setSosVisible(true)}
-              activeOpacity={0.85}
+              minScale={0.92}
             >
               <MaterialIcons name="emergency" size={14} color="#FFFFFF" />
               <Text style={styles.sosBadgeText}>SOS</Text>
-            </TouchableOpacity>
+            </ScalePressable>
           </View>
         </View>
 
@@ -648,10 +646,10 @@ export default function HomeScreen() {
         />
 
         {/* Tourist Financial Compass & Forex Banner */}
-        <TouchableOpacity
+        <ScalePressable
           style={styles.homescreenWalletBanner}
           onPress={() => router.push('/settings/wallet' as any)}
-          activeOpacity={0.85}
+          minScale={0.97}
         >
           <View style={styles.homescreenWalletIconWrap}>
             <MaterialIcons name="currency-exchange" size={18} color={Colors.primary} />
@@ -670,24 +668,24 @@ export default function HomeScreen() {
           <View style={styles.homescreenWalletArrow}>
             <MaterialIcons name="arrow-forward" size={14} color="#0A0A0E" />
           </View>
-        </TouchableOpacity>
+        </ScalePressable>
 
         {/* Quick Actions */}
         <View style={styles.quickActionsSection}>
           <Text style={styles.sectionTitle}>{t('home.quickActions')}</Text>
           <View style={styles.quickActionsGrid}>
             {quickActionsList.map((action) => (
-              <TouchableOpacity
+              <ScalePressable
                 key={action.key}
                 style={styles.quickActionCard}
                 onPress={() => handleQuickAction(action.key)}
-                activeOpacity={0.7}
+                minScale={0.94}
               >
                 <View style={styles.quickActionIcon}>
                   <MaterialIcons name={action.icon as any} size={22} color={Colors.text} />
                 </View>
                 <Text style={styles.quickActionLabel} numberOfLines={2}>{action.label}</Text>
-              </TouchableOpacity>
+              </ScalePressable>
             ))}
           </View>
         </View>

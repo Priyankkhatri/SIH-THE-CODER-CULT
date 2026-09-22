@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -17,18 +17,28 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } from '../../constants/theme';
 import { usePlacesStore, useChatStore } from '../../stores';
+import * as Speech from 'expo-speech';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { Place } from '../../stores';
 import { useLocation } from '../../hooks/useLocation';
 import { CategoryFilter } from '../../components/CategoryFilter';
-import { HeritageMapView, MapLayerType } from '../../components/HeritageMapView';
+import { HeritageMapView, MapLayerType, AmenityItem } from '../../components/HeritageMapView';
+import { TurnByTurnSheet } from '../../components/TurnByTurnSheet';
+import { MapRideBookingModal } from '../../components/MapRideBookingModal';
+import {
+  ScalePressable,
+  SlideUpView,
+  SlideDownView,
+  PulseBeacon,
+  SoundWaveVisualizer,
+} from '../../components/common/MicroAnimations';
 import { PlaceCard } from '../../components/PlaceCard';
 import { PlaceCardVerticalSkeleton } from '../../components/Skeleton';
 import { placesApi } from '../../services/api';
 import { getLiveCrowd } from '../../utils/touristMeta';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
 import { dynamicImageService } from '../../services/dynamicImageService';
-import { getRoute, haversineDistance, RouteResult } from '../../utils/routeService';
+import { getRoute, haversineDistance, RouteResult, TravelMode } from '../../utils/routeService';
 
 const { width, height } = Dimensions.get('window');
 
@@ -56,8 +66,20 @@ export default function ExploreScreen() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [routeDestination, setRouteDestination] = useState<Place | null>(null);
   const [routeInfo, setRouteInfo] = useState<RouteResult | null>(null);
+  const [travelMode, setTravelMode] = useState<TravelMode>('driving');
+  const [showStepsSheet, setShowStepsSheet] = useState(false);
+  const [showRideModal, setShowRideModal] = useState(false);
+  const [showAmenities, setShowAmenities] = useState(false);
+  const [isNarrating, setIsNarrating] = useState(false);
   // Debounced search so 155+ catalog filter doesn't re-run per keystroke
   const [debouncedQuery, setDebouncedQuery] = useState('');
+
+  // Stop any active speech narration on unmount or destination clear
+  useEffect(() => {
+    return () => {
+      Speech.stop();
+    };
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(searchQuery), 220);
@@ -161,22 +183,88 @@ export default function ExploreScreen() {
       .slice(0, 6);
   }, [debouncedQuery, allCatalogPlaces]);
 
+  // Active on-ground amenities around selected place
+  const activeAmenities = useMemo<AmenityItem[]>(() => {
+    if (!selectedPlace) return [];
+    const lat = selectedPlace.latitude;
+    const lng = selectedPlace.longitude;
+
+    return [
+      {
+        id: `${selectedPlace.id}-ticket`,
+        type: 'ticket',
+        name: 'Official ASI Ticket & Security Counter',
+        latitude: lat + 0.00032,
+        longitude: lng - 0.00028,
+        distanceMeters: 40,
+      },
+      {
+        id: `${selectedPlace.id}-water`,
+        type: 'water',
+        name: 'Pure RO Drinking Water Kiosk',
+        latitude: lat - 0.00025,
+        longitude: lng + 0.0003,
+        distanceMeters: 55,
+      },
+      {
+        id: `${selectedPlace.id}-restroom`,
+        type: 'restroom',
+        name: 'Clean ASI Public Restrooms',
+        latitude: lat + 0.0005,
+        longitude: lng + 0.0004,
+        distanceMeters: 75,
+      },
+      {
+        id: `${selectedPlace.id}-parking`,
+        type: 'parking',
+        name: 'Monument Visitor Parking Area',
+        latitude: lat - 0.00075,
+        longitude: lng - 0.00065,
+        distanceMeters: 110,
+      },
+    ];
+  }, [selectedPlace?.id, selectedPlace?.latitude, selectedPlace?.longitude]);
+
+  // Spoken heritage audio chronicle
+  const toggleAudioStory = (place: Place) => {
+    if (isNarrating) {
+      Speech.stop();
+      setIsNarrating(false);
+      return;
+    }
+
+    const title = getPlaceName(place);
+    const narrative =
+      place.historySnippet ||
+      place.shortDescription ||
+      `${title} is a celebrated heritage monument in Gujarat, renowned for its architectural craftsmanship and historical legacy.`;
+
+    Speech.stop();
+    setIsNarrating(true);
+    Speech.speak(`Welcome to ${title}. ${narrative}`, {
+      language: 'en-IN',
+      pitch: 1.0,
+      rate: 0.92,
+      onDone: () => setIsNarrating(false),
+      onError: () => setIsNarrating(false),
+    });
+  };
+
   // Starts in-app route drawing with direction arrow and fits camera to full bbox
-  const startNavigationTo = async (place: Place) => {
+  const startNavigationTo = async (place: Place, mode: TravelMode = travelMode) => {
     setSelectedPlace(place);
     setRouteDestination(place);
     setRouteInfo(null);
     setIsRouting(true);
+    setTravelMode(mode);
     const userLat = location.latitude || 22.3072;
     const userLng = location.longitude || 73.1812;
 
     try {
-      const route = await getRoute(userLat, userLng, place.latitude, place.longitude, 'driving');
+      const route = await getRoute(userLat, userLng, place.latitude, place.longitude, mode);
       setRouteInfo(route);
 
       if (mapRef.current?.fitToCoordinates && route.coordinates.length > 0) {
-        // Fit the whole road polyline bbox so the golden route is never cropped
-        // by the search header or bottom card.
         const coords =
           route.bbox
             ? [
@@ -361,6 +449,7 @@ export default function ExploreScreen() {
           userLocation={{ latitude: location.latitude, longitude: location.longitude }}
           mapRef={mapRef}
           mapLayer={mapLayer}
+          amenities={showAmenities ? activeAmenities : []}
           routeDestination={routeDestination}
           routeCoordinates={routeInfo?.coordinates}
           routeBearing={routeInfo?.bearing}
@@ -369,7 +458,9 @@ export default function ExploreScreen() {
           onClearRoute={() => {
             setRouteDestination(null);
             setRouteInfo(null);
+            setShowStepsSheet(false);
           }}
+          onPressSteps={() => setShowStepsSheet(true)}
         />
       ) : (
         <View style={styles.listContainer}>
@@ -543,53 +634,62 @@ export default function ExploreScreen() {
         />
       </View>
 
-      {/* Floating Map Actions (Google Maps FAB Stack) */}
+      {/* Floating Map Actions (Google Maps FAB Stack with tactile ScalePressable) */}
       {viewMode === 'map' && (
         <View style={[styles.mapActionCol, selectedPlace ? { bottom: 310 } : {}]}>
           {/* Compass / Reset North */}
-          <TouchableOpacity
+          <ScalePressable
             style={styles.mapActionBtn}
             onPress={centerGujarat}
-            activeOpacity={0.8}
           >
             <MaterialIcons name="explore" size={20} color={Colors.primary} />
-          </TouchableOpacity>
+          </ScalePressable>
+
+          {/* On-ground Amenities (Water, Restrooms, Parking, Tickets) */}
+          <ScalePressable
+            style={[styles.mapActionBtn, showAmenities && styles.mapActionBtnActive]}
+            onPress={() => setShowAmenities(!showAmenities)}
+          >
+            <MaterialIcons
+              name="local-convenience-store"
+              size={19}
+              color={showAmenities ? Colors.background : Colors.primary}
+            />
+          </ScalePressable>
 
           {/* Map Layer Switcher */}
-          <TouchableOpacity
+          <ScalePressable
             style={[styles.mapActionBtn, showLayerPicker && styles.mapActionBtnActive]}
             onPress={() => setShowLayerPicker(!showLayerPicker)}
-            activeOpacity={0.8}
           >
             <MaterialIcons
               name="layers"
               size={20}
               color={showLayerPicker ? Colors.background : Colors.primary}
             />
-          </TouchableOpacity>
+          </ScalePressable>
 
           {/* My Location Button */}
-          <TouchableOpacity
+          <ScalePressable
             style={[styles.mapActionBtn, location.isGpsResolved && styles.mapActionBtnGpsActive]}
             onPress={centerOnUser}
-            activeOpacity={0.8}
           >
             <MaterialIcons
               name="my-location"
               size={20}
               color={location.isGpsResolved ? '#38BDF8' : Colors.primary}
             />
-          </TouchableOpacity>
+          </ScalePressable>
 
           {/* Google Maps Paired Zoom Controls Pill */}
           <View style={styles.zoomControlPill}>
-            <TouchableOpacity style={styles.zoomPillBtn} onPress={zoomIn} activeOpacity={0.7}>
+            <ScalePressable style={styles.zoomPillBtn} onPress={zoomIn}>
               <MaterialIcons name="add" size={19} color={Colors.text} />
-            </TouchableOpacity>
+            </ScalePressable>
             <View style={styles.zoomDivider} />
-            <TouchableOpacity style={styles.zoomPillBtn} onPress={zoomOut} activeOpacity={0.7}>
+            <ScalePressable style={styles.zoomPillBtn} onPress={zoomOut}>
               <MaterialIcons name="remove" size={19} color={Colors.text} />
-            </TouchableOpacity>
+            </ScalePressable>
           </View>
         </View>
       )}
@@ -632,7 +732,7 @@ export default function ExploreScreen() {
 
       {/* Google Maps Style Bottom Sheet Card (map mode only) */}
       {viewMode === 'map' && selectedPlace && (
-        <View style={styles.bottomCard}>
+        <SlideUpView distance={160} style={styles.bottomCard}>
           <View style={styles.dragHandle} />
 
           <View style={styles.bottomCardContent}>
@@ -714,12 +814,12 @@ export default function ExploreScreen() {
                   );
                 })()}
 
-                {/* Real-time crowd badge */}
+                {/* Real-time crowd badge with animated PulseBeacon */}
                 {(() => {
                   const crowd = getLiveCrowd(selectedPlace.name);
                   return (
                     <View style={styles.bottomCardCrowdRow}>
-                      <View style={[styles.crowdDotSmall, { backgroundColor: crowd.color }]} />
+                      <PulseBeacon color={crowd.color} size={6} glowSize={12} />
                       <Text style={[styles.bottomCardCrowdText, { color: crowd.color }]}>
                         {crowd.badge} • Est. wait: {crowd.waitTime}
                       </Text>
@@ -737,17 +837,20 @@ export default function ExploreScreen() {
               </View>
             )}
             {!isRouting && routeDestination?.id === selectedPlace.id && routeInfo && (
-              <View style={styles.activeRouteBar}>
+              <ScalePressable
+                style={styles.activeRouteBar}
+                onPress={() => setShowStepsSheet(true)}
+              >
                 <MaterialIcons name="navigation" size={15} color="#38BDF8" />
                 <Text style={styles.activeRouteText}>
-                  {routeInfo.source === 'osrm' ? 'Live road route' : 'Direct route'} • {routeInfo.distanceKm} km (~{routeInfo.durationMin} min)
+                  {routeInfo.source === 'osrm' ? 'Live road route' : 'Direct route'} • {routeInfo.distanceKm} km (~{routeInfo.durationMin} min) • Tap for steps
                 </Text>
-              </View>
+              </ScalePressable>
             )}
 
             {/* Google Maps Quick Action Buttons */}
             <View style={styles.bottomCardActions}>
-              <TouchableOpacity
+              <ScalePressable
                 style={styles.directionsPrimaryBtn}
                 onPress={() => {
                   const originLat = location.latitude || 22.3072;
@@ -759,19 +862,48 @@ export default function ExploreScreen() {
                   });
                   if (url) Linking.openURL(url).catch(() => {});
                 }}
-                activeOpacity={0.8}
               >
-                <MaterialIcons name="directions" size={16} color="#0A0A0F" />
-                <Text style={styles.directionsPrimaryBtnText}>Directions</Text>
-              </TouchableOpacity>
+                <MaterialIcons name="directions" size={15} color="#0A0A0F" />
+                <Text style={styles.directionsPrimaryBtnText}>Go</Text>
+              </ScalePressable>
 
-              <TouchableOpacity
+              {/* Spoken Audio Story */}
+              <ScalePressable
+                style={[styles.audioStoryBtn, isNarrating && styles.audioStoryBtnActive]}
+                onPress={() => toggleAudioStory(selectedPlace)}
+              >
+                {isNarrating ? (
+                  <SoundWaveVisualizer isPlaying={true} color="#0A0A0F" />
+                ) : (
+                  <MaterialIcons name="volume-up" size={15} color={Colors.primary} />
+                )}
+                <Text style={[styles.audioStoryBtnText, isNarrating && { color: '#0A0A0F' }]}>
+                  {isNarrating ? 'Pause' : 'Listen'}
+                </Text>
+              </ScalePressable>
+
+              {/* 1-Tap Ride Booking */}
+              <ScalePressable
+                style={styles.rideBtn}
+                onPress={() => setShowRideModal(true)}
+              >
+                <MaterialIcons name="local-taxi" size={15} color="#F59E0B" />
+                <Text style={styles.rideBtnText}>Ride</Text>
+              </ScalePressable>
+
+              {/* Route */}
+              <ScalePressable
                 style={[
                   styles.routeBtn,
                   routeDestination?.id === selectedPlace.id && styles.routeBtnActive,
                 ]}
-                onPress={() => handleNavigate(selectedPlace)}
-                activeOpacity={0.8}
+                onPress={() => {
+                  if (routeDestination?.id === selectedPlace.id) {
+                    setShowStepsSheet(true);
+                  } else {
+                    handleNavigate(selectedPlace);
+                  }
+                }}
               >
                 <MaterialIcons
                   name="alt-route"
@@ -784,29 +916,29 @@ export default function ExploreScreen() {
                     routeDestination?.id === selectedPlace.id && styles.routeBtnTextActive,
                   ]}
                 >
-                  {routeDestination?.id === selectedPlace.id ? 'Route Active' : 'Route'}
+                  {routeDestination?.id === selectedPlace.id ? 'Steps' : 'Route'}
                 </Text>
-              </TouchableOpacity>
+              </ScalePressable>
 
-              <TouchableOpacity
+              {/* Ask AI */}
+              <ScalePressable
                 style={styles.aiBtn}
                 onPress={() => handleAskAI(selectedPlace)}
-                activeOpacity={0.8}
               >
                 <MaterialIcons name="auto-awesome" size={15} color={Colors.textInverse} />
-                <Text style={styles.aiBtnText}>Ask AI</Text>
-              </TouchableOpacity>
+                <Text style={styles.aiBtnText}>AI</Text>
+              </ScalePressable>
 
-              <TouchableOpacity
+              {/* Details */}
+              <ScalePressable
                 style={styles.detailsBtn}
                 onPress={() => router.push(`/place/${selectedPlace.id}`)}
-                activeOpacity={0.8}
               >
                 <MaterialIcons name="info" size={15} color={Colors.text} />
-                <Text style={styles.detailsBtnText}>Details</Text>
-              </TouchableOpacity>
+              </ScalePressable>
 
-              <TouchableOpacity
+              {/* Share */}
+              <ScalePressable
                 style={styles.shareBtn}
                 onPress={() => {
                   Share.share({
@@ -814,16 +946,39 @@ export default function ExploreScreen() {
                     message: `Explore ${selectedPlace.name} in Gujarat with Yatra Heritage Guide: https://maps.google.com/?q=${selectedPlace.latitude},${selectedPlace.longitude}`,
                   }).catch(() => {});
                 }}
-                activeOpacity={0.8}
               >
                 <MaterialIcons name="share" size={15} color={Colors.textSecondary} />
-              </TouchableOpacity>
+              </ScalePressable>
             </View>
           </View>
-          <TouchableOpacity style={styles.closeBtn} onPress={() => setSelectedPlace(null)}>
+          <ScalePressable style={styles.closeBtn} onPress={() => {
+            setSelectedPlace(null);
+            Speech.stop();
+            setIsNarrating(false);
+          }}>
             <MaterialIcons name="close" size={17} color={Colors.textMuted} />
-          </TouchableOpacity>
-        </View>
+          </ScalePressable>
+        </SlideUpView>
+      )}
+
+      {/* Turn-by-Turn Maneuvers & Mode Switcher Sheet */}
+      {showStepsSheet && routeDestination && routeInfo && (
+        <TurnByTurnSheet
+          destination={routeDestination}
+          routeInfo={routeInfo}
+          currentMode={travelMode}
+          onSelectMode={(newMode) => startNavigationTo(routeDestination, newMode)}
+          onClose={() => setShowStepsSheet(false)}
+        />
+      )}
+
+      {/* 1-Tap Direct Ride Booking Modal (Uber, Rapido, Ola) */}
+      {showRideModal && selectedPlace && (
+        <MapRideBookingModal
+          place={selectedPlace}
+          userLocation={location}
+          onClose={() => setShowRideModal(false)}
+        />
       )}
     </View>
   );
@@ -1190,11 +1345,11 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   directionsPrimaryBtn: {
-    flex: 1.3,
+    flex: 0.9,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5,
+    gap: 4,
     backgroundColor: '#38BDF8',
     paddingVertical: 9,
     borderRadius: 12,
@@ -1203,6 +1358,44 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '800',
     color: '#0A0A0F',
+  },
+  audioStoryBtn: {
+    flex: 1.1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(212, 175, 124, 0.15)',
+    paddingVertical: 9,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.3)',
+  },
+  audioStoryBtnActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  audioStoryBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  rideBtn: {
+    flex: 0.9,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    paddingVertical: 9,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.3)',
+  },
+  rideBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#F59E0B',
   },
   routeBtn: {
     flex: 1,
@@ -1229,11 +1422,11 @@ const styles = StyleSheet.create({
     color: Colors.textInverse,
   },
   aiBtn: {
-    flex: 1,
+    flex: 0.8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 3,
     backgroundColor: Colors.accent,
     paddingVertical: 9,
     borderRadius: 12,
@@ -1244,21 +1437,14 @@ const styles = StyleSheet.create({
     color: Colors.textInverse,
   },
   detailsBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    backgroundColor: Colors.surfaceHighlight,
-    paddingVertical: 9,
+    width: 36,
+    height: 36,
     borderRadius: 12,
+    backgroundColor: Colors.surfaceHighlight,
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.border,
-  },
-  detailsBtnText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: Colors.text,
   },
   shareBtn: {
     width: 36,
@@ -1320,14 +1506,17 @@ const styles = StyleSheet.create({
   },
   closeBtn: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 10,
+    right: 10,
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: 'rgba(23, 23, 23, 0.9)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 99,
   },
   crowdFilterRow: {
     paddingHorizontal: Spacing.base,

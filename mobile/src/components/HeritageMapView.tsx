@@ -4,8 +4,18 @@ import { WebView } from 'react-native-webview';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../constants/theme';
 import type { Place } from '../stores';
+import { ScalePressable, SlideDownView, PulseBeacon } from './common/MicroAnimations';
 
 export type MapLayerType = 'streets' | 'satellite' | 'terrain' | 'dark' | 'osm';
+
+export interface AmenityItem {
+  id: string;
+  type: 'water' | 'restroom' | 'parking' | 'ticket' | 'info';
+  name: string;
+  latitude: number;
+  longitude: number;
+  distanceMeters: number;
+}
 
 interface HeritageMapViewProps {
   places: Place[];
@@ -15,12 +25,14 @@ interface HeritageMapViewProps {
   userLocation: { latitude: number; longitude: number };
   mapRef?: any;
   mapLayer?: MapLayerType;
+  amenities?: AmenityItem[];
   routeDestination?: Place | null;
   routeCoordinates?: Array<{ latitude: number; longitude: number }>;
   routeBearing?: number;
   routeDistanceKm?: number;
   routeDurationMin?: number;
   onClearRoute?: () => void;
+  onPressSteps?: () => void;
 }
 
 export const TILE_URLS: Record<MapLayerType, string> = {
@@ -47,12 +59,14 @@ export function HeritageMapView({
   userLocation,
   mapRef,
   mapLayer = 'streets',
+  amenities,
   routeDestination,
   routeCoordinates,
   routeBearing,
   routeDistanceKm,
   routeDurationMin,
   onClearRoute,
+  onPressSteps,
 }: HeritageMapViewProps) {
   const webViewRef = useRef<WebView>(null);
 
@@ -168,6 +182,14 @@ export function HeritageMapView({
       `);
     }
   }, [userLocation?.latitude, userLocation?.longitude]);
+
+  // Handle on-ground amenities overlay
+  useEffect(() => {
+    webViewRef.current?.injectJavaScript(`
+      if (window.setAmenities) window.setAmenities(${JSON.stringify(amenities || [])});
+      true;
+    `);
+  }, [amenities]);
 
   const initialLat = userLocation?.latitude && userLocation.latitude > 6 ? userLocation.latitude : 22.3072;
   const initialLng = userLocation?.longitude && userLocation.longitude > 68 ? userLocation.longitude : 73.1812;
@@ -493,6 +515,34 @@ export function HeritageMapView({
       map.fitBounds(latLngs, { padding: [60, 60] });
     };
 
+    var amenityMarkers = [];
+    window.setAmenities = function(list) {
+      if (!mapReady || !map) {
+        pendingActions.push(function() { window.setAmenities(list); });
+        return;
+      }
+      amenityMarkers.forEach(function(m) { map.removeLayer(m); });
+      amenityMarkers = [];
+      if (!list || list.length === 0) return;
+
+      var AMENITY_ICONS = {
+        water: { bg: '#0284C7', icon: '💧' },
+        restroom: { bg: '#059669', icon: '🚻' },
+        parking: { bg: '#D97706', icon: '🅿️' },
+        ticket: { bg: '#7C3AED', icon: '🎫' },
+        info: { bg: '#4B5563', icon: 'ℹ️' }
+      };
+
+      list.forEach(function(a) {
+        var cfg = AMENITY_ICONS[a.type] || AMENITY_ICONS.info;
+        var html = '<div style="width:26px; height:26px; border-radius:50%; background:' + cfg.bg + '; border:2px solid #FFFFFF; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 8px rgba(0,0,0,0.5); font-size:12px;">' + cfg.icon + '</div>';
+        var icon = L.divIcon({ className: '', html: html, iconSize: [26, 26], iconAnchor: [13, 13] });
+        var m = L.marker([a.latitude, a.longitude], { icon: icon, zIndexOffset: 1500 }).addTo(map);
+        m.bindPopup('<div style="font-weight:700; font-size:12px; color:#F5F1E8; margin-bottom:2px;">' + a.name + '</div><div style="font-size:10px; color:#A7A7A7;">' + a.distanceMeters + 'm from site entrance</div>', { closeButton: false, offset: [0, -14] });
+        amenityMarkers.push(m);
+      });
+    };
+
     function initMap() {
       if (mapReady || typeof L === 'undefined') return;
 
@@ -616,8 +666,12 @@ export function HeritageMapView({
 
       {/* Active Navigation Route HUD */}
       {routeDestination && (
-        <View style={styles.navigationHud}>
-          <View style={styles.navHudLeft}>
+        <SlideDownView distance={35} style={styles.navigationHud}>
+          <ScalePressable
+            style={styles.navHudLeft}
+            onPress={onPressSteps}
+            activeOpacity={0.85}
+          >
             <View style={styles.navHudIconWrap}>
               <MaterialIcons
                 name="navigation"
@@ -628,19 +682,29 @@ export function HeritageMapView({
             </View>
             <View style={{ flex: 1 }}>
               <View style={styles.navHudTitleRow}>
-                <View style={styles.liveRouteDot} />
+                <PulseBeacon color={Colors.success} size={6} glowSize={14} />
                 <Text style={styles.navHudTitle} numberOfLines={1}>
                   {routeDestination.name}
                 </Text>
               </View>
               <Text style={styles.navHudMetrics}>
-                {routeDistanceKm ?? '--'} km • ~{routeDurationMin ?? '--'} min drive
+                {routeDistanceKm ?? '--'} km • ~{routeDurationMin ?? '--'} min • Tap for steps
               </Text>
             </View>
-          </View>
+          </ScalePressable>
 
           <View style={styles.navHudActions}>
-            <TouchableOpacity
+            {onPressSteps && (
+              <ScalePressable
+                style={styles.navHudStepsBtn}
+                onPress={onPressSteps}
+              >
+                <MaterialIcons name="format-list-bulleted" size={15} color={Colors.primary} />
+                <Text style={styles.navHudStepsText}>Steps</Text>
+              </ScalePressable>
+            )}
+
+            <ScalePressable
               style={styles.navHudStartBtn}
               onPress={() => {
                 const url = Platform.select({
@@ -650,23 +714,21 @@ export function HeritageMapView({
                 });
                 if (url) Linking.openURL(url);
               }}
-              activeOpacity={0.8}
             >
               <MaterialIcons name="directions" size={15} color="#0A0A0F" />
               <Text style={styles.navHudStartText}>Go</Text>
-            </TouchableOpacity>
+            </ScalePressable>
 
             {onClearRoute && (
-              <TouchableOpacity
+              <ScalePressable
                 style={styles.navHudCloseBtn}
                 onPress={onClearRoute}
-                activeOpacity={0.8}
               >
                 <MaterialIcons name="close" size={15} color="#CBD5E1" />
-              </TouchableOpacity>
+              </ScalePressable>
             )}
           </View>
-        </View>
+        </SlideDownView>
       )}
     </View>
   );
@@ -757,6 +819,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+  },
+  navHudStepsBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: 'rgba(212, 175, 124, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.3)',
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: BorderRadius.sm,
+  },
+  navHudStepsText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.primary,
   },
   navHudStartBtn: {
     flexDirection: 'row',

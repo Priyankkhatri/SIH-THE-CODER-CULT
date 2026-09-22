@@ -208,3 +208,63 @@ export async function openNativeNavigation(dest: TransitDestination): Promise<vo
     Alert.alert('Navigation', 'Could not open Maps navigation.');
   }
 }
+
+export interface RideFareBreakdown {
+  distanceKm: number;
+  estimatedDurationMin: number;
+  auto: { min: number; max: number };
+  bike: { min: number; max: number };
+  cab: { min: number; max: number };
+}
+
+export function estimateFares(
+  originLat: number,
+  originLng: number,
+  destLat: number,
+  destLng: number,
+  city?: string
+): RideFareBreakdown {
+  const R = 6371; // Earth radius in km
+  const dLat = ((destLat - originLat) * Math.PI) / 180;
+  const dLon = ((destLng - originLng) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((originLat * Math.PI) / 180) *
+      Math.cos((destLat * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const rawDist = R * c;
+  const roadFactor = 1.35; // typical road network multiplier
+  const distanceKm = Math.max(1, parseFloat((rawDist * roadFactor).toFixed(1)));
+  const estimatedDurationMin = Math.round(distanceKm * 2.5 + 4);
+
+  return {
+    distanceKm,
+    estimatedDurationMin,
+    auto: {
+      min: Math.max(30, Math.round(30 + distanceKm * 13)),
+      max: Math.max(45, Math.round(45 + distanceKm * 17)),
+    },
+    bike: {
+      min: Math.max(20, Math.round(20 + distanceKm * 7)),
+      max: Math.max(35, Math.round(30 + distanceKm * 10)),
+    },
+    cab: {
+      min: Math.max(80, Math.round(75 + distanceKm * 19)),
+      max: Math.max(120, Math.round(110 + distanceKm * 25)),
+    },
+  };
+}
+
+export const transitService = {
+  estimateFares,
+  launchUber: openUberRide,
+  launchRapido: openRapidoRide,
+  launchOlaCabs: openOlaRide,
+  openUberRide,
+  openRapidoRide,
+  openOlaRide,
+  openNativeNavigation,
+};
+

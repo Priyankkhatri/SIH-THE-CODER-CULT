@@ -1,9 +1,20 @@
+export interface RouteStep {
+  instruction: string;
+  maneuverType: string;
+  modifier?: string;
+  name: string;
+  distanceMeters: number;
+  durationSeconds: number;
+}
+
 export interface RouteResult {
   coordinates: Array<{ latitude: number; longitude: number }>;
   distanceKm: number;
   durationMinutes: number;
   durationMin: number;
   bearing: number;
+  travelMode?: TravelMode;
+  steps?: RouteStep[];
   bbox?: {
     minLat: number;
     maxLat: number;
@@ -13,7 +24,7 @@ export interface RouteResult {
   source: 'osrm' | 'fallback';
 }
 
-export type TravelMode = 'driving' | 'walking';
+export type TravelMode = 'driving' | 'walking' | 'transit';
 
 export function haversineDistance(
   lat1: number,
@@ -76,12 +87,10 @@ export function generateDirectPath(
   steps = 32
 ): Array<{ latitude: number; longitude: number }> {
   const coords: Array<{ latitude: number; longitude: number }> = [];
-  // Perpendicular bow scaled to trip length (subtle curve, max ~0.02deg)
   const dist = Math.hypot(endLat - startLat, endLng - startLng);
   const bow = Math.min(0.02, dist * 0.06);
   for (let i = 0; i <= steps; i++) {
     const f = i / steps;
-    // Sine bow peaks mid-route, zero at endpoints
     const curve = Math.sin(f * Math.PI) * bow;
     coords.push({
       latitude: startLat + (endLat - startLat) * f + curve * 0.6,
@@ -91,7 +100,21 @@ export function generateDirectPath(
   return coords;
 }
 
-// Fetches actual road route from OSRM with curved fallback path
+function formatManeuverInstruction(step: any): string {
+  const type = step.maneuver?.type || 'turn';
+  const mod = (step.maneuver?.modifier || '').replace('_', ' ');
+  const street = step.name ? ` onto ${step.name}` : '';
+
+  if (type === 'depart') return `Head ${mod || 'north'}${street}`;
+  if (type === 'arrive') return `Arrive at destination${step.name ? ` (${step.name})` : ''}`;
+  if (type === 'roundabout') return `Take roundabout ${mod}${street}`;
+  if (type === 'fork') return `Keep ${mod}${street}`;
+  if (type === 'end of road') return `At the end of the road, turn ${mod}${street}`;
+  if (mod) return `Turn ${mod}${street}`;
+  return `Continue straight${street}`;
+}
+
+// Fetches actual road route from OSRM with step-by-step maneuvers
 export async function getRoute(
   startLat: number,
   startLng: number,
@@ -101,7 +124,7 @@ export async function getRoute(
 ): Promise<RouteResult> {
   const directDist = haversineDistance(startLat, startLng, endLat, endLng);
   const bearing = calculateBearing(startLat, startLng, endLat, endLng);
-  const avgSpeedKmh = travelMode === 'walking' ? 5 : 45;
+  const avgSpeedKmh = travelMode === 'walking' ? 5 : travelMode === 'transit' ? 32 : 45;
   const directDuration = Math.max(2, Math.round((directDist / avgSpeedKmh) * 60));
   const profile = travelMode === 'walking' ? 'foot' : 'driving';
 
@@ -109,7 +132,7 @@ export async function getRoute(
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
 
-    const osrmUrl = `https://router.project-osrm.org/route/v1/${profile}/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
+    const osrmUrl = `https://router.project-osrm.org/route/v1/${profile}/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson&steps=true`;
     const res = await fetch(osrmUrl, {
       headers: { 'User-Agent': 'Yatra-Heritage-App/1.0' },
       signal: controller.signal,
@@ -130,26 +153,61 @@ export async function getRoute(
           ? parsedCoords
           : generateDirectPath(startLat, startLng, endLat, endLng);
 
+      // Parse step-by-step maneuvers
+      const rawSteps = r.legs?.[0]?.steps || [];
+      const steps: RouteStep[] = rawSteps.map((st: any) => ({
+        instruction: formatManeuverInstruction(st),
+        maneuverType: st.maneuver?.type || 'turn',
+        modifier: st.maneuver?.modifier || '',
+        name: st.name || '',
+        distanceMeters: Math.round(st.distance || 0),
+        durationSeconds: Math.round(st.duration || 0),
+      }));
+
+      const baseDurationMin = Math.max(1, Math.round(r.duration / 60));
+      // Adjust duration for transit mode (accounting for traffic + station stops)
+      const adjustedDuration = travelMode === 'transit' ? Math.round(baseDurationMin * 1.35 + 4) : baseDurationMin;
+
       return {
         coordinates: coords,
         distanceKm: Number((r.distance / 1000).toFixed(1)),
-        durationMinutes: Math.max(1, Math.round(r.duration / 60)),
-        durationMin: Math.max(1, Math.round(r.duration / 60)),
+        durationMinutes: adjustedDuration,
+        durationMin: adjustedDuration,
         bearing,
+        travelMode,
+        steps: steps.length > 0 ? steps : undefined,
         bbox: computeBbox(coords),
         source: 'osrm',
       };
     }
     throw new Error('OSRM empty route');
   } catch (err) {
-    // Network/timeout: curved fallback keeps in-app line + HUD alive
     const coords = generateDirectPath(startLat, startLng, endLat, endLng);
+    const fallbackSteps: RouteStep[] = [
+      {
+        instruction: `Head towards destination along main arterial route`,
+        maneuverType: 'depart',
+        name: 'Arterial Road',
+        distanceMeters: Math.round(directDist * 800),
+        durationSeconds: directDuration * 45,
+      },
+      {
+        instruction: `Arrive at heritage destination`,
+        maneuverType: 'arrive',
+        name: 'Heritage Site Gate',
+        distanceMeters: Math.round(directDist * 200),
+        durationSeconds: directDuration * 15,
+      },
+    ];
+
     return {
       coordinates: coords,
       distanceKm: Number(directDist.toFixed(1)),
       durationMinutes: directDuration,
       durationMin: directDuration,
       bearing,
+      travelMode,
+      steps: fallbackSteps,
       bbox: computeBbox(coords),
       source: 'fallback',
     };

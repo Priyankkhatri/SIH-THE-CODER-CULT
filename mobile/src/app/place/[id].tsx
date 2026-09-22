@@ -32,6 +32,7 @@ import { ProGateTipsSection } from '../../components/ProGateTipsSection';
 import { PlaceDetailSkeleton } from '../../components/Skeleton';
 import { dynamicImageService, GalleryImage } from '../../services/dynamicImageService';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
+import { ScalePressable } from '../../components/common/MicroAnimations';
 
 const { width } = Dimensions.get('window');
 
@@ -465,30 +466,29 @@ export default function PlaceDetailScreen() {
 
           {/* Top buttons */}
           <View style={styles.topBar}>
-            <TouchableOpacity style={styles.topBtn} onPress={() => router.back()}>
+            <ScalePressable style={styles.topBtn} onPress={() => router.back()}>
               <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
-            </TouchableOpacity>
+            </ScalePressable>
             <View style={{ flexDirection: 'row', gap: 10 }}>
-              <TouchableOpacity
+              <ScalePressable
                 style={styles.topBtn}
                 onPress={() => loadHeritage(true)}
-                activeOpacity={0.8}
               >
                 <MaterialIcons name="refresh" size={20} color={Colors.text} />
-              </TouchableOpacity>
-              <TouchableOpacity
+              </ScalePressable>
+              <ScalePressable
                 style={[styles.topBtn, { backgroundColor: 'rgba(239, 83, 80, 0.25)' }]}
                 onPress={() => setSosVisible(true)}
               >
                 <MaterialIcons name="emergency" size={20} color="#EF5350" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.topBtn} onPress={() => id && toggleFavorite(id)}>
+              </ScalePressable>
+              <ScalePressable style={styles.topBtn} onPress={() => id && toggleFavorite(id)}>
                 <MaterialIcons
                   name={isFavorite ? 'favorite' : 'favorite-border'}
                   size={24}
                   color={isFavorite ? Colors.error : Colors.text}
                 />
-              </TouchableOpacity>
+              </ScalePressable>
             </View>
           </View>
 
@@ -585,22 +585,22 @@ export default function PlaceDetailScreen() {
         <View style={styles.content}>
           {/* Premium actions — quiet hierarchy: Ask AI primary, rest ghost */}
           <View style={styles.actionsRow}>
-            <TouchableOpacity style={[styles.actionBtn, styles.actionPrimary]} onPress={handleAskAI}>
+            <ScalePressable style={[styles.actionBtn, styles.actionPrimary]} onPress={handleAskAI}>
               <MaterialIcons name="auto-awesome" size={19} color="#0F0F0F" />
               <Text style={[styles.actionLabel, styles.actionLabelPrimary]}>{t('common.askAi')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn} onPress={handleListen}>
+            </ScalePressable>
+            <ScalePressable style={styles.actionBtn} onPress={handleListen}>
               <MaterialIcons name={isSpeaking ? 'stop' : 'headphones'} size={19} color={Colors.text} />
               <Text style={styles.actionLabel}>{isSpeaking ? t('common.stop') : t('common.listen')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/camera')}>
+            </ScalePressable>
+            <ScalePressable style={styles.actionBtn} onPress={() => router.push('/camera')}>
               <MaterialIcons name="camera-alt" size={19} color={Colors.text} />
               <Text style={styles.actionLabel}>{t('common.identify')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn} onPress={handleDirections}>
+            </ScalePressable>
+            <ScalePressable style={styles.actionBtn} onPress={handleDirections}>
               <MaterialIcons name="directions" size={19} color={Colors.text} />
               <Text style={styles.actionLabel}>{t('common.directions')}</Text>
-            </TouchableOpacity>
+            </ScalePressable>
           </View>
 
           {/* Live Weather & Crowd Density Radar Bar */}

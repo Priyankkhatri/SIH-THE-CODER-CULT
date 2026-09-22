@@ -8,6 +8,8 @@ import { useTranslation } from '../hooks/useTranslation';
 import { getLiveCrowd } from '../utils/touristMeta';
 import { dynamicImageService } from '../services/dynamicImageService';
 
+import { ScalePressable, PulseBeacon } from './common/MicroAnimations';
+
 interface PlaceCardProps {
   place: Place;
   onPress: (place: Place) => void;
@@ -68,10 +70,10 @@ function PlaceCardComponent({ place, onPress, variant = 'vertical', isFavorite, 
 
   if (variant === 'horizontal') {
     return (
-      <TouchableOpacity
+      <ScalePressable
         style={styles.horizontalCard}
         onPress={() => onPress(place)}
-        activeOpacity={0.85}
+        minScale={0.97}
       >
         <Image
           source={{ uri: currentImg }}
@@ -91,7 +93,7 @@ function PlaceCardComponent({ place, onPress, variant = 'vertical', isFavorite, 
               </Text>
             </View>
             <View style={[styles.crowdBadge, { backgroundColor: crowd.color + '25', borderColor: crowd.color + '55' }]}>
-              <View style={[styles.crowdDot, { backgroundColor: crowd.color }]} />
+              <PulseBeacon color={crowd.color} size={5} glowSize={10} />
               <Text style={[styles.crowdBadgeText, { color: crowd.color }]} numberOfLines={1}>
                 {crowd.level}
               </Text>
@@ -113,15 +115,15 @@ function PlaceCardComponent({ place, onPress, variant = 'vertical', isFavorite, 
             )}
           </View>
         </View>
-      </TouchableOpacity>
+      </ScalePressable>
     );
   }
 
   return (
-    <TouchableOpacity
+    <ScalePressable
       style={styles.verticalCard}
       onPress={() => onPress(place)}
-      activeOpacity={0.85}
+      minScale={0.97}
     >
       <Image
         source={{ uri: currentImg }}
@@ -135,17 +137,17 @@ function PlaceCardComponent({ place, onPress, variant = 'vertical', isFavorite, 
       />
 
       {onFavoriteToggle && (
-        <TouchableOpacity
+        <ScalePressable
           style={styles.favoriteButton}
           onPress={() => onFavoriteToggle(place.id)}
-          activeOpacity={0.7}
+          minScale={0.82}
         >
           <MaterialIcons
             name={isFavorite ? 'favorite' : 'favorite-border'}
             size={20}
             color={isFavorite ? Colors.error : Colors.text}
           />
-        </TouchableOpacity>
+        </ScalePressable>
       )}
       <View style={styles.verticalContent}>
         <View style={styles.cardHeaderRow}>
@@ -155,7 +157,7 @@ function PlaceCardComponent({ place, onPress, variant = 'vertical', isFavorite, 
             </Text>
           </View>
           <View style={[styles.crowdBadge, { backgroundColor: crowd.color + '25', borderColor: crowd.color + '55' }]}>
-            <View style={[styles.crowdDot, { backgroundColor: crowd.color }]} />
+            <PulseBeacon color={crowd.color} size={5} glowSize={10} />
             <Text style={[styles.crowdBadgeText, { color: crowd.color }]} numberOfLines={1}>
               {crowd.level}
             </Text>
@@ -180,7 +182,7 @@ function PlaceCardComponent({ place, onPress, variant = 'vertical', isFavorite, 
           )}
         </View>
       </View>
-    </TouchableOpacity>
+    </ScalePressable>
   );
 }
 
