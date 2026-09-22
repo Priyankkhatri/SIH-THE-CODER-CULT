@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, BorderRadius, Shadows } from '../constants/theme';
-import { openUberRide, openRapidoRide, openNativeNavigation } from '../services/transitService';
+import { openUberRide, openRapidoRide, openOlaRide, openNativeNavigation } from '../services/transitService';
 import { estimateTransitFares } from '../services/transitFareEstimator';
 
 interface RideBookingSectionProps {
@@ -36,8 +36,14 @@ export function RideBookingSection({
     setTimeout(() => setDispatchNotice(null), 4500);
   };
 
+  const handleOla = async () => {
+    setDispatchNotice(`Opening Ola with GPS dropoff at ${placeName}...`);
+    await openOlaRide(destination);
+    setTimeout(() => setDispatchNotice(null), 4500);
+  };
+
   const handleRapido = async () => {
-    setDispatchNotice(`Opening Rapido & copied "${placeName}" to clipboard...`);
+    setDispatchNotice(`Opening Rapido & copied "${placeName}" to clipboard!`);
     await openRapidoRide(destination);
     setTimeout(() => setDispatchNotice(null), 4500);
   };
@@ -97,7 +103,32 @@ export function RideBookingSection({
           </View>
         </TouchableOpacity>
 
-        {/* 2. Rapido Ride Card */}
+        {/* 2. Ola Cabs Ride Card */}
+        <TouchableOpacity
+          style={styles.rideCard}
+          onPress={handleOla}
+          activeOpacity={0.82}
+        >
+          <View style={[styles.rideIconBadge, styles.olaBadge]}>
+            <MaterialIcons name="local-taxi" size={22} color="#0A0A0F" />
+          </View>
+          <View style={styles.rideContent}>
+            <View style={styles.rideTitleRow}>
+              <Text style={styles.rideProviderName}>Ola Cabs</Text>
+              <View style={[styles.tagPill, styles.olaTagPill]}>
+                <Text style={[styles.tagPillText, styles.olaTagText]}>Auto GPS Drop</Text>
+              </View>
+            </View>
+            <Text style={styles.rideDesc}>
+              Prime, Mini cabs & auto-rickshaws with pre-filled destination.
+            </Text>
+          </View>
+          <View style={styles.rideActionArrow}>
+            <MaterialIcons name="arrow-forward" size={16} color={Colors.primary} />
+          </View>
+        </TouchableOpacity>
+
+        {/* 3. Rapido Ride Card */}
         <TouchableOpacity
           style={styles.rideCard}
           onPress={handleRapido}
@@ -110,11 +141,11 @@ export function RideBookingSection({
             <View style={styles.rideTitleRow}>
               <Text style={styles.rideProviderName}>Rapido</Text>
               <View style={[styles.tagPill, styles.rapidoTagPill]}>
-                <Text style={[styles.tagPillText, styles.rapidoTagText]}>Fast & Low Cost</Text>
+                <Text style={[styles.tagPillText, styles.rapidoTagText]}>Bike & Auto</Text>
               </View>
             </View>
             <Text style={styles.rideDesc}>
-              Quick auto-rickshaws & bike taxis. Ideal for narrow heritage lanes.
+              Copies "{placeName}" to clipboard for 1-tap paste in Rapido search.
             </Text>
           </View>
           <View style={styles.rideActionArrow}>
@@ -338,6 +369,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
+  olaBadge: {
+    backgroundColor: '#CCFF00',
+  },
   rapidoBadge: {
     backgroundColor: '#FFC107',
   },
@@ -368,6 +402,12 @@ const styles = StyleSheet.create({
     fontSize: 9.5,
     fontWeight: '700',
     color: Colors.textSecondary,
+  },
+  olaTagPill: {
+    backgroundColor: 'rgba(204, 255, 0, 0.15)',
+  },
+  olaTagText: {
+    color: '#CCFF00',
   },
   rapidoTagPill: {
     backgroundColor: 'rgba(255, 193, 7, 0.15)',
