@@ -21,12 +21,25 @@ export function RideBookingSection({
 }: RideBookingSectionProps) {
   const router = useRouter();
   const [showTips, setShowTips] = useState(false);
+  const [dispatchNotice, setDispatchNotice] = useState<string | null>(null);
 
   const destination = {
     name: placeName,
     latitude,
     longitude,
     address: cityOrState,
+  };
+
+  const handleUber = async () => {
+    setDispatchNotice(`Opening Uber with GPS dropoff at ${placeName}...`);
+    await openUberRide(destination);
+    setTimeout(() => setDispatchNotice(null), 4500);
+  };
+
+  const handleRapido = async () => {
+    setDispatchNotice(`Opening Rapido & copied "${placeName}" to clipboard...`);
+    await openRapidoRide(destination);
+    setTimeout(() => setDispatchNotice(null), 4500);
   };
 
   const fareData = estimateTransitFares(placeName, cityOrState);
@@ -49,12 +62,20 @@ export function RideBookingSection({
         Coordinates and destination name are automatically pre-filled into your ride app.
       </Text>
 
+      {/* Dispatch Status Pill */}
+      {dispatchNotice && (
+        <View style={styles.dispatchNoticeBanner}>
+          <MaterialIcons name="gps-fixed" size={14} color={Colors.primary} />
+          <Text style={styles.dispatchNoticeText}>{dispatchNotice}</Text>
+        </View>
+      )}
+
       {/* Ride Options Grid */}
       <View style={styles.ridesContainer}>
         {/* 1. Uber Ride Card */}
         <TouchableOpacity
           style={styles.rideCard}
-          onPress={() => openUberRide(destination)}
+          onPress={handleUber}
           activeOpacity={0.82}
         >
           <View style={[styles.rideIconBadge, styles.uberBadge]}>
@@ -68,7 +89,7 @@ export function RideBookingSection({
               </View>
             </View>
             <Text style={styles.rideDesc}>
-              Comfortable AC cabs & official metered autos with live GPS tracking.
+              Direct GPS dropoff at {placeName} with live driver tracking.
             </Text>
           </View>
           <View style={styles.rideActionArrow}>
@@ -79,7 +100,7 @@ export function RideBookingSection({
         {/* 2. Rapido Ride Card */}
         <TouchableOpacity
           style={styles.rideCard}
-          onPress={() => openRapidoRide(destination)}
+          onPress={handleRapido}
           activeOpacity={0.82}
         >
           <View style={[styles.rideIconBadge, styles.rapidoBadge]}>
@@ -269,6 +290,24 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     lineHeight: 18,
     marginBottom: 16,
+  },
+  dispatchNoticeBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(212, 175, 124, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.35)',
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 12,
+  },
+  dispatchNoticeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.primary,
+    flex: 1,
   },
   ridesContainer: {
     gap: 12,
