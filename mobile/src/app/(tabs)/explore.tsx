@@ -283,9 +283,21 @@ export default function ExploreScreen() {
     }
   };
 
-  const zoomIn = () => zoomByDelta(0.5);
+  const zoomIn = () => {
+    if (typeof mapRef.current?.zoomIn === 'function') {
+      mapRef.current.zoomIn();
+    } else {
+      zoomByDelta(0.5);
+    }
+  };
 
-  const zoomOut = () => zoomByDelta(2);
+  const zoomOut = () => {
+    if (typeof mapRef.current?.zoomOut === 'function') {
+      mapRef.current.zoomOut();
+    } else {
+      zoomByDelta(2);
+    }
+  };
 
   // Enable continuous location tracking on active radar/map
   useEffect(() => {
