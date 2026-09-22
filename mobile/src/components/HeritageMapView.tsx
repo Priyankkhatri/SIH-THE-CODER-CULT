@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Platform, TouchableOpacity, Linking } from 'react-native';
 import MapView, { Marker, Polyline, Callout, UrlTile } from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -23,39 +23,23 @@ interface HeritageMapViewProps {
   onClearRoute?: () => void;
 }
 
-// Sleek high-contrast Google Maps Dark Style (100% Native vector, no watermark)
-export const DARK_GOOGLE_MAP_STYLE = [
-  { elementType: 'geometry', stylers: [{ color: '#161b22' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#161b22' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#94a3b8' }] },
-  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#f1f5f9' }] },
-  { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#cbd5e1' }] },
-  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#13282b' }] },
-  { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#6ee7b7' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#263342' }] },
-  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#19222d' }] },
-  { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#cbd5e1' }] },
-  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#D4AF7C' }] },
-  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#1f2937' }] },
-  { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#ffffff' }] },
-  { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#1e293b' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0f172a' }] },
-  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#64748b' }] },
+// Dark style for base canvas
+export const DARK_MAP_STYLE = [
+  { elementType: 'geometry', stylers: [{ color: '#121212' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#121212' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#888888' }] },
+  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#e0e0e0' }] },
+  { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#a0a0a0' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#222222' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0d1117' }] },
 ];
 
-// High-Definition free tile layers — no API key required (OSM + CARTO + Esri + OTM).
-// UrlTile replaces base map content so Android never depends on Google vector tiles
-// (which render blank white in Expo Go without a dev-build-injected key).
+// High-Definition free tile layers — zero API key required (CARTO + Esri + OSM + OTM).
 export const TILE_URLS: Record<MapLayerType, string | null> = {
-  // Detailed streets: CARTO Voyager HD retina
   streets: 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-  // Satellite: Esri World Imagery (true satellite detail)
   satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-  // Terrain: OpenTopoMap topographic detail
   terrain: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
-  // Dark: CARTO Dark Matter HD — matches heritage-gold theme
   dark: 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-  // OSM: OpenStreetMap standard global street atlas (100% free)
   osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
 };
 
@@ -84,6 +68,86 @@ function getCategoryIcon(category: string): keyof typeof MaterialIcons.glyphMap 
   }
 }
 
+// Memoized custom marker to eliminate unnecessary GPU texture re-rendering
+const HeritageMarker = React.memo(function HeritageMarker({
+  place,
+  isSelected,
+  isDestination,
+  onSelect,
+  onDetails,
+}: {
+  place: Place;
+  isSelected: boolean;
+  isDestination: boolean;
+  onSelect: (place: Place) => void;
+  onDetails: (placeId: string) => void;
+}) {
+  // Allow 1 frame for initial native paint, then freeze bitmap tracking for 60fps scrolling
+  const [tracksViewChanges, setTracksViewChanges] = useState(true);
+
+  useEffect(() => {
+    setTracksViewChanges(true);
+    const timer = setTimeout(() => setTracksViewChanges(false), 200);
+    return () => clearTimeout(timer);
+  }, [isSelected, isDestination]);
+
+  const pinColor = isDestination
+    ? Colors.primary
+    : CATEGORY_COLORS[place.category] || Colors.primary;
+  const iconName = getCategoryIcon(place.category);
+
+  return (
+    <Marker
+      coordinate={{ latitude: place.latitude, longitude: place.longitude }}
+      title={place.name}
+      description={place.shortDescription?.substring(0, 80)}
+      onPress={() => onSelect(place)}
+      tracksViewChanges={tracksViewChanges}
+    >
+      <View style={styles.markerAnchor}>
+        {(isSelected || isDestination) && <View style={styles.markerPulseRing} />}
+        <View
+          style={[
+            styles.markerBadge,
+            (isSelected || isDestination) && styles.markerBadgeSelected,
+            { backgroundColor: pinColor },
+          ]}
+        >
+          <MaterialIcons
+            name={isDestination ? 'flag' : iconName}
+            size={isSelected || isDestination ? 15 : 12}
+            color="#FFFFFF"
+          />
+        </View>
+        <View style={[styles.markerArrow, { borderTopColor: pinColor }]} />
+      </View>
+
+      <Callout tooltip onPress={() => onDetails(place.id)}>
+        <View style={styles.calloutContainer}>
+          <View style={styles.calloutHeader}>
+            <Text style={styles.calloutTitle} numberOfLines={1}>
+              {place.name}
+            </Text>
+            {place.rating !== undefined && (
+              <View style={styles.calloutRating}>
+                <MaterialIcons name="star" size={11} color={Colors.primary} />
+                <Text style={styles.calloutRatingText}>{place.rating}</Text>
+              </View>
+            )}
+          </View>
+          <Text style={styles.calloutDesc} numberOfLines={2}>
+            {place.shortDescription || 'Historical monument cataloged in heritage registry.'}
+          </Text>
+          <View style={styles.calloutFooter}>
+            <Text style={styles.calloutCategory}>{(place.category || 'heritage').toUpperCase()}</Text>
+            <Text style={styles.calloutTap}>View Details →</Text>
+          </View>
+        </View>
+      </Callout>
+    </Marker>
+  );
+});
+
 export function HeritageMapView({
   places,
   selectedPlace,
@@ -99,9 +163,8 @@ export function HeritageMapView({
   routeDurationMin,
   onClearRoute,
 }: HeritageMapViewProps) {
-  // 1. Sanitize & filter valid numeric coordinates to prevent map render glitches.
-  // Tight India bbox drops null-island / corrupt seeds that stretch the camera.
-  const validPlaces = React.useMemo(() => {
+  // Sanitize numeric coordinates
+  const validPlaces = useMemo(() => {
     return (places || []).filter(
       (p) =>
         p &&
@@ -116,22 +179,31 @@ export function HeritageMapView({
     );
   }, [places]);
 
-  const [mapReady, setMapReady] = React.useState(false);
-  const [tileFailed, setTileFailed] = React.useState(false);
+  // Viewport optimization: cull markers when array is huge to keep 60 FPS
+  const displayPlaces = useMemo(() => {
+    if (validPlaces.length <= 48) return validPlaces;
 
-  // Never trap the user behind a loading veil: reveal map after 6s even if
-  // onMapReady is delayed by slow tiles, and flag degraded mode.
-  React.useEffect(() => {
-    if (mapReady) return;
-    const t = setTimeout(() => {
-      setMapReady(true);
-      setTileFailed(true);
-    }, 6000);
-    return () => clearTimeout(t);
-  }, [mapReady, mapLayer]);
+    const selectedId = selectedPlace?.id;
+    const destId = routeDestination?.id;
+    const priority: Place[] = [];
+    const others: Place[] = [];
 
-  // 2. Smooth auto-focus camera when a place is tapped or searched
-  React.useEffect(() => {
+    for (const p of validPlaces) {
+      if (p.id === selectedId || p.id === destId) {
+        priority.push(p);
+      } else {
+        others.push(p);
+      }
+    }
+
+    // Retain top 45 priority & nearest places to prevent GPU memory saturation
+    return [...priority, ...others.slice(0, 44)];
+  }, [validPlaces, selectedPlace?.id, routeDestination?.id]);
+
+  const [mapReady, setMapReady] = useState(false);
+
+  // Smooth auto-focus camera when a place is selected
+  useEffect(() => {
     if (selectedPlace && mapRef?.current && typeof (mapRef.current as any).animateToRegion === 'function') {
       const lat = Number(selectedPlace.latitude);
       const lng = Number(selectedPlace.longitude);
@@ -143,14 +215,14 @@ export function HeritageMapView({
             latitudeDelta: 0.04,
             longitudeDelta: 0.04,
           },
-          500
+          450
         );
       }
     }
   }, [selectedPlace]);
 
-  // 3. User-location or Vadodara detail region — streets/labels visible instantly.
-  const initialRegion = React.useMemo(() => {
+  // Initial region: user location or Gujarat heritage center
+  const initialRegion = useMemo(() => {
     const lat = userLocation?.latitude && userLocation.latitude >= 6 && userLocation.latitude <= 38
       ? userLocation.latitude
       : 22.3072;
@@ -163,12 +235,12 @@ export function HeritageMapView({
       latitudeDelta: 0.14,
       longitudeDelta: 0.14,
     };
-  }, [userLocation?.latitude, userLocation?.longitude]);
+  }, []);
 
   const tileUrl = TILE_URLS[mapLayer];
 
-  // Mid-route arrow bearing from local segment (not whole-trip bearing)
-  const midArrowBearing = React.useMemo(() => {
+  // Mid-route arrow bearing calculation
+  const midArrowBearing = useMemo(() => {
     if (!routeCoordinates || routeCoordinates.length < 4) return routeBearing ?? 0;
     const mid = Math.floor(routeCoordinates.length / 2);
     const a = routeCoordinates[Math.max(0, mid - 1)];
@@ -183,42 +255,38 @@ export function HeritageMapView({
   }, [routeCoordinates, routeBearing]);
 
   if (Platform.OS === 'web') {
-    // Bundler resolves HeritageMapView.web.tsx on web; never render native MapView here.
     return null;
   }
 
   return (
     <View style={styles.mapContainer}>
-      {/* Dark base so tiles fading in never flash white */}
       <View style={styles.mapBase} />
+
       {!mapReady && (
         <View style={styles.mapLoadingOverlay}>
-          <Text style={styles.mapLoadingText}>Loading heritage streets…</Text>
+          <Text style={styles.mapLoadingText}>Loading heritage atlas…</Text>
           <Text style={styles.mapLoadingSub}>{TILE_ATTRIBUTION[mapLayer]}</Text>
         </View>
       )}
+
       <MapView
         ref={mapRef as any}
         style={styles.map}
         initialRegion={initialRegion}
-        provider={undefined}
-        mapType={mapLayer === 'satellite' ? 'none' : 'standard'}
-        loadingEnabled={true}
-        loadingIndicatorColor={Colors.primary}
-        loadingBackgroundColor="#0A0A0F"
+        // mapType="none" ensures native engine never tries to load Google vector tiles or fail auth checks
+        mapType="none"
+        customMapStyle={DARK_MAP_STYLE}
+        loadingEnabled={false}
         showsUserLocation={Boolean(userLocation?.latitude)}
         showsMyLocationButton={false}
         showsCompass={true}
-        showsPointsOfInterests={true}
-        showsBuildings={true}
+        showsPointsOfInterests={false}
+        showsBuildings={false}
         toolbarEnabled={false}
         moveOnMarkerPress={false}
-        onMapReady={() => {
-          setMapReady(true);
-          setTileFailed(false);
-        }}
+        onMapReady={() => setMapReady(true)}
       >
-        {/* Raster tiles replace the base map on both platforms — guarantees paint */}
+        {/* Zero-API-key Free Raster Tile Layer */}
         {tileUrl && (
           <UrlTile
             key={mapLayer}
@@ -232,18 +300,9 @@ export function HeritageMapView({
           />
         )}
 
-        {/* Real-time Highway Route Polyline */}
+        {/* Live Route Navigation Polyline */}
         {routeCoordinates && routeCoordinates.length > 1 && (
           <>
-            {/* Outer golden glow */}
-            <Polyline
-              coordinates={routeCoordinates}
-              strokeColor="rgba(212, 175, 55, 0.4)"
-              strokeWidth={8}
-              lineCap="round"
-              lineJoin="round"
-            />
-            {/* Solid core line */}
             <Polyline
               coordinates={routeCoordinates}
               strokeColor={Colors.primary}
@@ -252,7 +311,7 @@ export function HeritageMapView({
               lineJoin="round"
             />
 
-            {/* Mid-Route Directional Arrow Marker */}
+            {/* Mid-Route Directional Heading Arrow */}
             {routeCoordinates.length > 3 && (
               <Marker
                 coordinate={routeCoordinates[Math.floor(routeCoordinates.length / 2)]}
@@ -262,16 +321,15 @@ export function HeritageMapView({
                 <View style={styles.midRouteArrowBadge}>
                   <MaterialIcons
                     name="navigation"
-                    size={16}
+                    size={15}
                     color="#0A0A0F"
-                    style={{
-                      transform: [{ rotate: `${midArrowBearing}deg` }],
-                    }}
+                    style={{ transform: [{ rotate: `${midArrowBearing}deg` }] }}
                   />
                 </View>
               </Marker>
             )}
-            {/* Destination flag pin */}
+
+            {/* Destination Flag */}
             {routeDestination && (
               <Marker
                 coordinate={{
@@ -283,7 +341,7 @@ export function HeritageMapView({
                 tracksViewChanges={false}
               >
                 <View style={styles.destFlagBadge}>
-                  <MaterialIcons name="flag" size={15} color="#0A0A0F" />
+                  <MaterialIcons name="flag" size={14} color="#0A0A0F" />
                 </View>
               </Marker>
             )}
@@ -294,7 +352,7 @@ export function HeritageMapView({
         {routeDestination && userLocation?.latitude && (
           <Marker
             coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude }}
-            title="Your Current Location"
+            title="Your Location"
             anchor={{ x: 0.5, y: 0.5 }}
             tracksViewChanges={false}
           >
@@ -303,114 +361,59 @@ export function HeritageMapView({
               <View style={styles.userNavDot}>
                 <MaterialIcons
                   name="navigation"
-                  size={15}
+                  size={14}
                   color="#FFFFFF"
-                  style={{
-                    transform: [{ rotate: `${routeBearing ?? 0}deg` }],
-                  }}
+                  style={{ transform: [{ rotate: `${routeBearing ?? 0}deg` }] }}
                 />
               </View>
             </View>
           </Marker>
         )}
 
-        {/* Interactive Custom Monument Markers */}
-        {validPlaces.map((place) => {
+        {/* Custom Monument Markers (Optimized & Memoized) */}
+        {displayPlaces.map((place) => {
           const isSelected = selectedPlace?.id === place.id;
           const isDestination = routeDestination?.id === place.id;
-          const pinColor = isDestination ? Colors.primary : CATEGORY_COLORS[place.category] || Colors.primary;
-          const iconName = getCategoryIcon(place.category);
 
           return (
-            <Marker
+            <HeritageMarker
               key={place.id}
-              coordinate={{ latitude: place.latitude, longitude: place.longitude }}
-              title={place.name}
-              description={place.shortDescription?.substring(0, 80)}
-              onPress={() => onSelectPlace(place)}
-              tracksViewChanges={false}
-            >
-              {/* Custom Themed Pin View */}
-              <View style={styles.markerAnchor}>
-                {(isSelected || isDestination) && <View style={styles.markerPulseRing} />}
-                <View
-                  style={[
-                    styles.markerBadge,
-                    (isSelected || isDestination) && styles.markerBadgeSelected,
-                    { backgroundColor: pinColor },
-                  ]}
-                >
-                  <MaterialIcons
-                    name={isDestination ? 'flag' : iconName}
-                    size={isSelected || isDestination ? 16 : 13}
-                    color="#FFFFFF"
-                  />
-                </View>
-                <View style={[styles.markerArrow, { borderTopColor: pinColor }]} />
-              </View>
-
-              {/* Custom Information Callout */}
-              <Callout tooltip onPress={() => onPlaceDetails(place.id)}>
-                <View style={styles.calloutContainer}>
-                  <View style={styles.calloutHeader}>
-                    <Text style={styles.calloutTitle} numberOfLines={1}>
-                      {place.name}
-                    </Text>
-                    {place.rating && (
-                      <View style={styles.calloutRating}>
-                        <MaterialIcons name="star" size={12} color={Colors.primary} />
-                        <Text style={styles.calloutRatingText}>{place.rating}</Text>
-                      </View>
-                    )}
-                  </View>
-                  <Text style={styles.calloutDesc} numberOfLines={2}>
-                    {place.shortDescription || 'Historical monument cataloged in heritage registry.'}
-                  </Text>
-                  <View style={styles.calloutFooter}>
-                    <Text style={styles.calloutCategory}>{(place.category || 'heritage').toUpperCase()}</Text>
-                    <Text style={styles.calloutTap}>View Details →</Text>
-                  </View>
-                </View>
-              </Callout>
-            </Marker>
+              place={place}
+              isSelected={isSelected}
+              isDestination={isDestination}
+              onSelect={onSelectPlace}
+              onDetails={onPlaceDetails}
+            />
           );
         })}
       </MapView>
 
-      {/* Tile attribution — proves rich sourced tiles, never blank */}
+      {/* Discrete tile attribution */}
       <View style={styles.attributionBadge}>
         <Text style={styles.attributionText}>{TILE_ATTRIBUTION[mapLayer]}</Text>
       </View>
 
-      {tileFailed && (
-        <View style={styles.tileErrorBar}>
-          <MaterialIcons name="cloud-off" size={15} color="#F59E0B" />
-          <Text style={styles.tileErrorText}>Map tiles slow — check connection, still showing cached streets.</Text>
-        </View>
-      )}
-      {/* Floating Active Direction & Navigation HUD */}
+      {/* Floating Navigation Route HUD */}
       {routeDestination && (
         <View style={styles.navigationHud}>
           <View style={styles.navHudLeft}>
             <View style={styles.navHudIconWrap}>
               <MaterialIcons
                 name="navigation"
-                size={22}
+                size={20}
                 color={Colors.primary}
-                style={{
-                  transform: [{ rotate: `${routeBearing ?? 0}deg` }],
-                }}
+                style={{ transform: [{ rotate: `${routeBearing ?? 0}deg` }] }}
               />
             </View>
             <View style={{ flex: 1 }}>
               <View style={styles.navHudTitleRow}>
                 <View style={styles.liveRouteDot} />
                 <Text style={styles.navHudTitle} numberOfLines={1}>
-                  Directions to {routeDestination.name}
+                  {routeDestination.name}
                 </Text>
               </View>
               <Text style={styles.navHudMetrics}>
-                📍 {routeDistanceKm ?? '--'} km • ~{routeDurationMin ?? '--'} min drive • Heading {Math.round(routeBearing ?? 0)}°
+                {routeDistanceKm ?? '--'} km • ~{routeDurationMin ?? '--'} min drive
               </Text>
             </View>
           </View>
@@ -422,14 +425,14 @@ export function HeritageMapView({
                 const url = Platform.select({
                   ios: `maps:0,0?q=${routeDestination.latitude},${routeDestination.longitude}`,
                   android: `google.navigation:q=${routeDestination.latitude},${routeDestination.longitude}`,
-                  web: `https://www.google.com/maps/dir/?api=1&destination=${routeDestination.latitude},${routeDestination.longitude}`,
+                  default: `https://www.google.com/maps/dir/?api=1&destination=${routeDestination.latitude},${routeDestination.longitude}`,
                 });
                 if (url) Linking.openURL(url);
               }}
               activeOpacity={0.8}
             >
-              <MaterialIcons name="directions" size={16} color="#0A0A0F" />
-              <Text style={styles.navHudStartText}>Navigate</Text>
+              <MaterialIcons name="directions" size={15} color="#0A0A0F" />
+              <Text style={styles.navHudStartText}>Go</Text>
             </TouchableOpacity>
 
             {onClearRoute && (
@@ -438,7 +441,7 @@ export function HeritageMapView({
                 onPress={onClearRoute}
                 activeOpacity={0.8}
               >
-                <MaterialIcons name="close" size={16} color="#CBD5E1" />
+                <MaterialIcons name="close" size={15} color="#CBD5E1" />
               </TouchableOpacity>
             )}
           </View>
@@ -455,188 +458,150 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0F0F0F',
   },
   mapBase: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#0A0A0F',
+    ...StyleSheet.absoluteFill,
+    backgroundColor: '#0F0F0F',
   },
   map: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    ...StyleSheet.absoluteFill,
   },
   mapLoadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#0A0A0F',
+    ...StyleSheet.absoluteFill,
+    backgroundColor: '#0F0F0F',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
     zIndex: 1,
   },
   mapLoadingText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
     color: Colors.primary,
+    letterSpacing: 0.5,
   },
   mapLoadingSub: {
-    fontSize: 11,
+    fontSize: 10,
     color: Colors.textMuted,
   },
   attributionBadge: {
     position: 'absolute',
-    right: 10,
-    bottom: 12,
-    backgroundColor: 'rgba(10,10,15,0.75)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    zIndex: 5,
+    right: 8,
+    bottom: 8,
+    backgroundColor: 'rgba(15, 15, 15, 0.75)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    zIndex: 2,
   },
   attributionText: {
     fontSize: 9,
-    color: 'rgba(245,240,232,0.75)',
-    fontWeight: '600',
-  },
-  tileErrorBar: {
-    position: 'absolute',
-    top: 196,
-    left: Spacing.base,
-    right: Spacing.base,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(30,22,8,0.95)',
-    borderWidth: 1,
-    borderColor: '#F59E0B',
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    zIndex: 6,
-  },
-  tileErrorText: {
-    fontSize: 11,
-    color: '#FCD34D',
-    fontWeight: '600',
-    flex: 1,
+    color: Colors.textMuted,
+    fontWeight: '500',
   },
   destFlagBadge: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: '#FFFFFF',
-    ...Shadows.md,
+    ...Shadows.sm,
   },
-  // User navigation pulse & heading
   userNavMarker: {
-    width: 38,
-    height: 38,
+    width: 34,
+    height: 34,
     alignItems: 'center',
     justifyContent: 'center',
   },
   userNavPulse: {
     position: 'absolute',
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: 'rgba(56, 189, 248, 0.35)',
-    borderWidth: 1.5,
-    borderColor: '#38BDF8',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(212, 175, 124, 0.25)',
+    borderWidth: 1,
+    borderColor: Colors.primary,
   },
   userNavDot: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: Colors.surfaceElevated,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  midRouteArrowBadge: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#0284C7',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-    ...Shadows.md,
-  },
-  // Mid-route arrow badge
-  midRouteArrowBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: '#FFFFFF',
-    ...Shadows.md,
   },
-  // Floating Navigation HUD
   navigationHud: {
     position: 'absolute',
-    top: 146,
+    top: 56,
     left: Spacing.base,
     right: Spacing.base,
-    backgroundColor: 'rgba(15, 20, 32, 0.95)',
-    borderRadius: BorderRadius.xl,
+    backgroundColor: 'rgba(23, 23, 23, 0.94)',
+    borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,
-    paddingVertical: 10,
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.4)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 8,
-    ...Shadows.lg,
-    zIndex: 999,
+    ...Shadows.md,
+    zIndex: 99,
   },
   navHudLeft: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   navHudIconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: 'rgba(212, 175, 124, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.4)',
+    borderColor: 'rgba(212, 175, 124, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   navHudTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 2,
+    gap: 5,
   },
   liveRouteDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
-    backgroundColor: '#10B981',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.success,
   },
   navHudTitle: {
-    fontSize: Typography.sizes.sm,
+    fontSize: Typography.sizes.xs,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.text,
     flex: 1,
   },
   navHudMetrics: {
-    fontSize: 11,
-    color: '#94A3B8',
+    fontSize: 10,
+    color: Colors.textSecondary,
     fontWeight: '500',
+    marginTop: 1,
   },
   navHudActions: {
     flexDirection: 'row',
@@ -646,116 +611,102 @@ const styles = StyleSheet.create({
   navHudStartBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
     backgroundColor: Colors.primary,
     paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: BorderRadius.md,
+    paddingVertical: 5,
+    borderRadius: BorderRadius.sm,
   },
   navHudStartText: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#0A0A0F',
+    color: Colors.textInverse,
   },
   navHudCloseBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-
-  // Custom Markers
   markerAnchor: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 44,
-    height: 48,
+    width: 36,
+    height: 40,
   },
   markerBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: '#FFFFFF',
-    ...Shadows.md,
   },
   markerBadgeSelected: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 2.5,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
     borderColor: Colors.primary,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
   },
   markerArrow: {
     width: 0,
     height: 0,
-    borderLeftWidth: 5,
-    borderRightWidth: 5,
-    borderTopWidth: 6,
+    borderLeftWidth: 4,
+    borderRightWidth: 4,
+    borderTopWidth: 5,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
     marginTop: -1,
   },
   markerPulseRing: {
     position: 'absolute',
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(212, 175, 124, 0.25)',
-    borderWidth: 1.5,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(212, 175, 124, 0.3)',
+    borderWidth: 1,
     borderColor: Colors.primary,
   },
-
-  // Callout styling
   calloutContainer: {
-    backgroundColor: Colors.surface,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.surfaceElevated,
+    padding: Spacing.sm + 2,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: Colors.border,
-    width: 240,
-    ...Shadows.lg,
+    borderColor: Colors.borderLight,
+    width: 210,
+    ...Shadows.md,
   },
   calloutHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   calloutTitle: {
-    fontSize: Typography.sizes.sm,
+    fontSize: Typography.sizes.xs + 1,
     fontWeight: '700',
     color: Colors.text,
     flex: 1,
-    marginRight: 6,
+    marginRight: 4,
   },
   calloutRating: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
-    backgroundColor: 'rgba(212, 175, 55, 0.15)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.full,
+    gap: 2,
   },
   calloutRatingText: {
-    fontSize: 11,
+    fontSize: 10,
     color: Colors.primary,
     fontWeight: '700',
   },
   calloutDesc: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 10,
     color: Colors.textSecondary,
-    lineHeight: 16,
+    lineHeight: 14,
     marginBottom: Spacing.xs,
   },
   calloutFooter: {
@@ -764,45 +715,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    paddingTop: 6,
+    paddingTop: 4,
     marginTop: 2,
   },
   calloutCategory: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '700',
     color: Colors.textMuted,
     letterSpacing: 0.5,
   },
   calloutTap: {
-    fontSize: Typography.sizes.xs,
+    fontSize: 10,
     color: Colors.primary,
     fontWeight: '700',
-  },
-
-  // Web map container
-  webMapContainer: {
-    position: 'relative',
-    backgroundColor: '#0E1726',
-  },
-  webOverlayInfo: {
-    position: 'absolute',
-    top: 80,
-    right: 20,
-  },
-  webBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(18, 24, 38, 0.92)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  webBadgeText: {
-    fontSize: Typography.sizes.xs,
-    fontWeight: '600',
-    color: Colors.text,
   },
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, CATEGORY_COLORS } from '../constants/theme';
@@ -12,6 +12,9 @@ interface HeritageMapViewProps {
   onPlaceDetails: (placeId: string) => void;
   userLocation: { latitude: number; longitude: number };
   mapRef?: any;
+  mapLayer?: string;
+  routeDestination?: Place | null;
+  routeCoordinates?: Array<{ latitude: number; longitude: number }>;
 }
 
 export function HeritageMapView({
@@ -20,102 +23,270 @@ export function HeritageMapView({
   onSelectPlace,
   onPlaceDetails,
   userLocation,
+  routeCoordinates,
 }: HeritageMapViewProps) {
-  const { t, getPlaceName } = useTranslation();
+  const { getPlaceName } = useTranslation();
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const leafletMapRef = useRef<any>(null);
+  const markersLayerRef = useRef<any>(null);
+  const polylineLayerRef = useRef<any>(null);
+  const [isLeafletReady, setIsLeafletReady] = useState(false);
 
-  // Dynamically calculate bounding coordinates across all displayed places
-  const lats = places.map((p) => p.latitude).filter((n) => typeof n === 'number' && !isNaN(n));
-  const lngs = places.map((p) => p.longitude).filter((n) => typeof n === 'number' && !isNaN(n));
-  const minLat = lats.length > 0 ? Math.min(...lats) : 20.0;
-  const maxLat = lats.length > 0 ? Math.max(...lats) : 28.0;
-  const minLng = lngs.length > 0 ? Math.min(...lngs) : 69.0;
-  const maxLng = lngs.length > 0 ? Math.max(...lngs) : 88.0;
-  const latSpan = Math.max(maxLat - minLat, 0.08);
-  const lngSpan = Math.max(maxLng - minLng, 0.08);
+  // 1. Load Leaflet CSS & JS dynamically on web
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    // Load Leaflet CSS
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    // Load Leaflet Script
+    if (!(window as any).L) {
+      const script = document.createElement('script');
+      script.id = 'leaflet-js';
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => setIsLeafletReady(true);
+      document.head.appendChild(script);
+    } else {
+      setIsLeafletReady(true);
+    }
+  }, []);
+
+  // 2. Initialize Leaflet Map once container and Leaflet are available
+  useEffect(() => {
+    if (!isLeafletReady || !mapContainerRef.current || leafletMapRef.current) return;
+
+    const L = (window as any).L;
+    if (!L) return;
+
+    const initialLat = userLocation?.latitude && userLocation.latitude > 6 ? userLocation.latitude : 22.3072;
+    const initialLng = userLocation?.longitude && userLocation.longitude > 68 ? userLocation.longitude : 73.1812;
+
+    const map = L.map(mapContainerRef.current, {
+      center: [initialLat, initialLng],
+      zoom: 11,
+      zoomControl: false,
+    });
+
+    // Add zoom controls at top right
+    L.control.zoom({ position: 'topright' }).addTo(map);
+
+    // High-definition CARTO Dark Matter raster tiles (Zero API key required)
+    L.tileLayer('https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap © CARTO',
+      subdomains: 'abcd',
+    }).addTo(map);
+
+    // Feature group for markers
+    const markersGroup = L.featureGroup().addTo(map);
+    markersLayerRef.current = markersGroup;
+
+    leafletMapRef.current = map;
+
+    return () => {
+      map.remove();
+      leafletMapRef.current = null;
+    };
+  }, [isLeafletReady]);
+
+  // 3. Update Markers when places change
+  useEffect(() => {
+    const L = (window as any).L;
+    const map = leafletMapRef.current;
+    const markersGroup = markersLayerRef.current;
+    if (!L || !map || !markersGroup) return;
+
+    markersGroup.clearLayers();
+
+    // Render up to 60 markers for fluid web performance
+    places.slice(0, 60).forEach((place) => {
+      if (typeof place.latitude !== 'number' || typeof place.longitude !== 'number') return;
+
+      const isSelected = selectedPlace?.id === place.id;
+      const pinColor = CATEGORY_COLORS[place.category] || '#D4AF7C';
+
+      // Custom Gold Insignia HTML Marker
+      const customIcon = L.divIcon({
+        className: 'heritage-custom-pin',
+        html: `
+          <div style="
+            width: ${isSelected ? '32px' : '26px'};
+            height: ${isSelected ? '32px' : '26px'};
+            border-radius: 50%;
+            background-color: ${pinColor};
+            border: 2px solid ${isSelected ? '#D4AF7C' : '#FFFFFF'};
+            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            transform: ${isSelected ? 'scale(1.15)' : 'scale(1)'};
+          ">
+            <span style="color: #0A0A0F; font-size: 11px; font-weight: bold;">🏛️</span>
+          </div>
+        `,
+        iconSize: [isSelected ? 32 : 26, isSelected ? 32 : 26],
+        iconAnchor: [isSelected ? 16 : 13, isSelected ? 16 : 13],
+      });
+
+      const marker = L.marker([place.latitude, place.longitude], { icon: customIcon });
+
+      // Interactive Popup
+      const popupHtml = `
+        <div style="font-family: system-ui, -apple-system; color: #F5F1E8; min-width: 180px; max-width: 240px;">
+          <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #D4AF7C;">
+            ${place.name}
+          </div>
+          <div style="font-size: 11px; color: #A7A7A7; margin-bottom: 8px; line-height: 1.4;">
+            ${place.shortDescription ? place.shortDescription.slice(0, 80) + '...' : ''}
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 6px;">
+            <span style="font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase;">
+              ${place.category || 'heritage'}
+            </span>
+            <button id="btn-details-${place.id}" style="
+              background: #D4AF7C;
+              color: #0F0F0F;
+              border: none;
+              border-radius: 4px;
+              padding: 4px 8px;
+              font-size: 11px;
+              font-weight: 700;
+              cursor: pointer;
+            ">View →</button>
+          </div>
+        </div>
+      `;
+
+      marker.bindPopup(popupHtml, {
+        className: 'heritage-dark-popup',
+      });
+
+      marker.on('popupopen', () => {
+        const btn = document.getElementById(`btn-details-${place.id}`);
+        if (btn) {
+          btn.onclick = () => onPlaceDetails(place.id);
+        }
+      });
+
+      marker.on('click', () => {
+        onSelectPlace(place);
+      });
+
+      markersGroup.addLayer(marker);
+    });
+  }, [places, selectedPlace, isLeafletReady]);
+
+  // 4. Fly to selected place
+  useEffect(() => {
+    const map = leafletMapRef.current;
+    if (!map || !selectedPlace) return;
+    if (typeof selectedPlace.latitude === 'number' && typeof selectedPlace.longitude === 'number') {
+      map.flyTo([selectedPlace.latitude, selectedPlace.longitude], 14, {
+        duration: 0.8,
+      });
+    }
+  }, [selectedPlace]);
+
+  // 5. Draw route polyline if present
+  useEffect(() => {
+    const L = (window as any).L;
+    const map = leafletMapRef.current;
+    if (!L || !map) return;
+
+    if (polylineLayerRef.current) {
+      map.removeLayer(polylineLayerRef.current);
+      polylineLayerRef.current = null;
+    }
+
+    if (routeCoordinates && routeCoordinates.length > 1) {
+      const latLngs = routeCoordinates.map((c) => [c.latitude, c.longitude]);
+      const polyline = L.polyline(latLngs, {
+        color: '#D4AF7C',
+        weight: 4,
+        opacity: 0.9,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }).addTo(map);
+
+      map.fitBounds(polyline.getBounds(), { padding: [60, 60] });
+      polylineLayerRef.current = polyline;
+    }
+  }, [routeCoordinates]);
 
   return (
     <View style={styles.container}>
-      {/* Web Interactive Map Canvas / Radar */}
-      <View style={styles.radarContainer}>
-        <View style={styles.radarGrid}>
-          <View style={styles.circleOuter} />
-          <View style={styles.circleMiddle} />
-          <View style={styles.circleInner} />
-          <View style={styles.radarAxisH} />
-          <View style={styles.radarAxisV} />
+      {/* Real Interactive Web Map Container */}
+      <div
+        ref={mapContainerRef as any}
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          backgroundColor: '#0F0F0F',
+          zIndex: 0,
+        }}
+      />
 
-          {/* Compass Indicators */}
-          <Text style={[styles.compassText, { top: 6, alignSelf: 'center' }]}>N</Text>
-          <Text style={[styles.compassText, { bottom: 6, alignSelf: 'center' }]}>S</Text>
-          <Text style={[styles.compassText, { right: 8, top: '48%' }]}>E</Text>
-          <Text style={[styles.compassText, { left: 8, top: '48%' }]}>W</Text>
+      {/* Dark Leaflet Popup Styling Override */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            .leaflet-popup-content-wrapper {
+              background: #171717 !important;
+              border: 1px solid rgba(212, 175, 124, 0.35) !important;
+              border-radius: 12px !important;
+              box-shadow: 0 10px 25px rgba(0,0,0,0.7) !important;
+            }
+            .leaflet-popup-tip {
+              background: #171717 !important;
+              border: 1px solid rgba(212, 175, 124, 0.35) !important;
+            }
+            .leaflet-container {
+              background: #0F0F0F !important;
+            }
+          `,
+        }}
+      />
 
-          {/* User Location Pulse */}
-          <View style={styles.userPin}>
-            <View style={styles.userDot} />
-            <Text style={styles.userLabel}>Radar Center</Text>
-          </View>
-
-          {/* Heritage Pins scaled proportionally across India/Gujarat geography */}
-          {places.slice(0, 45).map((place) => {
-            const relY = (place.latitude - minLat) / latSpan; // 0 (South) to 1 (North)
-            const relX = (place.longitude - minLng) / lngSpan; // 0 (West) to 1 (East)
-
-            // Invert Y for screen coordinates (North = top)
-            const topPct = Math.min(Math.max(82 - relY * 64, 12), 85);
-            const leftPct = Math.min(Math.max(16 + relX * 68, 14), 86);
+      {/* Web Quick Selection Carousel */}
+      <View style={styles.carouselContainer}>
+        <Text style={styles.carouselTitle}>📍 {places.length} Heritage Sites</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carouselScroll}>
+          {places.slice(0, 30).map((place) => {
             const isSelected = selectedPlace?.id === place.id;
-            const pinColor = CATEGORY_COLORS[place.category] || Colors.primary;
-
             return (
               <TouchableOpacity
                 key={place.id}
-                style={[
-                  styles.mapPin,
-                  { top: `${topPct}%`, left: `${leftPct}%` },
-                  isSelected && styles.mapPinSelected,
-                ]}
+                style={[styles.siteChip, isSelected && styles.siteChipActive]}
                 onPress={() => onSelectPlace(place)}
-                activeOpacity={0.8}
+                activeOpacity={0.7}
               >
-                <View style={[styles.pinIconWrap, { backgroundColor: pinColor }]}>
-                  <MaterialIcons name="account-balance" size={12} color="#fff" />
-                </View>
-                <Text style={styles.pinTitle} numberOfLines={1}>
+                <View
+                  style={[
+                    styles.siteChipDot,
+                    { backgroundColor: CATEGORY_COLORS[place.category] || Colors.primary },
+                  ]}
+                />
+                <Text style={[styles.siteChipText, isSelected && styles.siteChipTextActive]}>
                   {getPlaceName(place)}
                 </Text>
+                {place.rating !== undefined && (
+                  <Text style={styles.siteChipDist}>⭐ {place.rating}</Text>
+                )}
               </TouchableOpacity>
             );
           })}
-        </View>
-
-        {/* Web Quick Selection Carousel */}
-        <View style={styles.carouselContainer}>
-          <Text style={styles.carouselTitle}>📍 {places.length} Heritage Sites Cataloged</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carouselScroll}>
-            {places.map((place) => {
-              const isSelected = selectedPlace?.id === place.id;
-              return (
-                <TouchableOpacity
-                  key={place.id}
-                  style={[styles.siteChip, isSelected && styles.siteChipActive]}
-                  onPress={() => {
-                    onSelectPlace(place);
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <View style={[styles.siteChipDot, { backgroundColor: CATEGORY_COLORS[place.category] || Colors.primary }]} />
-                  <Text style={[styles.siteChipText, isSelected && styles.siteChipTextActive]}>
-                    {place.name}
-                  </Text>
-                  {place.rating !== undefined && (
-                    <Text style={styles.siteChipDist}>⭐ {place.rating}</Text>
-                  )}
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
+        </ScrollView>
       </View>
     </View>
   );
@@ -124,122 +295,7 @@ export function HeritageMapView({
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: '#0c1322',
-  },
-  radarContainer: {
-    flex: 1,
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  radarGrid: {
-    width: '90%',
-    height: '65%',
-    maxWidth: 500,
-    maxHeight: 500,
-    borderRadius: 24,
-    backgroundColor: 'rgba(20, 28, 48, 0.7)',
-    borderWidth: 1,
-    borderColor: 'rgba(212, 169, 71, 0.25)',
-    position: 'relative',
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  compassText: {
-    position: 'absolute',
-    fontSize: 10,
-    fontWeight: '800',
-    color: 'rgba(212, 169, 71, 0.6)',
-    letterSpacing: 1,
-    zIndex: 2,
-  },
-  circleOuter: {
-    position: 'absolute',
-    width: '80%',
-    height: '80%',
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(91, 143, 185, 0.2)',
-    borderStyle: 'dashed',
-  },
-  circleMiddle: {
-    position: 'absolute',
-    width: '55%',
-    height: '55%',
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(91, 143, 185, 0.25)',
-  },
-  circleInner: {
-    position: 'absolute',
-    width: '30%',
-    height: '30%',
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(91, 143, 185, 0.3)',
-  },
-  radarAxisH: {
-    position: 'absolute',
-    width: '100%',
-    height: 1,
-    backgroundColor: 'rgba(91, 143, 185, 0.15)',
-  },
-  radarAxisV: {
-    position: 'absolute',
-    height: '100%',
-    width: 1,
-    backgroundColor: 'rgba(91, 143, 185, 0.15)',
-  },
-  userPin: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
-  },
-  userDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: Colors.accent,
-    borderWidth: 3,
-    borderColor: '#ffffff',
-  },
-  userLabel: {
-    fontSize: 10,
-    color: Colors.accentLight,
-    fontWeight: '700',
-    marginTop: 2,
-  },
-  mapPin: {
-    position: 'absolute',
-    alignItems: 'center',
-    transform: [{ translateX: -20 }, { translateY: -20 }],
-    zIndex: 5,
-    cursor: 'pointer' as any,
-  },
-  mapPinSelected: {
-    zIndex: 20,
-    transform: [{ translateX: -20 }, { translateY: -24 }, { scale: 1.15 }],
-  },
-  pinIconWrap: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#ffffff',
-  },
-  pinTitle: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: Colors.text,
-    backgroundColor: 'rgba(10, 10, 15, 0.85)',
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    borderRadius: 4,
-    marginTop: 2,
-    maxWidth: 90,
+    backgroundColor: '#0F0F0F',
   },
   carouselContainer: {
     position: 'absolute',
@@ -247,6 +303,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 16,
+    zIndex: 10,
   },
   carouselTitle: {
     fontSize: Typography.sizes.xs,
@@ -263,18 +320,17 @@ const styles = StyleSheet.create({
   siteChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'rgba(23, 23, 23, 0.92)',
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 7,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: Colors.border,
     gap: 6,
-    cursor: 'pointer' as any,
   },
   siteChipActive: {
     borderColor: Colors.primary,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: Colors.surfaceElevated,
   },
   siteChipDot: {
     width: 8,
@@ -288,6 +344,7 @@ const styles = StyleSheet.create({
   },
   siteChipTextActive: {
     color: Colors.primary,
+    fontWeight: '700',
   },
   siteChipDist: {
     fontSize: 10,

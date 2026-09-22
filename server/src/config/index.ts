@@ -11,7 +11,7 @@ export const config = {
       ? process.env.GROQ_API_KEY.trim()
       : '',
   groqModel: process.env.GROQ_MODEL || 'qwen/qwen3.8-27b',
-  googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || 'AIzaSyCOjxp_raAGirIMsHic2GllWviWJw_VL0Y',
+  googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '',
   googleVisionApiKey: process.env.GOOGLE_VISION_API_KEY || '',
   geminiApiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '',
   databaseUrl: process.env.DATABASE_URL || '',

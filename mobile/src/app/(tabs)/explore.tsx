@@ -111,7 +111,7 @@ export default function ExploreScreen() {
 
     merged.sort((a, b) => (a.distance ?? 99999) - (b.distance ?? 99999));
     return merged;
-  }, [places, location.latitude, location.longitude]);
+  }, [places, Math.round((location.latitude ?? 22.3072) * 100), Math.round((location.longitude ?? 73.1812) * 100)]);
 
   // Comprehensive filter by category, crowd level & real-time search query
   const filteredPlaces = React.useMemo(() => {
@@ -491,16 +491,16 @@ export default function ExploreScreen() {
       <View style={styles.filterOverlay}>
         <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
         
-        {/* Footfall / Crowd Density Filter (Hackathon PPT Feature) */}
+        {/* Live Visitor Density Filter */}
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.crowdFilterRow}
           data={[
-            { key: 'all', label: '👥 All Footfall', color: Colors.surfaceHighlight },
+            { key: 'all', label: 'All Footfall', color: Colors.surfaceHighlight },
             { key: 'Low', label: '🟢 Low Crowd', color: '#10B981' },
             { key: 'Moderate', label: '🟡 Moderate', color: '#F59E0B' },
-            { key: 'Peak', label: '🔴 Peak Busy', color: '#EF4444' },
+            { key: 'Peak', label: '🔴 Busy', color: '#EF4444' },
           ] as const}
           keyExtractor={(item) => item.key}
           renderItem={({ item }) => {
@@ -826,7 +826,8 @@ const styles = StyleSheet.create({
     top: 52,
     left: Spacing.base,
     right: Spacing.base,
-    zIndex: 10,
+    zIndex: 50,
+    elevation: 15,
   },
   searchBarRow: {
     flexDirection: 'row',
@@ -1160,7 +1161,9 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     maxHeight: 280,
     overflow: 'hidden',
+    zIndex: 9999,
     ...Shadows.lg,
+    elevation: 25,
   },
   searchSuggestionItem: {
     flexDirection: 'row',
