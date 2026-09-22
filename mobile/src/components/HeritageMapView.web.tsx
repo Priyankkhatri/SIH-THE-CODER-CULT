@@ -1,9 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useImperativeHandle } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, CATEGORY_COLORS } from '../constants/theme';
 import type { Place } from '../stores';
 import { useTranslation } from '../hooks/useTranslation';
+
+export const TILE_URLS: Record<string, string> = {
+  streets: 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+  satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  terrain: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
+  dark: 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+  osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+};
 
 interface HeritageMapViewProps {
   places: Place[];
@@ -23,6 +31,9 @@ export function HeritageMapView({
   onSelectPlace,
   onPlaceDetails,
   userLocation,
+  mapRef,
+  mapLayer = 'streets',
+  routeDestination,
   routeCoordinates,
 }: HeritageMapViewProps) {
   const { getPlaceName } = useTranslation();
@@ -30,9 +41,43 @@ export function HeritageMapView({
   const leafletMapRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
   const polylineLayerRef = useRef<any>(null);
+  const tileLayerRef = useRef<any>(null);
   const [isLeafletReady, setIsLeafletReady] = useState(false);
 
-  // 1. Load Leaflet CSS & JS dynamically on web
+  // Expose standard MapView camera API methods to explore.tsx via mapRef
+  useImperativeHandle(mapRef, () => ({
+    animateToRegion: (region: { latitude: number; longitude: number }) => {
+      if (leafletMapRef.current) {
+        leafletMapRef.current.panTo([region.latitude, region.longitude], { animate: true, duration: 0.6 });
+      }
+    },
+    fitToCoordinates: (coords: Array<{ latitude: number; longitude: number }>) => {
+      if (leafletMapRef.current && coords && coords.length > 0) {
+        const bounds = coords.map((c) => [c.latitude, c.longitude]);
+        leafletMapRef.current.fitBounds(bounds, { padding: [55, 55] });
+      }
+    },
+    getCamera: async () => ({
+      center: {
+        latitude: selectedPlace?.latitude || userLocation.latitude || 22.3072,
+        longitude: selectedPlace?.longitude || userLocation.longitude || 73.1812,
+      },
+      zoom: leafletMapRef.current ? leafletMapRef.current.getZoom() : 13,
+    }),
+    animateCamera: (cam: any) => {
+      if (leafletMapRef.current && cam?.center) {
+        leafletMapRef.current.panTo([cam.center.latitude, cam.center.longitude], { animate: true });
+      }
+    },
+    zoomIn: () => {
+      if (leafletMapRef.current) leafletMapRef.current.zoomIn();
+    },
+    zoomOut: () => {
+      if (leafletMapRef.current) leafletMapRef.current.zoomOut();
+    },
+  }));
+
+  // 1. Load Leaflet CSS & JS dynamically on web with multi-CDN fallback
   useEffect(() => {
     if (typeof document === 'undefined') return;
 
@@ -42,6 +87,9 @@ export function HeritageMapView({
       link.id = 'leaflet-css';
       link.rel = 'stylesheet';
       link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      link.onerror = () => {
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css';
+      };
       document.head.appendChild(link);
     }
 
@@ -51,6 +99,13 @@ export function HeritageMapView({
       script.id = 'leaflet-js';
       script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
       script.onload = () => setIsLeafletReady(true);
+      script.onerror = () => {
+        const fallbackScript = document.createElement('script');
+        fallbackScript.id = 'leaflet-js-fallback';
+        fallbackScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js';
+        fallbackScript.onload = () => setIsLeafletReady(true);
+        document.head.appendChild(fallbackScript);
+      };
       document.head.appendChild(script);
     } else {
       setIsLeafletReady(true);
@@ -69,15 +124,16 @@ export function HeritageMapView({
 
     const map = L.map(mapContainerRef.current, {
       center: [initialLat, initialLng],
-      zoom: 11,
+      zoom: 12,
       zoomControl: false,
     });
 
     // Add zoom controls at top right
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    // High-definition CARTO Dark Matter raster tiles (Zero API key required)
-    L.tileLayer('https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png', {
+    // Initial tile layer
+    const url = TILE_URLS[mapLayer] || TILE_URLS.streets;
+    tileLayerRef.current = L.tileLayer(url, {
       maxZoom: 19,
       attribution: '© OpenStreetMap © CARTO',
       subdomains: 'abcd',
@@ -94,6 +150,23 @@ export function HeritageMapView({
       leafletMapRef.current = null;
     };
   }, [isLeafletReady]);
+
+  // Handle layer changes
+  useEffect(() => {
+    const L = (window as any).L;
+    const map = leafletMapRef.current;
+    if (!L || !map) return;
+
+    const url = TILE_URLS[mapLayer] || TILE_URLS.streets;
+    if (tileLayerRef.current) {
+      map.removeLayer(tileLayerRef.current);
+    }
+    tileLayerRef.current = L.tileLayer(url, {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap © CARTO',
+      subdomains: 'abcd',
+    }).addTo(map);
+  }, [mapLayer]);
 
   // 3. Update Markers when places change
   useEffect(() => {

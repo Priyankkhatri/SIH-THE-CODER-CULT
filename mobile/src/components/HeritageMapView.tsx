@@ -191,7 +191,7 @@ export function HeritageMapView({
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css';" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body, #map { width: 100%; height: 100%; background: #0F0F0F; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; overflow: hidden; }
@@ -304,6 +304,11 @@ export function HeritageMapView({
 <body>
   <div id="map"></div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    if (typeof L === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"><\\/script>');
+    }
+  </script>
   <script>
     var places = ${placesJson};
     var currentLayerName = '${mapLayer}';
@@ -502,7 +507,7 @@ export function HeritageMapView({
       <WebView
         ref={webViewRef}
         originWhitelist={['*']}
-        source={{ html: htmlContent }}
+        source={{ html: htmlContent, baseUrl: 'https://localhost' }}
         style={styles.webView}
         onMessage={handleMessage}
         javaScriptEnabled={true}
@@ -510,6 +515,11 @@ export function HeritageMapView({
         scrollEnabled={false}
         bounces={false}
         overScrollMode="never"
+        mixedContentMode="always"
+        allowFileAccess={true}
+        allowUniversalAccessFromFileURLs={true}
+        geolocationEnabled={true}
+        androidLayerType="hardware"
       />
 
       {/* Discrete tile attribution */}
