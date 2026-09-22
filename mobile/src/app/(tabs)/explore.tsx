@@ -507,153 +507,159 @@ export default function ExploreScreen() {
         </View>
       )}
 
-      {/* Header overlay */}
-      <View style={styles.headerOverlay}>
-        <View style={styles.searchBarRow}>
-          <View style={styles.searchBar}>
-            <MaterialIcons name="search" size={20} color={Colors.textMuted} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search 155+ heritage sites, forts, temples..."
-              placeholderTextColor={Colors.textMuted}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-            {searchQuery.length > 0 && (
-              <ScalePressable
-                onPress={() => {
-                  setSearchQuery('');
-                  Keyboard.dismiss();
-                }}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <MaterialIcons name="close" size={18} color={Colors.textMuted} />
-              </ScalePressable>
-            )}
-            <View style={styles.placeCount}>
-              <Text style={styles.placeCountText}>{filteredPlaces.length}</Text>
-            </View>
-          </View>
-
-          {/* View Toggle Button */}
-          <ScalePressable
-            style={styles.viewToggleBtn}
-            onPress={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
-          >
-            <MaterialIcons
-              name={viewMode === 'map' ? 'view-list' : 'map'}
-              size={22}
-              color={Colors.primary}
-            />
-          </ScalePressable>
-        </View>
-
-        {/* Floating Search Suggestions Dropdown */}
-        {searchQuery.trim().length > 0 && searchSuggestions.length > 0 && (
-          <View style={styles.searchSuggestionsDropdown}>
-            {searchSuggestions.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.searchSuggestionItem}
-                onPress={() => {
-                  Keyboard.dismiss();
-                  setSelectedPlace(item);
-                  setSearchQuery('');
-                  if (mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
-                    mapRef.current.animateToRegion(
-                      {
-                        latitude: item.latitude,
-                        longitude: item.longitude,
-                        latitudeDelta: 0.04,
-                        longitudeDelta: 0.04,
-                      },
-                      600
-                    );
-                  }
-                }}
-                activeOpacity={0.7}
-              >
-                <Image
-                  source={{
-                    uri: dynamicImageService.getPlaceImage(
-                      item.name,
-                      item.category,
-                      item.imageUrl
-                    ),
-                  }}
-                  style={styles.suggestionThumb}
-                  contentFit="cover"
+      {/* Header overlay & Filters: Hidden during active navigation to give clean, uncluttered driving/walking view */}
+      {!routeDestination && (
+        <>
+          <View style={styles.headerOverlay}>
+            <View style={styles.searchBarRow}>
+              <View style={styles.searchBar}>
+                <MaterialIcons name="search" size={20} color={Colors.textMuted} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search 155+ heritage sites, forts, temples..."
+                  placeholderTextColor={Colors.textMuted}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
                 />
-                <View style={styles.suggestionTextCol}>
-                  <Text style={styles.suggestionTitle} numberOfLines={1}>
-                    {getPlaceName(item)}
-                  </Text>
-                  <Text style={styles.suggestionSub} numberOfLines={1}>
-                    {(item.category || 'heritage').toUpperCase()} • {(item as any).city || 'Gujarat'}
-                  </Text>
+                {searchQuery.length > 0 && (
+                  <ScalePressable
+                    onPress={() => {
+                      setSearchQuery('');
+                      Keyboard.dismiss();
+                    }}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    <MaterialIcons name="close" size={18} color={Colors.textMuted} />
+                  </ScalePressable>
+                )}
+                <View style={styles.placeCount}>
+                  <Text style={styles.placeCountText}>{filteredPlaces.length}</Text>
                 </View>
-                <TouchableOpacity
-                  style={styles.suggestionGoBtn}
-                  onPress={() => {
-                    Keyboard.dismiss();
-                    setSearchQuery('');
-                    startNavigationTo(item);
-                  }}
-                >
-                  <MaterialIcons name="directions" size={18} color={Colors.primary} />
-                </TouchableOpacity>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-      </View>
+              </View>
 
-      {/* Category & Live Crowd Filters */}
-      <View style={styles.filterOverlay}>
-        <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
-        
-        {/* Live Visitor Density Filter */}
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.crowdFilterRow}
-          data={[
-            { key: 'all', label: 'All Footfall', color: Colors.surfaceHighlight },
-            { key: 'Low', label: '🟢 Low Crowd', color: '#10B981' },
-            { key: 'Moderate', label: '🟡 Moderate', color: '#F59E0B' },
-            { key: 'Peak', label: '🔴 Busy', color: '#EF4444' },
-          ] as const}
-          keyExtractor={(item) => item.key}
-          renderItem={({ item }) => {
-            const isSelected = selectedCrowd === item.key;
-            return (
-              <TouchableOpacity
-                style={[
-                  styles.crowdChip,
-                  isSelected && styles.crowdChipActive,
-                  isSelected && item.key !== 'all' && { backgroundColor: item.color + '25', borderColor: item.color },
-                ]}
-                onPress={() => setSelectedCrowd(item.key)}
-                activeOpacity={0.7}
+              {/* View Toggle Button */}
+              <ScalePressable
+                style={styles.viewToggleBtn}
+                onPress={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
               >
-                <Text
-                  style={[
-                    styles.crowdChipText,
-                    isSelected && styles.crowdChipTextActive,
-                    isSelected && item.key !== 'all' && { color: item.color, fontWeight: '700' },
-                  ]}
-                >
-                  {item.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          }}
-        />
-      </View>
+                <MaterialIcons
+                  name={viewMode === 'map' ? 'view-list' : 'map'}
+                  size={22}
+                  color={Colors.primary}
+                />
+              </ScalePressable>
+            </View>
+
+            {/* Floating Search Suggestions Dropdown */}
+            {searchQuery.trim().length > 0 && searchSuggestions.length > 0 && (
+              <View style={styles.searchSuggestionsDropdown}>
+                {searchSuggestions.map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.searchSuggestionItem}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      setSelectedPlace(item);
+                      setSearchQuery('');
+                      if (mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
+                        mapRef.current.animateToRegion(
+                          {
+                            latitude: item.latitude,
+                            longitude: item.longitude,
+                            latitudeDelta: 0.04,
+                            longitudeDelta: 0.04,
+                          },
+                          600
+                        );
+                      }
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Image
+                      source={{
+                        uri: dynamicImageService.getPlaceImage(
+                          item.name,
+                          item.category,
+                          item.imageUrl
+                        ),
+                      }}
+                      style={styles.suggestionThumb}
+                      contentFit="cover"
+                    />
+                    <View style={styles.suggestionTextCol}>
+                      <Text style={styles.suggestionTitle} numberOfLines={1}>
+                        {getPlaceName(item)}
+                      </Text>
+                      <Text style={styles.suggestionSub} numberOfLines={1}>
+                        {(item.category || 'heritage').toUpperCase()} • {(item as any).city || 'Gujarat'}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.suggestionGoBtn}
+                      onPress={() => {
+                        Keyboard.dismiss();
+                        setSearchQuery('');
+                        startNavigationTo(item);
+                      }}
+                    >
+                      <MaterialIcons name="directions" size={18} color={Colors.primary} />
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* Category & Live Crowd Filters */}
+          <View style={styles.filterOverlay}>
+            <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
+            
+            {/* Live Visitor Density Filter: Only show when place card is not open to avoid crowding the map */}
+            {!selectedPlace && (
+              <FlatList
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.crowdFilterRow}
+                data={[
+                  { key: 'all', label: 'All Footfall', color: Colors.surfaceHighlight },
+                  { key: 'Low', label: '🟢 Low Crowd', color: '#10B981' },
+                  { key: 'Moderate', label: '🟡 Moderate', color: '#F59E0B' },
+                  { key: 'Peak', label: '🔴 Busy', color: '#EF4444' },
+                ] as const}
+                keyExtractor={(item) => item.key}
+                renderItem={({ item }) => {
+                  const isSelected = selectedCrowd === item.key;
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.crowdChip,
+                        isSelected && styles.crowdChipActive,
+                        isSelected && item.key !== 'all' && { backgroundColor: item.color + '25', borderColor: item.color },
+                      ]}
+                      onPress={() => setSelectedCrowd(item.key)}
+                      activeOpacity={0.7}
+                    >
+                      <Text
+                        style={[
+                          styles.crowdChipText,
+                          isSelected && styles.crowdChipTextActive,
+                          isSelected && item.key !== 'all' && { color: item.color, fontWeight: '700' },
+                        ]}
+                      >
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            )}
+          </View>
+        </>
+      )}
 
       {/* Floating Map Actions (Google Maps FAB Stack with tactile ScalePressable) */}
       {viewMode === 'map' && (
-        <View style={[styles.mapActionCol, selectedPlace ? { bottom: 310 } : {}]}>
+        <View style={[styles.mapActionCol, selectedPlace ? { bottom: 220 } : { bottom: 28 }]}>
           {/* Compass / Reset North */}
           <ScalePressable
             style={styles.mapActionBtn}
@@ -698,53 +704,62 @@ export default function ExploreScreen() {
             />
           </ScalePressable>
 
-          {/* Google Maps Paired Zoom Controls Pill */}
-          <View style={styles.zoomControlPill}>
-            <ScalePressable style={styles.zoomPillBtn} onPress={zoomIn}>
-              <MaterialIcons name="add" size={19} color={Colors.text} />
-            </ScalePressable>
-            <View style={styles.zoomDivider} />
-            <ScalePressable style={styles.zoomPillBtn} onPress={zoomOut}>
-              <MaterialIcons name="remove" size={19} color={Colors.text} />
-            </ScalePressable>
-          </View>
+          {/* Google Maps Paired Zoom Controls Pill: Shown when no place is open to avoid vertical screen overlap */}
+          {!selectedPlace && (
+            <View style={styles.zoomControlPill}>
+              <ScalePressable style={styles.zoomPillBtn} onPress={zoomIn}>
+                <MaterialIcons name="add" size={19} color={Colors.text} />
+              </ScalePressable>
+              <View style={styles.zoomDivider} />
+              <ScalePressable style={styles.zoomPillBtn} onPress={zoomOut}>
+                <MaterialIcons name="remove" size={19} color={Colors.text} />
+              </ScalePressable>
+            </View>
+          )}
         </View>
       )}
 
       {/* Interactive Map Layer Picker Tray */}
       {viewMode === 'map' && showLayerPicker && (
-        <View style={[styles.layerPickerTray, selectedPlace ? { bottom: 310 } : {}]}>
-          <View style={styles.layerPickerHeader}>
-            <MaterialIcons name="layers" size={16} color={Colors.primary} />
-            <Text style={styles.layerPickerTitle}>Map Views</Text>
+        <>
+          <TouchableOpacity
+            style={styles.layerPickerBackdrop}
+            activeOpacity={1}
+            onPress={() => setShowLayerPicker(false)}
+          />
+          <View style={[styles.layerPickerTray, selectedPlace ? { bottom: 220 } : { bottom: 76 }]}>
+            <View style={styles.layerPickerHeader}>
+              <MaterialIcons name="layers" size={16} color={Colors.primary} />
+              <Text style={styles.layerPickerTitle}>Map Views</Text>
+            </View>
+            <View style={styles.layerPickerRow}>
+              {[
+                { key: 'osm', label: '🌐 OpenStreetMap (Free)' },
+                { key: 'streets', label: '🗺️ Clean Streets' },
+                { key: 'satellite', label: '🛰️ Satellite' },
+                { key: 'terrain', label: '🧭 Topographic' },
+                { key: 'dark', label: '🌙 Dark Mode' },
+              ].map((layer) => {
+                const isActive = mapLayer === layer.key;
+                return (
+                  <TouchableOpacity
+                    key={layer.key}
+                    style={[styles.layerChip, isActive && styles.layerChipActive]}
+                    onPress={() => {
+                      setMapLayer(layer.key as MapLayerType);
+                      setShowLayerPicker(false);
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.layerChipText, isActive && styles.layerChipTextActive]}>
+                      {layer.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
-          <View style={styles.layerPickerRow}>
-            {[
-              { key: 'osm', label: '🌐 OpenStreetMap (Free)' },
-              { key: 'streets', label: '🗺️ Clean Streets' },
-              { key: 'satellite', label: '🛰️ Satellite' },
-              { key: 'terrain', label: '🧭 Topographic' },
-              { key: 'dark', label: '🌙 Dark Mode' },
-            ].map((layer) => {
-              const isActive = mapLayer === layer.key;
-              return (
-                <TouchableOpacity
-                  key={layer.key}
-                  style={[styles.layerChip, isActive && styles.layerChipActive]}
-                  onPress={() => {
-                    setMapLayer(layer.key as MapLayerType);
-                    setShowLayerPicker(false);
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.layerChipText, isActive && styles.layerChipTextActive]}>
-                    {layer.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
+        </>
       )}
 
       {/* Google Maps Style Bottom Sheet Card (map mode only) */}
@@ -752,19 +767,44 @@ export default function ExploreScreen() {
         <SlideUpView distance={160} style={styles.bottomCard}>
           <View style={styles.bottomCardHeaderRow}>
             <View style={styles.dragHandle} />
-            <ScalePressable
-              style={styles.bottomCardCloseBtn}
-              onPress={() => {
-                setSelectedPlace(null);
-                if (isNarrating) {
-                  Speech.stop();
-                  setIsNarrating(false);
-                }
-              }}
-              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-            >
-              <MaterialIcons name="close" size={16} color={Colors.textMuted} />
-            </ScalePressable>
+            <View style={styles.bottomCardHeaderActions}>
+              {/* Ask AI Pill */}
+              <ScalePressable
+                style={styles.headerAiBtn}
+                onPress={() => handleAskAI(selectedPlace)}
+              >
+                <MaterialIcons name="auto-awesome" size={12} color={Colors.textInverse} />
+                <Text style={styles.headerAiText}>AI</Text>
+              </ScalePressable>
+
+              {/* Share Icon */}
+              <ScalePressable
+                style={styles.headerShareBtn}
+                onPress={() => {
+                  Share.share({
+                    title: selectedPlace.name,
+                    message: `Explore ${selectedPlace.name} in Gujarat with Yatra Heritage Guide: https://maps.google.com/?q=${selectedPlace.latitude},${selectedPlace.longitude}`,
+                  }).catch(() => {});
+                }}
+              >
+                <MaterialIcons name="share" size={14} color={Colors.textSecondary} />
+              </ScalePressable>
+
+              {/* Close Button */}
+              <ScalePressable
+                style={styles.bottomCardCloseBtn}
+                onPress={() => {
+                  setSelectedPlace(null);
+                  if (isNarrating) {
+                    Speech.stop();
+                    setIsNarrating(false);
+                  }
+                }}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              >
+                <MaterialIcons name="close" size={15} color={Colors.textMuted} />
+              </ScalePressable>
+            </View>
           </View>
 
           <View style={styles.bottomCardContent}>
@@ -903,31 +943,7 @@ export default function ExploreScreen() {
                 <Text style={styles.directionsPrimaryBtnText}>Go</Text>
               </ScalePressable>
 
-              {/* Spoken Audio Story */}
-              <ScalePressable
-                style={[styles.audioStoryBtn, isNarrating && styles.audioStoryBtnActive]}
-                onPress={() => toggleAudioStory(selectedPlace)}
-              >
-                {isNarrating ? (
-                  <SoundWaveVisualizer isPlaying={true} color="#0A0A0F" />
-                ) : (
-                  <MaterialIcons name="volume-up" size={15} color={Colors.primary} />
-                )}
-                <Text style={[styles.audioStoryBtnText, isNarrating && { color: '#0A0A0F' }]}>
-                  {isNarrating ? 'Pause' : 'Listen'}
-                </Text>
-              </ScalePressable>
-
-              {/* 1-Tap Ride Booking */}
-              <ScalePressable
-                style={styles.rideBtn}
-                onPress={() => setShowRideModal(true)}
-              >
-                <MaterialIcons name="local-taxi" size={15} color="#F59E0B" />
-                <Text style={styles.rideBtnText}>Ride</Text>
-              </ScalePressable>
-
-              {/* Route */}
+              {/* In-app Route / Turn-by-Turn Steps */}
               <ScalePressable
                 style={[
                   styles.routeBtn,
@@ -956,44 +972,39 @@ export default function ExploreScreen() {
                 </Text>
               </ScalePressable>
 
-              {/* Ask AI */}
+              {/* 1-Tap Ride Booking */}
               <ScalePressable
-                style={styles.aiBtn}
-                onPress={() => handleAskAI(selectedPlace)}
+                style={styles.rideBtn}
+                onPress={() => setShowRideModal(true)}
               >
-                <MaterialIcons name="auto-awesome" size={15} color={Colors.textInverse} />
-                <Text style={styles.aiBtnText}>AI</Text>
+                <MaterialIcons name="local-taxi" size={15} color="#F59E0B" />
+                <Text style={styles.rideBtnText}>Ride</Text>
               </ScalePressable>
 
-              {/* Details */}
+              {/* Spoken Audio Story */}
+              <ScalePressable
+                style={[styles.audioStoryBtn, isNarrating && styles.audioStoryBtnActive]}
+                onPress={() => toggleAudioStory(selectedPlace)}
+              >
+                {isNarrating ? (
+                  <SoundWaveVisualizer isPlaying={true} color="#0A0A0F" />
+                ) : (
+                  <MaterialIcons name="volume-up" size={15} color={Colors.primary} />
+                )}
+                <Text style={[styles.audioStoryBtnText, isNarrating && { color: '#0A0A0F' }]}>
+                  {isNarrating ? 'Pause' : 'Listen'}
+                </Text>
+              </ScalePressable>
+
+              {/* Details Page Link */}
               <ScalePressable
                 style={styles.detailsBtn}
                 onPress={() => router.push(`/place/${selectedPlace.id}`)}
               >
-                <MaterialIcons name="info" size={15} color={Colors.text} />
-              </ScalePressable>
-
-              {/* Share */}
-              <ScalePressable
-                style={styles.shareBtn}
-                onPress={() => {
-                  Share.share({
-                    title: selectedPlace.name,
-                    message: `Explore ${selectedPlace.name} in Gujarat with Yatra Heritage Guide: https://maps.google.com/?q=${selectedPlace.latitude},${selectedPlace.longitude}`,
-                  }).catch(() => {});
-                }}
-              >
-                <MaterialIcons name="share" size={15} color={Colors.textSecondary} />
+                <MaterialIcons name="arrow-forward" size={16} color={Colors.text} />
               </ScalePressable>
             </View>
           </View>
-          <ScalePressable style={styles.closeBtn} onPress={() => {
-            setSelectedPlace(null);
-            Speech.stop();
-            setIsNarrating(false);
-          }}>
-            <MaterialIcons name="close" size={17} color={Colors.textMuted} />
-          </ScalePressable>
         </SlideUpView>
       )}
 
@@ -1175,6 +1186,10 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: Colors.border,
   },
+  layerPickerBackdrop: {
+    ...StyleSheet.absoluteFill,
+    zIndex: 25,
+  },
   layerPickerTray: {
     position: 'absolute',
     left: Spacing.base,
@@ -1185,7 +1200,7 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
-    zIndex: 14,
+    zIndex: 26,
     ...Shadows.lg,
   },
   layerPickerHeader: {
@@ -1243,26 +1258,49 @@ const styles = StyleSheet.create({
   bottomCardHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    marginBottom: 4,
-    height: 18,
+    justifyContent: 'space-between',
+    marginBottom: 6,
+    height: 26,
   },
   dragHandle: {
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
-    alignSelf: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    marginLeft: 28,
+  },
+  bottomCardHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  headerAiBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: Colors.accent,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
+  },
+  headerAiText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: Colors.textInverse,
+  },
+  headerShareBtn: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bottomCardCloseBtn: {
-    position: 'absolute',
-    right: 0,
-    top: -2,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1399,7 +1437,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   directionsPrimaryBtn: {
-    flex: 0.9,
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1413,46 +1451,8 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#0A0A0F',
   },
-  audioStoryBtn: {
-    flex: 1.1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(212, 175, 124, 0.15)',
-    paddingVertical: 9,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.3)',
-  },
-  audioStoryBtnActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  audioStoryBtnText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: Colors.primary,
-  },
-  rideBtn: {
-    flex: 0.9,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
-    paddingVertical: 9,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
-  },
-  rideBtnText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#F59E0B',
-  },
   routeBtn: {
-    flex: 1,
+    flex: 1.05,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1475,20 +1475,43 @@ const styles = StyleSheet.create({
   routeBtnTextActive: {
     color: Colors.textInverse,
   },
-  aiBtn: {
-    flex: 0.8,
+  rideBtn: {
+    flex: 0.95,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3,
-    backgroundColor: Colors.accent,
+    gap: 4,
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
     paddingVertical: 9,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.3)',
   },
-  aiBtnText: {
+  rideBtnText: {
     fontSize: 11,
     fontWeight: '700',
-    color: Colors.textInverse,
+    color: '#F59E0B',
+  },
+  audioStoryBtn: {
+    flex: 1.05,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(212, 175, 124, 0.15)',
+    paddingVertical: 9,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 124, 0.3)',
+  },
+  audioStoryBtnActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  audioStoryBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.primary,
   },
   detailsBtn: {
     width: 36,
@@ -1557,20 +1580,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(212, 175, 124, 0.12)',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  closeBtn: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(23, 23, 23, 0.9)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 99,
   },
   crowdFilterRow: {
     paddingHorizontal: Spacing.base,
