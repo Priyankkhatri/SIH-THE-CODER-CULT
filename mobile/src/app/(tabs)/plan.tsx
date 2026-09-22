@@ -31,7 +31,12 @@ import { useLocation } from '../../hooks/useLocation';
 import { TimelineItem } from '../../components/TimelineItem';
 import { ALL_SEED_PLACES } from '../../utils/seedPlaces';
 import { dynamicImageService } from '../../services/dynamicImageService';
-import { haversineDistance } from '../../utils/routeService';
+import { haversineDistance, optimizeStopSequence } from '../../utils/routeService';
+import {
+  ScalePressable,
+  SlideUpView,
+  PulseBeacon,
+} from '../../components/common/MicroAnimations';
 
 const SAVED_ITINERARIES_STORAGE_KEY = '@yatra_saved_itineraries_v1';
 
@@ -72,10 +77,12 @@ interface RegionalHub {
 const REGIONAL_HUBS: RegionalHub[] = [
   { id: 'gps', name: 'My Current Location', label: 'Live GPS', latitude: 0, longitude: 0, icon: 'my-location' },
   { id: 'agra', name: 'Agra & Northern Plains', label: 'Agra / Delhi', latitude: 27.1750, longitude: 78.0422, icon: 'account-balance' },
-  { id: 'mewar', name: 'Rajasthan & Mewar Citadels', label: 'Mewar / Jaipur', latitude: 25.1478, longitude: 73.5878, icon: 'fort' },
   { id: 'gujarat', name: 'Gujarat Stepwells & Temples', label: 'Gujarat Circuit', latitude: 23.0225, longitude: 72.5714, icon: 'temple-hindu' },
-  { id: 'caves', name: 'Maharashtra Rock-Cut Caves', label: 'Ajanta / Ellora', latitude: 20.5519, longitude: 75.7033, icon: 'landscape' },
+  { id: 'mewar', name: 'Rajasthan & Mewar Citadels', label: 'Mewar / Jaipur', latitude: 25.1478, longitude: 73.5878, icon: 'fort' },
   { id: 'deccan', name: 'Karnataka & Vijayanagara', label: 'Hampi / Deccan', latitude: 15.3350, longitude: 76.4600, icon: 'domain' },
+  { id: 'tamil', name: 'Tamil Nadu Chola Temples', label: 'Thanjavur / Tamil', latitude: 10.7828, longitude: 79.1318, icon: 'temple-buddhist' },
+  { id: 'caves', name: 'Maharashtra Rock-Cut Caves', label: 'Ajanta / Ellora', latitude: 20.5519, longitude: 75.7033, icon: 'landscape' },
+  { id: 'odisha', name: 'Odisha Sun & Kalinga Coast', label: 'Konark / Puri', latitude: 19.8876, longitude: 86.0945, icon: 'wb-sunny' },
 ];
 
 interface CuratedCircuit {
@@ -97,16 +104,16 @@ const CURATED_CIRCUITS: CuratedCircuit[] = [
     title: 'Mughal Architectural Axis',
     tag: 'ICONIC TRAIL',
     duration: 'full-day',
-    stopsCount: 3,
+    stopsCount: 4,
     timeEstimate: '6.5 Hours',
-    description: 'Taj Mahal, Agra Fort, and Fatehpur Sikri Imperial Court.',
+    description: 'Taj Mahal, Red Fort, Humayun’s Tomb, and Fatehpur Sikri Citadel.',
     centerLat: 27.1750,
     centerLng: 78.0422,
-    placeIds: ['IND-HER-01', 'IND-HER-03', 'IND-HER-04'],
+    placeIds: ['IND-HER-01', 'IND-HER-03', 'IND-HER-04', 'IND-HER-05'],
   },
   {
     id: 'solanki_marvels',
-    title: 'Solanki Stepwells & Solar Sanctuaries',
+    title: 'Solanki Stepwells & Sun Sanctuaries',
     tag: 'UNESCO TRAIL',
     duration: 'half-day',
     stopsCount: 3,
@@ -114,31 +121,67 @@ const CURATED_CIRCUITS: CuratedCircuit[] = [
     description: 'Rani Ki Vav subterranean stepwell, Modhera Sun Temple, and Adalaj Vav.',
     centerLat: 23.8585,
     centerLng: 72.1015,
-    placeIds: ['IND-HER-11', 'IND-HER-31', 'IND-HER-12'],
+    placeIds: ['IND-HER-11', 'IND-HER-31', 'IND-HER-22'],
+  },
+  {
+    id: 'deccan_hampi',
+    title: 'Vijayanagara Stone Chariot Trail',
+    tag: 'IMPERIAL RUINS',
+    duration: 'full-day',
+    stopsCount: 3,
+    timeEstimate: '7 Hours',
+    description: 'Hampi Virupaksha & Stone Chariot, Golconda Fort, and Charminar.',
+    centerLat: 15.3350,
+    centerLng: 76.4600,
+    placeIds: ['IND-HER-10', 'IND-HER-18', 'IND-HER-17'],
+  },
+  {
+    id: 'chola_sanctuaries',
+    title: 'Great Living Chola Sanctuaries',
+    tag: 'DRAVIDIAN WONDERS',
+    duration: 'half-day',
+    stopsCount: 2,
+    timeEstimate: '5 Hours',
+    description: 'Brihadisvara Temple (Peruvudaiyar Kovil) & Mahabalipuram Shore Temples.',
+    centerLat: 10.7828,
+    centerLng: 79.1318,
+    placeIds: ['IND-HER-14', 'IND-HER-12'],
   },
   {
     id: 'mewar_citadels',
-    title: 'Mewar Royal Fortresses of India',
+    title: 'Mewar & Amer Royal Citadels',
     tag: 'ROYAL CITADELS',
     duration: 'full-day',
     stopsCount: 3,
     timeEstimate: '7 Hours',
-    description: 'Kumbhalgarh 36-km Great Wall, Chittorgarh Fortress, and City Palace.',
-    centerLat: 25.1478,
-    centerLng: 73.5878,
-    placeIds: ['IND-HER-26', 'IND-HER-27', 'IND-HER-28'],
+    description: 'Hawa Mahal Palace of Winds, Amer Fort & Palace, and Kumbhalgarh Fortress.',
+    centerLat: 26.9124,
+    centerLng: 75.7873,
+    placeIds: ['IND-HER-15', 'IND-HER-16', 'IND-HER-26'],
   },
   {
     id: 'rock_cut_caves',
     title: 'Monolithic Rock-Cut Marvels',
     tag: 'ANCIENT CAVE WONDERS',
     duration: 'full-day',
-    stopsCount: 3,
+    stopsCount: 2,
     timeEstimate: '6 Hours',
-    description: 'Ajanta Frescoed Chaityas, Ellora Kailasa Temple, and Daulatabad Fort.',
+    description: 'Ajanta Frescoed Chaityas and Ellora Kailash Monolithic Rock Temple.',
     centerLat: 20.5519,
     centerLng: 75.7033,
-    placeIds: ['IND-HER-08', 'IND-HER-09', 'IND-MH-05'],
+    placeIds: ['IND-HER-06', 'IND-HER-07'],
+  },
+  {
+    id: 'kalinga_sun',
+    title: 'Kalinga Sun Temple & Sanchi Axis',
+    tag: 'SACRED SANCTUARIES',
+    duration: 'full-day',
+    stopsCount: 2,
+    timeEstimate: '5.5 Hours',
+    description: 'Konark Sun Temple (The Black Pagoda) and Sanchi Great Stupa 1.',
+    centerLat: 19.8876,
+    centerLng: 86.0945,
+    placeIds: ['IND-HER-08', 'IND-HER-13'],
   },
 ];
 
@@ -167,6 +210,52 @@ export default function PlanScreen() {
   // Saved itineraries list
   const [savedTrips, setSavedTrips] = useState<ItineraryData[]>([]);
   const [isSaved, setIsSaved] = useState(false);
+
+  // Live stop completion checklist
+  const [completedStops, setCompletedStops] = useState<number[]>([]);
+  // Heritage tips and ASI guide
+  const [showGuideModal, setShowGuideModal] = useState(false);
+  const [activeGuideTab, setActiveGuideTab] = useState<'tickets' | 'packing' | 'photography'>('tickets');
+
+  const toggleStopComplete = (order: number) => {
+    setCompletedStops((prev) =>
+      prev.includes(order) ? prev.filter((o) => o !== order) : [...prev, order]
+    );
+  };
+
+  const handleOptimizeSequence = () => {
+    if (!itinerary || itinerary.items.length <= 2) {
+      Alert.alert('Route Optimizer', 'You need at least 3 stops to optimize route sequence.');
+      return;
+    }
+
+    const { lat, lng } = getEffectiveCoordinates();
+    const optimized = optimizeStopSequence(lat, lng, itinerary.items);
+
+    let totalTime = 0;
+    const reindexed: ItineraryItem[] = optimized.map((item, idx) => {
+      const prev = idx === 0 ? { latitude: lat, longitude: lng } : optimized[idx - 1];
+      const dist = prev.latitude && prev.longitude && item.latitude && item.longitude
+        ? haversineDistance(prev.latitude, prev.longitude, item.latitude, item.longitude)
+        : item.distance;
+      const travelTime = idx === 0 ? 5 : Math.max(8, Math.min(60, Math.round(dist * 2.2)));
+      totalTime += item.visitDuration + travelTime;
+      return {
+        ...item,
+        order: idx + 1,
+        distance: Number(dist.toFixed(1)),
+        travelTime,
+      };
+    });
+
+    setItinerary({
+      ...itinerary,
+      items: reindexed,
+      totalTimeMinutes: totalTime,
+    });
+    setCompletedStops([]);
+    Alert.alert('⚡ Route Optimized', 'Stops re-ordered in shortest road sequence to minimize travel time.');
+  };
 
   useEffect(() => {
     loadSavedItineraries();
@@ -381,24 +470,22 @@ export default function PlanScreen() {
     setItinerary(null);
     setShowForm(true);
     setIsSaved(false);
+    setCompletedStops([]);
+    setShowGuideModal(false);
   };
 
   const handleStartNavigation = (item?: ItineraryItem) => {
     if (!itinerary || itinerary.items.length === 0) return;
     const target = item || itinerary.items[0];
-    const allPlaces = usePlacesStore.getState().places;
-    const matched =
-      allPlaces.find((p) => p.id === target.placeId) ||
-      ALL_SEED_PLACES.find((p) => p.id === target.placeId);
-    const lat = matched?.latitude || target.latitude || location.latitude || 27.175;
-    const lng = matched?.longitude || target.longitude || location.longitude || 78.0422;
 
-    const url = Platform.select({
-      ios: `maps:0,0?q=${lat},${lng}`,
-      android: `geo:${lat},${lng}?q=${lat},${lng}(${encodeURIComponent(target.placeName)})`,
-      web: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+    router.push({
+      pathname: '/(tabs)/explore',
+      params: {
+        destinationId: target.placeId,
+        destinationName: target.placeName,
+        routeTo: 'true',
+      },
     });
-    if (url) Linking.openURL(url);
   };
 
   const handleViewOnRadarMap = () => {
@@ -441,19 +528,18 @@ export default function PlanScreen() {
           <Text style={styles.headerTitle}>Heritage Itinerary</Text>
         </View>
         {itinerary && (
-          <TouchableOpacity style={styles.resetBtn} onPress={resetPlan} activeOpacity={0.8}>
+          <ScalePressable style={styles.resetBtn} onPress={resetPlan}>
             <MaterialIcons name="restart-alt" size={18} color={Colors.primary} />
             <Text style={styles.resetText}>New Plan</Text>
-          </TouchableOpacity>
+          </ScalePressable>
         )}
       </View>
 
       {/* Segmented Tab Switcher */}
       <View style={styles.tabSwitcher}>
-        <TouchableOpacity
+        <ScalePressable
           style={[styles.tabBtn, activeTab === 'craft' && styles.tabBtnActive]}
           onPress={() => setActiveTab('craft')}
-          activeOpacity={0.85}
         >
           <MaterialIcons
             name="auto-awesome"
@@ -463,12 +549,11 @@ export default function PlanScreen() {
           <Text style={[styles.tabBtnText, activeTab === 'craft' && styles.tabBtnTextActive]}>
             Craft Route
           </Text>
-        </TouchableOpacity>
+        </ScalePressable>
 
-        <TouchableOpacity
+        <ScalePressable
           style={[styles.tabBtn, activeTab === 'saved' && styles.tabBtnActive]}
           onPress={() => setActiveTab('saved')}
-          activeOpacity={0.85}
         >
           <MaterialIcons
             name="bookmark"
@@ -478,7 +563,7 @@ export default function PlanScreen() {
           <Text style={[styles.tabBtnText, activeTab === 'saved' && styles.tabBtnTextActive]}>
             Saved Trips ({savedTrips.length})
           </Text>
-        </TouchableOpacity>
+        </ScalePressable>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -492,13 +577,12 @@ export default function PlanScreen() {
                 <Text style={styles.emptySubtitle}>
                   Generate a customized cultural tour or pick one of our curated national trails to save it for offline travel.
                 </Text>
-                <TouchableOpacity
+                <ScalePressable
                   style={styles.browseCuratedBtn}
                   onPress={() => setActiveTab('craft')}
-                  activeOpacity={0.85}
                 >
                   <Text style={styles.browseCuratedBtnText}>Plan Your First Itinerary</Text>
-                </TouchableOpacity>
+                </ScalePressable>
               </View>
             ) : (
               savedTrips.map((trip, idx) => (
@@ -510,12 +594,12 @@ export default function PlanScreen() {
                         {trip.stops} Stops · ~{trip.totalTimeMinutes} mins · {trip.savedAt || 'Saved'}
                       </Text>
                     </View>
-                    <TouchableOpacity
+                    <ScalePressable
                       onPress={() => handleDeleteSavedTrip(trip.id)}
                       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     >
                       <MaterialIcons name="delete-outline" size={20} color={Colors.textMuted} />
-                    </TouchableOpacity>
+                    </ScalePressable>
                   </View>
 
                   {/* Stop Preview Pills */}
@@ -535,7 +619,7 @@ export default function PlanScreen() {
                   </View>
 
                   <View style={styles.savedTripActions}>
-                    <TouchableOpacity
+                    <ScalePressable
                       style={styles.openTripBtn}
                       onPress={() => {
                         setItinerary(trip);
@@ -543,11 +627,10 @@ export default function PlanScreen() {
                         setShowForm(false);
                         setActiveTab('craft');
                       }}
-                      activeOpacity={0.85}
                     >
                       <MaterialIcons name="visibility" size={16} color={Colors.primary} />
                       <Text style={styles.openTripBtnText}>View Itinerary</Text>
-                    </TouchableOpacity>
+                    </ScalePressable>
                   </View>
                 </View>
               ))
@@ -569,11 +652,10 @@ export default function PlanScreen() {
                 contentContainerStyle={styles.curatedScrollContent}
               >
                 {CURATED_CIRCUITS.map((circuit) => (
-                  <TouchableOpacity
+                  <ScalePressable
                     key={circuit.id}
                     style={styles.curatedCard}
                     onPress={() => handleSelectCuratedCircuit(circuit)}
-                    activeOpacity={0.88}
                   >
                     <View style={styles.curatedBadgeRow}>
                       <Text style={styles.curatedTag}>{circuit.tag}</Text>
@@ -592,7 +674,7 @@ export default function PlanScreen() {
                         <MaterialIcons name="arrow-forward" size={14} color={Colors.primary} />
                       </View>
                     </View>
-                  </TouchableOpacity>
+                  </ScalePressable>
                 ))}
               </ScrollView>
             </View>
@@ -612,11 +694,10 @@ export default function PlanScreen() {
               {REGIONAL_HUBS.map((hub) => {
                 const isActive = selectedHub === hub.id;
                 return (
-                  <TouchableOpacity
+                  <ScalePressable
                     key={hub.id}
                     style={[styles.hubChip, isActive && styles.hubChipActive]}
                     onPress={() => setSelectedHub(hub.id)}
-                    activeOpacity={0.8}
                   >
                     <MaterialIcons
                       name={hub.icon as any}
@@ -626,7 +707,7 @@ export default function PlanScreen() {
                     <Text style={[styles.hubChipText, isActive && styles.hubChipTextActive]}>
                       {hub.label}
                     </Text>
-                  </TouchableOpacity>
+                  </ScalePressable>
                 );
               })}
             </ScrollView>
@@ -644,17 +725,16 @@ export default function PlanScreen() {
               {DURATION_OPTIONS.map((opt) => {
                 const isActive = selectedDuration === opt.key;
                 return (
-                  <TouchableOpacity
+                  <ScalePressable
                     key={opt.key}
                     style={[styles.durationCard, isActive && styles.durationActive]}
                     onPress={() => setSelectedDuration(opt.key)}
-                    activeOpacity={0.8}
                   >
                     <Text style={[styles.durationValue, isActive && styles.activeText]}>
                       {opt.label}
                     </Text>
                     <Text style={styles.durationDesc}>{opt.description}</Text>
-                  </TouchableOpacity>
+                  </ScalePressable>
                 );
               })}
             </View>
@@ -665,15 +745,14 @@ export default function PlanScreen() {
               {TRAVEL_STYLES.map((style) => {
                 const isActive = selectedTravelStyle === style.key;
                 return (
-                  <TouchableOpacity
+                  <ScalePressable
                     key={style.key}
                     style={[styles.travelStyleCard, isActive && styles.travelStyleActive]}
                     onPress={() => setSelectedTravelStyle(style.key)}
-                    activeOpacity={0.8}
                   >
                     <Text style={styles.styleIcon}>{style.icon}</Text>
                     <Text style={[styles.styleLabel, isActive && styles.activeText]}>{style.label}</Text>
-                  </TouchableOpacity>
+                  </ScalePressable>
                 );
               })}
             </View>
@@ -684,27 +763,25 @@ export default function PlanScreen() {
               {INTERESTS_OPTIONS.map((opt) => {
                 const isActive = selectedInterests.includes(opt.key);
                 return (
-                  <TouchableOpacity
+                  <ScalePressable
                     key={opt.key}
                     style={[styles.interestChip, isActive && styles.interestActive]}
                     onPress={() => toggleInterest(opt.key)}
-                    activeOpacity={0.8}
                   >
                     <Text style={styles.interestIcon}>{opt.icon}</Text>
                     <Text style={[styles.interestLabel, isActive && styles.activeText]}>
                       {opt.label}
                     </Text>
-                  </TouchableOpacity>
+                  </ScalePressable>
                 );
               })}
             </View>
 
             {/* Generate Button */}
-            <TouchableOpacity
+            <ScalePressable
               style={styles.generateBtn}
               onPress={generateItinerary}
               disabled={isGenerating || selectedInterests.length === 0}
-              activeOpacity={0.88}
             >
               {isGenerating ? (
                 <>
@@ -717,11 +794,11 @@ export default function PlanScreen() {
                   <Text style={styles.generateText}>Generate AI Heritage Route</Text>
                 </>
               )}
-            </TouchableOpacity>
+            </ScalePressable>
           </View>
         ) : itinerary ? (
           /* ================= CRAFT ROUTE: GENERATED ITINERARY VIEW ================= */
-          <View style={styles.itinerarySection}>
+          <SlideUpView distance={25} style={styles.itinerarySection}>
             {/* Summary Card */}
             <View style={styles.summaryCard}>
               <View style={styles.summaryTopRow}>
@@ -731,10 +808,9 @@ export default function PlanScreen() {
                     Optimized itinerary considering visitor pace and travel times
                   </Text>
                 </View>
-                <TouchableOpacity
+                <ScalePressable
                   style={[styles.saveActionBtn, isSaved && styles.saveActionBtnActive]}
                   onPress={handleSaveItinerary}
-                  activeOpacity={0.8}
                 >
                   <MaterialIcons
                     name={isSaved ? 'bookmark' : 'bookmark-border'}
@@ -744,7 +820,7 @@ export default function PlanScreen() {
                   <Text style={[styles.saveActionText, isSaved && styles.saveActionTextActive]}>
                     {isSaved ? 'Saved' : 'Save'}
                   </Text>
-                </TouchableOpacity>
+                </ScalePressable>
               </View>
 
               <View style={styles.summaryStatsRow}>
@@ -766,67 +842,183 @@ export default function PlanScreen() {
                   <Text style={styles.summaryLabel}>Pace Style</Text>
                 </View>
               </View>
+
+              {/* Live Interactive Circuit Progress Bar */}
+              <View style={styles.progressBarContainer}>
+                <View style={styles.progressHeaderRow}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <PulseBeacon color={completedStops.length === itinerary.stops && itinerary.stops > 0 ? '#10B981' : Colors.primary} size={6} glowSize={12} />
+                    <Text style={styles.progressLabel}>CIRCUIT PROGRESS</Text>
+                  </View>
+                  <Text style={styles.progressValueText}>
+                    {completedStops.length} of {itinerary.stops} stops visited ({Math.round((completedStops.length / Math.max(1, itinerary.stops)) * 100)}%)
+                  </Text>
+                </View>
+                <View style={styles.progressTrack}>
+                  <View
+                    style={[
+                      styles.progressFill,
+                      {
+                        width: `${Math.min(100, Math.round((completedStops.length / Math.max(1, itinerary.stops)) * 100))}%`,
+                        backgroundColor: completedStops.length === itinerary.stops && itinerary.stops > 0 ? '#10B981' : Colors.primary,
+                      },
+                    ]}
+                  />
+                </View>
+              </View>
             </View>
 
             {/* Quick Actions Bar */}
             <View style={styles.quickBar}>
-              <TouchableOpacity
+              <ScalePressable
                 style={styles.quickBarBtn}
                 onPress={handleViewOnRadarMap}
-                activeOpacity={0.85}
               >
                 <MaterialIcons name="radar" size={16} color={Colors.primary} />
-                <Text style={styles.quickBarText}>View on Radar Map</Text>
-              </TouchableOpacity>
+                <Text style={styles.quickBarText}>Radar Map</Text>
+              </ScalePressable>
 
-              <TouchableOpacity
+              <ScalePressable
+                style={[styles.quickBarBtn, { borderColor: '#F59E0B' }]}
+                onPress={handleOptimizeSequence}
+              >
+                <MaterialIcons name="bolt" size={16} color="#F59E0B" />
+                <Text style={[styles.quickBarText, { color: '#F59E0B' }]}>Optimize</Text>
+              </ScalePressable>
+
+              <ScalePressable
+                style={[styles.quickBarBtn, showGuideModal && { borderColor: '#38BDF8' }]}
+                onPress={() => setShowGuideModal(!showGuideModal)}
+              >
+                <MaterialIcons name="tips-and-updates" size={16} color="#38BDF8" />
+                <Text style={[styles.quickBarText, { color: '#38BDF8' }]}>Guide & Tips</Text>
+              </ScalePressable>
+
+              <ScalePressable
                 style={styles.quickBarBtn}
                 onPress={handleShareItinerary}
-                activeOpacity={0.85}
               >
                 <MaterialIcons name="share" size={16} color={Colors.textSecondary} />
-                <Text style={styles.quickBarText}>Share Route</Text>
-              </TouchableOpacity>
+                <Text style={styles.quickBarText}>Share</Text>
+              </ScalePressable>
 
-              <TouchableOpacity
+              <ScalePressable
                 style={styles.quickBarBtn}
                 onPress={() => generateItinerary()}
-                activeOpacity={0.85}
               >
                 <MaterialIcons name="refresh" size={16} color={Colors.textSecondary} />
                 <Text style={styles.quickBarText}>Re-Roll</Text>
-              </TouchableOpacity>
+              </ScalePressable>
             </View>
 
+            {/* Collapsible ASI Guide & Heritage Tips */}
+            {showGuideModal && (
+              <SlideUpView distance={15} style={styles.guideCard}>
+                <View style={styles.guideCardHeader}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <MaterialIcons name="verified-user" size={16} color={Colors.primary} />
+                    <Text style={styles.guideCardTitle}>ASI Monuments & Visitor Protocol</Text>
+                  </View>
+                  <ScalePressable
+                    onPress={() => setShowGuideModal(false)}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    <MaterialIcons name="close" size={16} color={Colors.textMuted} />
+                  </ScalePressable>
+                </View>
+
+                {/* Sub tabs */}
+                <View style={styles.guideSubTabs}>
+                  {[
+                    { key: 'tickets', label: '🎫 ASI Tickets' },
+                    { key: 'packing', label: '🎒 Checklist' },
+                    { key: 'photography', label: '📸 Camera Rules' },
+                  ].map((tab) => (
+                    <ScalePressable
+                      key={tab.key}
+                      style={[styles.guideSubTabBtn, activeGuideTab === tab.key && styles.guideSubTabBtnActive]}
+                      onPress={() => setActiveGuideTab(tab.key as any)}
+                    >
+                      <Text style={[styles.guideSubTabText, activeGuideTab === tab.key && styles.guideSubTabTextActive]}>
+                        {tab.label}
+                      </Text>
+                    </ScalePressable>
+                  ))}
+                </View>
+
+                {activeGuideTab === 'tickets' && (
+                  <View style={styles.guideContentBox}>
+                    <Text style={styles.guideTextRow}>
+                      • <Text style={styles.guideBold}>Timings:</Text> National monuments open sunrise to sunset (approx 6:00 AM – 6:00 PM).
+                    </Text>
+                    <Text style={styles.guideTextRow}>
+                      • <Text style={styles.guideBold}>Entry Fee:</Text> Nominal ₹25–₹50 for Indian nationals. Children under 15 enjoy <Text style={{ color: '#10B981', fontWeight: '700' }}>100% Free Entry</Text>.
+                    </Text>
+                    <Text style={styles.guideTextRow}>
+                      • <Text style={styles.guideBold}>E-Tickets:</Text> Scan the ASI QR code at monument entry gates to avoid ticket queues.
+                    </Text>
+                  </View>
+                )}
+
+                {activeGuideTab === 'packing' && (
+                  <View style={styles.guideContentBox}>
+                    <Text style={styles.guideTextRow}>
+                      • <Text style={styles.guideBold}>Footwear:</Text> Slip-ons are best; shoes must be removed before entering sanctums and inner pavilions.
+                    </Text>
+                    <Text style={styles.guideTextRow}>
+                      • <Text style={styles.guideBold}>Dress Code:</Text> Modest clothing covering shoulders and knees is recommended at active temples.
+                    </Text>
+                    <Text style={styles.guideTextRow}>
+                      • <Text style={styles.guideBold}>Hydration:</Text> Bring a refillable water bottle; RO water stations are available on-site.
+                    </Text>
+                  </View>
+                )}
+
+                {activeGuideTab === 'photography' && (
+                  <View style={styles.guideContentBox}>
+                    <Text style={styles.guideTextRow}>
+                      • <Text style={styles.guideBold}>Phones:</Text> Personal mobile photography is free across all ASI protected monuments.
+                    </Text>
+                    <Text style={styles.guideTextRow}>
+                      • <Text style={styles.guideBold}>Drones:</Text> Drone flying is strictly prohibited over Indian heritage monuments by DGCA security regulations.
+                    </Text>
+                  </View>
+                )}
+              </SlideUpView>
+            )}
+
             {/* Timeline Stops */}
-            <Text style={styles.timelineTitle}>Itinerary Stops ({itinerary.stops})</Text>
+            <View style={styles.timelineHeaderRow}>
+              <Text style={styles.timelineTitle}>Itinerary Stops ({itinerary.stops})</Text>
+              <Text style={styles.timelineSubText}>Tap stop circle to mark Visited</Text>
+            </View>
             {itinerary.items.map((item, idx) => (
-              <TouchableOpacity
+              <ScalePressable
                 key={item.placeId || idx}
-                activeOpacity={0.9}
                 onPress={() => router.push(`/place/${item.placeId}`)}
               >
                 <TimelineItem
                   item={item}
                   isLast={idx === itinerary.items.length - 1}
+                  isCompleted={completedStops.includes(item.order)}
+                  onToggleComplete={() => toggleStopComplete(item.order)}
                   onNavigate={() => handleStartNavigation(item)}
                   onRemove={() => handleRemoveStop(item.order)}
                 />
-              </TouchableOpacity>
+              </ScalePressable>
             ))}
 
             {/* Bottom Floating Navigation Action */}
             <View style={styles.itineraryActions}>
-              <TouchableOpacity
+              <ScalePressable
                 style={styles.startNavBtn}
                 onPress={() => handleStartNavigation()}
-                activeOpacity={0.88}
               >
                 <MaterialIcons name="navigation" size={20} color="#0A0A0A" />
                 <Text style={styles.startNavText}>Start Turn-by-Turn Route</Text>
-              </TouchableOpacity>
+              </ScalePressable>
             </View>
-          </View>
+          </SlideUpView>
         ) : null}
       </ScrollView>
     </View>
@@ -1336,6 +1528,131 @@ const styles = StyleSheet.create({
     width: 1,
     height: 32,
     backgroundColor: Colors.border,
+  },
+  progressBarContainer: {
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.divider,
+  },
+  progressHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  progressLabelCol: {
+    flex: 1,
+    gap: 2,
+  },
+  progressLabel: {
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    color: Colors.primary,
+  },
+  progressValueText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.text,
+  },
+  progressTrack: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.surfaceHighlight,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  completedTrophyBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: '#F59E0B',
+  },
+  completedTrophyText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#F59E0B',
+  },
+  guideCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.md,
+    marginBottom: Spacing.base,
+    borderWidth: 1,
+    borderColor: 'rgba(56, 189, 248, 0.3)',
+  },
+  guideCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  guideCardTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  guideSubTabs: {
+    flexDirection: 'row',
+    gap: 6,
+    marginBottom: 10,
+  },
+  guideSubTabBtn: {
+    flex: 1,
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.surfaceHighlight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  guideSubTabBtnActive: {
+    backgroundColor: 'rgba(56, 189, 248, 0.2)',
+    borderWidth: 1,
+    borderColor: '#38BDF8',
+  },
+  guideSubTabText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: Colors.textMuted,
+  },
+  guideSubTabTextActive: {
+    color: '#38BDF8',
+    fontWeight: '700',
+  },
+  guideContentBox: {
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    borderRadius: BorderRadius.md,
+    padding: Spacing.sm,
+    gap: 6,
+  },
+  guideTextRow: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    lineHeight: 16,
+  },
+  guideBold: {
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  timelineHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    marginBottom: Spacing.md,
+  },
+  timelineSubText: {
+    fontSize: 11,
+    color: Colors.textMuted,
   },
   quickBar: {
     flexDirection: 'row',

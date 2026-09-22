@@ -11,6 +11,7 @@ import {
   FlatList,
   ActivityIndicator,
   Share,
+  Keyboard,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -315,6 +316,10 @@ export default function ExploreScreen() {
   }, [params.destinationId, params.destinationName, params.routeTo]);
 
   const handleMarkerPress = (place: Place) => {
+    if (isNarrating) {
+      Speech.stop();
+      setIsNarrating(false);
+    }
     setSelectedPlace(place);
   };
 
@@ -459,6 +464,10 @@ export default function ExploreScreen() {
             setRouteDestination(null);
             setRouteInfo(null);
             setShowStepsSheet(false);
+            if (isNarrating) {
+              Speech.stop();
+              setIsNarrating(false);
+            }
           }}
           onPressSteps={() => setShowStepsSheet(true)}
         />
@@ -511,9 +520,15 @@ export default function ExploreScreen() {
               onChangeText={setSearchQuery}
             />
             {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <ScalePressable
+                onPress={() => {
+                  setSearchQuery('');
+                  Keyboard.dismiss();
+                }}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <MaterialIcons name="close" size={18} color={Colors.textMuted} />
-              </TouchableOpacity>
+              </ScalePressable>
             )}
             <View style={styles.placeCount}>
               <Text style={styles.placeCountText}>{filteredPlaces.length}</Text>
@@ -521,7 +536,7 @@ export default function ExploreScreen() {
           </View>
 
           {/* View Toggle Button */}
-          <TouchableOpacity
+          <ScalePressable
             style={styles.viewToggleBtn}
             onPress={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
           >
@@ -530,7 +545,7 @@ export default function ExploreScreen() {
               size={22}
               color={Colors.primary}
             />
-          </TouchableOpacity>
+          </ScalePressable>
         </View>
 
         {/* Floating Search Suggestions Dropdown */}
@@ -541,6 +556,7 @@ export default function ExploreScreen() {
                 key={item.id}
                 style={styles.searchSuggestionItem}
                 onPress={() => {
+                  Keyboard.dismiss();
                   setSelectedPlace(item);
                   setSearchQuery('');
                   if (mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
@@ -579,6 +595,7 @@ export default function ExploreScreen() {
                 <TouchableOpacity
                   style={styles.suggestionGoBtn}
                   onPress={() => {
+                    Keyboard.dismiss();
                     setSearchQuery('');
                     startNavigationTo(item);
                   }}
@@ -733,10 +750,29 @@ export default function ExploreScreen() {
       {/* Google Maps Style Bottom Sheet Card (map mode only) */}
       {viewMode === 'map' && selectedPlace && (
         <SlideUpView distance={160} style={styles.bottomCard}>
-          <View style={styles.dragHandle} />
+          <View style={styles.bottomCardHeaderRow}>
+            <View style={styles.dragHandle} />
+            <ScalePressable
+              style={styles.bottomCardCloseBtn}
+              onPress={() => {
+                setSelectedPlace(null);
+                if (isNarrating) {
+                  Speech.stop();
+                  setIsNarrating(false);
+                }
+              }}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <MaterialIcons name="close" size={16} color={Colors.textMuted} />
+            </ScalePressable>
+          </View>
 
           <View style={styles.bottomCardContent}>
-            <View style={styles.bottomCardInfo}>
+            <ScalePressable
+              style={styles.bottomCardInfo}
+              onPress={() => router.push(`/place/${selectedPlace.id}`)}
+              activeOpacity={0.88}
+            >
               {/* Dynamic Heritage Thumbnail with Category Badge & Placeholder */}
               <View style={styles.bottomCardThumbWrap}>
                 <View style={styles.bottomCardThumbPlaceholder}>
@@ -827,7 +863,7 @@ export default function ExploreScreen() {
                   );
                 })()}
               </View>
-            </View>
+            </ScalePressable>
 
             {/* Active Navigation Route Status */}
             {isRouting && routeDestination?.id === selectedPlace.id && (
@@ -1204,13 +1240,31 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     ...Shadows.lg,
   },
+  bottomCardHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    marginBottom: 4,
+    height: 18,
+  },
   dragHandle: {
     width: 36,
     height: 4,
     borderRadius: 2,
     backgroundColor: 'rgba(255, 255, 255, 0.22)',
     alignSelf: 'center',
-    marginBottom: 8,
+  },
+  bottomCardCloseBtn: {
+    position: 'absolute',
+    right: 0,
+    top: -2,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bottomCardContent: {
     gap: Spacing.sm,

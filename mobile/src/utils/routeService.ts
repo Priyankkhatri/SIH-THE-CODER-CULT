@@ -213,3 +213,44 @@ export async function getRoute(
     };
   }
 }
+
+/**
+ * Orders stops using nearest-neighbor heuristic starting from origin.
+ * Minimizes total traveling distance across monuments.
+ */
+export function optimizeStopSequence<T extends { latitude?: number; longitude?: number }>(
+  startLat: number,
+  startLng: number,
+  items: T[]
+): T[] {
+  if (items.length <= 2) return items;
+
+  const unvisited = [...items];
+  const ordered: T[] = [];
+  let currentLat = startLat;
+  let currentLng = startLng;
+
+  while (unvisited.length > 0) {
+    let closestIdx = 0;
+    let shortestDist = Infinity;
+
+    for (let i = 0; i < unvisited.length; i++) {
+      const item = unvisited[i];
+      const lat = item.latitude ?? currentLat;
+      const lng = item.longitude ?? currentLng;
+      const dist = haversineDistance(currentLat, currentLng, lat, lng);
+      if (dist < shortestDist) {
+        shortestDist = dist;
+        closestIdx = i;
+      }
+    }
+
+    const [nextItem] = unvisited.splice(closestIdx, 1);
+    ordered.push(nextItem);
+    currentLat = nextItem.latitude ?? currentLat;
+    currentLng = nextItem.longitude ?? currentLng;
+  }
+
+  return ordered;
+}
+

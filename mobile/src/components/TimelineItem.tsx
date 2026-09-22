@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
 import { useTranslation } from '../hooks/useTranslation';
 import { dynamicImageService } from '../services/dynamicImageService';
+import { ScalePressable } from './common/MicroAnimations';
 
 interface TimelineItemProps {
   item: {
@@ -19,11 +20,20 @@ interface TimelineItemProps {
     order: number;
   };
   isLast: boolean;
+  isCompleted?: boolean;
+  onToggleComplete?: () => void;
   onNavigate?: () => void;
   onRemove?: () => void;
 }
 
-export function TimelineItem({ item, isLast, onNavigate, onRemove }: TimelineItemProps) {
+export function TimelineItem({
+  item,
+  isLast,
+  isCompleted = false,
+  onToggleComplete,
+  onNavigate,
+  onRemove,
+}: TimelineItemProps) {
   const { t, language } = useTranslation();
   const [imgUrl, setImgUrl] = React.useState<string | null>(item.imageUrl || null);
 
@@ -44,10 +54,18 @@ export function TimelineItem({ item, isLast, onNavigate, onRemove }: TimelineIte
     <View style={styles.container}>
       {/* Timeline connector */}
       <View style={styles.timelineColumn}>
-        <View style={styles.dot}>
-          <Text style={styles.orderText}>{item.order}</Text>
-        </View>
-        {!isLast && <View style={styles.line} />}
+        <ScalePressable
+          style={[styles.dot, isCompleted && styles.dotCompleted]}
+          onPress={onToggleComplete}
+          disabled={!onToggleComplete}
+        >
+          {isCompleted ? (
+            <MaterialIcons name="check" size={15} color="#0A0A0A" />
+          ) : (
+            <Text style={styles.orderText}>{item.order}</Text>
+          )}
+        </ScalePressable>
+        {!isLast && <View style={[styles.line, isCompleted && styles.lineCompleted]} />}
       </View>
 
       {/* Content Card */}
@@ -85,9 +103,17 @@ export function TimelineItem({ item, isLast, onNavigate, onRemove }: TimelineIte
           )}
 
           <View style={styles.textDetails}>
-            <Text style={styles.placeName} numberOfLines={2}>
-              {item.placeName}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <Text style={[styles.placeName, isCompleted && styles.placeNameCompleted]} numberOfLines={2}>
+                {item.placeName}
+              </Text>
+              {isCompleted && (
+                <View style={styles.completedBadge}>
+                  <MaterialIcons name="check-circle" size={11} color="#10B981" />
+                  <Text style={styles.completedBadgeText}>Visited</Text>
+                </View>
+              )}
+            </View>
             <View style={styles.detailsRow}>
               <View style={styles.detailChip}>
                 <MaterialIcons name="schedule" size={12} color={Colors.primary} />
@@ -99,16 +125,13 @@ export function TimelineItem({ item, isLast, onNavigate, onRemove }: TimelineIte
           </View>
 
           {onRemove && (
-            <TouchableOpacity
+            <ScalePressable
               style={styles.removeBtn}
-              onPress={(e) => {
-                e.stopPropagation?.();
-                onRemove();
-              }}
+              onPress={onRemove}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <MaterialIcons name="close" size={18} color={Colors.textMuted} />
-            </TouchableOpacity>
+            </ScalePressable>
           )}
         </View>
 
@@ -120,17 +143,13 @@ export function TimelineItem({ item, isLast, onNavigate, onRemove }: TimelineIte
         </View>
 
         {onNavigate && (
-          <TouchableOpacity
+          <ScalePressable
             style={styles.navigateRowBtn}
-            onPress={(e) => {
-              e.stopPropagation?.();
-              onNavigate();
-            }}
-            activeOpacity={0.8}
+            onPress={onNavigate}
           >
             <MaterialIcons name="navigation" size={14} color={Colors.primary} />
             <Text style={styles.navigateRowText}>Navigate to this stop</Text>
-          </TouchableOpacity>
+          </ScalePressable>
         )}
       </View>
     </View>
@@ -159,6 +178,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
+  dotCompleted: {
+    backgroundColor: '#10B981',
+    shadowColor: '#10B981',
+  },
   orderText: {
     fontSize: Typography.sizes.sm,
     fontWeight: '800',
@@ -169,6 +192,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
     marginVertical: 4,
+  },
+  lineCompleted: {
+    backgroundColor: '#10B981',
   },
   card: {
     flex: 1,
@@ -220,6 +246,27 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.text,
     marginBottom: 4,
+  },
+  placeNameCompleted: {
+    color: Colors.textSecondary,
+    textDecorationLine: 'line-through',
+  },
+  completedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderWidth: 1,
+    borderColor: '#10B981',
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: BorderRadius.full,
+    marginBottom: 4,
+  },
+  completedBadgeText: {
+    fontSize: 10,
+    color: '#10B981',
+    fontWeight: '700',
   },
   detailsRow: {
     flexDirection: 'row',
