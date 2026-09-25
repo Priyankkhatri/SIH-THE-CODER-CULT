@@ -69,9 +69,25 @@ export const EMERGENCY_HELPLINES: EmergencyContact[] = [
   },
 ];
 
-// Weather calculation based on latitude, longitude and current hour
+/**
+ * Calculates current time in Indian Standard Time (IST: UTC+5:30).
+ * Ensures foreign travelers planning trips see accurate Indian monument hours,
+ * crowd status, and daylight rather than their local device timezone.
+ */
+export function getIndianStandardTime(): { hour: number; day: number; month: number } {
+  const now = new Date();
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+  const istDate = new Date(utcMs + 5.5 * 3600000);
+  return {
+    hour: istDate.getHours(),
+    day: istDate.getDay(),
+    month: istDate.getMonth(),
+  };
+}
+
+// Weather calculation based on latitude, longitude and current hour in IST
 export function getLiveWeather(lat: number = 22.3, lon: number = 73.2): WeatherInfo {
-  const hour = new Date().getHours();
+  const { hour } = getIndianStandardTime();
   
   let baseTemp = 28;
   if (lat > 28) baseTemp = 24; // North India / Hills cooler
@@ -113,11 +129,9 @@ export function getLiveWeather(lat: number = 22.3, lon: number = 73.2): WeatherI
   };
 }
 
-// Crowd density level based on day of week and hour
+// Crowd density level based on Indian Standard Time day of week and hour
 export function getLiveCrowd(placeName?: string): CrowdInfo {
-  const now = new Date();
-  const day = now.getDay();
-  const hour = now.getHours();
+  const { hour, day } = getIndianStandardTime();
   const isWeekend = day === 0 || day === 6;
 
   if (hour < 8 || hour >= 18) {
