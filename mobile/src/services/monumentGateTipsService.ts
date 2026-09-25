@@ -11,7 +11,7 @@ export interface GateTipItem {
 
 export interface MonumentGateGuidelines {
   placeName: string;
-  monumentType: 'temple' | 'fort_palace' | 'stepwell_cave' | 'mausoleum' | 'general';
+  monumentType: 'temple' | 'derasar' | 'fort_palace' | 'stepwell_cave' | 'mausoleum' | 'general';
   tips: GateTipItem[];
 }
 
@@ -27,13 +27,27 @@ export function getMonumentGateGuidelines(
 
   let monumentType: MonumentGateGuidelines['monumentType'] = 'general';
 
-  if (normName.includes('mandir') || normName.includes('temple') || normCat.includes('temple')) {
+  if (normName.includes('derasar') || normName.includes('jain') || normCat.includes('derasar')) {
+    monumentType = 'derasar';
+  } else if (normName.includes('mandir') || normName.includes('temple') || normCat.includes('temple')) {
     monumentType = 'temple';
-  } else if (normName.includes('fort') || normName.includes('palace') || normName.includes('mahal') || normCat.includes('fort')) {
+  } else if (normName.includes('fort') || normName.includes('palace') || normName.includes('mahal') || normName.includes('garh') || normCat.includes('fort')) {
     monumentType = 'fort_palace';
-  } else if (normName.includes('vav') || normName.includes('stepwell') || normName.includes('cave')) {
+  } else if (
+    normName.includes('vav') ||
+    normName.includes('stepwell') ||
+    normName.includes('baoli') ||
+    normName.includes('kund') ||
+    normName.includes('cave')
+  ) {
     monumentType = 'stepwell_cave';
-  } else if (normName.includes('tomb') || normName.includes('masjid') || normName.includes('mosque') || normName.includes('dargah')) {
+  } else if (
+    normName.includes('tomb') ||
+    normName.includes('masjid') ||
+    normName.includes('mosque') ||
+    normName.includes('dargah') ||
+    normName.includes('roza')
+  ) {
     monumentType = 'mausoleum';
   }
 
@@ -81,7 +95,29 @@ export function getMonumentGateGuidelines(
   ];
 
   // Specific custom additions based on monument type
-  if (monumentType === 'temple') {
+  if (monumentType === 'derasar') {
+    commonTips.unshift({
+      id: 'derasar-etiquette',
+      category: 'dress',
+      icon: 'checkroom',
+      badge: 'Strict Sacred Custom',
+      badgeType: 'warning',
+      title: 'Derasar Sanctity & Strict Leather Ban',
+      summary: 'Jain Derasars strictly forbid all animal leather products inside.',
+      actionableAdvice: 'Remove leather belts, purses, watch straps, and shoes before entering the temple compound. Modest white or respectful light attire is welcomed. Please do not carry foodstuffs or leather accessories past the porch.',
+    });
+  } else if (monumentType === 'stepwell_cave') {
+    commonTips.unshift({
+      id: 'stepwell-caution',
+      category: 'shoe',
+      icon: 'stairs',
+      badge: 'Safety Caution',
+      badgeType: 'warning',
+      title: 'Steep Multi-Tier Stairs & Grip Footwear',
+      summary: 'Historical subterranean stepwells have hundreds of narrow carved stone steps without modern handrails.',
+      actionableAdvice: 'Wear rubber-soled gripping sneakers. Never step on wet algae near the lowest water level. Supervise children closely on open pavilion ledges.',
+    });
+  } else if (monumentType === 'temple') {
     commonTips.unshift({
       id: 'temple-etiquette',
       category: 'dress',
