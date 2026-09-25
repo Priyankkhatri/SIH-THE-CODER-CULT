@@ -32,17 +32,44 @@ export function haversineDistance(
   lat2: number,
   lon2: number
 ): number {
-  const R = 6371; // km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  if (
+    typeof lat1 !== 'number' ||
+    typeof lon1 !== 'number' ||
+    typeof lat2 !== 'number' ||
+    typeof lon2 !== 'number' ||
+    isNaN(lat1) ||
+    isNaN(lon1) ||
+    isNaN(lat2) ||
+    isNaN(lon2)
+  ) {
+    return 0;
+  }
+
+  // Exact match fast-path
+  if (lat1 === lat2 && lon1 === lon2) {
+    return 0;
+  }
+
+  // Domain clamp
+  const safeLat1 = Math.max(-90, Math.min(90, lat1));
+  const safeLat2 = Math.max(-90, Math.min(90, lat2));
+  const safeLon1 = Math.max(-180, Math.min(180, lon1));
+  const safeLon2 = Math.max(-180, Math.min(180, lon2));
+
+  const R = 6371; // Earth radius in km
+  const dLat = ((safeLat2 - safeLat1) * Math.PI) / 180;
+  const dLon = ((safeLon2 - safeLon1) * Math.PI) / 180;
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
+    Math.cos((safeLat1 * Math.PI) / 180) *
+      Math.cos((safeLat2 * Math.PI) / 180) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  
+  // Numerical precision clamp for antipodal or identical points
+  const clampedA = Math.max(0, Math.min(1, a));
+  const c = 2 * Math.atan2(Math.sqrt(clampedA), Math.sqrt(1 - clampedA));
+  return Math.max(0, R * c);
 }
 
 export function calculateBearing(
