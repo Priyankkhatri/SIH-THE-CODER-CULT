@@ -21,7 +21,9 @@ export type ConversationalIntent =
   | 'CONCEPT_UNESCO'
   | 'CONCEPT_ASI'
   | 'CONCEPT_SARDAR_PATEL'
-  | 'CONCEPT_HARAPPAN';
+  | 'CONCEPT_HARAPPAN'
+  | 'CONCEPT_SOLANKI_DYNASTY'
+  | 'CONCEPT_MARU_GURJARA';
 
 export function detectConversationalIntent(text: string): ConversationalIntent | null {
   const q = text.toLowerCase().trim();
@@ -117,6 +119,16 @@ export function detectConversationalIntent(text: string): ConversationalIntent |
   // 18. Concept: Harappan / Indus Valley
   if (/(indus\s+valley|harappan\s+civilization|lothal\s+dockyard|dholavira\s+water)/i.test(q)) {
     return 'CONCEPT_HARAPPAN';
+  }
+
+  // 19. Concept: Solanki Dynasty / Chaulukyas of Gujarat
+  if (/(solanki|chaulukya|chalukya\s+of\s+gujarat|bhimdev|siddhraj\s+jaysinh|kumarpal|queen\s+udaamati|golden\s+age\s+of\s+gujarat)/i.test(q)) {
+    return 'CONCEPT_SOLANKI_DYNASTY';
+  }
+
+  // 20. Concept: Maru-Gurjara Architecture
+  if (/(maru[- ]gurjara|solanki\s+architecture|gujarat\s+temple\s+style|chalukyan\s+carvings|stepwell\s+architecture)/i.test(q)) {
+    return 'CONCEPT_MARU_GURJARA';
   }
 
   return null;
@@ -290,6 +302,18 @@ export function getConversationalReply(
     case 'CONCEPT_HARAPPAN': {
       answer = `🏺 **The Harappan (Indus Valley) Civilization in Gujarat:**\n\nGujarat was one of the most flourishing coastal and trading centers of the Indus Valley Civilization (2600 BCE – 1900 BCE):\n\n• **Lothal (Bhal Region)**: Home to the **world's earliest known tidal dockyard**, connecting Harappan merchants by sea to ancient Mesopotamia and the Persian Gulf. Famous for bead-making factories and precise weight systems.\n• **Dholavira (Khadir Bet, Kutch)**: A planned city built entirely of dressed stone rather than mud-brick. Renowned for its sophisticated cascading rainwater harvesting system with huge rock-cut reservoirs, massive citadel, and a stadium with a signboard containing 10 Indus script symbols.`;
       sourceLabel = 'Harappan Archaeological Chronicles';
+      break;
+    }
+
+    case 'CONCEPT_SOLANKI_DYNASTY': {
+      answer = `👑 **The Solanki Dynasty (Chaulukyas of Gujarat, 10th–13th Century CE):**\n\nThe Solanki era was the **Golden Age of Gujarat**, renowned for architectural brilliance, naval commerce, and cultural renaissance:\n\n• **King Bhimdev I (1022–1064 CE)**: Commissioned the world-famous Sun Temple at Modhera and defended Gujarat's coastal frontiers.\n• **Queen Udayamati**: In memory of Bhimdev I, she built the majestic **Rani ki Vav in Patan**, an inverted subterranean cathedral celebrating Lord Vishnu.\n• **Siddhraj Jaysinh (1092–1142 CE)**: Gujarat's most celebrated sovereign who patronized scholar Acharya Hemachandra and built the Sahasralinga Talav in Patan.\n• **Kumarpal**: Known as the 'Ashoka of Gujarat' who embraced Jainism, rebuilt Somnath in stone, and outlawed animal slaughter across his kingdom.`;
+      sourceLabel = 'Gujarat State Archives & Hemachandracharya Heritage Center';
+      break;
+    }
+
+    case 'CONCEPT_MARU_GURJARA': {
+      answer = `🏛️ **Māru-Gurjara (Solanki) Architecture:**\n\nOriginating in Gujarat and Rajasthan between the 10th and 13th centuries, Māru-Gurjara is one of the most sophisticated styles in world architecture:\n\n• **Extreme Micro-Carving**: Sculptors chiseled hard sandstone and marble with jeweler-like delicacy — evident in the ceiling lanterns of Dilwara and Modhera.\n• **Layered Pitha (Bases)**: Temple basements feature distinct horizontal friezes representing elephants (Gajathara), horses (Asvathara), and human narratives (Narathara).\n• **Multi-Tier Stepwells**: Inverted temple stepwells with cascading pavilions, pillared galleries (Kuta), and octagonal shafts built for communal water veneration.`;
+      sourceLabel = 'Architectural Heritage of Western India';
       break;
     }
 
