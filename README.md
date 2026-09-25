@@ -323,6 +323,42 @@ Place ── HeritageRecord (1:1) ── Source (1:N)
 
 ---
 
+## Computational Accuracy, Engineering Standards & Benchmarks
+
+To meet rigorous production-grade standards for international travelers and Smart India Hackathon evaluations, the platform enforces strict mathematical and data accuracy benchmarks:
+
+### 1. Geodesic & Navigation Precision
+- **Domain-Clamped Haversine Formulations**: Standard Haversine implementations suffer from floating-point overflow for near-antipodal points where trigonometric dot products exceed $1.0$, producing `NaN`. Both mobile and backend coordinate calculations clamp trigonometric arguments strictly within $[0, 1]$ and sanitize geographic domain bounds ($\text{lat} \in [-90, 90], \text{lng} \in [-180, 180]$).
+- **Zero-Distance Bias Isolation in Tour Sequencing**: Greedy travelling-salesperson heuristics can inadvertently place unlocated sites (missing GPS coordinates) at the very front of itineraries when missing values evaluate to zero. Unlocated places are segregated into a tail queue, ensuring physical proximity accurately guides the visit sequence.
+- **Dual-Tier Transit Velocity Modeling**: Walking pace is modeled at a realistic $4.5\text{ km/h}$ with intersection buffers; driving speeds adapt between dense urban heritage districts ($22\text{ km/h}$) and arterial highway connectors ($45\text{ km/h}$) with mandatory gate entry and parking allowances.
+
+### 2. Fair Fare Estimation & Anti-Gouging Guidance
+- **Gujarat RTO Auto & Cab Benchmarks**: Computes baseline tariffs using actual regional transport office formulas ($₹23$ base + $₹15.33/\text{km}$ for metro; $₹30$ base + $₹17/\text{km}$ for regional circuits).
+- **Trilingual Local Negotiation Phrases**: Provides phonetically transliterated negotiation phrases in Hindi and Gujarati (e.g. *"મહેરબાની કરીને મીટર ચાલુ કરો"* / *"Maherbani kari ne meter chalu karo"*).
+- **Official ASI Ticket Tiers**: Enforces verified Archaeological Survey of India (ASI) circular fees (World Heritage Tier A: $₹50$ domestic / $₹600$ foreign; Tier B: $₹25$ domestic / $₹300$ foreign; Free entry for children under 15).
+
+### 3. Indian Standard Time (IST UTC+5:30) Telemetry
+- **Timezone Decoupling**: International visitors planning itineraries from foreign timezones (EST, PST, CET) see accurate daylight, opening hours, and crowd densities computed against Indian Standard Time ($\text{UTC}+5:30$) rather than their client device clocks.
+- **Seasonal Gujarat Climate Modeling**: Dynamically adjusts weather telemetry and safety warnings across Summer heatwave alerts (hydration warnings for exposed ruins), Monsoon slippery stepwell cautions, and pleasant Winter touring conditions.
+
+### 4. Automated Verification Test Suite
+Run the test suites using `npx tsx`:
+```bash
+# Mobile route calculations and boundary tests
+npx tsx mobile/src/utils/__tests__/routeService.test.ts
+
+# Regional transit fare estimator and multilingual phrases
+npx tsx mobile/src/services/__tests__/transitFareEstimator.test.ts
+
+# Forex offline fallbacks and sanitization
+npx tsx mobile/src/services/__tests__/currencyService.test.ts
+
+# Backend API Zod validation schemas
+npx tsx server/src/tests/validation.test.ts
+```
+
+---
+
 ## Datasets & Research
 
 Production-grade research assets live in `datasets/`:
