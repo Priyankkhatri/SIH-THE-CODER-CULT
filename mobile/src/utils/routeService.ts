@@ -78,16 +78,38 @@ export function calculateBearing(
   lat2: number,
   lon2: number
 ): number {
+  if (
+    typeof lat1 !== 'number' ||
+    typeof lon1 !== 'number' ||
+    typeof lat2 !== 'number' ||
+    typeof lon2 !== 'number' ||
+    isNaN(lat1) ||
+    isNaN(lon1) ||
+    isNaN(lat2) ||
+    isNaN(lon2) ||
+    (lat1 === lat2 && lon1 === lon2)
+  ) {
+    return 0;
+  }
+
   const toRad = (deg: number) => (deg * Math.PI) / 180;
   const toDeg = (rad: number) => (rad * 180) / Math.PI;
-  const φ1 = toRad(lat1);
-  const φ2 = toRad(lat2);
-  const Δλ = toRad(lon2 - lon1);
+
+  const safeLat1 = Math.max(-90, Math.min(90, lat1));
+  const safeLat2 = Math.max(-90, Math.min(90, lat2));
+  const safeLon1 = Math.max(-180, Math.min(180, lon1));
+  const safeLon2 = Math.max(-180, Math.min(180, lon2));
+
+  const φ1 = toRad(safeLat1);
+  const φ2 = toRad(safeLat2);
+  const Δλ = toRad(safeLon2 - safeLon1);
   const y = Math.sin(Δλ) * Math.cos(φ2);
   const x =
     Math.cos(φ1) * Math.sin(φ2) -
     Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
-  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+
+  const rawBearing = (toDeg(Math.atan2(y, x)) + 360) % 360;
+  return Math.round(rawBearing * 10) / 10;
 }
 
 function computeBbox(coords: Array<{ latitude: number; longitude: number }>) {
