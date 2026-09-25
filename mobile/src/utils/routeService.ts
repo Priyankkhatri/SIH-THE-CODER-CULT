@@ -250,9 +250,30 @@ export function optimizeStopSequence<T extends { latitude?: number; longitude?: 
   startLng: number,
   items: T[]
 ): T[] {
-  if (items.length <= 2) return items;
+  if (!items || items.length <= 1) return items ? [...items] : [];
 
-  const unvisited = [...items];
+  // Separate items with valid numeric coordinates from unlocated ones
+  const validItems: T[] = [];
+  const unlocatedItems: T[] = [];
+
+  for (const item of items) {
+    if (
+      typeof item.latitude === 'number' &&
+      typeof item.longitude === 'number' &&
+      !isNaN(item.latitude) &&
+      !isNaN(item.longitude)
+    ) {
+      validItems.push(item);
+    } else {
+      unlocatedItems.push(item);
+    }
+  }
+
+  if (validItems.length <= 1) {
+    return [...validItems, ...unlocatedItems];
+  }
+
+  const unvisited = [...validItems];
   const ordered: T[] = [];
   let currentLat = startLat;
   let currentLng = startLng;
@@ -263,9 +284,12 @@ export function optimizeStopSequence<T extends { latitude?: number; longitude?: 
 
     for (let i = 0; i < unvisited.length; i++) {
       const item = unvisited[i];
-      const lat = item.latitude ?? currentLat;
-      const lng = item.longitude ?? currentLng;
-      const dist = haversineDistance(currentLat, currentLng, lat, lng);
+      const dist = haversineDistance(
+        currentLat,
+        currentLng,
+        item.latitude as number,
+        item.longitude as number
+      );
       if (dist < shortestDist) {
         shortestDist = dist;
         closestIdx = i;
@@ -274,10 +298,10 @@ export function optimizeStopSequence<T extends { latitude?: number; longitude?: 
 
     const [nextItem] = unvisited.splice(closestIdx, 1);
     ordered.push(nextItem);
-    currentLat = nextItem.latitude ?? currentLat;
-    currentLng = nextItem.longitude ?? currentLng;
+    currentLat = nextItem.latitude as number;
+    currentLng = nextItem.longitude as number;
   }
 
-  return ordered;
+  return [...ordered, ...unlocatedItems];
 }
 
