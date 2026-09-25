@@ -37,10 +37,10 @@ export function haversineDistance(
     typeof lon1 !== 'number' ||
     typeof lat2 !== 'number' ||
     typeof lon2 !== 'number' ||
-    isNaN(lat1) ||
-    isNaN(lon1) ||
-    isNaN(lat2) ||
-    isNaN(lon2)
+    !isFinite(lat1) ||
+    !isFinite(lon1) ||
+    !isFinite(lat2) ||
+    !isFinite(lon2)
   ) {
     return 0;
   }
