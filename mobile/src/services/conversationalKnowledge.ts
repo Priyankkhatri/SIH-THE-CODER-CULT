@@ -28,8 +28,12 @@ export type ConversationalIntent =
 export function detectConversationalIntent(text: string): ConversationalIntent | null {
   const q = text.toLowerCase().trim();
 
-  // 1. Quick Greetings
-  if (/^(hi+|hey+|heyo+|heya+|hello+|hii+|heyy+|yo+|namaste+|namaskar|salaam|satsriakal|kem\s*cho|kemcho|jai\s*shree\s*krishna|good\s*(morning|afternoon|evening|day)|sup|hola|what'?s\s*up|wassup|watsup)[\s?.!,~]*$/i.test(q)) {
+  // 1. Quick Greetings & Regional Invocations
+  if (
+    /^(hi+|hey+|heyo+|heya+|hello+|hii+|heyy+|yo+|namaste+|namaskar|salaam|satsriakal|kem\s*cho|kemcho|jai\s*shree\s*krishna|jay\s*shree\s*krishna|jay\s*mataji|jai\s*mata\s*ji|jai\s*mata\s*di|jay\s*somnath|jai\s*somnath|jai\s*dwarkadhish|jay\s*dwarkadhish|ram\s*ram|radhe\s*radhe|hare\s*krishna|khamma\s*ghani|ghani\s*khamma|pranam|pranaam|vanakkam|namaskara|namaskaram|adaab|good\s*(morning|afternoon|evening|day)|sup|hola|what'?s\s*up|wassup|watsup)[\s?.!,~]*$/i.test(
+      q
+    )
+  ) {
     return 'GREETING';
   }
 
