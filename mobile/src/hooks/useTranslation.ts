@@ -29,7 +29,8 @@ export function useTranslation(overrideLang?: string) {
 
     if (typeof current === 'string' && params) {
       return Object.entries(params).reduce((acc, [k, v]) => {
-        return acc.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+        const safeKey = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return acc.replace(new RegExp(`\\{${safeKey}\\}`, 'g'), () => String(v));
       }, current);
     }
 
