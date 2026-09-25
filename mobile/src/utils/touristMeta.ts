@@ -85,28 +85,65 @@ export function getIndianStandardTime(): { hour: number; day: number; month: num
   };
 }
 
-// Weather calculation based on latitude, longitude and current hour in IST
+// Weather calculation based on latitude, longitude, seasonal calendar, and IST hour
 export function getLiveWeather(lat: number = 22.3, lon: number = 73.2): WeatherInfo {
-  const { hour } = getIndianStandardTime();
+  const { hour, month } = getIndianStandardTime();
   
+  // Seasonal baseline for Indian climate zones:
+  // Winter: Dec-Feb (11, 0, 1) -> 20°C - 24°C
+  // Summer: Mar-Jun (2, 3, 4, 5) -> 34°C - 41°C
+  // Monsoon: Jul-Sep (6, 7, 8) -> 28°C - 32°C (High humidity)
+  // Autumn: Oct-Nov (9, 10) -> 27°C - 31°C
   let baseTemp = 28;
-  if (lat > 28) baseTemp = 24; // North India / Hills cooler
-  if (lat < 15) baseTemp = 30; // Coastal South India warmer
+  let humidity = 50;
+  let isMonsoon = false;
+  let isSummerHeatwave = false;
+
+  if (month >= 2 && month <= 5) {
+    // Summer
+    baseTemp = 36;
+    humidity = 38;
+    if (month >= 3 && month <= 4) isSummerHeatwave = true;
+  } else if (month >= 6 && month <= 8) {
+    // Monsoon
+    baseTemp = 29;
+    humidity = 82;
+    isMonsoon = true;
+  } else if (month === 11 || month === 0 || month === 1) {
+    // Winter
+    baseTemp = 21;
+    humidity = 48;
+  } else {
+    // Post-monsoon
+    baseTemp = 28;
+    humidity = 55;
+  }
+
+  if (lat > 28) baseTemp -= 4; // North India / Himalayan foothills cooler
+  if (lat < 15) baseTemp += 2; // Coastal South India warmer
   
   let tempDelta = 0;
   if (hour >= 5 && hour < 9) tempDelta = -4;
   else if (hour >= 9 && hour < 12) tempDelta = 1;
-  else if (hour >= 12 && hour < 16) tempDelta = 4;
+  else if (hour >= 12 && hour < 16) tempDelta = 5;
   else if (hour >= 16 && hour < 19) tempDelta = 2;
-  else tempDelta = -3;
+  else tempDelta = -4;
   
   const temp = Math.round(baseTemp + tempDelta);
   
   let condition = 'Clear Sky';
   let icon = 'wb-sunny';
-  let advisory = 'Pleasant sightseeing weather. Carry water and walking footwear.';
+  let advisory = 'Pleasant sightseeing weather. Carry water and comfortable footwear.';
 
-  if (hour >= 11 && hour <= 15) {
+  if (isMonsoon) {
+    condition = 'Overcast / Light Showers';
+    icon = 'grain';
+    advisory = 'Monsoon conditions. Carry an umbrella and beware of slippery stone steps at stepwells and forts.';
+  } else if (isSummerHeatwave && hour >= 11 && hour <= 16) {
+    condition = 'Intense Heatwave';
+    icon = 'wb-sunny';
+    advisory = 'High temperature alert. Hydrate frequently, wear head covering, and explore indoor galleries or shaded pavilions.';
+  } else if (hour >= 11 && hour <= 15) {
     condition = 'Warm & Sunny';
     icon = 'wb-sunny';
     advisory = 'Sun protection advised. Consider exploring shaded indoor galleries or stepwells.';
@@ -115,16 +152,16 @@ export function getLiveWeather(lat: number = 22.3, lon: number = 73.2): WeatherI
     icon = 'flare';
     advisory = 'Best lighting for heritage photography and exterior monument walks.';
   } else if (hour >= 19 || hour < 6) {
-    condition = 'Pleasant Evening';
+    condition = 'Pleasant Night';
     icon = 'nights-stay';
-    advisory = 'Check evening illumination timings and light & sound show schedules.';
+    advisory = 'Cool evening. Check monument illumination timings and sound & light shows.';
   }
 
   return {
     temp,
     condition,
     icon,
-    humidity: 55,
+    humidity,
     advisory,
   };
 }
