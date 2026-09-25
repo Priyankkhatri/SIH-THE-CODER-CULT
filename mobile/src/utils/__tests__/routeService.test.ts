@@ -1,4 +1,10 @@
-import assert from 'node:assert/strict';
+function assert(condition: any, message?: string) {
+  if (!condition) throw new Error(message || 'Assertion failed');
+}
+assert.equal = function (actual: any, expected: any, message?: string) {
+  if (actual !== expected) throw new Error(message || `Expected ${expected}, got ${actual}`);
+};
+
 import { haversineDistance, optimizeStopSequence, calculateBearing } from '../routeService';
 
 console.log('--- Running RouteService Accuracy Tests ---');
