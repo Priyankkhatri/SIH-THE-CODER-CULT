@@ -242,13 +242,15 @@ export function HeritageMapView({
       to { transform: rotate(360deg); }
     }
 
-    /* Google Maps styled Info Popup */
+    /* Google Maps styled Info Popup with Frosted Glass */
     .leaflet-popup-content-wrapper {
-      background: #171717 !important;
-      border: 1px solid rgba(212, 175, 124, 0.45) !important;
-      border-radius: 14px !important;
+      background: rgba(18, 20, 32, 0.85) !important;
+      backdrop-filter: blur(16px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.18) !important;
+      border-radius: 16px !important;
       color: #F5F1E8 !important;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(212, 175, 124, 0.22) !important;
       padding: 0 !important;
       overflow: hidden !important;
     }
@@ -260,8 +262,11 @@ export function HeritageMapView({
       margin-top: -1px;
     }
     .leaflet-popup-tip {
-      background: #171717 !important;
-      border: 1px solid rgba(212, 175, 124, 0.45) !important;
+      background: rgba(18, 20, 32, 0.85) !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.18) !important;
+      box-shadow: none !important;
     }
 
     /* Iconic Google Maps Teardrop Marker Pin */
@@ -577,8 +582,8 @@ export function HeritageMapView({
             '<div style="font-weight: 700; font-size: 13px; color: #F5F1E8; margin-bottom: 4px; line-height: 1.25;">' + p.name + '</div>' +
             '<div style="font-size: 11px; color: #A7A7A7; margin-bottom: 8px; line-height: 1.3;">' + p.desc + '</div>' +
             '<div style="display:flex; gap:6px;">' +
-              '<button onclick="window.postMessageToRN({type: \\'SELECT_PLACE\\', id: \\'' + p.id + '\\'})" style="flex:1; background:#D4AF7C; color:#0F0F0F; border:none; padding:5px 8px; border-radius:6px; font-weight:700; font-size:10px; cursor:pointer;">Select</button>' +
-              '<button onclick="window.postMessageToRN({type: \\'PLACE_DETAILS\\', id: \\'' + p.id + '\\'})" style="flex:1; background:rgba(255,255,255,0.12); color:#F5F1E8; border:1px solid rgba(255,255,255,0.2); padding:5px 8px; border-radius:6px; font-weight:700; font-size:10px; cursor:pointer;">Details →</button>' +
+              '<button onclick="window.postMessageToRN({type: \\'SELECT_PLACE\\', id: \\'' + p.id + '\\'})" style="flex:1; background:linear-gradient(135deg, #E0BE8B 0%, #D4AF7C 100%); color:#0A0A0E; border:none; padding:6px 10px; border-radius:8px; font-weight:700; font-size:10px; cursor:pointer; box-shadow:0 2px 6px rgba(212,175,124,0.35);">Select</button>' +
+              '<button onclick="window.postMessageToRN({type: \\'PLACE_DETAILS\\', id: \\'' + p.id + '\\'})" style="flex:1; background:rgba(255,255,255,0.10); color:#F5F1E8; border:1px solid rgba(255,255,255,0.18); padding:6px 10px; border-radius:8px; font-weight:700; font-size:10px; cursor:pointer; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);">Details →</button>' +
             '</div>' +
           '</div>';
 

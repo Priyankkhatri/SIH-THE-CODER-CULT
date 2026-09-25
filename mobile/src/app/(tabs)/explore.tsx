@@ -16,6 +16,9 @@ import {
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, CATEGORY_COLORS } from '../../constants/theme';
 import { usePlacesStore, useChatStore } from '../../stores';
 import * as Speech from 'expo-speech';
@@ -55,6 +58,9 @@ export default function ExploreScreen() {
   const { setContext } = useChatStore();
   const { t, getPlaceName } = useTranslation();
   const mapRef = useRef<any>(null);
+  const insets = useSafeAreaInsets();
+  const bottomBarHeight = 56 + Math.max(insets.bottom, Platform.OS === 'ios' ? 14 : 8);
+  const bottomCardOffset = bottomBarHeight + 12;
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [selectedCrowd, setSelectedCrowd] = useState<'all' | 'Low' | 'Moderate' | 'Peak'>('all');
@@ -659,7 +665,7 @@ export default function ExploreScreen() {
 
       {/* Floating Map Actions (Google Maps FAB Stack with tactile ScalePressable) */}
       {viewMode === 'map' && (
-        <View style={[styles.mapActionCol, selectedPlace ? { bottom: 220 } : { bottom: 28 }]}>
+        <View style={[styles.mapActionCol, { bottom: selectedPlace ? bottomCardOffset + 215 : bottomBarHeight + 16 }]}>
           {/* Compass / Reset North */}
           <ScalePressable
             style={styles.mapActionBtn}
@@ -727,7 +733,7 @@ export default function ExploreScreen() {
             activeOpacity={1}
             onPress={() => setShowLayerPicker(false)}
           />
-          <View style={[styles.layerPickerTray, selectedPlace ? { bottom: 220 } : { bottom: 76 }]}>
+          <View style={[styles.layerPickerTray, { bottom: selectedPlace ? bottomCardOffset + 215 : bottomBarHeight + 68 }]}>
             <View style={styles.layerPickerHeader}>
               <MaterialIcons name="layers" size={16} color={Colors.primary} />
               <Text style={styles.layerPickerTitle}>Map Views</Text>
@@ -764,8 +770,26 @@ export default function ExploreScreen() {
 
       {/* Google Maps Style Bottom Sheet Card (map mode only) */}
       {viewMode === 'map' && selectedPlace && (
-        <SlideUpView distance={160} style={styles.bottomCard}>
-          <View style={styles.bottomCardHeaderRow}>
+        <SlideUpView
+          distance={160}
+          style={[styles.bottomCardContainer, { bottom: bottomCardOffset }]}
+        >
+          <View style={styles.bottomCardGlass}>
+            {/* Frosted Glass Blur Background */}
+            <BlurView
+              intensity={Platform.OS === 'ios' ? 70 : 85}
+              tint="dark"
+              style={StyleSheet.absoluteFill}
+            />
+            {/* Specular Rim / Top Sheen Gradient */}
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.02)', 'rgba(0, 0, 0, 0.25)']}
+              locations={[0, 0.35, 1]}
+              style={StyleSheet.absoluteFill}
+              pointerEvents="none"
+            />
+
+            <View style={styles.bottomCardHeaderRow}>
             <View style={styles.dragHandle} />
             <View style={styles.bottomCardHeaderActions}>
               {/* Ask AI Pill */}
@@ -1005,7 +1029,8 @@ export default function ExploreScreen() {
               </ScalePressable>
             </View>
           </View>
-        </SlideUpView>
+        </View>
+      </SlideUpView>
       )}
 
       {/* Turn-by-Turn Maneuvers & Mode Switcher Sheet */}
@@ -1150,11 +1175,11 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'rgba(18, 20, 29, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.16)',
     ...Shadows.md,
   },
   mapActionBtnActive: {
@@ -1163,14 +1188,14 @@ const styles = StyleSheet.create({
   },
   mapActionBtnGpsActive: {
     borderColor: '#38BDF8',
-    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+    backgroundColor: 'rgba(56, 189, 248, 0.20)',
   },
   zoomControlPill: {
     width: 42,
     borderRadius: 21,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'rgba(18, 20, 29, 0.85)',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.16)',
     alignItems: 'center',
     overflow: 'hidden',
     ...Shadows.md,
@@ -1184,7 +1209,7 @@ const styles = StyleSheet.create({
   zoomDivider: {
     width: 28,
     height: 1,
-    backgroundColor: Colors.border,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
   },
   layerPickerBackdrop: {
     ...StyleSheet.absoluteFill,
@@ -1195,11 +1220,11 @@ const styles = StyleSheet.create({
     left: Spacing.base,
     right: 70,
     bottom: 180,
-    backgroundColor: Colors.surfaceElevated,
+    backgroundColor: 'rgba(18, 20, 29, 0.92)',
     borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
     zIndex: 26,
     ...Shadows.lg,
   },
@@ -1241,18 +1266,39 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '700',
   },
-  bottomCard: {
+  bottomCardContainer: {
     position: 'absolute',
-    bottom: 16,
     left: Spacing.base,
     right: Spacing.base,
-    backgroundColor: Colors.surface,
-    borderRadius: 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.65,
+    shadowRadius: 28,
+    elevation: 24,
+    zIndex: 30,
+  },
+  bottomCardGlass: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(16, 18, 27, 0.82)',
+    borderWidth: 1.2,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
     paddingHorizontal: Spacing.base,
     paddingTop: 8,
     paddingBottom: Spacing.base,
-    borderWidth: 1,
-    borderColor: Colors.border,
+  },
+  bottomCard: {
+    position: 'absolute',
+    left: Spacing.base,
+    right: Spacing.base,
+    borderRadius: 24,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(16, 18, 27, 0.82)',
+    borderWidth: 1.2,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+    paddingHorizontal: Spacing.base,
+    paddingTop: 8,
+    paddingBottom: Spacing.base,
     ...Shadows.lg,
   },
   bottomCardHeaderRow: {
@@ -1263,10 +1309,10 @@ const styles = StyleSheet.create({
     height: 26,
   },
   dragHandle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    width: 38,
+    height: 4.5,
+    borderRadius: 2.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.28)',
     marginLeft: 28,
   },
   bottomCardHeaderActions: {
@@ -1278,21 +1324,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: Colors.accent,
+    backgroundColor: 'rgba(168, 85, 247, 0.32)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(192, 132, 252, 0.55)',
   },
   headerAiText: {
     fontSize: 10,
     fontWeight: '800',
-    color: Colors.textInverse,
+    color: '#F3E8FF',
   },
   headerShareBtn: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1301,6 +1351,8 @@ const styles = StyleSheet.create({
     height: 26,
     borderRadius: 13,
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.16)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1316,11 +1368,11 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: 88,
     height: 88,
-    borderRadius: 14,
+    borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 1.5,
-    borderColor: Colors.borderLight,
+    borderColor: 'rgba(255, 255, 255, 0.20)',
     ...Shadows.sm,
   },
   bottomCardThumbPlaceholder: {
@@ -1331,7 +1383,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
   },
   bottomCardThumb: {
     width: '100%',
@@ -1342,7 +1394,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingVertical: 2,
+    paddingVertical: 2.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1402,12 +1454,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(212, 175, 124, 0.12)',
+    backgroundColor: 'rgba(212, 175, 124, 0.14)',
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
+    paddingVertical: 2.5,
+    borderRadius: 7,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.25)',
+    borderColor: 'rgba(212, 175, 124, 0.32)',
   },
   distancePillText: {
     fontSize: 10,
@@ -1418,12 +1470,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(56, 189, 248, 0.12)',
+    backgroundColor: 'rgba(56, 189, 248, 0.14)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: 'rgba(56, 189, 248, 0.25)',
+    borderColor: 'rgba(56, 189, 248, 0.32)',
   },
   activeRouteText: {
     fontSize: Typography.sizes.xs,
@@ -1434,7 +1486,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: 2,
+    marginTop: 3,
   },
   directionsPrimaryBtn: {
     flex: 1,
@@ -1443,8 +1495,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 4,
     backgroundColor: '#38BDF8',
-    paddingVertical: 9,
+    paddingVertical: 9.5,
     borderRadius: 12,
+    shadowColor: '#38BDF8',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
   },
   directionsPrimaryBtnText: {
     fontSize: 12,
@@ -1457,11 +1514,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-    backgroundColor: Colors.surfaceHighlight,
-    paddingVertical: 9,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    paddingVertical: 9.5,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.16)',
   },
   routeBtnActive: {
     backgroundColor: Colors.primary,
@@ -1481,11 +1538,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
-    paddingVertical: 9,
+    backgroundColor: 'rgba(245, 158, 11, 0.16)',
+    paddingVertical: 9.5,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
+    borderColor: 'rgba(245, 158, 11, 0.32)',
   },
   rideBtnText: {
     fontSize: 11,
@@ -1498,11 +1555,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-    backgroundColor: 'rgba(212, 175, 124, 0.15)',
-    paddingVertical: 9,
+    backgroundColor: 'rgba(212, 175, 124, 0.16)',
+    paddingVertical: 9.5,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 124, 0.3)',
+    borderColor: 'rgba(212, 175, 124, 0.32)',
   },
   audioStoryBtnActive: {
     backgroundColor: Colors.primary,
@@ -1517,11 +1574,11 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.16)',
   },
   shareBtn: {
     width: 36,
