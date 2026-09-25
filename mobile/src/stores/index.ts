@@ -335,13 +335,14 @@ export const useOfflineStore = create<OfflineState>((set, get) => ({
   isOfflineMode: false,
 
   downloadPlace: async (placeId: string) => {
+    const prevPackages = get().downloadedPackages;
     try {
       const res: any = await offlineApi.getPlacePackage(placeId);
-      if (res.success && res.data) {
+      if (res?.success && res?.data?.packageId && res?.data?.place) {
         const pkg: OfflinePackage = res.data;
-        const current = { ...get().downloadedPackages, [placeId]: pkg };
-        set({ downloadedPackages: current });
-        await safeStorage.setItem('offline_packages', JSON.stringify(current));
+        const next = { ...prevPackages, [placeId]: pkg };
+        await safeStorage.setItem('offline_packages', JSON.stringify(next));
+        set({ downloadedPackages: next });
         return true;
       }
     } catch (e) {
@@ -366,20 +367,31 @@ export const useOfflineStore = create<OfflineState>((set, get) => ({
           gu: hr.shortStoryGu || hr.shortStory || matched.shortDescription,
         },
       };
-      const current = { ...get().downloadedPackages, [matched.id]: pkg };
-      set({ downloadedPackages: current });
-      await safeStorage.setItem('offline_packages', JSON.stringify(current));
-      return true;
+      try {
+        const next = { ...prevPackages, [matched.id]: pkg };
+        await safeStorage.setItem('offline_packages', JSON.stringify(next));
+        set({ downloadedPackages: next });
+        return true;
+      } catch (err) {
+        console.error('[OfflineStore] Failed to persist offline package:', err);
+        set({ downloadedPackages: prevPackages });
+        return false;
+      }
     }
 
     return false;
   },
 
   removeDownload: async (placeId: string) => {
-    const current = { ...get().downloadedPackages };
-    delete current[placeId];
-    set({ downloadedPackages: current });
-    await safeStorage.setItem('offline_packages', JSON.stringify(current));
+    const prevPackages = get().downloadedPackages;
+    const next = { ...prevPackages };
+    delete next[placeId];
+    try {
+      await safeStorage.setItem('offline_packages', JSON.stringify(next));
+      set({ downloadedPackages: next });
+    } catch (err) {
+      console.error('[OfflineStore] Failed to remove package from storage:', err);
+    }
   },
 
   isDownloaded: (placeId: string) => {
@@ -396,7 +408,16 @@ export const useOfflineStore = create<OfflineState>((set, get) => ({
     try {
       const data = await safeStorage.getItem('offline_packages');
       if (data) {
-        set({ downloadedPackages: JSON.parse(data) });
+        const parsed = JSON.parse(data);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          const validated: Record<string, OfflinePackage> = {};
+          for (const [k, v] of Object.entries(parsed)) {
+            if (v && typeof v === 'object' && (v as any).packageId && (v as any).place) {
+              validated[k] = v as OfflinePackage;
+            }
+          }
+          set({ downloadedPackages: validated });
+        }
       }
     } catch (e) {
       console.warn('[OfflineStore] Failed to load offline packages:', e);
