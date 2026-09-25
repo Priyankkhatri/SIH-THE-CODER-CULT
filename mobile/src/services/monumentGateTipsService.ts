@@ -9,9 +9,18 @@ export interface GateTipItem {
   actionableAdvice: string;
 }
 
+export interface ASITicketTier {
+  category: 'World Heritage (Tier A)' | 'Ticketed ASI Monument (Tier B)' | 'Non-Ticketed / Trust Entry';
+  indianInr: number;
+  foreignerInr: number;
+  saarcInr: number;
+  childPolicy: string;
+}
+
 export interface MonumentGateGuidelines {
   placeName: string;
   monumentType: 'temple' | 'derasar' | 'fort_palace' | 'stepwell_cave' | 'mausoleum' | 'general';
+  ticketTier?: ASITicketTier;
   tips: GateTipItem[];
 }
 
@@ -51,7 +60,76 @@ export function getMonumentGateGuidelines(
     monumentType = 'mausoleum';
   }
 
+  // Official ASI Ticket Tiers
+  let ticketTier: ASITicketTier;
+  const isWorldHeritage =
+    normName.includes('rani ki vav') ||
+    normName.includes('champaner') ||
+    normName.includes('dholavira') ||
+    normName.includes('taj mahal') ||
+    normName.includes('red fort') ||
+    normName.includes('qutub') ||
+    normName.includes('qutb') ||
+    normName.includes('humayun') ||
+    normName.includes('konark') ||
+    normName.includes('ajanta') ||
+    normName.includes('ellora') ||
+    normName.includes('khajuraho') ||
+    normName.includes('hampi') ||
+    normName.includes('modhera');
+
+  const isFreeReligiousTrust =
+    normName.includes('somnath') ||
+    normName.includes('dwarka') ||
+    normName.includes('ambaji') ||
+    normName.includes('palitana') ||
+    normName.includes('akshardham') ||
+    normName.includes('sidi saiyed') ||
+    normName.includes('sidi bashir');
+
+  if (isFreeReligiousTrust) {
+    ticketTier = {
+      category: 'Non-Ticketed / Trust Entry',
+      indianInr: 0,
+      foreignerInr: 0,
+      saarcInr: 0,
+      childPolicy: 'Free entry for all pilgrims and visitors',
+    };
+  } else if (isWorldHeritage) {
+    ticketTier = {
+      category: 'World Heritage (Tier A)',
+      indianInr: 50,
+      foreignerInr: 600,
+      saarcInr: 50,
+      childPolicy: 'Children under 15 years enter FREE with age proof',
+    };
+  } else {
+    ticketTier = {
+      category: 'Ticketed ASI Monument (Tier B)',
+      indianInr: 25,
+      foreignerInr: 300,
+      saarcInr: 25,
+      childPolicy: 'Children under 15 years enter FREE with age proof',
+    };
+  }
+
   const commonTips: GateTipItem[] = [
+    {
+      id: 'official-ticket-tier',
+      category: 'ticket',
+      icon: 'payments',
+      badge: ticketTier.category,
+      badgeType: 'success',
+      title: 'Official Govt Entry Tariff',
+      summary:
+        ticketTier.indianInr === 0
+          ? 'Free sanctum entry maintained by temple trust.'
+          : `Official ASI fee: Indian/SAARC ₹${ticketTier.indianInr}, Foreign tourists ₹${ticketTier.foreignerInr}.`,
+      actionableAdvice:
+        ticketTier.indianInr === 0
+          ? 'Beware of bogus VIP pass sellers near outer lanes. General darshan queue is free.'
+          : `Book cashless at asi.payumoney.com or gate QR boards for discount. ${ticketTier.childPolicy}.`,
+    },
     {
       id: 'ticket-scam',
       category: 'ticket',
@@ -144,6 +222,7 @@ export function getMonumentGateGuidelines(
   return {
     placeName,
     monumentType,
+    ticketTier,
     tips: commonTips,
   };
 }
