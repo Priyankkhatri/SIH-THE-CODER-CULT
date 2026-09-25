@@ -5,7 +5,7 @@ import { aiService } from './ai.service';
 const router = Router();
 
 const askRequestSchema = z.object({
-  question: z.string().min(1, 'Question cannot be empty').max(1000, 'Question exceeds maximum 1000 characters').trim(),
+  question: z.string().trim().min(1, 'Question cannot be empty').max(1000, 'Question exceeds maximum 1000 characters'),
   placeId: z.string().max(100).optional(),
   mode: z.enum(['short', 'detailed', 'child', 'narrative']).default('short'),
   language: z.enum(['en', 'hi', 'gu']).default('en'),
