@@ -11,6 +11,8 @@ export interface FareEstimate {
     english: string;
     hindi: string;
     pronunciation: string;
+    gujarati?: string;
+    gujaratiPronunciation?: string;
   };
 }
 
@@ -78,6 +80,8 @@ export function estimateTransitFares(
         english: 'Please run the meter.',
         hindi: 'कृपया मीटर चालू कीजिए।',
         pronunciation: 'Kripya meter chaaloo kijiye.',
+        gujarati: 'મહેરબાની કરીને મીટર ચાલુ કરો.',
+        gujaratiPronunciation: 'Maherbani kari ne meter chalu karo.',
       },
     };
   }
@@ -119,6 +123,8 @@ export function estimateTransitFares(
       english: 'How much for the monument? Let’s settle on ₹80.',
       hindi: 'वहां तक का कितना लोगे? अस्सी रुपये में चलो।',
       pronunciation: 'Vahan tak ka kitna loge? Assi rupaye mein chalo.',
+      gujarati: 'ત્યાં સુધીનું કેટલું લેશો? એંસી રૂપિયામાં ચાલો.',
+      gujaratiPronunciation: 'Tyan sudhinu ketlu lesho? Ensi rupiyama chalo.',
     },
   };
 }

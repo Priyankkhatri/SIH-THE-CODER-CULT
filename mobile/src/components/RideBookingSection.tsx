@@ -222,14 +222,20 @@ export function RideBookingSection({
           )}
         </View>
 
-        {/* Local Hindi Bargaining Helper */}
+        {/* Local Hindi & Gujarati Bargaining Helper */}
         <View style={styles.phraseBox}>
           <View style={styles.phraseHeaderRow}>
             <MaterialIcons name="record-voice-over" size={14} color={Colors.primary} />
-            <Text style={styles.phraseHeader}>Driver Negotiation Phrase</Text>
+            <Text style={styles.phraseHeader}>Driver Negotiation Phrase (Hindi & Gujarati)</Text>
           </View>
           <Text style={styles.phraseHindi}>{fareData.localPhrase.hindi}</Text>
           <Text style={styles.phrasePronunciation}>"{fareData.localPhrase.pronunciation}"</Text>
+          {fareData.localPhrase.gujarati && (
+            <View style={{ marginTop: 6, paddingTop: 6, borderTopWidth: 1, borderTopColor: '#2D3748' }}>
+              <Text style={[styles.phraseHindi, { color: '#E2E8F0' }]}>{fareData.localPhrase.gujarati}</Text>
+              <Text style={styles.phrasePronunciation}>"{fareData.localPhrase.gujaratiPronunciation}"</Text>
+            </View>
+          )}
           <Text style={styles.phraseEnglish}>Meaning: {fareData.localPhrase.english}</Text>
         </View>
 
