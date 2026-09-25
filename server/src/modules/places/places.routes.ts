@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import prisma from '../../config/database';
 import { cacheMiddleware, cacheManager } from '../../utils/cacheManager';
 import { searchEngine } from './searchService';
@@ -6,6 +7,23 @@ import { loadMasterUnifiedPlaces } from '../../utils/masterDataLoader';
 import { GooglePlacesService } from './googlePlaces.service';
 
 const router = Router();
+
+const nearbyQuerySchema = z.object({
+  lat: z.coerce.number().min(-90).max(90).default(22.3072),
+  lng: z.coerce.number().min(-180).max(180).default(73.1812),
+  radius: z.coerce.number().positive().max(500).default(50),
+  category: z.string().max(50).optional(),
+  lang: z.enum(['en', 'hi', 'gu']).default('en'),
+});
+
+const searchQuerySchema = z.object({
+  q: z.string().max(200).default(''),
+  category: z.string().max(50).optional(),
+  state: z.string().max(100).optional(),
+  city: z.string().max(100).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  lang: z.enum(['en', 'hi', 'gu']).default('en'),
+});
 
 // Haversine distance in km
 function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -224,11 +242,16 @@ router.get('/categories/list', cacheMiddleware(600), async (_req: Request, res: 
 // 3. GET /places/nearby?lat=X&lng=Y&radius=10&category=heritage
 router.get('/nearby', cacheMiddleware(120), async (req: Request, res: Response) => {
   try {
-    const lat = parseFloat(req.query.lat as string) || 22.3072; // Default: Vadodara
-    const lng = parseFloat(req.query.lng as string) || 73.1812;
-    const radius = parseFloat(req.query.radius as string) || 50; // km
-    const category = req.query.category as string | undefined;
-    const lang = (req.query.lang as string) || 'en';
+    const parseResult = nearbyQuerySchema.safeParse(req.query);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid nearby query parameters',
+        details: parseResult.error.flatten(),
+      });
+    }
+
+    const { lat, lng, radius, category, lang } = parseResult.data;
 
     let places: any[] = [];
     try {
@@ -296,11 +319,16 @@ router.get('/nearby', cacheMiddleware(120), async (req: Request, res: Response) 
 // 4. GET /places/search?q=palace&category=temple&state=Gujarat&lang=en
 router.get('/search', cacheMiddleware(120), async (req: Request, res: Response) => {
   try {
-    const query = (req.query.q as string) || '';
-    const category = req.query.category as string | undefined;
-    const state = req.query.state as string | undefined;
-    const lang = (req.query.lang as string) || 'en';
-    const limit = parseInt(req.query.limit as string, 10) || 50;
+    const parseResult = searchQuerySchema.safeParse(req.query);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid search query parameters',
+        details: parseResult.error.flatten(),
+      });
+    }
+
+    const { q: query, category, state, lang, limit } = parseResult.data;
 
     const searchResults = await searchEngine.search({
       query,
