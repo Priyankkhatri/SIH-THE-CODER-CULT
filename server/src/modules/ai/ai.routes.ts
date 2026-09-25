@@ -1,23 +1,46 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { aiService } from './ai.service';
 
 const router = Router();
 
+const askRequestSchema = z.object({
+  question: z.string().min(1, 'Question cannot be empty').max(1000, 'Question exceeds maximum 1000 characters').trim(),
+  placeId: z.string().max(100).optional(),
+  mode: z.enum(['short', 'detailed', 'child', 'narrative']).default('short'),
+  language: z.enum(['en', 'hi', 'gu']).default('en'),
+  history: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string().max(2000),
+      })
+    )
+    .max(20)
+    .optional(),
+  conversationHistory: z.array(z.any()).optional(),
+});
+
 // POST /ai/ask - Ask the AI Heritage Guide a question
 router.post('/ask', async (req: Request, res: Response) => {
   try {
-    const { question, placeId, mode, language, history, conversationHistory } = req.body;
-
-    if (!question) {
-      return res.status(400).json({ success: false, error: 'Question is required' });
+    const parseResult = askRequestSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid AI ask request payload',
+        details: parseResult.error.flatten(),
+      });
     }
+
+    const { question, placeId, mode, language, history, conversationHistory } = parseResult.data;
 
     const answer = await aiService.askQuestion({
       question,
       placeId,
-      mode: mode || 'short', // short, detailed, child, narrative
-      language: language || 'en',
-      history: history || conversationHistory,
+      mode,
+      language,
+      history: history || (conversationHistory as any),
     });
 
     res.json({
