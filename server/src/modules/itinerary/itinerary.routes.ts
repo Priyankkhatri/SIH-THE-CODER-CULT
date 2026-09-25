@@ -12,22 +12,43 @@ const router = Router();
 const masterUnifiedPlaces = loadMasterUnifiedPlaces();
 
 function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  if (
+    typeof lat1 !== 'number' || typeof lon1 !== 'number' ||
+    typeof lat2 !== 'number' || typeof lon2 !== 'number' ||
+    !isFinite(lat1) || !isFinite(lon1) || !isFinite(lat2) || !isFinite(lon2)
+  ) {
+    return 0;
+  }
+  const cLat1 = Math.max(-90, Math.min(90, lat1));
+  const cLat2 = Math.max(-90, Math.min(90, lat2));
+  const cLon1 = Math.max(-180, Math.min(180, lon1));
+  const cLon2 = Math.max(-180, Math.min(180, lon2));
+
   const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const dLat = ((cLat2 - cLat1) * Math.PI) / 180;
+  const dLon = ((cLon2 - cLon1) * Math.PI) / 180;
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
+    Math.cos((cLat1 * Math.PI) / 180) *
+      Math.cos((cLat2 * Math.PI) / 180) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const clampedA = Math.max(0, Math.min(1, a));
+  const c = 2 * Math.atan2(Math.sqrt(clampedA), Math.sqrt(1 - clampedA));
   return R * c;
 }
 
 function estimateTravelTime(distanceKm: number, mode: 'walk' | 'drive'): number {
-  const speed = mode === 'walk' ? 5 : 30;
-  return Math.round((distanceKm / speed) * 60);
+  if (!distanceKm || distanceKm <= 0 || !isFinite(distanceKm)) return 5;
+  if (mode === 'walk') {
+    // 4.5 km/h pedestrian walking pace + 2 min buffer for street crossings
+    return Math.max(3, Math.round((distanceKm / 4.5) * 60) + 2);
+  }
+  // Drive: 22 km/h for dense city traffic (<15km), 45 km/h for arterial/highway (>15km)
+  const speed = distanceKm > 15 ? 45 : 22;
+  const transitMins = Math.round((distanceKm / speed) * 60);
+  // Add 5 mins parking & gate entry buffer
+  return Math.max(5, transitMins + 5);
 }
 
 const DURATION_MAP: Record<string, number> = {
