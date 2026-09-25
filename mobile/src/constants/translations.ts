@@ -407,7 +407,7 @@ export const TRANSLATIONS = {
   gu: {
     // Navigation / Tabs
     tabs: {
-      home: 'ઘર',
+      home: 'હોમ',
       explore: 'શોધો',
       aiGuide: 'AI માર્ગદર્શક',
       plan: 'આયોજન',
