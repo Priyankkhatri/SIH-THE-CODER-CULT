@@ -110,16 +110,22 @@ export async function fetchLiveRates(): Promise<LiveRates> {
 
 /**
  * Converts foreign currency amount to INR.
+ * Validates non-negative amounts, positive exchange rates, and prevents NaN / Infinity.
  */
 export function convertToInr(amount: number, rateToInr: number): number {
-  if (!rateToInr || isNaN(amount)) return 0;
+  if (typeof amount !== 'number' || typeof rateToInr !== 'number') return 0;
+  if (!isFinite(amount) || !isFinite(rateToInr)) return 0;
+  if (rateToInr <= 0 || amount < 0) return 0;
   return Math.round(amount * rateToInr * 100) / 100;
 }
 
 /**
  * Converts INR amount to foreign currency.
+ * Validates non-negative amounts, non-zero positive exchange rates, and prevents NaN / Infinity.
  */
 export function convertFromInr(inrAmount: number, rateToInr: number): number {
-  if (!rateToInr || rateToInr === 0 || isNaN(inrAmount)) return 0;
+  if (typeof inrAmount !== 'number' || typeof rateToInr !== 'number') return 0;
+  if (!isFinite(inrAmount) || !isFinite(rateToInr)) return 0;
+  if (rateToInr <= 0 || inrAmount < 0) return 0;
   return Math.round((inrAmount / rateToInr) * 100) / 100;
 }
